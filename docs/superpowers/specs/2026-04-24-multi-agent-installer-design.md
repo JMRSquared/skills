@@ -30,15 +30,15 @@ Nine tracks. Exact commands — what users run post-merge:
 
 | Agent | Command |
 |-------|---------|
-| Claude Code | `claude plugin marketplace add sortd/wonderhire-skills && claude plugin install wonderhire-standards@wonderhire-skills` |
-| Gemini CLI | `gemini extensions install https://github.com/sortd/wonderhire-skills` |
+| Claude Code | `claude plugin marketplace add sortdinc/wonderhire-skills && claude plugin install wonderhire-standards@wonderhire-skills` |
+| Gemini CLI | `gemini extensions install https://github.com/sortdinc/wonderhire-skills` |
 | Codex | Clone repo → `/plugins` → search "wonderhire" → install |
-| Cursor | `npx skills add sortd/wonderhire-skills -a cursor` |
-| Windsurf | `npx skills add sortd/wonderhire-skills -a windsurf` |
-| Copilot | `npx skills add sortd/wonderhire-skills -a github-copilot` |
-| Cline | `npx skills add sortd/wonderhire-skills -a cline` |
-| Any other agent | `npx skills add sortd/wonderhire-skills` |
-| Standalone Claude Code hooks | `bash <(curl -s https://raw.githubusercontent.com/sortd/wonderhire-skills/main/hooks/install.sh)` |
+| Cursor | `npx skills add sortdinc/wonderhire-skills -a cursor` |
+| Windsurf | `npx skills add sortdinc/wonderhire-skills -a windsurf` |
+| Copilot | `npx skills add sortdinc/wonderhire-skills -a github-copilot` |
+| Cline | `npx skills add sortdinc/wonderhire-skills -a cline` |
+| Any other agent | `npx skills add sortdinc/wonderhire-skills` |
+| Standalone Claude Code hooks | `bash <(curl -s https://raw.githubusercontent.com/sortdinc/wonderhire-skills/main/hooks/install.sh)` |
 
 Uninstall parity: `npx skills remove wonderhire-standards`, `claude plugin uninstall`, `gemini extensions uninstall wonderhire-standards`, `bash hooks/uninstall.sh`.
 
@@ -47,7 +47,7 @@ Uninstall parity: `npx skills remove wonderhire-standards`, `claude plugin unins
 Each install channel reads a different manifest from the same repo. The hook runtime (`hooks/wh-session-start.js`, `hooks/wh-statusline.sh`) is shared across channels — all manifests reference these existing files rather than duplicating logic.
 
 ```
-sortd/wonderhire-skills (public GitHub repo)
+sortdinc/wonderhire-skills (public GitHub repo)
 │
 ├── .claude-plugin/          ← Claude Code marketplace + plugin manifest
 │   ├── marketplace.json     (new) — registers marketplace `wonderhire-skills`
@@ -193,22 +193,22 @@ No change to sync logic. The new manifest files are root-level canonical files t
 - `skills/<name>/SKILL.md` — already 14 present.
 - `AGENTS.md` — already present at repo root.
 
-Expected `npx skills add sortd/wonderhire-skills --list` output: 14 skills.
-Expected `npx skills add sortd/wonderhire-skills -a cursor`: installs symlinks under `.cursor/skills/` pointing at each `skills/<name>/SKILL.md`; does NOT install `.cursor/rules/wonderhire.mdc` (the rule file is repo-specific, not a skill — users get tier-2 only unless they copy the rule file manually, matching caveman's documented behavior).
+Expected `npx skills add sortdinc/wonderhire-skills --list` output: 14 skills.
+Expected `npx skills add sortdinc/wonderhire-skills -a cursor`: installs symlinks under `.cursor/skills/` pointing at each `skills/<name>/SKILL.md`; does NOT install `.cursor/rules/wonderhire.mdc` (the rule file is repo-specific, not a skill — users get tier-2 only unless they copy the rule file manually, matching caveman's documented behavior).
 
 No repo changes needed for this track. Document the limitation in README per-agent details (mirroring caveman's footnote 2: "Add the always-on snippet below to those agents' system prompt or rule file if you want session-start activation.").
 
 ## Preconditions for install commands to work
 
-- Repo must be public at `github.com/sortd/wonderhire-skills`.
-- Current git remote: confirm during implementation. Repo may need to be created / renamed / made public.
+- Repo must be public at `github.com/sortdinc/wonderhire-skills`. Currently PRIVATE — must flip to public before any install commands work for external users. Verified via `gh repo view sortdinc/wonderhire-skills`.
+- Current git remote confirmed: `git@github.com:sortdinc/wonderhire-skills.git`.
 - `hooks/wh-session-start.js` must remain at the exact path referenced by all three new manifests. Any future reorg must update all manifests.
 
 ## Risk register
 
 | Risk | Mitigation |
 |------|-----------|
-| Repo not yet public at `sortd/wonderhire-skills` | Confirm before merging README. Gate marketplace/extension commands on public availability. |
+| Repo not yet public at `sortdinc/wonderhire-skills` | Confirm before merging README. Gate marketplace/extension commands on public availability. |
 | Claude Code marketplace schema URL (`anthropic.com/claude-code/marketplace.schema.json`) is unstable | Copied verbatim from caveman's working manifest; treat as known-good. |
 | `npx skills` symlink model fails on Windows | Document `--copy` flag in README (caveman parity). |
 | Gemini extensions only load `contextFileName`, not skills directory | Expected — Gemini gets tier-1 rule body only, same as caveman's Gemini install. Tier-2 skills accessed via `/caveman`-style slash commands (future; out of scope here). |
@@ -216,12 +216,12 @@ No repo changes needed for this track. Document the limitation in README per-age
 
 ## Acceptance criteria
 
-1. `claude plugin marketplace add sortd/wonderhire-skills` succeeds on a fresh Claude Code install.
+1. `claude plugin marketplace add sortdinc/wonderhire-skills` succeeds on a fresh Claude Code install.
 2. `claude plugin install wonderhire-standards@wonderhire-skills` registers SessionStart hook + statusline without editing `settings.json` by hand.
-3. `gemini extensions install https://github.com/sortd/wonderhire-skills` succeeds; `GEMINI.md` loads on next Gemini session.
-4. `npx skills add sortd/wonderhire-skills --list` prints all 14 skills.
-5. `npx skills add sortd/wonderhire-skills -a cursor` installs skills under `.cursor/skills/` in the target project.
-6. `bash <(curl -s https://raw.githubusercontent.com/sortd/wonderhire-skills/main/hooks/install.sh)` still works (unchanged).
+3. `gemini extensions install https://github.com/sortdinc/wonderhire-skills` succeeds; `GEMINI.md` loads on next Gemini session.
+4. `npx skills add sortdinc/wonderhire-skills --list` prints all 14 skills.
+5. `npx skills add sortdinc/wonderhire-skills -a cursor` installs skills under `.cursor/skills/` in the target project.
+6. `bash <(curl -s https://raw.githubusercontent.com/sortdinc/wonderhire-skills/main/hooks/install.sh)` still works (unchanged).
 7. Codex users cloning the repo see auto-start via `.codex/hooks.json`.
 8. README's install table renders the nine-row layout; per-agent `<details>` sections match caveman's structure.
 
@@ -233,7 +233,7 @@ No repo changes needed for this track. Document the limitation in README per-age
 
 ## Implementation sequence (for planning skill)
 
-1. Verify repo is public at `github.com/sortd/wonderhire-skills` (or coordinate the rename/transfer).
+1. Verify repo is public at `github.com/sortdinc/wonderhire-skills` (or coordinate the rename/transfer).
 2. Create `.claude-plugin/marketplace.json` + `.claude-plugin/plugin.json`.
 3. Create `gemini-extension.json`.
 4. Create `.codex/config.toml` + `.codex/hooks.json`.
