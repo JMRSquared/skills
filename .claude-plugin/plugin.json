@@ -1,0 +1,26 @@
+{
+  "name": "wonderhire-standards",
+  "description": "Wonderhire coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
+  "author": {
+    "name": "Sortd",
+    "url": "https://github.com/sortdinc"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/wh-session-start.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading wonderhire-standards..."
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "${CLAUDE_PLUGIN_ROOT}/hooks/wh-statusline.sh"
+  }
+}
