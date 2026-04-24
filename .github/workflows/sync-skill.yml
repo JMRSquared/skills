@@ -1,0 +1,86 @@
+name: Sync wonderhire-standards to agent surfaces
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'skills/**'
+      - 'rules/wonderhire-activate.md'
+      - 'hooks/**'
+      - '.github/workflows/sync-skill.yml'
+
+concurrency:
+  group: sync-skill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Rebuild agent rule files from rules/wonderhire-activate.md
+        run: |
+          set -euo pipefail
+
+          SRC="rules/wonderhire-activate.md"
+          [ -f "$SRC" ] || { echo "missing $SRC"; exit 1; }
+
+          BODY="$(cat "$SRC")"
+
+          mkdir -p .cursor/rules .windsurf/rules .clinerules .github
+          {
+            echo '---'
+            echo 'description: "Wonderhire coding standards — always-on rules for the Wonderhire monorepo stack."'
+            echo 'alwaysApply: true'
+            echo '---'
+            echo
+            echo "$BODY"
+          } > .cursor/rules/wonderhire.mdc
+
+          {
+            echo '---'
+            echo 'trigger: always_on'
+            echo 'description: Wonderhire coding standards — always-on rules for the Wonderhire monorepo stack.'
+            echo '---'
+            echo
+            echo "$BODY"
+          } > .windsurf/rules/wonderhire.md
+
+          echo "$BODY" > .clinerules/wonderhire.md
+          echo "$BODY" > .github/copilot-instructions.md
+          echo "$BODY" > AGENTS.md
+          echo "$BODY" > GEMINI.md
+
+      - name: Sync skills into plugin bundle + agent skill dirs
+        run: |
+          set -euo pipefail
+
+          mkdir -p plugins/wonderhire-standards/skills .cursor/skills .windsurf/skills
+          rsync -a --delete skills/ plugins/wonderhire-standards/skills/
+          rsync -a --delete skills/ .cursor/skills/
+          rsync -a --delete skills/ .windsurf/skills/
+
+      - name: Sync hooks into plugin bundle
+        run: |
+          set -euo pipefail
+          mkdir -p plugins/wonderhire-standards/hooks
+          rsync -a --delete hooks/ plugins/wonderhire-standards/hooks/
+
+      - name: Commit + push if anything changed
+        run: |
+          set -euo pipefail
+          git config user.name  'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet; then
+            echo 'no changes'
+            exit 0
+          fi
+          git add -A
+          git commit -m "chore: sync wonderhire-standards to agent surfaces [skip ci]"
+          git push
