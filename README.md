@@ -59,19 +59,131 @@ Two tiers.
 
 ## Install
 
-| Agent | Command |
-|-------|---------|
-| **Claude Code** (plugin) | Clone this repo, then `./hooks/install.sh` — follow the printed `settings.json` additions. |
-| **Claude Code** (manual) | Copy `skills/` into your project's `.claude/skills/`, add the `SessionStart` hook and statusline entries to `settings.json`. |
-| **Codex** | Point your Codex config at `plugins/wonderhire-standards/`. |
-| **Cursor** | Copy `.cursor/rules/wonderhire.mdc` into your project's `.cursor/rules/`. Always-on — no command needed. |
-| **Windsurf** | Copy `.windsurf/rules/wonderhire.md` into your project's `.windsurf/rules/`. Always-on. |
-| **Cline** | Copy `.clinerules/wonderhire.md` into your project's `.clinerules/`. Always-on. |
-| **GitHub Copilot** | Copy `.github/copilot-instructions.md` into your project's `.github/`. Always-on. |
-| **Gemini CLI** | Copy `GEMINI.md` into your project root. Loaded every session. |
-| **Other agents** | `npx skills add <this-repo-url>` — reads `AGENTS.md` + `skills/`. |
+Pick your agent. One command. Done.
 
-Uninstall: `./hooks/uninstall.sh` removes the hook files and prints the `settings.json` entries to remove manually.
+| Agent | Install |
+|-------|---------|
+| **Claude Code** | `claude plugin marketplace add sortdinc/wonderhire-skills && claude plugin install wonderhire-standards@wonderhire-skills` |
+| **Codex** | Clone repo → `/plugins` → Search "wonderhire" → Install |
+| **Gemini CLI** | `gemini extensions install https://github.com/sortdinc/wonderhire-skills` |
+| **Cursor** | `npx skills add sortdinc/wonderhire-skills -a cursor` |
+| **Windsurf** | `npx skills add sortdinc/wonderhire-skills -a windsurf` |
+| **Copilot** | `npx skills add sortdinc/wonderhire-skills -a github-copilot` |
+| **Cline** | `npx skills add sortdinc/wonderhire-skills -a cline` |
+| **Any other** | `npx skills add sortdinc/wonderhire-skills` |
+
+Install once. Use in every session after that.
+
+### What You Get
+
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the 14 task-scoped skills for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+
+| Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
+|---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
+| 14 task-scoped skills | Y | Y | Y | Y | Y | Y | Y |
+| Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
+| `/wh-help`, `/wh-review`, `/wh-commit` slash commands | Y | — | Y | — | — | — | — |
+| Statusline badge `[WH: branch@stage]` | Y | — | — | — | — | — | — |
+
+¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
+² Cursor/Windsurf/Cline/Copilot: rule files (`.cursor/rules/wonderhire.mdc`, etc.) ship in this repo and ARE copied into the target project when `npx skills add` runs — but verify after install that your agent picks them up. See per-agent detail section below.
+
+<details>
+<summary><strong>Claude Code — full details</strong></summary>
+
+The plugin install gives you all 14 skills + SessionStart hook + statusline.
+
+```bash
+claude plugin marketplace add sortdinc/wonderhire-skills
+claude plugin install wonderhire-standards@wonderhire-skills
+```
+
+**Standalone hooks (without plugin system):**
+```bash
+# macOS / Linux / WSL
+bash <(curl -s https://raw.githubusercontent.com/sortdinc/wonderhire-skills/main/hooks/install.sh)
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/sortdinc/wonderhire-skills/main/hooks/install.ps1 | iex
+```
+
+Uninstall: `claude plugin uninstall wonderhire-standards` or `bash hooks/uninstall.sh`
+
+</details>
+
+<details>
+<summary><strong>Codex — full details</strong></summary>
+
+1. Clone repo → Open Codex in the repo directory → `/plugins` → Search "wonderhire" → Install
+2. Repo-local auto-start is already wired by `.codex/hooks.json` + `.codex/config.toml`
+
+For always-on behavior in OTHER repos too, copy this repo's `.codex/` directory there and enable:
+
+```toml
+[features]
+codex_hooks = true
+```
+
+</details>
+
+<details>
+<summary><strong>Gemini CLI — full details</strong></summary>
+
+```bash
+gemini extensions install https://github.com/sortdinc/wonderhire-skills
+```
+
+Update: `gemini extensions update wonderhire-standards` · Uninstall: `gemini extensions uninstall wonderhire-standards`
+
+Auto-activates via `GEMINI.md` context file every session.
+
+</details>
+
+<details>
+<summary><strong>Cursor / Windsurf / Cline / Copilot — full details</strong></summary>
+
+`npx skills add` installs the 14 task-scoped skills. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
+
+| Agent | Command | Rule file location |
+|-------|---------|--------------------|
+| Cursor | `npx skills add sortdinc/wonderhire-skills -a cursor` | `.cursor/rules/wonderhire.mdc` |
+| Windsurf | `npx skills add sortdinc/wonderhire-skills -a windsurf` | `.windsurf/rules/wonderhire.md` |
+| Cline | `npx skills add sortdinc/wonderhire-skills -a cline` | `.clinerules/wonderhire.md` |
+| Copilot | `npx skills add sortdinc/wonderhire-skills -a github-copilot` | `.github/copilot-instructions.md` + `AGENTS.md` |
+
+Uninstall: `npx skills remove wonderhire-standards`
+
+> **Windows note:** `npx skills` uses symlinks by default. If symlinks fail, add `--copy`.
+
+</details>
+
+<details>
+<summary><strong>Any other agent (opencode, Roo, Amp, Goose, Kiro, 40+ more)</strong></summary>
+
+[npx skills](https://github.com/vercel-labs/skills) supports 40+ agents:
+
+```bash
+npx skills add sortdinc/wonderhire-skills           # auto-detect agent
+npx skills add sortdinc/wonderhire-skills -a amp
+npx skills add sortdinc/wonderhire-skills -a goose
+npx skills add sortdinc/wonderhire-skills -a kiro-cli
+npx skills add sortdinc/wonderhire-skills -a roo
+```
+
+Uninstall: `npx skills remove wonderhire-standards`
+
+**Always-on snippet** — paste into your agent's system prompt or rules file so the tier-1 rules fire every session:
+
+```
+Wonderhire monorepo. Standing rules, always on:
+1. Never deploy without explicit user confirmation.
+2. Establish worktree context (branch + stage) at session start.
+3. Always confirm before merging.
+Build/test/lint gate: work is not done until `yarn build && yarn test && yarn lint:fix` pass.
+No `@ts-ignore`, no `.skip`, no `--no-verify`.
+```
+
+</details>
 
 ---
 
