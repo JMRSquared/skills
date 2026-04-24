@@ -34,6 +34,13 @@ README = product front door. Non-technical engineers read it to decide if wonder
 | `hooks/wh-session-start.js` | Claude Code SessionStart hook — injects tier-1 skills as system context. |
 | `hooks/wh-statusline.sh` / `.ps1` | `[WH: <branch>@<stage>]` badge. |
 | `hooks/wh-config.js` | Shared helpers — `safeWriteFlag`, worktree resolver. |
+| `.claude-plugin/marketplace.json` | Claude Code marketplace manifest. |
+| `.claude-plugin/plugin.json` | Claude Code plugin manifest (SessionStart + statusline). |
+| `gemini-extension.json` | Gemini CLI extension manifest. |
+| `.codex/config.toml` | Enables Codex hooks feature for repo-local auto-start. |
+| `.codex/hooks.json` | Codex SessionStart hook. |
+
+These five manifest files are canonical — NOT auto-generated from `rules/wonderhire-activate.md` — so they are NOT overwritten by `.github/workflows/sync-skill.yml`. If the hook runtime paths (`hooks/wh-session-start.js`, `hooks/wh-statusline.sh`) ever move, update these manifests by hand.
 
 ### Auto-generated / auto-synced — do not edit directly
 
