@@ -1,21 +1,22 @@
 # Contributing
 
-Improvements to the SKILL.md prompt are welcome — open a PR with before/after examples showing the change.
+Improvements to any SKILL.md prompt are welcome — open a PR with before/after examples showing the change.
 
 ## How
 
-1. Fork repo
-2. Edit `skills/wonderhire/SKILL.md` — this is the only copy you need to touch
-3. Open PR with:
-   - **Before:** what wonderhire say now
-   - **After:** what wonderhire say with change
-   - One sentence why change better
+1. Fork the repo.
+2. Edit the canonical source:
+   - `skills/<name>/SKILL.md` for a skill's behaviour and frontmatter.
+   - `rules/jmrsquared-activate.md` for the always-on rule body.
+   - `hooks/jmr-*.{js,sh,ps1}` for the Claude Code SessionStart and statusline scripts.
+3. Open a PR with:
+   - **Before:** what it says now.
+   - **After:** what it says with your change.
+   - One sentence on why the change is better.
 
-> **Note:** `wonderhire/SKILL.md`, `plugins/wonderhire/skills/wonderhire/SKILL.md`, `.cursor/skills/wonderhire/SKILL.md`, and `wonderhire.skill` are auto-synced by CI after merge. Do not edit them directly.
-> 
-> **Note on compress skill:** If you are modifying the compress skill, edit `wonderhire-compress/SKILL.md` or `wonderhire-compress/scripts/`. CI will automatically sync these changes to `skills/compress/` and `plugins/wonderhire/skills/compress/`.
+> **Note:** The mirrored copies under `plugins/jmrsquared-standards/`, `.cursor/`, `.windsurf/`, `.clinerules/`, `.github/copilot-instructions.md`, `AGENTS.md`, and `GEMINI.md` are auto-synced by CI after merge. Do not edit them directly.
 
-Small focused change > big rewrite. Wonderhire like simple.
+Small focused change > big rewrite. Keep it simple.
 
 ## Ideas
 

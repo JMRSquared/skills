@@ -1,6 +1,6 @@
 {
-  "name": "wonderhire-standards",
-  "description": "Wonderhire coding standards — tier-1 always-on rules + tier-2 task-scoped skills for the Wonderhire monorepo stack.",
+  "name": "jmrsquared-standards",
+  "description": "jmrsquared coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
   "version": "0.1.0",
   "contextFileName": "GEMINI.md"
 }

@@ -1,0 +1,12 @@
+{
+  "name": "jmrsquared-standards",
+  "version": "0.1.0",
+  "description": "jmrsquared coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
+  "entrypoint": {
+    "hooks": {
+      "sessionStart": "hooks/jmr-session-start.js",
+      "statusLine": "hooks/jmr-statusline.sh"
+    },
+    "skills": "skills/"
+  }
+}
