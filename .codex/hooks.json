@@ -6,9 +6,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node hooks/wh-session-start.js",
+            "command": "node hooks/jmr-session-start.js",
             "timeout": 5,
-            "statusMessage": "Loading wonderhire-standards"
+            "statusMessage": "Loading jmrsquared-standards..."
           }
         ]
       }

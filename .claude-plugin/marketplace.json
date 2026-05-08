@@ -1,15 +1,15 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "wonderhire-skills",
-  "description": "Wonderhire coding standards — tier-1 always-on rules + tier-2 task-scoped skills for the Wonderhire monorepo stack.",
+  "name": "skills",
+  "description": "jmrsquared-standards: tier-1 always-on rules and tier-2 task-scoped skills for Claude Code and other agents.",
   "owner": {
-    "name": "Sortd",
-    "url": "https://github.com/sortdinc"
+    "name": "JMRSquared",
+    "url": "https://github.com/JMRSquared"
   },
   "plugins": [
     {
-      "name": "wonderhire-standards",
-      "description": "Wonderhire coding standards. Auto-injects standing rules and build/test/lint gate every session; ships 14 task-scoped skills.",
+      "name": "jmrsquared-standards",
+      "description": "jmrsquared coding standards — SessionStart hook, status line, and 14 task-scoped skills.",
       "source": "./",
       "category": "coding-standards"
     }

@@ -1,9 +1,9 @@
 {
-  "name": "wonderhire-standards",
-  "description": "Wonderhire coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
+  "name": "jmrsquared-standards",
+  "description": "jmrsquared coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
   "author": {
-    "name": "Sortd",
-    "url": "https://github.com/sortdinc"
+    "name": "JMRSquared",
+    "url": "https://github.com/JMRSquared"
   },
   "hooks": {
     "SessionStart": [
@@ -11,9 +11,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/wh-session-start.js\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/jmr-session-start.js\"",
             "timeout": 5,
-            "statusMessage": "Loading wonderhire-standards..."
+            "statusMessage": "Loading jmrsquared-standards..."
           }
         ]
       }
@@ -21,6 +21,6 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "${CLAUDE_PLUGIN_ROOT}/hooks/wh-statusline.sh"
+    "command": "${CLAUDE_PLUGIN_ROOT}/hooks/jmr-statusline.sh"
   }
 }

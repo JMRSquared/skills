@@ -74,6 +74,8 @@ Pick your agent. One command. Done.
 
 Install once. Use in every session after that.
 
+These commands pull from GitHub (`jmrsquared/skills`). The repository must be **public** so `claude plugin`, `npx skills`, `gemini extensions`, and raw `curl` installers can fetch it without extra credentials.
+
 ### What You Get
 
 Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the 14 task-scoped skills for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.

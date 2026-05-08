@@ -1,9 +1,9 @@
 ---
 trigger: always_on
-description: Wonderhire coding standards — always-on rules for the Wonderhire monorepo stack.
+description: jmrsquared coding standards — always-on rules for every session.
 ---
 
-# Wonderhire Coding Standards — Always-On Rules
+# jmrsquared Coding Standards — Always-On Rules
 
 These rules apply in every session, in every worktree, regardless of the task. Task-scoped skills in `skills/` are available on top of these.
 
@@ -13,14 +13,14 @@ These rules apply in every session, in every worktree, regardless of the task. T
 
 ### 1. Never deploy without explicit user confirmation
 
-Do not run `sst deploy`, `yarn deploy`, `modal deploy`, or any other deployment command unless the user has explicitly asked you to deploy in the current message. When in doubt: local `sst dev` mode proxies Lambda calls to local code automatically — a deploy is usually not needed.
+Do not run any deploy command (`sst deploy`, `vercel deploy`, `flyctl deploy`, `yarn deploy`, `modal deploy`, `gcloud run deploy`, etc.) unless the user has explicitly asked you to deploy in the current message. When in doubt: a local dev mode (e.g. `sst dev`, `next dev`, `vite dev`) is usually sufficient — a deploy is rarely needed during iteration.
 
 ### 2. Establish and maintain worktree context at session start
 
-At the start of every session in a worktree (`.claude/worktrees/<name>/`):
+At the start of every session in a worktree:
 
-1. Check whether the worktree's `CLAUDE.md` has an **Active Development Setup** section.
-2. If missing or stale, create or update it with the current git branch, active SST stage, and session-specific notes.
+1. Check whether the worktree's `CLAUDE.md` (or equivalent agent context file) has an **Active Development Setup** section.
+2. If missing or stale, create or update it with the current git branch, active deployment stage, and session-specific notes.
 3. Before committing any code change, remind the user: "About to commit to branch `<branch>` targeting stage `<stage>` — confirm?"
 
 ### 3. Always confirm before merging
@@ -37,9 +37,9 @@ Never assume the target branch.
 
 Generated or modified code must not break:
 
-1. `yarn build` — full monorepo build succeeds. No TypeScript errors.
+1. `yarn build` — full build succeeds. No TypeScript errors.
 2. `yarn test` — all tests pass. Do not introduce failing tests or skip tests to "fix" failures.
-3. `yarn lint:fix` — Biome passes. Code conforms to project lint rules.
+3. `yarn lint:fix` — linting passes. Code conforms to project lint rules.
 
 Before finishing, run or recommend running these three commands (or the relevant subset). On failure, fix the cause — do not disable checks, `@ts-ignore`, or `it.skip` a test. Code is not complete until they succeed.
 
@@ -55,4 +55,4 @@ The following task-scoped skills activate when the relevant files are edited. Th
 - `sst-infra` — infrastructure.
 - `naming-imports-exports`, `code-quality` — everything.
 
-Run `/wh-help` for the full catalogue.
+Run `/jmr-help` for the full catalogue.

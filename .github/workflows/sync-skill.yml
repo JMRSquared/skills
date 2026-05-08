@@ -1,11 +1,11 @@
-name: Sync wonderhire-standards to agent surfaces
+name: Sync jmrsquared-standards to agent surfaces
 
 on:
   push:
     branches: [main]
     paths:
       - 'skills/**'
-      - 'rules/wonderhire-activate.md'
+      - 'rules/jmrsquared-activate.md'
       - 'hooks/**'
       - '.github/workflows/sync-skill.yml'
 
@@ -24,11 +24,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Rebuild agent rule files from rules/wonderhire-activate.md
+      - name: Rebuild agent rule files from rules/jmrsquared-activate.md
         run: |
           set -euo pipefail
 
-          SRC="rules/wonderhire-activate.md"
+          SRC="rules/jmrsquared-activate.md"
           [ -f "$SRC" ] || { echo "missing $SRC"; exit 1; }
 
           BODY="$(cat "$SRC")"
@@ -36,41 +36,43 @@ jobs:
           mkdir -p .cursor/rules .windsurf/rules .clinerules .github
           {
             echo '---'
-            echo 'description: "Wonderhire coding standards — always-on rules for the Wonderhire monorepo stack."'
+            echo 'description: "jmrsquared coding standards — always-on rules for every session."'
             echo 'alwaysApply: true'
             echo '---'
             echo
             echo "$BODY"
-          } > .cursor/rules/wonderhire.mdc
+          } > .cursor/rules/jmrsquared.mdc
 
           {
             echo '---'
             echo 'trigger: always_on'
-            echo 'description: Wonderhire coding standards — always-on rules for the Wonderhire monorepo stack.'
+            echo 'description: jmrsquared coding standards — always-on rules for every session.'
             echo '---'
             echo
             echo "$BODY"
-          } > .windsurf/rules/wonderhire.md
+          } > .windsurf/rules/jmrsquared.md
 
-          echo "$BODY" > .clinerules/wonderhire.md
+          echo "$BODY" > .clinerules/jmrsquared.md
           echo "$BODY" > .github/copilot-instructions.md
           echo "$BODY" > AGENTS.md
           echo "$BODY" > GEMINI.md
+
+          rm -f .cursor/rules/wonderhire.mdc .windsurf/rules/wonderhire.md .clinerules/wonderhire.md
 
       - name: Sync skills into plugin bundle + agent skill dirs
         run: |
           set -euo pipefail
 
-          mkdir -p plugins/wonderhire-standards/skills .cursor/skills .windsurf/skills
-          rsync -a --delete skills/ plugins/wonderhire-standards/skills/
+          mkdir -p plugins/jmrsquared-standards/skills .cursor/skills .windsurf/skills
+          rsync -a --delete skills/ plugins/jmrsquared-standards/skills/
           rsync -a --delete skills/ .cursor/skills/
           rsync -a --delete skills/ .windsurf/skills/
 
       - name: Sync hooks into plugin bundle
         run: |
           set -euo pipefail
-          mkdir -p plugins/wonderhire-standards/hooks
-          rsync -a --delete hooks/ plugins/wonderhire-standards/hooks/
+          mkdir -p plugins/jmrsquared-standards/hooks
+          rsync -a --delete hooks/ plugins/jmrsquared-standards/hooks/
 
       - name: Commit + push if anything changed
         run: |
@@ -82,5 +84,5 @@ jobs:
             exit 0
           fi
           git add -A
-          git commit -m "chore: sync wonderhire-standards to agent surfaces [skip ci]"
+          git commit -m "chore: sync jmrsquared-standards to agent surfaces [skip ci]"
           git push

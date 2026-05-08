@@ -1,6 +1,6 @@
 {
   "name": "jmrsquared-standards",
   "description": "jmrsquared coding standards — tier-1 always-on rules + tier-2 task-scoped skills.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "contextFileName": "GEMINI.md"
 }
