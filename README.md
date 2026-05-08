@@ -51,7 +51,7 @@ Two tiers.
 
 | Skill | Use |
 |-------|-----|
-| `jmr-commit` | `/jmr-commit` — Conventional Commits + branch/stage confirm |
+| `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
 
@@ -193,7 +193,7 @@ In any Claude Code session once installed:
 
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
-- `/jmr-commit` — generate a Conventional Commits message and echo the branch/stage confirmation.
+- `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
 

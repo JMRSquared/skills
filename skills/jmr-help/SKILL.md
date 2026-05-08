@@ -24,13 +24,13 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 **Companion:**
 
-- `jmr-commit` — Conventional Commits + branch/stage confirm.
+- `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
 
 **Slash commands (Claude Code):**
 
 - `/jmr-help` — this card.
-- `/jmr-commit` — generate a Conventional Commit for staged changes.
+- `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
 - `/jmr-review` — review current branch / staged diff.
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

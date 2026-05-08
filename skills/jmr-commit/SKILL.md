@@ -1,11 +1,11 @@
 ---
 name: jmr-commit
-description: Use when the user asks to generate a commit message, runs /jmr-commit, or after staging changes. Produces Conventional Commit messages and echoes the branch/stage confirmation from jmr-standing-rules §2 before committing.
+description: Use when the user asks to generate a commit message, runs /jmr-commit, or after staging changes. Produces Gitmoji + Conventional Commit messages (see https://gitmoji.dev/), plain-language clarity, and echoes the branch/stage confirmation from jmr-standing-rules before committing.
 ---
 
 # Commit Workflow
 
-Produce Conventional Commits messages and respect the standing-rule pre-commit confirmation.
+Follow [gitmoji](https://gitmoji.dev/) for emoji meaning and [Conventional Commits](https://www.conventionalcommits.org/) for structure. Prefer **clear, specific** subjects: name the behavior or area changed, not vague words like “stuff”, “misc”, or “updates”.
 
 ## Before committing
 
@@ -18,45 +18,70 @@ Echo to the user:
 ## Message format
 
 ```
-<type>(<scope>): <subject>
+<emoji> <type>(<scope>): <subject>
 
 <body>
 ```
 
-- **Type:** `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`, `style`.
-- **Scope:** optional, usually the package or feature (`api`, `web`, `db`, `infra`, `auth`).
-- **Subject:** imperative, lower-case, ≤72 characters, no trailing period.
-- **Body:** wrap at ~72 chars. Explain the *why*; the *what* is in the diff. Omit the body for trivial changes.
+- **Emoji:** one Unicode emoji at the start of the subject line, chosen from [gitmoji.dev](https://gitmoji.dev/) to match the **primary** intent of the change (not `:shortcode:` in the final message — use the real character).
+- **Type:** `feat`, `fix`, `chore`, `docs`, `refactor`, `test`, `perf`, `build`, `ci`, `style`, or another conventional type that fits the emoji (keep types consistent with team tooling).
+- **Scope:** optional — package or area (`api`, `web`, `db`, `infra`, `auth`).
+- **Subject:** imperative mood, lowercase, ≤72 characters, no trailing period, **specific** (what changed and where, in plain language).
+- **Body:** wrap ~72 chars. Explain *why* when it is not obvious; omit for trivial changes. Use `BREAKING CHANGE:` in the body when applicable.
+
+## Emoji quick map
+
+Use [gitmoji.dev](https://gitmoji.dev/) as the full catalogue. Common picks:
+
+| Emoji | Typical type | Use |
+|-------|----------------|-----|
+| ✨ | feat | New user-visible capability |
+| 🐛 | fix | Bug fix |
+| ♻️ | refactor | Refactor without behavior change |
+| 🎨 | style | Structure/format (non-functional layout of code) |
+| ⚡️ | perf | Performance |
+| 🔥 | chore | Remove code or files |
+| ✅ | test | Add, update, or fix tests |
+| 📝 | docs | Documentation |
+| 🔧 | chore | Configuration |
+| 👷 | ci | CI |
+| 💚 | ci | Fix CI |
+| ⬆️ / ➕ / ➖ | build | Dep upgrades / add / remove |
+| 🗃️ | chore | Database migrations/schema |
+| 💄 | style | UI and styling |
+| 🔒️ | fix | Security / privacy |
+| 🚨 | fix | Fix compiler or linter issues |
+| 💥 | feat | Breaking change |
 
 ## Good examples
 
 ```
-feat(api): add batch import endpoint
+✨ feat(api): add batch import endpoint
 
-Imports run in chunks of 100 to keep under the Lambda payload limit,
-and use the same ULID scheme as manual creates so downstream processing
-doesn't special-case imports.
+Imports run in chunks of 100 to stay under the Lambda payload limit.
 ```
 
 ```
-fix(auth): handle expired session on cold start
+🐛 fix(auth): redirect only after session is loaded
 
-Cold starts were racing the profile query against session refresh
-and redirecting authenticated users to /login. Gate on sessionLoaded
-before running the redirect effect.
+Cold starts raced the profile query against refresh and sent authenticated
+users to /login. Gate redirect on sessionLoaded.
 ```
 
 ## What to avoid
 
-- `chore: stuff`
-- `fix: bug`
-- `update: misc`
+- Vague subjects: `chore: stuff`, `fix: bug`, `update: misc`.
 - Trailing periods on the subject.
-- Capitalised subjects (`feat: Add endpoint` — wrong).
-- Putting "why" in the subject instead of the body.
+- Title case or sentence case in the subject (`feat: Add endpoint` — wrong).
+- Stacking unrelated changes into one message; split commits when intents differ.
+- `--no-verify` or amending to bypass hooks — fix the failure and commit cleanly.
+
+## Optional local CLI
+
+If [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli) is installed (`yarn global add gitmoji-cli`), interactive commits can use `gitmoji -c`. Ensure `$(yarn global bin)` is on your `PATH` (often `~/.yarn/bin`).
 
 ## What "done" looks like
 
 - Branch/stage confirmation sent and acknowledged.
-- Commit runs cleanly (no hook failure). If a hook fails, fix the root cause and make a new commit — do not `--amend` the previous commit or pass `--no-verify`.
-- Message follows the Conventional Commits format.
+- Commit runs cleanly (no hook failure).
+- One leading gitmoji from [gitmoji.dev](https://gitmoji.dev/), plus Conventional Commits shape and a **clear** subject.
