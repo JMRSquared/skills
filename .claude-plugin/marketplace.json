@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "jmrsquared-standards",
-      "description": "jmrsquared coding standards — SessionStart hook, status line, and 14 task-scoped skills.",
+      "description": "jmrsquared coding standards — SessionStart hook, status line, and full skills catalogue (16 packages).",
       "source": "./",
       "category": "coding-standards"
     }

@@ -46,7 +46,7 @@ The following task-scoped skills activate when the relevant files are edited. Th
 
 - `trpc-procedure`, `bdd-router-tests` — API procedures.
 - `knex-migration` — DB migrations.
-- `react-tsx-component`, `supabase-auth`, `tanstack-trpc-query` — web.
+- `react-tsx-component`, `better-auth`, `supabase`, `supabase-auth`, `tanstack-trpc-query` — web.
 - `sst-infra` — infrastructure.
 - `naming-imports-exports`, `code-quality` — everything.
 

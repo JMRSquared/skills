@@ -23,7 +23,9 @@ For every file in the diff, apply the matching tier-2 skill:
 | A tRPC procedure test file | `bdd-router-tests` |
 | A Knex migration file | `knex-migration` |
 | A React `.tsx` component | `react-tsx-component`, `code-quality`, `naming-imports-exports` |
-| An auth flow / role-protected route file | `supabase-auth` |
+| Supabase client, RLS/SQL, Storage, Realtime, Edge (not app auth flow only) | `supabase`, `code-quality` |
+| Supabase Auth routes, guards, session context (`ProtectedRoute`, `AuthProvider`) | `supabase-auth` |
+| Better Auth (`better-auth`, `authClient`, auth API routes) | `better-auth`, `code-quality` |
 | A file using `useQuery` / `useMutation` via tRPC | `tanstack-trpc-query` |
 | An SST infra file (`infra/**`, `sst.config.ts`) | `sst-infra` |
 | Any other `.ts`/`.tsx` | `code-quality`, `naming-imports-exports` |

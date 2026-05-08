@@ -16,7 +16,9 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `bdd-router-tests` — `.feature` + `.steps.ts` per procedure.
 - `knex-migration` — ULID PKs, snake_case, timestamps, FKs.
 - `react-tsx-component` — function components, Props at bottom, Tailwind-only.
-- `supabase-auth` — session context, role-scoped guards, profile-completion gates.
+- `better-auth` — Better Auth config, adapters, server vs client, session APIs.
+- `supabase` — RLS, keys, client vs service role, Storage, Realtime, Edge.
+- `supabase-auth` — Supabase Auth + React context, guards, OAuth callback.
 - `tanstack-trpc-query` — `useQuery` / `useMutation` patterns, cache invalidation.
 - `sst-infra` — stage-based, single region, SST secrets.
 - `naming-imports-exports` — camel/Pascal/kebab/snake, named exports, `~` alias.

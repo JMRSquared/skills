@@ -1,17 +1,15 @@
 ---
 name: supabase-auth
-description: Use when editing auth flows, session handling, or route guards in your auth domain directory, or any file referencing ProtectedRoute, role-scoped guards, or the Supabase auth client. Enforces the Supabase session + React Context + tRPC profile pattern.
+description: Use when editing Supabase Auth–based app flows: session handling, route guards (`*ProtectedRoute`), or React auth context in your auth domain. For RLS, Storage, Realtime, service-role clients, or SQL policies, use `supabase`; for Better Auth stack, use `better-auth`. Enforces Supabase session + React Context + tRPC profile patterns where that stack applies.
 ---
 
-# Supabase Auth Standards
+# Supabase Auth (application integration)
 
-Apply when touching:
-- Your auth domain directory.
-- Any file that imports the Supabase auth client, the session context, or a `*ProtectedRoute` component.
+Use when the product authenticates users **through Supabase Auth** and wires it into your UI and API. For **database policies, keys, and platform APIs**, use **`supabase`**. For **Better Auth**, use **`better-auth`**.
 
 ## Session lifecycle
 
-1. Supabase handles authentication (email/password, Google OAuth, password reset).
+1. Supabase handles authentication (email/password, OAuth providers, password reset) at the platform level — keys and RLS patterns belong in **`supabase`**.
 2. Session is stored in a React Context (`AuthProvider`) at the app root.
 3. tRPC queries the user profile once the session is present.
 4. Route protection reads from both auth state and profile-completion state.
