@@ -40,11 +40,15 @@ Two tiers.
 | `trpc-procedure` | tRPC procedure edits |
 | `bdd-router-tests` | New/changed tRPC procedure |
 | `knex-migration` | Knex migration edits |
+| `kysley-db` | Kysely DB/repository/query code |
 | `react-tsx-component` | `.tsx` component edits |
 | `better-auth` | Better Auth config, routes, adapters, client |
 | `supabase` | Supabase client, RLS, SQL policies, Storage, Realtime |
 | `supabase-auth` | Supabase Auth flows, guards, session + profile loading |
 | `tanstack-trpc-query` | Frontend `useQuery` / `useMutation` edits |
+| `react-native` | React Native screens / components, Expo Router, FlatList edits |
+| `nativewind` | RN `className` styling, `tailwind.config.js`, NativeWind setup |
+| `react-native-skia` | `@shopify/react-native-skia` imports — Canvas, paths, shaders, animations |
 | `sst-infra` | `infra/**`, `sst.config.ts` edits |
 | `naming-imports-exports` | Any TS/TSX edit |
 | `code-quality` | Any TS/TSX edit |
@@ -80,11 +84,11 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 ### What You Get
 
-Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**16** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**20** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
 | Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
-| **16** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
+| **20** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
 | `/jmr-help`, `/jmr-review`, `/jmr-commit` slash commands | Y | — | Y | — | — | — | — |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
@@ -95,7 +99,7 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 <details>
 <summary><strong>Claude Code — full details</strong></summary>
 
-The plugin install gives you all **16** skills + SessionStart hook + statusline.
+The plugin install gives you all **20** skills + SessionStart hook + statusline.
 
 ```bash
 claude plugin marketplace add jmrsquared/skills
@@ -146,7 +150,7 @@ Auto-activates via `GEMINI.md` context file every session.
 <details>
 <summary><strong>Cursor / Windsurf / Cline / Copilot — full details</strong></summary>
 
-`npx skills add` installs all **16** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
+`npx skills add` installs all **20** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
 
 | Agent | Command | Rule file location |
 |-------|---------|--------------------|

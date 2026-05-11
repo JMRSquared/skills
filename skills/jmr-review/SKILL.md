@@ -22,7 +22,10 @@ For every file in the diff, apply the matching tier-2 skill:
 | A tRPC procedure file | `trpc-procedure`, `bdd-router-tests`, `code-quality`, `naming-imports-exports` |
 | A tRPC procedure test file | `bdd-router-tests` |
 | A Knex migration file | `knex-migration` |
+| A Kysely DB/repository/query file | `kysley-db`, `code-quality`, `naming-imports-exports` |
 | A React `.tsx` component | `react-tsx-component`, `code-quality`, `naming-imports-exports` |
+| A React Native screen / component (`.tsx` importing from `react-native` or `expo-*`) | `react-native`, `nativewind` (if `className` present), `code-quality`, `naming-imports-exports` |
+| Any file importing `@shopify/react-native-skia` | `react-native-skia`, `code-quality` |
 | Supabase client, RLS/SQL, Storage, Realtime, Edge (not app auth flow only) | `supabase`, `code-quality` |
 | Supabase Auth routes, guards, session context (`ProtectedRoute`, `AuthProvider`) | `supabase-auth` |
 | Better Auth (`better-auth`, `authClient`, auth API routes) | `better-auth`, `code-quality` |
@@ -57,6 +60,8 @@ Block the merge when any of these appear:
 - A deploy command in a script without a guard.
 - Default export of a React component.
 - Custom CSS file or `<style>` block.
+- Anonymous `renderItem` in a `FlatList` of non-trivial size.
+- Per-frame allocation inside a Skia frame callback (`useDerivedValue`, `useFrameCallback`).
 - Untyped DB column in a new migration.
 - Missing FK constraint on a new relation.
 

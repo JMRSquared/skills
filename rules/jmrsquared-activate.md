@@ -46,7 +46,9 @@ The following task-scoped skills activate when the relevant files are edited. Th
 
 - `trpc-procedure`, `bdd-router-tests` — API procedures.
 - `knex-migration` — DB migrations.
+- `kysley-db` — Kysely query builder / repository code.
 - `react-tsx-component`, `better-auth`, `supabase`, `supabase-auth`, `tanstack-trpc-query` — web.
+- `react-native`, `nativewind`, `react-native-skia` — mobile (Expo + Skia).
 - `sst-infra` — infrastructure.
 - `naming-imports-exports`, `code-quality` — everything.
 
