@@ -32,11 +32,81 @@ interface Props {
 
 ## Routing (Expo Router)
 
-- File-based routing under `app/`. Routes are folders; `_layout.tsx` defines the stack/tab/drawer shell.
+- File-based routing under `src/app/`. Routes are folders; `_layout.tsx` defines the stack/tab/drawer shell.
 - Group routes with `(group)` segments to share a layout without affecting the URL.
 - Read params via `useLocalSearchParams<{ id: string }>()`. Type the generic — do not destructure unknowns.
 - Prefer typed routes (`experiments.typedRoutes: true` in `app.config.ts`) so `<Link href="...">` is checked at build time.
 - Navigate via `router.push` / `router.replace` from `expo-router`. Do not import `@react-navigation/native` directly for new screens.
+- **Route files stay thin.** A file under `app/` imports a single component from `domain/<name>/components/` and renders it — no business logic, no hooks beyond `useLocalSearchParams`, no styling lives in the route file:
+
+```tsx
+// src/app/book/[id]/view.tsx
+import { BookView } from '~/domain/book';
+
+export default function Route() {
+  return <BookView />;
+}
+```
+
+## Domain-driven folder layout
+
+Group code by product concept, not by file type. Every domain folder is a self-contained slice.
+
+```
+src/
+  app/                                # Expo Router — thin route files only
+    book/[id]/view.tsx                # imports BookView from domain/book
+    payments/purchase-plan.tsx        # imports UpgradePlan from domain/shared/payments
+  components/                         # truly app-wide UI primitives (Button, Input, Loader)
+    Button.tsx
+    index.ts
+  domain/                             # singular — one folder, many domains
+    auth/
+      components/   Login.tsx
+      context/      UserContext.tsx
+      hooks/        useLogin.ts + index.ts barrel
+      providers/    apple.ts, google.ts, index.ts
+      user.schema.ts
+      index.ts
+    book/
+      components/   BookView.tsx, BookRead.tsx, CreateBookForm.tsx
+      hooks/        useBook.ts, useBooks.ts, useCreateBook.ts
+      book.schema.ts
+      category.schema.ts
+      index.ts
+    shared/                           # cross-domain meta-namespace
+      components/   TopNav.tsx, TermsOfUse.tsx + index.ts
+      form/         components/, components/ui/, index.ts
+      pdf/          components/, index.ts
+      cache/        components/, hooks/, index.ts
+      payments/     components/, context/, hooks/, subscription.schema.ts
+      firebase/     firebase.ts, firebase.schema.ts, index.ts
+      permissions/  permissions.ts, utils.ts
+      utils.ts
+      storage.ts
+  assets/                             # icons, images, fonts (barrelled)
+    icons/        AccountIcon.tsx, BookIcon.tsx, ..., index.ts
+    images/       index.ts
+    fonts/
+```
+
+Rules:
+
+- **`domain/` is singular.** One folder, many domains.
+- **A domain owns one product concept** (`auth`, `book`, `league`). Cross-domain or framework-glue code (forms, PDF, payments, firebase, cache, permissions, ads) lives under `domain/shared/<area>/`, structured as its own mini-domain.
+- **Buckets inside a domain**, used as needed: `components/`, `hooks/`, `context/`. A domain doesn't need all three, but anything that fits one of these categories MUST sit in the matching bucket.
+- **No `screens/` bucket.** Screens are the Expo Router files under `src/app/` (see above).
+- **Domain root** also holds `<concept>.schema.ts` (Zod schemas — never folder-nested), `utils.ts`, an `index.ts` barrel, and optional named purpose folders (e.g. `providers/` for third-party SDK glue like Apple / Google sign-in).
+- **`src/components/`** is reserved for truly app-wide primitives — `Button`, `Input`, `Loader`, `Shimmer`. A component belongs here only if it has zero business logic AND is used by ≥2 unrelated domains.
+- **`src/assets/`** holds icons (as `.tsx` components), images, and fonts. Each subfolder has an `index.ts` barrel so consumers import `from '~/assets/icons'` rather than deep paths.
+- **Domain folder names are kebab-case** (`author-application`, `book`), enforced by `naming-imports-exports`.
+
+## Barrels and imports
+
+- Every domain root and every bucket folder has an `index.ts` re-exporting its public surface.
+- Consumers always import via the domain root: `import { BookView, useBook } from '~/domain/book'`. Never deep-link into `'~/domain/book/components/BookView'`.
+- Cross-domain shared utilities import the same way: `import { Form } from '~/domain/shared/form'`.
+- App-wide primitives import from `'~/components'`; icons from `'~/assets/icons'`.
 
 ## Lists
 
@@ -82,10 +152,21 @@ interface Props {
 - `app.config.ts` (typed) — not `app.json`. Read secrets via `expo-constants` `extra` populated from EAS secrets, not bundled `.env`.
 - Local dev: `expo start` (or `expo start --dev-client` when native modules are present). Never run `eas build` without explicit user confirmation per `jmr-standing-rules` rule #1.
 
+## File size
+
+- If a `.tsx`/`.ts` file in `domain/**` or `src/components/**` grows past ~80 lines, split it.
+- Extract sub-components into the domain's `components/`, hooks into `hooks/`, context / providers into `context/` (or `providers/` for SDK wrappers), Zod schemas into `<concept>.schema.ts` at the domain root.
+- Name the extracted file after the concern it owns: `BookHeader.tsx`, `useBookReader.ts`, `BookContext.tsx`, `book.schema.ts`.
+- Same shape of rule as the per-hook ~50-line guideline above — judgement applies, but past ~80 lines the right move is almost always extraction.
+
 ## What "done" looks like
 
 - `yarn lint:fix` + the project's typecheck (`tsc --noEmit` or `expo export --platform all`) pass.
 - No anonymous `renderItem`, no `keyExtractor={() => Math.random()}`.
 - No inline `style={{ ... }}` for static styling — that's `nativewind`'s job.
 - Screens render loading / error / success states; no infinite spinner on error.
+- No `.tsx`/`.ts` file in `domain/**` exceeds ~80 lines.
+- Every component / hook / context file sits in its matching domain bucket; `app/` route files stay thin.
+- Schemas live at the domain root as `<concept>.schema.ts`.
+- Barrel `index.ts` re-exports the domain's public surface; imports use `'~/domain/<name>'`, `'~/components'`, `'~/assets/icons'` — no deep paths.
 - No deploy / EAS submit run without explicit user confirmation.

@@ -49,6 +49,9 @@ Example:
 src/api/router/users/score.ts:42  blocker  trpc-procedure  No Zod input schema. Wrap the handler's input in z.object({ userId: z.string() }).
 src/web/components/UserList.tsx:17  blocker  react-tsx-component  export default used. Switch to a named export.
 src/web/components/UserList.tsx:88  suggestion  code-quality  Six-case if-chain. Replace with a Record<Status, string> lookup.
+src/domain/book/components/BookView.tsx:1  suggestion  react-tsx-component  File is 142 lines. Extract BookHeader, BookActions into domain/book/components and useBookReader into domain/book/hooks.
+src/app/book/[id]/view.tsx:1  suggestion  react-native  Route file contains business logic. Move logic to domain/book/components/BookView.tsx and keep the route file a thin import + render.
+src/components/AuthForm.tsx:1  suggestion  react-tsx-component  Domain-specific component lives in src/components/. Move to src/domain/auth/components/AuthForm.tsx.
 ```
 
 ## Signal bar
