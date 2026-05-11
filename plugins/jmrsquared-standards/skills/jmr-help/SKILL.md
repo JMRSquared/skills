@@ -15,11 +15,15 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `trpc-procedure` — router modules, Zod inputs, consistent errors.
 - `bdd-router-tests` — `.feature` + `.steps.ts` per procedure.
 - `knex-migration` — ULID PKs, snake_case, timestamps, FKs.
+- `kysley-db` — Kysely query builder usage, typed schema, safe raw SQL, transactions.
 - `react-tsx-component` — function components, Props at bottom, Tailwind-only.
 - `better-auth` — Better Auth config, adapters, server vs client, session APIs.
 - `supabase` — RLS, keys, client vs service role, Storage, Realtime, Edge.
 - `supabase-auth` — Supabase Auth + React context, guards, OAuth callback.
 - `tanstack-trpc-query` — `useQuery` / `useMutation` patterns, cache invalidation.
+- `react-native` — Expo RN components, Expo Router, FlatList perf, EAS / OTA discipline.
+- `nativewind` — className-only styling, design tokens, dark / platform variants, `cssInterop`.
+- `react-native-skia` — Canvas hierarchy, Reanimated-driven shared values, memoized paths / shaders.
 - `sst-infra` — stage-based, single region, SST secrets.
 - `naming-imports-exports` — camel/Pascal/kebab/snake, named exports, `~` alias.
 - `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries.
