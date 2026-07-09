@@ -32,7 +32,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
-- `agents-execute` — autonomous, parallel, end-to-end mission execution; decides for itself, still confirms deploy / merge / destructive actions.
+- `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission.
 
 **Slash commands (Claude Code):**
 

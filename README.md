@@ -203,7 +203,7 @@ In any Claude Code session once installed:
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
-- `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution (deploy / merge / destructive actions still confirm).
+- `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
 
