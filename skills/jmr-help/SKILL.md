@@ -32,11 +32,13 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
+- `agents-execute` — autonomous, parallel, end-to-end mission execution; decides for itself, still confirms deploy / merge / destructive actions.
 
 **Slash commands (Claude Code):**
 
 - `/jmr-help` — this card.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
 - `/jmr-review` — review current branch / staged diff.
+- `/agents-execute` — hand off a mission for fully autonomous execution.
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.
