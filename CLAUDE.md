@@ -1,5 +1,11 @@
 # CLAUDE.md — jmrsquared-standards
 
+## Active Development Setup
+
+- **Branch:** `main`
+- **Stage:** n/a (standards distribution; no app deploy stage)
+- **Notes:** Adding `premium-web-design` skill (Tier 2 + `/premium-web-design`). Canonical edits in `skills/`, `rules/jmrsquared-activate.md`, `hooks/`, `README.md`.
+
 ## Purpose
 
 This repo ships **jmrsquared-standards**: a multi-agent coding-standards distribution. It applies the standing rules and stack-specific skills automatically across Claude Code, Cursor, Windsurf, Cline, Copilot, Codex, and Gemini CLI.

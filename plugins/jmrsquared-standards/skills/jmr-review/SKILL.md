@@ -24,6 +24,7 @@ For every file in the diff, apply the matching tier-2 skill:
 | A Knex migration file | `knex-migration` |
 | A Kysely DB/repository/query file | `kysley-db`, `code-quality`, `naming-imports-exports` |
 | A React `.tsx` component | `react-tsx-component`, `code-quality`, `naming-imports-exports` |
+| A marketing / landing / product-marketing / interactive web experience page | `premium-web-design`, `react-tsx-component` (if React), `code-quality`, `naming-imports-exports` |
 | A React Native screen / component (`.tsx` importing from `react-native` or `expo-*`) | `react-native`, `nativewind` (if `className` present), `code-quality`, `naming-imports-exports` |
 | Any file importing `@shopify/react-native-skia` | `react-native-skia`, `code-quality` |
 | Supabase client, RLS/SQL, Storage, Realtime, Edge (not app auth flow only) | `supabase`, `code-quality` |

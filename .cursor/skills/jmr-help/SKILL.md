@@ -17,6 +17,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `knex-migration` — ULID PKs, snake_case, timestamps, FKs.
 - `kysley-db` — Kysely query builder usage, typed schema, safe raw SQL, transactions.
 - `react-tsx-component` — function components, Props at bottom, Tailwind-only.
+- `premium-web-design` — premium interactive marketing / landing / product web experiences; `/premium-web-design`.
 - `better-auth` — Better Auth config, adapters, server vs client, session APIs.
 - `supabase` — RLS, keys, client vs service role, Storage, Realtime, Edge.
 - `supabase-auth` — Supabase Auth + React context, guards, OAuth callback.
@@ -32,6 +33,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
+- `premium-web-design` — `/premium-web-design` — premium interactive website design (also Tier 2).
 - `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission.
 
 **Slash commands (Claude Code):**
@@ -39,6 +41,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-help` — this card.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
 - `/jmr-review` — review current branch / staged diff.
+- `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute` — hand off a mission for fully autonomous execution.
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

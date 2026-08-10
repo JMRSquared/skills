@@ -42,6 +42,7 @@ Two tiers.
 | `knex-migration` | Knex migration edits |
 | `kysley-db` | Kysely DB/repository/query code |
 | `react-tsx-component` | `.tsx` component edits |
+| `premium-web-design` | Marketing / product / landing / interactive web experiences (also `/premium-web-design`) |
 | `better-auth` | Better Auth config, routes, adapters, client |
 | `supabase` | Supabase client, RLS, SQL policies, Storage, Realtime |
 | `supabase-auth` | Supabase Auth flows, guards, session + profile loading |
@@ -58,6 +59,7 @@ Two tiers.
 | Skill | Use |
 |-------|-----|
 | `agents-execute` | `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution |
+| `premium-web-design` | `/premium-web-design` — premium interactive website design bar (also Tier 2 auto-fire) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
@@ -85,13 +87,13 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 ### What You Get
 
-Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**21** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**22** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
 | Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
-| **21** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
+| **22** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
-| `/agents-execute`, `/jmr-help`, `/jmr-review`, `/jmr-commit` slash commands | Y | — | Y | — | — | — | — |
+| `/agents-execute`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit` slash commands | Y | — | Y | — | — | — | — |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -100,7 +102,7 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 <details>
 <summary><strong>Claude Code — full details</strong></summary>
 
-The plugin install gives you all **21** skills + SessionStart hook + statusline.
+The plugin install gives you all **22** skills + SessionStart hook + statusline.
 
 ```bash
 claude plugin marketplace add jmrsquared/skills
@@ -151,7 +153,7 @@ Auto-activates via `GEMINI.md` context file every session.
 <details>
 <summary><strong>Cursor / Windsurf / Cline / Copilot — full details</strong></summary>
 
-`npx skills add` installs all **21** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
+`npx skills add` installs all **22** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
 
 | Agent | Command | Rule file location |
 |-------|---------|--------------------|
@@ -203,6 +205,7 @@ In any Claude Code session once installed:
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
+- `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
