@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Adding `premium-web-design` skill (Tier 2 + `/premium-web-design`). Canonical edits in `skills/`, `rules/jmrsquared-activate.md`, `hooks/`, `README.md`.
+- **Notes:** Released `premium-web-design` reference-site study in plugin **0.3.1**. Canonical edits in `skills/`.
 
 ## Purpose
 

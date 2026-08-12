@@ -20,17 +20,39 @@ When this skill and `react-tsx-component` both apply: this skill owns visual dir
 Copy and track:
 
 ```
-Understand → Design → Build → Interact → Test → Polish
+Understand → Study references → Design → Build → Interact → Test → Polish
 ```
 
 1. **Understand** — product, brand, audience, constraints.
-2. **Design** — commit to an original visual direction appropriate to the brand (not a generic template).
-3. **Build** — implement working UI; do not stop at mock description.
-4. **Interact** — ship meaningful hover/touch, scroll, and demo interactions.
-5. **Test** — mobile, tablet, desktop, touch; check reduced-motion.
-6. **Polish** — push past "good enough" until the result feels exceptional.
+2. **Study references** — open the reference sites below in a browser. Scroll them. Note composition, motion, pacing, and craft. Do not invent a "premium" look from memory.
+3. **Design** — commit to an original visual direction appropriate to the brand (not a generic template).
+4. **Build** — implement working UI; do not stop at mock description.
+5. **Interact** — ship meaningful hover/touch, scroll, and demo interactions.
+6. **Test** — mobile, tablet, desktop, touch; check reduced-motion.
+7. **Polish** — push past "good enough" until the result feels exceptional.
 
 Before coding, state one line: **"Reading this as: \<page kind> for \<audience>, \<vibe>, leaning \<direction>."**
+
+## Reference sites (required study)
+
+Before you design or code, **visit these sites in a real browser**. Scroll the full experience. Learn pacing, depth, typography, and interaction craft from what you see. **Do not guess** what "Awwwards-level" looks like from training data alone.
+
+### Industry benchmarks
+
+1. [https://igloo.inc](https://igloo.inc) — Awwwards Site of the Year 2024. 3D ice-cube scroll journey. Current "wow" benchmark.
+2. [https://www.lusion.co](https://www.lusion.co) — most-awarded WebGL studio site. Scroll drives physics and particles.
+3. [https://www.activetheory.net](https://www.activetheory.net) — repeat SOTY winner. Scroll-driven 3D storytelling.
+
+### Product-page patterns (community / course builds)
+
+Practical 3D + scroll product landings. Study how they sell a SKU with motion, not how they look as finished brands.
+
+4. [https://fizzi.vercel.app](https://fizzi.vercel.app) — Community soda product landing (Prismic/JS course build). Scroll-driven 3D cans selling a fake SKU.
+5. [https://macbook-ui.vercel.app](https://macbook-ui.vercel.app) — Community MacBook product page. Scroll storytelling + interactive 3D hardware hero.
+6. [https://nimbus-keyboards1.vercel.app](https://nimbus-keyboards1.vercel.app) — Fake mechanical keyboard brand. Interactive 3D board, keycap themes, switch playground with sound.
+7. [https://apple-iphone14.vercel.app](https://apple-iphone14.vercel.app) — Codebucks community iPhone 14 landing. Classic course-style 3D + GSAP product page.
+
+Study them for craft. Build something original for the product and brand in front of you. Do not clone layouts, copy, or brand marks.
 
 ## Motion / interaction stack
 
@@ -82,7 +104,7 @@ Prioritize:
 
 The design should feel like it was produced by a **top-tier product designer, creative director and motion designer working together**.
 
-Take inspiration from the best modern digital experiences, but always create an **original design appropriate to the product and brand**.
+Calibrate taste against the reference sites above after you have actually scrolled them. Then ship an **original design appropriate to the product and brand**.
 
 ## WOW Factor
 
