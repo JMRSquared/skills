@@ -42,7 +42,7 @@ Two tiers.
 | `knex-migration` | Knex migration edits |
 | `kysley-db` | Kysely DB/repository/query code |
 | `react-tsx-component` | `.tsx` component edits |
-| `premium-web-design` | Marketing / product / landing / interactive web experiences (also `/premium-web-design`) |
+| `premium-web-design` | Marketing / product / landing / interactive web — Awwwards SOTD bar (also `/premium-web-design`) |
 | `better-auth` | Better Auth config, routes, adapters, client |
 | `supabase` | Supabase client, RLS, SQL policies, Storage, Realtime |
 | `supabase-auth` | Supabase Auth flows, guards, session + profile loading |
@@ -59,7 +59,7 @@ Two tiers.
 | Skill | Use |
 |-------|-----|
 | `agents-execute` | `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution |
-| `premium-web-design` | `/premium-web-design` — premium interactive website design bar (also Tier 2 auto-fire) |
+| `premium-web-design` | `/premium-web-design` — Awwwards-caliber interactive website craft (also Tier 2 auto-fire) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |

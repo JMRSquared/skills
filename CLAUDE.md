@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** `premium-web-design` category/trade vertical refs (barbers, plumbers, restaurants/food brands: Blind Barber, Hagi’s, Pizzato, Plomberie 5 Étoiles, Amrit Palace, Tripletta, Planetoño, Banzai). Canonical edits in `skills/` only.
+- **Notes:** `premium-web-design` raised to Awwwards SOTD pass line (art direction + ≥3 signature moments + jury self-score ≥8; cross-industry craft library). Canonical edits in `skills/` only.
 
 ## Purpose
 
