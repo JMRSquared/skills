@@ -211,6 +211,8 @@ In any Claude Code session once installed:
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
 - `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission.
+- `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
+- `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
 
