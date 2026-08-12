@@ -104,7 +104,7 @@ Vague rows fail the gate: "nice animation", "modern layout", "good typography", 
 
 Before you design or code, **visit these sites in a real browser**. Scroll the full experience. Learn pacing, depth, typography, and interaction craft from what you see. **Do not guess** what "Awwwards-level" looks like from training data alone.
 
-If the user supplies additional reference URLs, treat those as **primary** and still pull enough craft from the benchmarks below to reach ≥10 items.
+If the user supplies additional reference URLs, treat those as **primary** and still pull enough craft from the lists below to reach ≥10 items. When the brief matches a **category / trade vertical** section below, prioritize those URLs the same way.
 
 ### Industry benchmarks
 
@@ -120,6 +120,29 @@ Practical 3D + scroll product landings. Study how they sell a SKU with motion, n
 5. [https://macbook-ui.vercel.app](https://macbook-ui.vercel.app) — Community MacBook product page. Scroll storytelling + interactive 3D hardware hero.
 6. [https://nimbus-keyboards1.vercel.app](https://nimbus-keyboards1.vercel.app) — Fake mechanical keyboard brand. Interactive 3D board, keycap themes, switch playground with sound.
 7. [https://apple-iphone14.vercel.app](https://apple-iphone14.vercel.app) — Codebucks community iPhone 14 landing. Classic course-style 3D + GSAP product page.
+
+### Category / trade verticals
+
+When the product matches a vertical below, treat those URLs as **primary** study sources (still fill ≥10 board rows; pull remaining craft from the benchmarks above if needed).
+
+#### Barbers
+
+8. [https://anniversary.blindbarber.com/](https://anniversary.blindbarber.com/) — Blind Barber 10-Year. Awwwards Site of the Day. One-page scroll story, big loading sequence, scrapbook-style reveals. Study the pinned timeline storytelling.
+9. [https://hagisbarbershop.de/](https://hagisbarbershop.de/) — Hagi’s Barbershop. Awwwards Site of the Day (7.68; animations 8.0). Cinematic film intro, dark editorial scroll, strong page transitions. Closest “barber brand as luxury product” feel.
+
+#### Plumbers / plumbing trade
+
+True service-plumber sites rarely win SOTD for motion. These are the best award-backed picks in-category:
+
+10. [https://pizzatoits.it/](https://pizzatoits.it/) — Pizzato. Awwwards Site of the Day (plumbing / heating / bathroom fittings). 3D showroom, scroll-driven about/showroom sections, illustration + WebGL-style depth. Best “trade + award motion” reference available.
+11. [https://www.plomberie5etoiles.com/](https://www.plomberie5etoiles.com/) — Plomberie 5 Étoiles (Montreal Plumber). Awwwards Nominee. Real local plumber site that got nominated. More conversion-first than Pizzato; useful bar for how far a service plumber can push craft.
+
+#### Restaurants / food brands
+
+12. [https://amritpalace.com/](https://amritpalace.com/) — Amrit Palace. Awwwards Site of the Day (Nov 2025). GSAP scroll on home, story, and menu. Menu-as-scroll experience is the standout.
+13. [https://triplettapizza.com/](https://triplettapizza.com/) — Tripletta Pizza. Awwwards Site of the Day. Infinite scroll, page transitions, loading animation, GSAP throughout. Highest-energy restaurant of the vertical set.
+14. [https://www.planetono.space/](https://www.planetono.space/) — Planetoño. Awwwards Site of the Day (7.22). Fictional space-food order flow by Tubik. Custom three.js scroll engine, toon/shader 3D scenes, Rive micro-interactions, portal-style scene navigation. Study scroll-driven 3D ordering narrative.
+15. [https://www.nudolsbanzai.it/](https://www.nudolsbanzai.it/) — Banzai (Nudols) izakaya experience. Awwwards Site of the Day + Developer Award. Instant-noodle brand: immersive 3D, flavor-as-character (manga / game culture). Study product-flavor playground and character-driven SKU storytelling.
 
 Study them for craft components. Rebuild those components for the product and brand in front of you. Do not clone layouts, copy, or brand marks.
 

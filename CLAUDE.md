@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Released `premium-web-design` reference-site study in plugin **0.3.1**. Canonical edits in `skills/`.
+- **Notes:** `premium-web-design` category/trade vertical refs (barbers, plumbers, restaurants/food brands: Blind Barber, Hagi’s, Pizzato, Plomberie 5 Étoiles, Amrit Palace, Tripletta, Planetoño, Banzai). Canonical edits in `skills/` only.
 
 ## Purpose
 
