@@ -28,6 +28,8 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `sst-infra` — stage-based, single region, SST secrets.
 - `naming-imports-exports` — camel/Pascal/kebab/snake, named exports, `~` alias.
 - `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries.
+- `npm-local-publish` — Dia + TTY local npm publish when CI OIDC / Trusted Publishing fails; `/npm-local-publish`.
+- `pngimg-assets` — pngimg.com transparent PNG search/download with CC BY-NC gate; `/pngimg-assets`.
 
 **Companion:**
 
@@ -35,6 +37,8 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `jmr-review` — audit current diff against every skill above.
 - `premium-web-design` — `/premium-web-design` — premium interactive website design (also Tier 2).
 - `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission.
+- `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
+- `pngimg-assets` — `/pngimg-assets` — search + download CC BY-NC PNG cutouts.
 
 **Slash commands (Claude Code):**
 
@@ -43,5 +47,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-review` — review current branch / staged diff.
 - `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute` — hand off a mission for fully autonomous execution.
+- `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
+- `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

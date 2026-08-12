@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** `premium-web-design` raised to Awwwards SOTD pass line (art direction + ≥3 signature moments + jury self-score ≥8; cross-industry craft library). Canonical edits in `skills/` only.
+- **Notes:** Shipping `npm-local-publish` + `pngimg-assets` (24 skills). `premium-web-design` at Awwwards SOTD bar. Canonical edits in `skills/` only.
 
 ## Purpose
 
