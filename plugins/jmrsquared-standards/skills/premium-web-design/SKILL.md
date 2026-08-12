@@ -15,27 +15,96 @@ description: Create exceptionally beautiful, clean, modern, memorable customer-f
 
 When this skill and `react-tsx-component` both apply: this skill owns visual direction, composition, motion, and asset quality; `react-tsx-component` still owns component form (`export function`, `interface Props` at bottom, Tailwind-only, handler naming).
 
+## Hard gate (non-negotiable)
+
+This skill fails if you invent a "premium" look from memory or training data.
+
+**You must:**
+
+1. Open the reference sites below in a **real browser** (WebFetch alone is not enough; scroll the live experience).
+2. Go through the reference websites and **pick at least 10 things** to include while developing.
+3. Publish a **Reference Study Board** in the chat **before any design or code**.
+4. Build so the **entire website** is composed from those studied craft components / patterns (mapped onto the product brand). Soft inspiration is a failure mode.
+
+**Very very strict:** if fewer than 10 attributed items are listed, or any shipped section cannot map to the board, stop and restudy. Do not proceed.
+
+**Allowed adaptation:** re-skin colors, type, copy, and brand marks for the product. Rebuild the pattern in project code.
+
+**Forbidden:** cloning logos, copy, proprietary 3D assets, or pixel-identical layouts. Do not ship a generic SaaS template and claim the references were used.
+
 ## Workflow
 
 Copy and track:
 
 ```
-Understand → Study references → Design → Build → Interact → Test → Polish
+Understand → Study references (≥10 board) → Design from board → Build board items → Interact → Test → Polish → Verify board
 ```
 
 1. **Understand** — product, brand, audience, constraints.
-2. **Study references** — open the reference sites below in a browser. Scroll them. Note composition, motion, pacing, and craft. Do not invent a "premium" look from memory.
-3. **Design** — commit to an original visual direction appropriate to the brand (not a generic template).
-4. **Build** — implement working UI; do not stop at mock description.
-5. **Interact** — ship meaningful hover/touch, scroll, and demo interactions.
+2. **Study references** — visit every listed site (or the user-supplied set). Scroll full pages. Extract craft. Fill the Reference Study Board with **≥10** items.
+3. **Design** — compose the page exclusively from board items adapted to this brand.
+4. **Build** — implement working UI for every board item; do not stop at mock description.
+5. **Interact** — ship meaningful hover/touch, scroll, and demo interactions called out on the board.
 6. **Test** — mobile, tablet, desktop, touch; check reduced-motion.
 7. **Polish** — push past "good enough" until the result feels exceptional.
+8. **Verify board** — paste the board again with each item marked `SHIPPED` and the file/section where it lives.
 
-Before coding, state one line: **"Reading this as: \<page kind> for \<audience>, \<vibe>, leaning \<direction>."**
+Before coding, state one line: **"Reading this as: \<page kind> for \<audience>, \<vibe>, leaning \<direction>."** Then paste the completed Reference Study Board.
+
+## Reference Study Board (required output)
+
+Paste this block **before coding**. Fill every row. Minimum **10** items. Prefer covering **at least 4 different reference URLs**.
+
+```
+### Reference Study Board
+| # | Source URL | Craft component / pattern observed | Where it appears on that site | How I will implement it on this project |
+|---|------------|------------------------------------|-------------------------------|-----------------------------------------|
+| 1 |            |                                    |                               |                                         |
+| 2 |            |                                    |                               |                                         |
+| … |            |                                    |                               |                                         |
+|10+|            |                                    |                               |                                         |
+
+Page composition plan (must use board items only):
+- Hero ← board #
+- Section 2 ← board #
+- Section 3 ← board #
+- …
+- Motion stack choices ← board #
+```
+
+### What counts as a "thing" / component
+
+Each board row must be a **concrete, buildable craft unit** you can point to on a reference page, for example:
+
+* Scroll-scrubbed product/hero object (can, device, cube, board)
+* Full-bleed cinematic hero with brand as the dominant signal
+* Sticky product stage while copy chapters pin/unpin
+* Horizontal scroll gallery driven by vertical scroll
+* WebGL / R3F object with pointer parallax or physics
+* Theme / finish / colorway playground the user can click
+* Sound-linked interaction (only if product-appropriate)
+* Morphing or magnetic CTA / nav treatment
+* Typography that scales, masks, or reveals on scroll
+* Depth stack (foreground product, mid copy, atmospheric backplane)
+* Chapter wipes / clipped image reveals
+* Interactive demo that shows the product working instead of describing it
+* Reduced-motion fallback that stays art-directed
+
+Vague rows fail the gate: "nice animation", "modern layout", "good typography", "dark aesthetic", "smooth scroll".
+
+### Coverage rules
+
+* **≥10** rows, each tied to a real `Source URL` from the list below (or URLs the user attached).
+* At least **3** rows must be **interaction or motion** patterns (scroll, hover, pointer, demo).
+* At least **2** rows must be **composition / layout** patterns (hero treatment, sticky stage, chapter structure).
+* At least **1** row must be a **product demonstration** pattern (real product/photo WebGL stage, interactive configurator, or equivalent show-don't-tell block — not box proxies for physical goods).
+* Every major section you ship must cite **≥1** board row. Orphan sections (invented without a reference) are not allowed.
 
 ## Reference sites (required study)
 
 Before you design or code, **visit these sites in a real browser**. Scroll the full experience. Learn pacing, depth, typography, and interaction craft from what you see. **Do not guess** what "Awwwards-level" looks like from training data alone.
+
+If the user supplies additional reference URLs, treat those as **primary** and still pull enough craft from the benchmarks below to reach ≥10 items.
 
 ### Industry benchmarks
 
@@ -52,11 +121,11 @@ Practical 3D + scroll product landings. Study how they sell a SKU with motion, n
 6. [https://nimbus-keyboards1.vercel.app](https://nimbus-keyboards1.vercel.app) — Fake mechanical keyboard brand. Interactive 3D board, keycap themes, switch playground with sound.
 7. [https://apple-iphone14.vercel.app](https://apple-iphone14.vercel.app) — Codebucks community iPhone 14 landing. Classic course-style 3D + GSAP product page.
 
-Study them for craft. Build something original for the product and brand in front of you. Do not clone layouts, copy, or brand marks.
+Study them for craft components. Rebuild those components for the product and brand in front of you. Do not clone layouts, copy, or brand marks.
 
 ## Motion / interaction stack
 
-Prefer the lightest tool that hits the WOW bar. Match the project's existing stack first.
+Prefer the lightest tool that hits the WOW bar. Match the project's existing stack first. Choose tools that can actually deliver the board items.
 
 | Need | Default |
 |------|---------|
@@ -104,7 +173,7 @@ Prioritize:
 
 The design should feel like it was produced by a **top-tier product designer, creative director and motion designer working together**.
 
-Calibrate taste against the reference sites above after you have actually scrolled them. Then ship an **original design appropriate to the product and brand**.
+Calibrate taste against the reference sites after you have scrolled them and filled the board. Compose the page from the board. Ship an **original brand skin** on top of those studied craft components.
 
 ## WOW Factor
 
@@ -112,7 +181,7 @@ Every website should contain at least a few moments that make the user stop and 
 
 **"Wow."**
 
-This can come from:
+Pull WOW moments from the board (which itself comes from the references), for example:
 
 * Scroll-driven storytelling
 * 3D/WebGL
@@ -127,7 +196,7 @@ This can come from:
 * Unexpected interactions
 * Beautiful visual reveals
 
-Do not add effects randomly. The WOW factor should feel **intentional and connected to the product**.
+Do not add effects randomly. The WOW factor must trace to board rows and stay connected to the product.
 
 ## UX
 
@@ -153,7 +222,7 @@ Design and test for:
 * Touch interaction
 * Different screen sizes
 
-Adapt complex animations and interactions for mobile rather than simply removing them.
+Adapt complex animations and interactions for mobile rather than simply removing them. If a board item is too heavy for mobile, ship a mobile-grade version of the same craft idea — do not delete the idea.
 
 Mobile should still retain the **WOW factor**.
 
@@ -173,16 +242,44 @@ Avoid:
 * Huge text blocks
 * Excessive copy
 * Generic AI illustrations
+* Low-poly box/primitive stand-ins for real physical products or places
 * Repetitive layouts
 * Unnecessary decorative elements
+* Any section that cannot cite a board row
 
 The result must feel **clean, sophisticated and art-directed**.
+
+## Real imagery hard rule (product / place / service sites)
+
+For businesses whose offer is physical (plant hire, clinics, trades, venues, food, vehicles, yards), the **dominant visual must be real photography** of the product, place, craft, or honest category context.
+
+### Required
+
+* Hero and product/fleet/service showcases use **real photographs** (owner assets first; if missing, high-quality royalty-free photos that clearly depict the real category).
+* WebGL / R3F remains mandatory where the stack already includes it, but it must **stage, parallax, scrub, clip, or depth-layer real images/textures** — not replace the product with abstract stand-ins.
+* Image `alt` text describes what is shown. Credit stock sources in code comments or a small credits note when required by the license.
+
+### Forbidden (instant fail for physical-product sites)
+
+* Low-poly **box / cylinder / primitive “Lego” models** standing in for real machines, vehicles, tools, buildings, food, or devices
+* Procedural geometry kits (icosahedrons, torus rings, stacked boxes) as the main product hero when photography is the honest medium
+* AI-generated illustrations or repetitive synthetic “stock” as the primary visual idea
+* Claiming WOW from abstract 3D when the brand story is a real yard, fleet, room, or SKU that should be photographed
+
+### When modeled 3D *is* appropriate
+
+Keep true product 3D when the reference craft and product are inherently digital/SKU-modeled (e.g. soda can, phone, keyboard configurator) **and** the model reads as the product, not as placeholder blocks. If you cannot ship a credible product model, use real photos inside the WebGL/scroll system instead of box proxies.
+
+### Board + done checks (additions)
+
+* At least **1** board row must name the **photographic treatment** (full-bleed photo hero, scroll-scrubbed image plane, clipped photo reveal, photo depth stack, etc.).
+* Done checklist addition: real photography is the dominant product/place visual; no box-model product stand-ins shipped.
 
 ## Animation
 
 Use motion to communicate hierarchy and create a sense of quality.
 
-Favor:
+Favor patterns you actually observed on the references:
 
 * Smooth scroll animations
 * Parallax
@@ -195,7 +292,7 @@ Favor:
 * Interactive hover/touch states
 * Seamless transitions
 
-Animations must feel smooth, purposeful and premium.
+Animations must feel smooth, purposeful and premium — and must match board commitments.
 
 ## Implementation
 
@@ -205,18 +302,28 @@ Do not merely describe the design.
 
 When given a website task:
 
-**Understand → Design → Build → Interact → Test → Polish**
+**Understand → Study references (≥10 board) → Design from board → Build board items → Interact → Test → Polish → Verify board**
 
-Use the appropriate technologies and libraries to achieve the strongest result.
+Use the appropriate technologies and libraries to achieve the strongest result for the board.
 
-If 3D, WebGL, shaders, particles or advanced animation will materially improve the experience, use them.
+If 3D, WebGL, shaders, particles or advanced animation appear on the board and fit the product, implement them.
 
-If they do not add value, keep the implementation clean and elegant.
+If a board item does not add value for this product, replace it with another studied item before coding — do not freestyle.
+
+### Done checklist (all required)
+
+* [ ] Reference Study Board posted before code (≥10 rows, ≥4 source URLs preferred)
+* [ ] Coverage rules met (motion ≥3, composition ≥2, product demo ≥1)
+* [ ] Every shipped section cites ≥1 board row
+* [ ] Board re-posted at the end with `SHIPPED` + file/section markers
+* [ ] Mobile + reduced-motion still feel intentional
+* [ ] No generic SaaS / card-grid fallback substituted for missing study
+* [ ] Real photography dominates product/place visuals (no box-model stand-ins for physical offers)
 
 The final website must be:
 
-**Beautiful. Clean. Fast. Responsive. Interactive. Original. Memorable.**
+**Beautiful. Clean. Fast. Responsive. Interactive. Reference-grounded. Memorable.**
 
 Most importantly:
 
-> **Never settle for "good enough." Push the design until it feels genuinely exceptional.**
+> **Never settle for "good enough." Never skip the study board. Push the design until it feels genuinely exceptional.**
