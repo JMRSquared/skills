@@ -61,6 +61,23 @@ The script rejects anything that is not a real PNG, so an HTML error page never 
 6. **Record attribution** if the asset ships.
 7. **Optimise** before committing to a web project (1–5 MB sources are common).
 
+## Variety rule (hard)
+
+For **category subjects** that exist in many variants on pngimg (pets, food, furniture, tools, people poses), do **not** ship a single cutout reused on every section.
+
+Minimum for a customer-facing demo in that case:
+
+1. Search with `--limit` high enough to see options (often 10–12).
+2. Download a **set** — prefer **≥3** distinct subjects, **≥6** when the brand story is a waiting-room / menu / catalogue of that category.
+3. Map each asset to a concrete placement (hero, chapter, service panel, gallery strip). Repeating one hero file across the page is a fail.
+4. Reject undersized thumbs (`file` check). Skip near-duplicates if a clearer pose exists.
+5. Credit **every** shipped file in `CREDITS.md`.
+
+Single-cutout is only acceptable when pngimg truly has one usable asset for that noun, or the subject is a unique mark (one logo, one specific product SKU). Say so in `CREDITS.md` if that happens.
+
+Bad: one dog PNG on the hero, journey, services, and canvas.  
+Good: several dogs and cats assigned across hero, journey chapters, care modes, services, and a companions strip.
+
 ## Notes
 
 - Search endpoint is `https://pngimg.com/search_image/?search_image=<query>&page=<n>`. Result pages carry Shutterstock affiliate ads; the script filters to `pngimg.com/uploads/` only, so paid stock never leaks into the results.
@@ -74,3 +91,4 @@ The script rejects anything that is not a real PNG, so an HTML error page never 
 - [ ] `file <path>` shows a real PNG at usable dimensions
 - [ ] Asset lives under a project asset directory
 - [ ] Attribution recorded if the asset ships publicly
+- [ ] Category subjects use a set (≥3) mapped to placements, not one file repeated
