@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hallam Steel — one knife, eleven weeks</title>
+<!--
+  ============================================================================
+  PATTERN — Layout archetype C, "pinned stage" (references/layout-archetypes.md)
+  A single subject is held in the centre of the viewport while copy chapters
+  scroll past it. The subject changes state at each chapter: different crop,
+  different scale, different colour treatment. Three chapters, one object.
+
+  BUILT WITH NOTHING BUT position:sticky + IntersectionObserver.
+  No GSAP, no ScrollTrigger, no scroll library. It runs on any stack — a
+  static file, Next.js, Rails, Astro — and it degrades to a plain stacked
+  layout the moment the viewport gets narrow.
+
+  DERIVED FROM
+  - apple-iphone14 / macbook-ui  → the product held while claims cycle past it
+  - blindbarber (desktop-01)     → the sticky chapter rail that marks position
+  - amrit-palace                 → sub-1.0 leading on a light-cut display serif,
+                                   nav type at 11px so the display can be 158px
+
+  THE FAILURE MODE THIS AVOIDS
+  Agents build pinned sections with GSAP ScrollTrigger, get the pin maths
+  wrong, and ship a collapsed section that either scrolls away instantly or
+  traps the user in a dead scroll region. The sticky version cannot collapse:
+  worst case the stage stops sticking and the page reads as a normal document.
+  The pin height maths is the only thing to get right, and it is written down:
+
+      chapters container height  =  (n chapters x --chapter-h) + 100vh tail
+      the stage stays pinned for  =  that height - 100vh
+      so the last chapter clears the viewport exactly as the stage releases.
+
+  HOW TO ADAPT
+  1. Swap the palette block for another row of references/color-and-light.md
+     and the two @font-face links for another row of references/typography.md.
+     Nothing else in this file knows the brand.
+  2. Change the number of chapters: add a <section class="chapter">, add a
+     matching [data-chapter="4"] rule in "stage states", and the maths holds.
+  3. The subject is one <img>. To hold a <video>, a <canvas> or an R3F scene,
+     replace .frame__img and keep the same state attribute contract: the stage
+     element carries data-chapter, everything else reads it in CSS.
+  4. If the subject genuinely needs frame-by-frame scrubbing rather than three
+     discrete states, that is the point at which GSAP earns its bytes. Until
+     then it does not.
+
+  Photography: Unsplash. Palette: "Ink & sand" (color-and-light.md #4), verbatim.
+  Type pairing: Libre Caslon Display + Karla (typography.md row 9), verbatim.
+  Motion values: motion.md, verbatim. No invented curves, no transition:all.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Art direction contract ─────────────────────────────────────────────── */
+:root{
+  /* colour — palette 4, "Ink & sand" */
+  --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
+  --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
+
+  /* type */
+  --font-display:"Libre Caslon Display",Georgia,serif;
+  --font-text:"Karla",system-ui,sans-serif;
+  --step-hero:clamp(3.25rem,11vw,11rem);
+  --step-h1:clamp(2.5rem,6.5vw,6rem);
+  --step-h2:clamp(1.875rem,3.6vw,3.25rem);
+  --step-h3:clamp(1.375rem,2.2vw,2rem);
+  --step-lead:clamp(1.125rem,1.5vw,1.5rem);
+  --step-body:clamp(1rem,1.05vw,1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* space */
+  --gutter:clamp(1.25rem,4vw,5rem);
+  --section-y:clamp(5rem,12vh,12rem);
+  --chapter-h:90vh;
+
+  /* motion */
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --ease-in:cubic-bezier(0.7,0,0.84,0);
+  --ease-move:cubic-bezier(0.65,0,0.35,1);
+  --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--font-text);font-size:var(--step-body);line-height:1.55;
+  font-weight:400;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+figure{margin:0}
+a{color:inherit}
+
+/* one texture, not three — film grain over the whole page */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap{width:min(100% - var(--gutter)*2,90rem);margin-inline:auto}
+.label{
+  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:500;color:var(--ink-muted);margin:0;
+}
+.display{
+  font-family:var(--font-display);font-weight:400;
+  font-size:var(--step-hero);line-height:.92;letter-spacing:-.035em;
+  text-wrap:balance;margin:0;
+}
+.lead{font-size:var(--step-lead);line-height:1.45;max-width:34ch;margin:0;color:var(--ink)}
+p{text-wrap:pretty}
+
+/* ── Masthead ───────────────────────────────────────────────────────────── */
+.masthead{
+  position:absolute;inset:0 0 auto 0;z-index:4;
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:clamp(1.25rem,2.4vw,2rem) var(--gutter);
+}
+.masthead__mark{
+  display:inline-block;padding-block:.5rem;
+  font-family:var(--font-display);font-size:1.375rem;letter-spacing:-.02em;
+  color:var(--ink);text-decoration:none;
+}
+.masthead__meta{display:flex;gap:clamp(1rem,2.5vw,2.5rem)}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;background:var(--ground);padding-top:6rem}
+.hero__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:70% 46%;filter:brightness(.58) contrast(1.08) saturate(.9);
+}
+.hero__scrim{
+  position:relative;z-index:2;width:100%;align-self:flex-end;
+  padding:8rem var(--gutter) clamp(2.5rem,5vh,4.5rem);
+  background-image:linear-gradient(to top,rgb(9 11 14 / .92) 0%,rgb(9 11 14 / .74) 30%,rgb(9 11 14 / .34) 62%,rgb(9 11 14 / 0) 92%);
+}
+.hero__scrim .label{margin-bottom:1.5rem}
+.hero__scrim .display{max-width:12ch;margin-bottom:2rem}
+.hero__scrim .lead{color:#DCD8D0}
+.hero__rule{
+  display:block;height:1px;border:0;margin:2.5rem 0 0;
+  background:rgb(242 239 233 / .28);
+}
+
+/* ── Pinned stage ───────────────────────────────────────────────────────── */
+.pin{display:grid;position:relative;background:var(--ground)}
+.pin>*{grid-area:1/1}
+
+.stage{
+  position:sticky;top:0;align-self:start;
+  height:100svh;overflow:hidden;
+}
+/* one hairline holds the split between the stage and the chapter column —
+   without it the right-hand third reads as an accident rather than a column */
+.stage::after{
+  content:"";position:absolute;top:0;bottom:0;left:62%;width:1px;
+  background:var(--edge);
+}
+.stage__numeral{
+  position:absolute;left:-3vw;bottom:-7vh;
+  font-family:var(--font-display);font-size:26vw;line-height:.7;
+  color:rgb(44 50 60 / .5);user-select:none;pointer-events:none;
+}
+/* the numeral is drawn as generated content, not as a text node: it is a
+   graphic device, and a 430px ghost glyph should never be measured as copy */
+.stage__numeral::before{content:"01"}
+.stage[data-chapter="2"] .stage__numeral::before{content:"02"}
+.stage[data-chapter="3"] .stage__numeral::before{content:"03"}
+.stage__rail{
+  position:absolute;left:var(--gutter);top:15vh;
+  display:flex;flex-direction:column;gap:1.25rem;z-index:3;
+}
+.rail__item{
+  display:flex;align-items:baseline;gap:.75rem;
+  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:500;color:var(--ink-muted);
+  transition:color var(--d-state) var(--ease-out);
+}
+.rail__item b{font-weight:500;font-variant-numeric:tabular-nums}
+.rail__item::before{
+  content:"";width:1.75rem;height:1px;background:currentColor;
+  transition:width var(--d-state) var(--ease-out);
+}
+.stage[data-chapter="1"] .rail__item:nth-child(1),
+.stage[data-chapter="2"] .rail__item:nth-child(2),
+.stage[data-chapter="3"] .rail__item:nth-child(3){color:var(--accent)}
+.stage[data-chapter="1"] .rail__item:nth-child(1)::before,
+.stage[data-chapter="2"] .rail__item:nth-child(2)::before,
+.stage[data-chapter="3"] .rail__item:nth-child(3)::before{width:3.5rem}
+
+.frame{
+  --frame-x:min(14vw,13rem);
+  --frame-w:min(47vw,42rem);
+  --frame-h:min(72vh,38rem);
+  position:absolute;top:50%;left:var(--frame-x);
+  width:var(--frame-w);height:var(--frame-h);
+  transform:translateY(-50%);overflow:hidden;
+  clip-path:inset(0 0 0 0);
+  transition:clip-path var(--d-layout) var(--ease-move);
+  outline:1px solid rgb(242 239 233 / .16);outline-offset:0;
+}
+.frame__img{
+  width:100%;height:100%;object-fit:cover;object-position:50% 50%;
+  transform-origin:52% 46%;
+  transition:transform var(--d-layout) var(--ease-move),
+             filter var(--d-layout) var(--ease-move);
+}
+.frame__caption{
+  position:absolute;left:min(14vw,13rem);top:calc(50% + min(36vh,19rem) + 1.25rem);
+  display:grid;
+}
+.frame__caption span{
+  grid-area:1/1;font-size:var(--step-small);color:var(--ink-muted);
+  opacity:0;transition:opacity var(--d-state) var(--ease-out);
+}
+.stage[data-chapter="1"] .frame__caption span:nth-child(1),
+.stage[data-chapter="2"] .frame__caption span:nth-child(2),
+.stage[data-chapter="3"] .frame__caption span:nth-child(3){opacity:1}
+
+/* stage states — the subject changes crop, scale and treatment per chapter */
+/* 1 — a tall portrait crop, held back to near-monochrome: the raw bar */
+.stage[data-chapter="1"] .frame{clip-path:inset(0 34% 0 0)}
+.stage[data-chapter="1"] .frame__img{transform:scale(1);filter:grayscale(.55) brightness(.76) contrast(1.05)}
+/* 2 — a wide cinema band, pushed right into the heat: the grind */
+.stage[data-chapter="2"] .frame{clip-path:inset(26% 0 26% 0)}
+.stage[data-chapter="2"] .frame__img{transform:scale(1.85) translate3d(-11%,7%,0);filter:grayscale(0) brightness(1) contrast(1.2) saturate(1.12)}
+/* 3 — pulled back to a landscape plate, colour restored: the finished object */
+.stage[data-chapter="3"] .frame{clip-path:inset(11% 14% 11% 0)}
+.stage[data-chapter="3"] .frame__img{transform:scale(1.34) translate3d(8%,-7%,0);filter:grayscale(0) brightness(.88) contrast(1.02) saturate(.92)}
+
+.chapters{position:relative;z-index:2;pointer-events:none}
+.chapter{
+  min-height:var(--chapter-h);display:flex;align-items:center;
+  padding:6rem var(--gutter);pointer-events:auto;
+}
+.chapter__body{
+  margin-left:auto;width:min(30vw,26rem);
+}
+.chapter__index{
+  font-family:var(--font-display);font-size:var(--step-h3);
+  color:var(--accent);margin:0 0 .75rem;
+}
+.chapter__title{
+  font-family:var(--font-display);font-weight:400;
+  font-size:var(--step-h2);line-height:.98;letter-spacing:-.03em;
+  margin:0 0 1.25rem;
+}
+.chapter__text{margin:0;color:#C9C5BE;max-width:34ch}
+.chapter__spec{
+  margin:1.75rem 0 0;padding-top:1rem;border-top:1px solid var(--edge);
+  font-size:var(--step-small);color:var(--ink-muted);
+  font-variant-numeric:tabular-nums;
+}
+.pin__tail{min-height:100vh}
+
+/* ── Quote band (ground shift) ──────────────────────────────────────────── */
+.band{background:var(--ground-2);padding-block:var(--section-y)}
+.band blockquote{
+  margin:0;font-family:var(--font-display);font-weight:400;
+  font-size:clamp(1.75rem,3.4vw,3rem);line-height:1.12;letter-spacing:-.025em;
+  max-width:20ch;text-wrap:balance;
+}
+.band figcaption{margin-top:2rem;color:var(--ink-muted);font-size:var(--step-small)}
+.band figure{margin:0}
+
+/* ── Figures row ────────────────────────────────────────────────────────── */
+.figures{padding-block:var(--section-y);background:var(--ground)}
+.figures__grid{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:clamp(1.5rem,3vw,3rem);border-top:1px solid var(--edge);padding-top:2rem;
+}
+.figure b{
+  display:block;font-family:var(--font-display);font-weight:400;
+  font-size:clamp(2.5rem,6vw,5.5rem);line-height:.9;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums;
+}
+.figure span{
+  display:block;margin-top:1rem;font-size:var(--step-label);
+  text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);
+}
+
+/* ── Closing ────────────────────────────────────────────────────────────── */
+.closing{position:relative;min-height:88svh;display:flex;background:var(--ground);padding-top:6rem}
+.closing__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:50% 42%;filter:brightness(.5) contrast(1.1);
+}
+.closing__scrim{
+  position:relative;z-index:2;width:100%;align-self:flex-end;
+  padding:7rem var(--gutter) clamp(3rem,7vh,6rem);
+  background-image:linear-gradient(to top,rgb(9 11 14 / .92) 0%,rgb(9 11 14 / .62) 40%,rgb(9 11 14 / .18) 70%,rgb(9 11 14 / 0) 92%);
+}
+.closing__scrim h2{
+  font-family:var(--font-display);font-weight:400;
+  font-size:var(--step-h1);line-height:.96;letter-spacing:-.035em;
+  margin:1.25rem 0 1.5rem;max-width:12ch;
+}
+.closing__scrim p{max-width:44ch;color:#DCD8D0;margin:0 0 2.25rem}
+.cta{
+  display:inline-flex;align-items:center;gap:.75rem;min-height:52px;
+  padding:0 1.75rem;background:var(--accent);color:#12151A;
+  font-family:var(--font-text);font-weight:600;font-size:var(--step-small);
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;
+  transition:background-color var(--d-state) var(--ease-out),
+             transform var(--d-press) var(--ease-out);
+}
+.cta:hover{background:#D9B061}
+.cta:active{transform:scale(.97)}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.foot{background:var(--ground-2);padding-block:clamp(3rem,7vh,5rem)}
+.foot__grid{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2.5rem;
+  border-top:1px solid var(--edge);padding-top:2.5rem;
+}
+.foot h3{font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);margin:0 0 1rem}
+.foot p{margin:0 0 .25rem;color:#C9C5BE;font-size:var(--step-small)}
+.foot a{
+  display:inline-block;padding-block:.5rem;
+  color:var(--ink);text-decoration:none;
+  border-bottom:1px solid rgb(242 239 233 / .3);
+  transition:border-color var(--d-state) var(--ease-out),color var(--d-state) var(--ease-out);
+}
+.foot a:hover{color:var(--accent);border-color:var(--accent)}
+.foot__legal{
+  margin-top:3rem;display:flex;justify-content:space-between;gap:1rem;
+  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);
+}
+
+/* ── Reveals — visible by default, hidden only when JS is alive ─────────── */
+.js .reveal{opacity:0;transform:translateY(16px)}
+.js .reveal.is-in{
+  opacity:1;transform:none;
+  transition:opacity var(--d-enter) var(--ease-out),transform var(--d-enter) var(--ease-out);
+}
+/* a heading wipes up from a mask; an image scales down from 1.06 —
+   different gesture per meaning, per motion.md */
+.js .wipe{overflow:hidden}
+.js .wipe>span{display:block;transform:translateY(102%)}
+.js .wipe.is-in>span{
+  transform:none;
+  transition:transform var(--d-enter) var(--ease-out);
+}
+
+/* ── Breakpoints ────────────────────────────────────────────────────────── */
+@media (max-width:1100px){
+  .frame{left:min(10vw,8rem);width:min(52vw,32rem)}
+  .frame__caption{left:min(10vw,8rem)}
+  .chapter__body{width:min(34vw,22rem)}
+  .stage__rail{display:none}
+}
+@media (max-width:900px){
+  .pin{display:block}
+  .pin>*{grid-area:auto}
+  /* the stage sits above the chapters and they scroll behind it — without
+     the z-index the following content simply paints over the pinned stage */
+  .stage{height:56svh;z-index:3;background:var(--ground)}
+  .stage::after{display:none}
+  .stage__numeral{display:none}
+  .frame{left:var(--gutter);right:var(--gutter);width:auto;height:40svh;top:calc(50% - 1.5rem)}
+  .frame__caption{display:none}
+  .stage__rail{
+    display:flex;flex-direction:row;justify-content:space-between;
+    left:var(--gutter);right:var(--gutter);top:auto;bottom:1.25rem;gap:.75rem;
+  }
+  .rail__item::before{display:none}
+  .chapters{z-index:1;padding-top:2.5rem;background:var(--ground)}
+  /* the desktop crops are tuned to a 47vw x 72vh frame. On a phone the same
+     insets clip the subject down to a dark strip, so the state change moves
+     entirely into scale and treatment. */
+  .stage[data-chapter="1"] .frame,
+  .stage[data-chapter="2"] .frame,
+  .stage[data-chapter="3"] .frame{clip-path:inset(0 0 0 0)}
+  .stage[data-chapter="2"] .frame__img{transform:scale(1.32) translate3d(-6%,4%,0)}
+  .stage[data-chapter="3"] .frame__img{transform:scale(1.12) translate3d(5%,-5%,0)}
+  .chapter{min-height:0;padding-block:clamp(2.5rem,7vh,4rem)}
+  .chapter__body{margin-left:0;width:auto;max-width:38ch}
+  .chapter+.chapter{border-top:1px solid var(--edge)}
+  .pin__tail{display:none}
+  .figures__grid{grid-template-columns:repeat(2,1fr);row-gap:2.5rem}
+  .foot__grid{grid-template-columns:1fr;gap:2rem}
+  .foot__legal{flex-direction:column;gap:.5rem}
+  .hero__scrim{padding-top:9rem}
+  .masthead{flex-direction:column;gap:.5rem}
+  .masthead__meta{gap:1.25rem}
+}
+@media (max-width:520px){
+  .hero__scrim .display{max-width:9ch}
+  .stage{height:50svh}
+  .frame{height:34svh}
+  .rail__item{font-size:.6875rem;letter-spacing:.1em}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <img class="hero__img" src="https://images.unsplash.com/photo-1775403909605-ef9047813f9f?w=1600&q=80&auto=format" alt="A smith working at an open coal forge, the fire the only light in the shop.">
+    <header class="masthead">
+      <a class="masthead__mark" href="#">Hallam Steel</a>
+      <div class="masthead__meta">
+        <p class="label">Malin Bridge, Sheffield</p>
+        <p class="label">Est. 2011</p>
+        <p class="label">By commission</p>
+      </div>
+    </header>
+    <div class="hero__scrim">
+      <p class="label">Forged kitchen knives · Two benches · Ninety a year</p>
+      <h1 class="display">One knife, eleven weeks.</h1>
+      <p class="lead">Rob Sandell and Nita Vaughan draw every blade from bar stock in a shop off Malin Bridge. Nothing is cut from plate, and nothing leaves without both their marks on the tang.</p>
+      <hr class="hero__rule">
+    </div>
+  </section>
+
+  <!-- ── Pinned stage: one subject, three chapters ────────────────────── -->
+  <div class="pin">
+    <div class="stage" id="stage" data-chapter="1">
+      <span class="stage__numeral" aria-hidden="true"></span>
+      <nav class="stage__rail" aria-label="Chapters">
+        <span class="rail__item"><b>01</b> The billet</span>
+        <span class="rail__item"><b>02</b> The grind</span>
+        <span class="rail__item"><b>03</b> The handle</span>
+      </nav>
+      <figure class="frame">
+        <img class="frame__img" src="https://images.unsplash.com/photo-1537557209696-c595cc42018d?w=1600&q=80&auto=format" alt="A hammer falling on a bar of steel at forging heat.">
+      </figure>
+      <div class="frame__caption" aria-hidden="true">
+        <span>1.2519 tool steel · 240 × 40 × 4 mm · four heats</span>
+        <span>Hollow ground on a 610 mm wheel · 40 grit to 600</span>
+        <span>English walnut, Rivelin Valley · brass pin, 3.2 mm</span>
+      </div>
+    </div>
+
+    <div class="chapters">
+      <section class="chapter" data-chapter="1">
+        <div class="chapter__body">
+          <p class="chapter__index">01</p>
+          <h2 class="chapter__title wipe"><span>The billet</span></h2>
+          <p class="chapter__text reveal">Bar stock arrives as 1.2519 — a tungsten tool steel that takes a fine edge and forgives a slow quench. Rob draws it down over four heats at 1,050&nbsp;°C, then buries it in vermiculite overnight so the grain settles before anything is cut.</p>
+          <p class="chapter__spec reveal">Four heats · 1,050&nbsp;°C · normalised 14 hours</p>
+        </div>
+      </section>
+      <section class="chapter" data-chapter="2">
+        <div class="chapter__body">
+          <p class="chapter__index">02</p>
+          <h2 class="chapter__title wipe"><span>The grind</span></h2>
+          <p class="chapter__text reveal">The hollow is cut on a 610&nbsp;mm wheel and then taken back by hand, 40 grit through to 600. The edge is left 0.3&nbsp;mm at the shoulder before heat treat — thin enough to cut cleanly, thick enough to survive the oil.</p>
+          <p class="chapter__spec reveal">0.3 mm at the shoulder · 62 HRC after temper</p>
+        </div>
+      </section>
+      <section class="chapter" data-chapter="3">
+        <div class="chapter__body">
+          <p class="chapter__index">03</p>
+          <h2 class="chapter__title wipe"><span>The handle</span></h2>
+          <p class="chapter__text reveal">Nita shapes stabilised walnut from a tree felled on Rivelin Valley Road, pinned in brass and bedded on G-flex. The last forty minutes are 1500 grit and a thumb, worked against a tracing of the hand that ordered it.</p>
+          <p class="chapter__spec reveal">Walnut, Rivelin Valley · brass pin · hand-fitted</p>
+        </div>
+      </section>
+      <div class="pin__tail" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <!-- ── Quote (ground shift) ─────────────────────────────────────────── -->
+  <section class="band">
+    <div class="wrap">
+      <figure>
+        <blockquote class="reveal">The first time you cut a shallot with a knife ground for your own hand, you stop buying knives.</blockquote>
+        <figcaption class="reveal">Priya Raghunath · head chef, Bench 41, Nether Edge · commissioned a 210 gyuto in 2023</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ── Figures ──────────────────────────────────────────────────────── -->
+  <section class="figures">
+    <div class="wrap">
+      <p class="label reveal">The shop in numbers</p>
+      <div class="figures__grid">
+        <div class="figure reveal"><b>62</b><span>HRC at the edge</span></div>
+        <div class="figure reveal"><b>11</b><span>Weeks per knife</span></div>
+        <div class="figure reveal"><b>£340</b><span>The 210 gyuto</span></div>
+        <div class="figure reveal"><b>90</b><span>Made last year</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Closing ──────────────────────────────────────────────────────── -->
+  <section class="closing">
+    <img class="closing__img" src="https://images.unsplash.com/photo-1509460364839-ef5b594e0ee8?w=1600&q=80&auto=format" alt="Sparks thrown from a blade held against a grinding wheel.">
+    <div class="closing__scrim">
+      <p class="label">Commissions</p>
+      <h2>The 2027 book opens on 3 March.</h2>
+      <p>Forty places, taken in the order they arrive. Tell us what you cook and which hand you hold it in; we will come back with a drawing and a date.</p>
+      <a class="cta" href="mailto:rob@hallamsteel.co.uk">Write to the shop</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div>
+        <h3>The shop</h3>
+        <p>Unit 4, Malin Bridge Works<br>Holme Lane, Sheffield S6 4EA</p>
+        <p><a href="tel:+441142348871">0114 234 8871</a></p>
+      </div>
+      <div>
+        <h3>Open</h3>
+        <p>Thursday to Saturday, 10–4</p>
+        <p>Other days by appointment</p>
+      </div>
+      <div>
+        <h3>Elsewhere</h3>
+        <p><a href="mailto:rob@hallamsteel.co.uk">rob@hallamsteel.co.uk</a></p>
+        <p><a href="#">Instagram</a></p>
+      </div>
+    </div>
+    <div class="foot__legal">
+      <span>Hallam Steel Ltd · Registered in England 07731204</span>
+      <span>Photography Unsplash</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.classList.add('js');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 1 — scroll reveals. Hidden state is gated on .js, so a script failure
+         leaves every word on the page visible. */
+  const revealables = document.querySelectorAll('.reveal, .wipe');
+  if (reduced) {
+    revealables.forEach((el) => el.classList.add('is-in'));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+      }),
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.15 }
+    );
+    revealables.forEach((el) => io.observe(el));
+  }
+
+  /* 2 — the pin. One observer over the chapter blocks writes a single
+         attribute onto the stage; every state change is CSS from there. */
+  const stage = document.getElementById('stage');
+  const chapters = document.querySelectorAll('.chapter');
+  if (stage && chapters.length) {
+    const setChapter = (n) => {
+      if (stage.dataset.chapter === n) return;
+      stage.dataset.chapter = n;
+    };
+    const pinObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setChapter(e.target.dataset.chapter); });
+      },
+      /* the trigger line sits at the vertical middle of the viewport:
+         a chapter takes the stage as its copy reaches reading position */
+      { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+    );
+    chapters.forEach((c) => pinObserver.observe(c));
+  }
+})();
+</script>
+</body>
+</html>

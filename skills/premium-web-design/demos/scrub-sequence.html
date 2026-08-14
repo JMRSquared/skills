@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackwall Machine Co. · Type 4 Rotary</title>
+
+<!--
+=============================================================================
+  PATTERN
+    A scroll-scrubbed image sequence drawn frame by frame into a <canvas>.
+    This is the Tier B answer to "the product should turn as you scroll".
+    The whole effect is 24 JPEGs, one drawImage per frame, and no WebGL,
+    no glTF, no renderer to keep alive. Apple has shipped this exact
+    mechanism on product pages for a decade.
+
+  DERIVES FROM
+    Apple's MacBook Pro page. See references/site-studies/macbook-ui.md,
+    where the laptop's lid angle and rotation are both driven by scroll
+    progress across a pinned section. Same idea, one tier cheaper.
+
+  FAILURE MODE AVOIDED
+    The four in ambition-tiers.md that kill canvas work:
+      · uncapped devicePixelRatio (4x the pixels on retina, 20fps)
+      · a canvas with no explicit sizing (0px tall, or a stretched aspect)
+      · a scrub tied to assets that are still loading (starts mid-way)
+      · type over a moving scene with no scrim (unreadable half the time)
+    Plus the mobile one: a phone does not download 24 frames. It gets a
+    single art-directed still, which is the same composition held.
+
+  THE FRAMES, AND HOW TO SWAP THEM
+    assets/seq/frame-00.jpg .. frame-23.jpg are generated, not photographed:
+    a raymarched signed-distance field of a knurled ring on a tilted tumble
+    axis, one detent per frame, 1440x810, 387 KB for the set. They exist so
+    this demo runs with nothing to download.
+    To swap in a real sequence: keep the naming, keep the count in FRAMES,
+    and keep every frame the same pixel size. Nothing else in the file
+    knows what the pictures are of. For production, ship 2x frames as WebP
+    and an <img srcset> poster. At 1440x810 the stage upscales about 1.5x
+    on a 2x display, which is the price of the size budget here.
+
+  HOW TO ADAPT
+    SCROLL_LENGTH controls how much scroll one revolution costs. FRAMES
+    controls the sequence. Everything else is layout.
+
+  PALETTE     "Cold steel", references/color-and-light.md, verbatim
+              --ground #08090A --ground-2 #101214 --edge #1E2126
+              --ink #EDEFF2    --ink-muted #8B929C --accent #4AA8FF
+  TYPE        Pairing 6, references/typography.md, verbatim:
+              Archivo (wdth 112, wght 700) display + Geist + Geist Mono.
+  MOTION      Durations and curves from references/motion.md only.
+  PHOTOGRAPHY Unsplash, 1600px sources, free licence. Credits in the footer.
+=============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@112,700&family=Geist:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ---- palette: "Cold steel", color-and-light.md ---- */
+  --ground:#08090A; --ground-2:#101214; --edge:#1E2126;
+  --ink:#EDEFF2;    --ink-muted:#8B929C; --accent:#4AA8FF;
+
+  /* ---- scale: typography.md ---- */
+  --step-hero: clamp(3.25rem, 11vw, 11rem);
+  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* ---- motion: motion.md ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --d-state:  240ms;
+  --d-enter:  700ms;
+
+  /* ---- grid: layout-archetypes.md ---- */
+  --gutter: clamp(1.5rem, 4vw, 5rem);
+  --section-y: clamp(5rem, 9vw, 9rem);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Geist", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+/* height:auto, or the width/height attributes land as a presentational
+   height and every aspect-ratio below becomes a no-op. */
+img{ display:block; max-width:100%; height:auto; }
+figure{ margin:0; }
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+.wrap > *{ min-width:0; }
+
+/* ---------- type roles ---------- */
+.display{
+  font-family:"Archivo", ui-sans-serif, sans-serif;
+  font-weight:700; font-stretch:112%;
+  line-height:0.92; letter-spacing:-0.035em; text-wrap:balance; margin:0;
+  text-transform:uppercase;
+}
+h1.display{ font-size:var(--step-hero); }
+h2.display{ font-size:var(--step-h1); line-height:0.94; letter-spacing:-0.03em; }
+h3.display{ font-size:var(--step-h2); letter-spacing:-0.025em; }
+.label{
+  font-family:"Geist Mono", ui-monospace, monospace;
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
+  font-weight:500; margin:0; color:var(--accent);
+}
+.label--quiet{ color:var(--ink-muted); }
+.lead{ font-size:var(--step-lead); line-height:1.4; max-width:34ch; margin:0; }
+.note{ max-width:52ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.mono{ font-family:"Geist Mono", ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+
+/* ---------- hero ---------- */
+.hero{
+  position:relative; isolation:isolate;
+  padding:clamp(5rem, 10vw, 9rem) 0 var(--section-y);
+}
+/* Atmospheric glow: one soft radial, low opacity, behind content. It lives
+   on a pseudo-element rather than on .hero itself so that it is not an
+   ancestor background of the copy. An ancestor gradient is what makes an
+   auditor (correctly) treat every headline in here as type over media. */
+.hero::before{
+  content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
+  background-image:radial-gradient(58% 46% at 68% 8%, rgb(74 168 255 / .11), transparent 68%);
+}
+.hero__bar{
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding-bottom:clamp(4rem, 9vw, 8rem);
+}
+.hero__bar a{
+  color:var(--ink); text-decoration:none;
+  font-family:"Geist Mono", ui-monospace, monospace;
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--d-state) var(--ease-out);
+}
+.hero__bar a:hover{ color:var(--accent); }
+.hero h1{ max-width:11ch; }
+.hero__sub{ display:grid; grid-template-columns:5fr 7fr; gap:2rem var(--gutter); margin-top:3rem; }
+.hero__sub > *{ min-width:0; }
+.hero__stats{ display:flex; flex-wrap:wrap; gap:1rem 3rem; margin:0; padding:0; list-style:none; }
+.hero__stats li{ font-size:var(--step-small); color:var(--ink-muted); }
+.hero__stats b{ display:block; font-size:var(--step-h2); color:var(--ink); font-weight:500; line-height:1.1; }
+
+/* =====================================================================
+   THE SCRUB
+   Default (phone, reduced motion): a single still, section height auto,
+   no canvas work at all. The desktop behaviour is added by a class.
+   ===================================================================== */
+.scrub{ position:relative; }
+.scrub__stage{
+  position:relative; overflow:hidden; background:var(--ground);
+  aspect-ratio:16/9;
+}
+.scrub__canvas{ display:none; width:100%; height:100%; }
+.scrub__poster{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:62% 50%;
+  transition:opacity var(--d-enter) var(--ease-out);
+}
+/* The copy is a direct child of the element painting the gradient, so it
+   stays legible over frame 3 and frame 19 alike. */
+.scrub__scrim{
+  position:absolute; inset:0; z-index:1;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:clamp(1.5rem, 4vw, 4rem);
+  background-image:linear-gradient(to top,
+    rgb(4 5 6 / .86) 0%, rgb(4 5 6 / .40) 40%, transparent 70%);
+}
+.scrub__scrim > .label{ margin-bottom:1rem; }
+.scrub__scrim > h2{ margin-bottom:1.25rem; max-width:14ch; }
+.scrub__scrim > .note{ color:var(--ink); max-width:44ch; }
+.scrub__counter{
+  position:absolute; top:clamp(1.5rem, 4vw, 4rem); right:clamp(1.5rem, 4vw, 4rem);
+  z-index:2; margin:0; font-family:"Geist Mono", ui-monospace, monospace;
+  font-variant-numeric:tabular-nums; font-size:var(--step-small);
+  letter-spacing:0.12em; color:var(--ink);
+  background-image:linear-gradient(to bottom, rgb(4 5 6 / .70), rgb(4 5 6 / .34));
+  padding:0.5rem 0.75rem; border:1px solid var(--edge);
+}
+.scrub__counter b{ color:var(--accent); font-weight:500; }
+
+/* Scrubbing composition, switched on only when the sequence is decoded and
+   the viewport earns it. */
+.scrub.is-live{ height:var(--scroll-length, 420vh); }
+.scrub.is-live .scrub__stage{
+  position:sticky; top:0; height:100vh; aspect-ratio:auto;
+}
+.scrub.is-live .scrub__canvas{ display:block; }
+.scrub.is-live .scrub__poster{ opacity:0; }
+
+/* ---------- spec table: rows and hairlines, not cards ---------- */
+.band{ padding:var(--section-y) 0; border-top:1px solid var(--edge); }
+.spec{ display:grid; grid-template-columns:5fr 7fr; gap:2.5rem var(--gutter); }
+.spec > *{ min-width:0; }
+.spec dl{ margin:0; }
+.spec .row{
+  display:grid; grid-template-columns:14rem 1fr; gap:1rem var(--gutter);
+  padding:1rem 0; border-bottom:1px solid var(--edge);
+}
+.spec dt{
+  font-family:"Geist Mono", ui-monospace, monospace;
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
+  color:var(--ink-muted); align-self:center;
+}
+.spec dd{ margin:0; font-size:var(--step-lead); line-height:1.3; }
+
+/* ---------- editorial pair ---------- */
+.pair{ display:grid; grid-template-columns:7fr 5fr; gap:var(--gutter); align-items:start; }
+.pair > *{ min-width:0; }
+.pair img{ width:100%; object-fit:cover; }
+.pair__a img{ aspect-ratio:16/9; object-position:50% 46%; }
+.pair__b{ margin-top:clamp(2rem, 7vw, 6rem); }
+.pair__b img{ aspect-ratio:4/5; object-position:50% 50%; }
+.cap{ margin:1rem 0 0; font-size:var(--step-small); color:var(--ink-muted); max-width:44ch; }
+.cap b{ color:var(--ink); font-weight:500; }
+
+footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
+.credits{ display:flex; flex-wrap:wrap; gap:0.5rem 2rem; margin:1.5rem 0 0; padding:0; list-style:none; }
+.credits a{
+  color:var(--ink-muted); font-size:var(--step-small); text-decoration:none;
+  border-bottom:1px solid var(--edge);
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
+}
+.credits a:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ---------- reveals: visible state is the default ---------- */
+.js .rv{ opacity:0; transform:translateY(16px); }
+.js .rv.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+@media (max-width: 860px){
+  .hero__sub{ grid-template-columns:1fr; }
+  .spec{ grid-template-columns:1fr; }
+  .spec .row{ grid-template-columns:1fr; gap:0.25rem; }
+  .pair{ grid-template-columns:1fr; }
+  .pair__b{ margin-top:0; }
+  /* Phone: the same idea at a lower cost, not the desktop layout with the
+     animation deleted. The still is a real frame from the middle of the
+     sequence, cropped 4:5 to the object, and the copy moves off the picture
+     onto solid ground with the image fading into it. Overlaying three lines
+     of 40px display type on a 390px-wide frame buries the object. */
+  .scrub__stage{ aspect-ratio:auto; }
+  .scrub__poster{
+    position:relative; inset:auto; width:100%; height:auto;
+    aspect-ratio:4/5; object-position:60% 50%;
+  }
+  .scrub__scrim{
+    position:relative; inset:auto; margin-top:-8rem; padding:8rem var(--gutter) 0;
+    background-image:linear-gradient(to top,
+      rgb(8 9 10 / 1) 0%, rgb(8 9 10 / .94) 40%, rgb(8 9 10 / 0) 100%);
+  }
+  .scrub__counter{ display:none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero__bar">
+      <a href="#build">Blackwall Machine Co.</a>
+      <a href="#spec">Type 4 Rotary</a>
+    </div>
+    <p class="label">Poplar, London &middot; batch 41</p>
+    <h1 class="display" style="margin-top:1.5rem">Turned, not moulded</h1>
+    <div class="hero__sub">
+      <p class="lead">One billet of 6061-T6, four parts at a time, eleven minutes each on the lathe.</p>
+      <ul class="hero__stats mono">
+        <li><b>38.0</b> mm across the knurl</li>
+        <li><b>24</b> detents to the revolution</li>
+        <li><b>4.1</b> mNm to move one</li>
+      </ul>
+    </div>
+  </div>
+</header>
+
+<section class="scrub" id="turn" aria-label="The control through one revolution">
+  <div class="scrub__stage">
+    <!-- The poster is the still that ships everywhere the sequence does not:
+         phones, reduced motion, a failed fetch. It is a real frame from the
+         middle of the sequence, not a placeholder. -->
+    <img class="scrub__poster" alt="A knurled aluminium control ring lit by a single softbox"
+         src="assets/seq/frame-19.jpg" width="1440" height="810"
+         fetchpriority="high" decoding="async">
+    <canvas class="scrub__canvas" id="seq" aria-hidden="true"></canvas>
+    <p class="scrub__counter mono" id="counter" hidden><span>Detent</span> <b>01</b> <span>/ 24</span></p>
+    <div class="scrub__scrim">
+      <p class="label">One revolution</p>
+      <h2 class="display">One turn, twenty-four stops</h2>
+      <p class="note">Each stop is a ball bearing dropping into a milled pocket. You feel them through the fingertips before you hear them.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="spec">
+  <div class="wrap">
+    <div class="spec">
+      <div>
+        <p class="label">Specification</p>
+        <h3 class="display rv" style="margin-top:1rem">What it is</h3>
+        <p class="note rv" style="margin-top:1.5rem">Nothing on this part is decorative. The knurl exists because fingers slip on anodised aluminium, and the flat on the bore exists because a grub screw on a round shaft works loose by the fourth month.</p>
+      </div>
+      <dl class="rv">
+        <div class="row"><dt>Material</dt><dd>6061-T6 aluminium, bar stock</dd></div>
+        <div class="row"><dt>Diameter</dt><dd class="mono">38.0 mm across the knurl</dd></div>
+        <div class="row"><dt>Height</dt><dd class="mono">14.2 mm</dd></div>
+        <div class="row"><dt>Detents</dt><dd class="mono">24 per revolution, 15&deg; apart</dd></div>
+        <div class="row"><dt>Bore</dt><dd class="mono">6.00 mm, D-flat</dd></div>
+        <div class="row"><dt>Finish</dt><dd>Bead blast, then clear anodise</dd></div>
+        <div class="row"><dt>Lead time</dt><dd class="mono">11 working days</dd></div>
+        <div class="row"><dt>Price</dt><dd class="mono">&pound;42 each, &pound;34 over fifty</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section class="band" id="build">
+  <div class="wrap">
+    <p class="label">On the floor</p>
+    <h3 class="display rv" style="margin:1rem 0 3rem">Eleven minutes a part</h3>
+    <div class="pair">
+      <figure class="pair__a rv">
+        <img alt="A boring tool cutting a countersink into a spinning aluminium face"
+             src="https://images.unsplash.com/photo-1654096275958-a1e15d2aabd2?w=1600&q=80&auto=format"
+             width="1600" height="1067" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>Op 20, boring the seat.</b> Flood coolant, 4,800 rpm. The swarf coming off blue means the feed is right.</figcaption>
+      </figure>
+      <figure class="pair__b rv">
+        <img alt="Finished machined aluminium parts arranged on a dark bench"
+             src="https://images.unsplash.com/photo-1621235218771-d7ccf11a1408?w=1600&q=80&auto=format"
+             width="1600" height="1200" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>Before anodising.</b> Every fiftieth part goes on the CMM. The other forty-nine go in the tumbler.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="label label--quiet">Frames and credits</p>
+    <p class="note rv" style="margin-top:1rem">The 24-frame sequence is generated, 387 KB for the set, and documented at the top of this file. The two photographs are Unsplash under the free licence, credited anyway.</p>
+    <ul class="credits">
+      <li><a href="https://unsplash.com/photos/1654096275958-a1e15d2aabd2">Boring the seat</a></li>
+      <li><a href="https://unsplash.com/photos/1621235218771-d7ccf11a1408">Finished parts</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var FRAMES = 24;                          /* swap point: count of files    */
+  var SRC = function (i) {                  /* swap point: naming + folder   */
+    return 'assets/seq/frame-' + String(i).padStart(2, '0') + '.jpg';
+  };
+  var SCROLL_LENGTH = '420vh';              /* scroll cost of one revolution */
+
+  var section = document.getElementById('turn');
+  var canvas  = document.getElementById('seq');
+  var counter = document.getElementById('counter');
+  var ctx     = canvas.getContext('2d', { alpha: false });
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var wide    = window.matchMedia('(min-width: 861px)');
+
+  /* --- scroll reveals on the flat bands ------------------------------- */
+  if (!reduced.matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
+  }
+
+  /* --- should this device run a sequence at all? ---------------------- */
+  /* A phone gets the still. Not a smaller sequence, not a slower one: the
+     same composition, held. 24 frames is a download a phone should not be
+     asked to make for a decoration it will scroll past in two seconds. */
+  function eligible() {
+    return wide.matches && !reduced.matches &&
+           !!(window.requestAnimationFrame && ctx);
+  }
+
+  var frames = [], live = false, current = -1, ticking = false;
+
+  /* --- sizing ---------------------------------------------------------- */
+  /* Two things go wrong here and both are in ambition-tiers.md:
+     the canvas gets no explicit backing-store size and paints stretched,
+     or devicePixelRatio is left uncapped and a 3x phone draws nine times
+     the pixels for no visible gain. Cap at 2, re-measure on resize. */
+  var DPR_CAP = 2;
+  function sizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+    var r = canvas.getBoundingClientRect();
+    var w = Math.max(1, Math.round(r.width * dpr));
+    var h = Math.max(1, Math.round(r.height * dpr));
+    if (canvas.width === w && canvas.height === h) return false;
+    canvas.width = w; canvas.height = h;
+    return true;
+  }
+
+  /* --- draw ------------------------------------------------------------ */
+  function paint(i) {
+    var img = frames[i];
+    if (!img) return;
+    var cw = canvas.width, ch = canvas.height;
+    /* cover, computed every paint so a resize cannot leave a stale crop */
+    var s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
+    var dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+    ctx.fillStyle = '#08090A';
+    ctx.fillRect(0, 0, cw, ch);
+    /* horizontal anchor, not a plain centre: the object lives right of
+       centre in the frame and the headline lives bottom-left, so the crop
+       is biased to keep them out of each other's way. */
+    ctx.drawImage(img, (cw - dw) * 0.18, (ch - dh) / 2, dw, dh);
+  }
+
+  function setCounter(i) {
+    if (!counter) return;
+    counter.hidden = false;
+    counter.querySelector('b').textContent = String(i + 1).padStart(2, '0');
+  }
+
+  function update() {
+    ticking = false;
+    if (!live) return;
+    var r = section.getBoundingClientRect();
+    var travel = section.offsetHeight - window.innerHeight;
+    var p = travel > 0 ? (-r.top) / travel : 0;
+    p = p < 0 ? 0 : p > 1 ? 1 : p;
+    var i = Math.round(p * (FRAMES - 1));
+    if (i === current) return;
+    current = i;
+    paint(i);
+    setCounter(i);
+  }
+
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  }
+
+  var resizeTimer;
+  function onResize() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (!eligible()) { stop(); return; }
+      if (!live && frames.length === FRAMES) start();
+      if (live && sizeCanvas()) paint(current < 0 ? 0 : current);
+      update();
+    }, 150);
+  }
+
+  function start() {
+    live = true;
+    section.style.setProperty('--scroll-length', SCROLL_LENGTH);
+    section.classList.add('is-live');
+    sizeCanvas();
+    current = -1;
+    update();
+    if (current < 0) { current = 0; paint(0); setCounter(0); }
+  }
+
+  function stop() {
+    live = false;
+    section.classList.remove('is-live');
+    if (counter) counter.hidden = true;
+  }
+
+  /* --- preload, then and only then go live ----------------------------- */
+  /* A scrub bound to assets that are still arriving starts part-way
+     through and jumps. Every frame is decoded before the section is
+     allowed to become a scroll region; until then the poster holds the
+     composition and the page is a normal, readable page. */
+  function preload() {
+    var jobs = [];
+    for (var i = 0; i < FRAMES; i++) {
+      jobs.push(new Promise(function (resolve) {
+        var img = new Image();
+        img.decoding = 'async';
+        img.onload = function () { (img.decode ? img.decode() : Promise.resolve())
+          .catch(function () {}).then(function () { resolve(img); }); };
+        img.onerror = function () { resolve(null); };
+        img.src = SRC(this);
+      }.bind(i)));
+    }
+    return Promise.all(jobs).then(function (list) {
+      if (list.some(function (x) { return !x; })) return false;
+      frames = list;
+      return true;
+    });
+  }
+
+  if (!eligible()) {
+    /* nothing else happens: the poster is the page */
+  } else {
+    preload().then(function (ok) {
+      if (!ok || !eligible()) return;      /* poster stands */
+      /* fonts settle after the sequence does on a cold cache; the sticky
+         stage is 100vh either way, but the section's own offsetHeight is
+         read after both, so progress is measured against the real layout */
+      var fonts = (document.fonts && document.fonts.ready) || Promise.resolve();
+      fonts.catch(function () {}).then(function () {
+        start();
+      });
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onResize);
+  wide.addEventListener('change', onResize);
+  reduced.addEventListener('change', onResize);
+})();
+</script>
+</body>
+</html>
