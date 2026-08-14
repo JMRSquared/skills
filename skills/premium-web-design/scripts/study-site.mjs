@@ -145,6 +145,15 @@ const wheelTo = async (page, target) => {
   return scrollY(page);
 };
 
+/** Screenshot that survives pages animating forever. */
+const snap = async (page, file, quality) => {
+  try {
+    await page.screenshot({ path: file, type: 'jpeg', quality, timeout: 15000 });
+  } catch {
+    await page.screenshot({ path: file, type: 'jpeg', quality, timeout: 20000, animations: 'disabled', caret: 'hide' });
+  }
+};
+
 const shoot = async (page, prefix, steps) => {
   const shots = [];
   const vh = await page.evaluate(() => window.innerHeight);
@@ -156,7 +165,7 @@ const shoot = async (page, prefix, steps) => {
     const reached = i === 0 ? 0 : await wheelTo(page, target);
     await page.waitForTimeout(SETTLE);
     const file = path.join(shotDir, `${prefix}-${String(i).padStart(2, '0')}.jpg`);
-    await page.screenshot({ path: file, type: 'jpeg', quality: 68 });
+    await snap(page, file, 68);
     shots.push({
       file: path.basename(file),
       targetY: target,

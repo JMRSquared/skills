@@ -140,8 +140,22 @@ const audit = (opts = {}) => {
       if (!hasScrim) overMediaNoScrim.push(sample);
     } else if (ratio < min) badContrast.push(sample);
   }
-  if (badContrast.length)
-    add('fail', 'contrast', `${badContrast.length} text elements below WCAG AA against their own background.`, badContrast.slice(0, 12));
+  if (badContrast.length) {
+    const pairs = {};
+    for (const s2 of badContrast) {
+      const k = `${s2.color} on ${s2.bg}`;
+      if (!pairs[k]) pairs[k] = { pairing: k, worstRatio: s2.ratio, count: 0, example: s2.text, sizes: new Set() };
+      pairs[k].count++;
+      pairs[k].sizes.add(s2.size);
+      pairs[k].worstRatio = Math.min(pairs[k].worstRatio, s2.ratio);
+    }
+    const grouped = Object.values(pairs)
+      .map((p2) => ({ ...p2, sizes: [...p2.sizes].sort((a, b) => a - b) }))
+      .sort((a, b) => a.worstRatio - b.worstRatio);
+    add('fail', 'contrast',
+      `${badContrast.length} text elements below WCAG AA, across ${grouped.length} distinct colour pairings (worst ${grouped[0].worstRatio}:1).`,
+      grouped.slice(0, 8));
+  }
   if (overMediaNoScrim.length)
     add('warn', 'text-over-media', `${overMediaNoScrim.length} text elements sit on an image/gradient with no scrim or text-shadow. Text over photography needs a gradient scrim, not hope.`, overMediaNoScrim.slice(0, 8));
 
@@ -273,6 +287,15 @@ const audit = (opts = {}) => {
   };
 };
 
+/** Screenshot that survives pages animating forever. */
+const snap = async (page, file, quality) => {
+  try {
+    await page.screenshot({ path: file, type: 'jpeg', quality, timeout: 15000 });
+  } catch {
+    await page.screenshot({ path: file, type: 'jpeg', quality, timeout: 20000, animations: 'disabled', caret: 'hide' });
+  }
+};
+
 const shootScroll = async (page, prefix, steps) => {
   const shots = [];
   const vh = await page.evaluate(() => window.innerHeight);
@@ -283,7 +306,7 @@ const shootScroll = async (page, prefix, steps) => {
     await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'auto' }), y);
     await page.waitForTimeout(900);
     const file = path.join(outDir, `${prefix}-${String(i).padStart(2, '0')}.jpg`);
-    await page.screenshot({ path: file, type: 'jpeg', quality: 76 });
+    await snap(page, file, 76);
     shots.push(path.basename(file));
   }
   await page.evaluate(() => window.scrollTo({ top: 0 }));
