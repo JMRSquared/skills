@@ -25,6 +25,7 @@ Four mechanisms, and the fix for each. Everything below is one of these fixes.
 | Adjectives with no numbers | "Expressive typography" and "art-directed spacing" carry no values, so the model emits its default: Inter at 36px, 14px grey body, 8px radius everywhere | **Step 3** — an Art Direction Contract of literal values, written before any component code |
 | Never looking | Contrast, optical spacing, real type size, crops, overlaps, and broken fonts are invisible in source. A self-scored 9/10 ends the improvement loop with nothing rendered | **Step 6** — `scripts/audit-page.mjs` renders and measures the page, and you read the frames |
 | Ambition past reliability | Quotas demanding WebGL and scrub on every brief produce collapsed pins, stretched canvases, and copy unreadable over motion | **Step 4** — pick a tier you can land. A broken Tier C loses to a perfect Tier A. |
+| Restraint with nothing behind it | Every other rule here is a *don't*. Obey them all and you ship a page that is correct, tasteful, and forgettable: six images, the biggest type in the hero, nothing overlapping, nothing bleeding, two ground changes in nine screens | **Step 4b** — a density floor and a signature device, both measured by the auditor as SPARSE findings |
 
 ## Activation
 
@@ -247,6 +248,51 @@ a credible model, stage real photography inside the motion system instead.
 
 ---
 
+## Step 4b — Density and the signature device
+
+Full detail, corpus counts, CSS recipes, and worked examples for ordinary
+businesses: `references/density-and-devices.md`. Read it before you write markup.
+
+The corpus median is **23 images across 9 screens**, roughly 2.5 per screen. A
+page built entirely from the restraint rules above tends to land near 0.7, and
+that ratio is most of the difference between "clean" and "cheap".
+
+Name these four before you build, the way you name the three signature moments:
+
+```
+Signature device: <the one repeating branded object>, appearing <n> times
+Second type event: <what is set larger than the hero, and where>
+Overlaps:  <which elements cross which boundaries>
+Bleeds:    <what runs past the viewport edge>
+```
+
+| Floor | Value | Why |
+|---|---|---|
+| Media per screen | ≥2.0 | corpus median 2.5 |
+| Largest type | **not** in the hero | true of 5 of 6 image-led studies |
+| Overlaps | ≥3 | layering is what separates a design from a stack of rows |
+| Edge bleeds | ≥2 | a fully contained page reads as a document |
+| Ground flips | 1 per 2–3 screens | Tripletta 1.2, Hagi's 1.6, Amrit 2.8 |
+| Device repeats | ≥4, changing each time | Amrit's review card, Blind Barber's year rail |
+
+**The signature device is the thing people remember.** Amrit's saffron menu
+panel. Blind Barber's pinned year rail and 902px numerals. Tripletta's die-cut
+sticker. It is an object, not a colour: it carries information, it repeats at
+different scales, and it is invented from the brief. A vet gets the engraved ID
+disc off a collar. A garage gets the inspection stamp. A builder gets the
+drawing title block.
+
+Giant tint letterforms are part of this and they are *meant* to sit below AA:
+Tripletta measures 1.55:1, Banzai 1.4:1. Mark them `aria-hidden="true"` and make
+sure the word also appears somewhere as real text. The auditor exempts marks
+that meet both conditions and counts them as ambition instead.
+
+**The failure mode of this step is noise.** Density comes from real content
+shown more ways, never from ornament. Every image is a real subject, every
+device instance carries information, and if a mark says nothing, delete it.
+
+---
+
 ## Step 5 — Build in this order
 
 ```
@@ -344,6 +390,9 @@ Every box needs an artifact, not a claim.
 - [ ] No console errors in `audit.json`
 - [ ] Composition variety rules met (≥4 layout families, ≤2 consecutive splits)
 - [ ] Real photography carries any physical product, place, or service
+- [ ] Signature device named, and repeating at least four times
+- [ ] The largest type on the page is not in the hero
+- [ ] `audit-page.mjs` reports zero SPARSE findings
 - [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
 
 ## Reference map
@@ -357,6 +406,7 @@ Every box needs an artifact, not a claim.
 | `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
 | `references/imagery.md` | Sourcing, choosing, treating, and cropping photography |
 | `references/content-and-copy.md` | Words, conversion placement, and copy tells |
+| `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |
