@@ -64,9 +64,16 @@ jobs:
           set -euo pipefail
 
           mkdir -p plugins/jmrsquared-standards/skills .cursor/skills .windsurf/skills
-          rsync -a --delete skills/ plugins/jmrsquared-standards/skills/
-          rsync -a --delete skills/ .cursor/skills/
-          rsync -a --delete skills/ .windsurf/skills/
+
+          # premium-web-design ships a screenshot corpus of 15 award sites.
+          # It is reference material for the Claude Code path only — copying it
+          # into three more surfaces would quadruple the repo for no benefit.
+          # The measured studies that matter are markdown and still sync.
+          SYNC_EXCLUDE=(--exclude 'premium-web-design/assets/studies/')
+
+          rsync -a --delete "${SYNC_EXCLUDE[@]}" skills/ plugins/jmrsquared-standards/skills/
+          rsync -a --delete "${SYNC_EXCLUDE[@]}" skills/ .cursor/skills/
+          rsync -a --delete "${SYNC_EXCLUDE[@]}" skills/ .windsurf/skills/
 
       - name: Sync hooks into plugin bundle
         run: |
