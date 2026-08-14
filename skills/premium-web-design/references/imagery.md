@@ -100,6 +100,12 @@ and pulls stock toward film.
 - `loading="eager"` and `fetchpriority="high"` on the hero image only;
   `loading="lazy"` on everything below the fold.
 - Always set `width`/`height` or `aspect-ratio` so nothing shifts on load.
+- **Ship `img { height: auto }` with them.** `width` and `height` attributes
+  land as presentational hints, and a *definite* width and height makes the
+  browser ignore your CSS `aspect-ratio` completely. Without `height: auto`
+  every crop on the page silently reverts to the source ratio, the images all
+  render at the wrong height, and the page runs long. No auditor check catches
+  it. If your attribute ratio and your CSS ratio disagree, the attributes win.
 - Prefer AVIF/WebP with a JPEG fallback where the stack supports it.
 
 ## 3D, when it applies

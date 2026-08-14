@@ -360,3 +360,25 @@ Every box needs an artifact, not a claim.
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |
+
+## Demos
+
+Nine self-contained pages, each a different palette and pairing, each exiting
+0 from the auditor. Open the one nearest your brief and read it before you
+write the pattern yourself.
+
+| Demo | Pattern | Stack |
+|---|---|---|
+| `pinned-stage.html` | Archetype C — subject held while copy chapters cycle | sticky + IntersectionObserver |
+| `index-list.html` | Archetype E — the card-grid replacement, cursor image preview | CSS + rAF lerp |
+| `editorial-split.html` | Archetype B — sticky type column, ground shift, masked reveals | sticky + IO |
+| `type-reveal.html` | Line-mask display reveal, character split on scroll | CSS + custom splitter |
+| `loader-to-hero.html` | Load sequence that resolves *into* the hero, skippable | FLIP measurement |
+| `cursor-index.html` | Lerped custom cursor with states, magnetic CTA | rAF, `pointer: fine` only |
+| `photo-treatment.html` | Scrim, duotone, editorial crop pair, grain, with the CSS shown | SVG `feColorMatrix` |
+| `horizontal-chapter.html` | Archetype D — vertical scroll drives a horizontal pan | GSAP + ScrollTrigger |
+| `scrub-sequence.html` | Scroll-scrubbed canvas sequence, the Tier-B answer to WebGL | canvas, DPR capped |
+
+`horizontal-chapter.html` is also the GSAP landing checklist in runnable form:
+eleven numbered guards, each commented with what breaks without it, and a pin
+that is *released* under reduced motion rather than having its tween disabled.
