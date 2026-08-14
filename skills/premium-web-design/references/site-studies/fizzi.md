@@ -36,6 +36,11 @@ One family, one file: `__alpino_5a83fb`, variable, `weight: 100 900`, status `lo
 
 Weight census: 400 (28 elements), 700 (5), 900 (5), 600 (1), 500 (1). letterSpacing is `normal` everywhere — no tracking tricks. The whole hierarchy is size + weight + case, 13:1 between display and body.
 
+Composition rules that hold across every frame:
+- Copy blocks are capped at ~430px wide (`Our soda is made with real fruit juice…` wraps at 3 lines in `desktop-02.jpg`, `Made with only the best natural ingredients…` at 3 lines in `desktop-06.jpg`) against a 1440px viewport — roughly a 30% measure.
+- Left gutter is a consistent ~80px on every text block (`desktop-02.jpg`, `desktop-06.jpg`).
+- Nothing on the page has a border, an outline, a divider rule, or a box-shadow.
+
 ## Structure, screen by screen
 1. **0–14% — Hero.** Two cans, 208px headline between them, CTA. `desktop-hero.jpg`
 2. **14–29% — "TRY ALL FIVE FLAVORS".** Ground flips to pale lime. Copy block left-aligned in the left third; five cans clustered as a 3D bouquet in the right half, cropped by the right edge. Headline top-cropped in-frame, so the section is taller than one viewport. `desktop-02.jpg`

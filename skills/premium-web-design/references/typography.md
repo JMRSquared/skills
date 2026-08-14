@@ -17,6 +17,11 @@ signal that nobody art-directed this.
 Two families. Three only when a mono is doing real work (specs, timestamps,
 labels). Never four.
 
+There is a second trap. Ban Inter and a model reaches for the next most likely
+face — Space Grotesk, Poppins, Montserrat — which now signals "generated" just
+as loudly. Pick from the table below, and do not use the same display face on
+two consecutive projects.
+
 ## Verified pairings
 
 Pick one row. Do not assemble your own pairing from memory — that is where
@@ -29,7 +34,7 @@ clashes come from.
 | 3 | Warm craft, human, hospitality | **Fraunces** (opsz 144, `SOFT` 40) | **Satoshi** | Google + Fontshare |
 | 4 | Modern brand, confident sans | **Clash Display** | **General Sans** | Fontshare |
 | 5 | Bold statement, poster energy | **Anton** or **Archivo** (wdth 125, wght 800) | **Work Sans** | Google |
-| 6 | Technical premium, product/hardware | **Space Grotesk** | **Geist** + **Geist Mono** | Google |
+| 6 | Technical premium, product/hardware | **Technor** or **Archivo** (wdth 112, wght 700) | **Geist** + **Geist Mono** | Fontshare + Google |
 | 7 | Contemporary editorial, magazine | **Newsreader** (opsz 72) | **Schibsted Grotesk** | Google |
 | 8 | Playful but expensive | **Bricolage Grotesque** (wdth 75–100) | **Manrope** | Google |
 | 9 | Classic authority, heritage trade | **Libre Caslon Display** | **Karla** | Google |
