@@ -111,6 +111,27 @@ Rules that come with the scale:
 .stat { font-variant-numeric: tabular-nums; }
 ```
 
+### Clipping a line-masked reveal
+
+`line-height: 0.92` makes the line box **shorter than the glyph extents**. Put
+`overflow: hidden` on that line and the clip shaves the tops of caps and the
+tails of descenders. It looks like a broken webfont, no auditor checks for it,
+and it only shows up when you look at a rendered frame.
+
+Clip the padding box instead, and raise the hidden travel so the glyph still
+starts fully outside it:
+
+```css
+.line{display:block;overflow:hidden;padding-block:.18em;margin-block:-.18em}
+.js .line span{transform:translateY(160%)}   /* not 102% — the box is taller now */
+```
+
+Two things that bite in the same place: split the text **after**
+`document.fonts.ready`, or the measured line breaks belong to the fallback face
+and re-wrap inside their own clip boxes when the webfont swaps in. And if you
+set the split container to `display: flex`, every measurement span becomes a
+flex item and the heading wraps one word per line.
+
 Serif display faces need tighter tracking than sans at the same size. Uppercase
 always needs positive tracking. Lowercase display below 0 tracking; above 72px
 push to −0.04em.
