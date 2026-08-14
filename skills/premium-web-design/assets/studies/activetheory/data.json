@@ -1,0 +1,435 @@
+{
+  "url": "https://www.activetheory.net",
+  "slug": "activetheory",
+  "capturedAt": null,
+  "errors": [
+    "hover: TimeoutError: locator.hover: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a, button').filter({ hasTex"
+  ],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "data": {
+    "title": "Active Theory · Creative Digital Experiences",
+    "scrollHeight": 900,
+    "viewportHeight": 900,
+    "screens": 1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 2,
+      "img": 0,
+      "svg": 0,
+      "sections": 0,
+      "buttons": 4
+    },
+    "body": {
+      "sel": "body",
+      "text": "<p style=\"background: black; color: white; font-size: 20px; display: inline; fon",
+      "fontFamily": "Times",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "p",
+        "text": "What are you looking for?",
+        "fontFamily": "nbarchitekt, monospace",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "21px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(244, 244, 244)"
+      },
+      {
+        "sel": "button",
+        "text": "Accept Cookies",
+        "fontFamily": "Arial",
+        "fontSize": "13.3333px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(0, 0, 0)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 69
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 9
+      },
+      {
+        "value": "rgb(198, 198, 198)",
+        "count": 6
+      },
+      {
+        "value": "rgb(0, 0, 238)",
+        "count": 4
+      },
+      {
+        "value": "rgb(244, 244, 244)",
+        "count": 1
+      },
+      {
+        "value": "rgba(255, 255, 255, 0.7)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 255, 255)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 4
+      },
+      {
+        "value": "rgba(255, 255, 255, 0.1)",
+        "count": 2
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.2)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.5)",
+        "count": 1
+      },
+      {
+        "value": "rgba(156, 165, 255, 0.333)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.333)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.8)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Times|400",
+        "count": 11
+      },
+      {
+        "value": "nbarchitekt, monospace|400",
+        "count": 10
+      },
+      {
+        "value": "nbarchitekt, monospace|700",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "nbarchitekt",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "nbarchitekt",
+        "weight": "300",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "nbarchitekt",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://activetheory.net/assets/js/app.1780406240914.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-J7TMDT4F8N",
+      "https://activetheory.net/assets/js/modules.1780406240914.js"
+    ],
+    "stylesheets": [],
+    "html": 17923
+  },
+  "bundleLibs": [
+    "shader",
+    "three",
+    "video",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 1,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 3,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 4,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "mobileData": {
+    "title": "Active Theory · Creative Digital Experiences",
+    "scrollHeight": 848,
+    "viewportHeight": 844,
+    "screens": 1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 2,
+      "img": 0,
+      "svg": 0,
+      "sections": 0,
+      "buttons": 2
+    },
+    "body": {
+      "sel": "body",
+      "text": "<p style=\"background: black; color: white; font-size: 20px; display: inline; fon",
+      "fontFamily": "Times",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "p",
+        "text": "What are you looking for?",
+        "fontFamily": "nbarchitekt, monospace",
+        "fontSize": "13px",
+        "fontWeight": "400",
+        "lineHeight": "19.5px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(244, 244, 244)"
+      },
+      {
+        "sel": "button",
+        "text": "Accept Cookies",
+        "fontFamily": "Arial",
+        "fontSize": "13.3333px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(0, 0, 0)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 67
+      },
+      {
+        "value": "rgb(156, 165, 255)",
+        "count": 5
+      },
+      {
+        "value": "rgb(0, 0, 238)",
+        "count": 4
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 3
+      },
+      {
+        "value": "rgb(244, 244, 244)",
+        "count": 1
+      },
+      {
+        "value": "rgba(255, 255, 255, 0.7)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgb(198, 198, 198)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 4
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.2)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.5)",
+        "count": 1
+      },
+      {
+        "value": "rgba(156, 165, 255, 0.333)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.333)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.8)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Times|400",
+        "count": 11
+      },
+      {
+        "value": "nbarchitekt, monospace|400",
+        "count": 8
+      },
+      {
+        "value": "nbarchitekt, monospace|700",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "nbarchitekt",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "nbarchitekt",
+        "weight": "300",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "nbarchitekt",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://activetheory.net/assets/js/app.1780406240914.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-J7TMDT4F8N",
+      "https://activetheory.net/assets/js/modules.1780406240914.js"
+    ],
+    "stylesheets": [],
+    "html": 15947
+  }
+}

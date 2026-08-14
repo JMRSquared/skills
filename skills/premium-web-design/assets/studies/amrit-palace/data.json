@@ -1,0 +1,612 @@
+{
+  "url": "https://amritpalace.com/",
+  "slug": "amrit-palace",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1342,
+      "reachedY": 1344,
+      "pct": 14
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 2684,
+      "reachedY": 2691,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 4026,
+      "reachedY": 4020,
+      "pct": 43
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 5368,
+      "reachedY": 5378,
+      "pct": 57
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 6710,
+      "reachedY": 6729,
+      "pct": 72
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 8052,
+      "reachedY": 8046,
+      "pct": 86
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 9394,
+      "reachedY": 9387,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "Amrit Palace",
+    "scrollHeight": 10294,
+    "viewportHeight": 900,
+    "screens": 11.4,
+    "libs": {
+      "gsap": true,
+      "ScrollTrigger": true,
+      "three": false,
+      "lenis": true,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": true
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 1,
+      "img": 69,
+      "svg": 2,
+      "sections": 9,
+      "buttons": 7
+    },
+    "body": {
+      "sel": "body",
+      "text": "HomeCateringGift CardsAboutReserve a TableChoose restaurantBook — OcalaBook — Ga",
+      "fontFamily": "Satoshi, Arial, sans-serif",
+      "fontSize": "14.4px",
+      "fontWeight": "500",
+      "lineHeight": "14.4px",
+      "letterSpacing": "-0.144px",
+      "textTransform": "none",
+      "color": "rgb(44, 44, 44)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "flavors",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "115.2px",
+        "fontWeight": "300",
+        "lineHeight": "92.16px",
+        "letterSpacing": "-4.608px",
+        "textTransform": "uppercase",
+        "color": "rgb(216, 203, 184)"
+      },
+      {
+        "sel": "h2",
+        "text": "The Spirit of Indian Dining",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "64.8px",
+        "fontWeight": "300",
+        "lineHeight": "55.08px",
+        "letterSpacing": "-2.592px",
+        "textTransform": "uppercase",
+        "color": "rgb(216, 203, 184)"
+      },
+      {
+        "sel": "h3",
+        "text": "signatureplates",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "50.4px",
+        "fontWeight": "300",
+        "lineHeight": "45.36px",
+        "letterSpacing": "-1.512px",
+        "textTransform": "uppercase",
+        "color": "rgb(44, 44, 44)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Book — Ocala",
+        "fontFamily": "Satoshi, Arial, sans-serif",
+        "fontSize": "10.368px",
+        "fontWeight": "500",
+        "lineHeight": "10.368px",
+        "letterSpacing": "-0.144px",
+        "textTransform": "none",
+        "color": "rgb(44, 44, 44)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "Satoshi, Arial, sans-serif",
+        "fontSize": "14.4px",
+        "fontWeight": "500",
+        "lineHeight": "14.4px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(223, 218, 213)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(44, 44, 44)",
+        "count": 835
+      },
+      {
+        "value": "rgb(216, 203, 184)",
+        "count": 290
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 36
+      },
+      {
+        "value": "rgb(223, 218, 213)",
+        "count": 24
+      },
+      {
+        "value": "rgb(34, 34, 34)",
+        "count": 6
+      },
+      {
+        "value": "rgb(212, 150, 83)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(216, 203, 184)",
+        "count": 20
+      },
+      {
+        "value": "rgb(212, 150, 83)",
+        "count": 5
+      },
+      {
+        "value": "rgb(44, 44, 44)",
+        "count": 5
+      },
+      {
+        "value": "rgba(44, 44, 44, 0.4)",
+        "count": 1
+      },
+      {
+        "value": "rgb(221, 221, 221)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.55)",
+        "count": 1
+      },
+      {
+        "value": "rgb(191, 180, 163)",
+        "count": 1
+      },
+      {
+        "value": "rgba(36, 32, 34, 0)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Satoshi, Arial, sans-serif|500",
+        "count": 159
+      },
+      {
+        "value": "sans-serif|400",
+        "count": 11
+      },
+      {
+        "value": "\"TT Ramillas Variable\", Georgia, sans-serif|300",
+        "count": 11
+      },
+      {
+        "value": "Satoshi, Arial, sans-serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "webflow-icons",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "TT Ramillas Variable",
+        "weight": "200 900",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js",
+      "https://cdn.jsdelivr.net/npm/lazy-load-video@latest/dist/custom-video.js",
+      "https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=68a25157e0edb92947ffe4a2",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/js/webflow.a7f35181.324738ea85f19f6e.js",
+      "https://cdn.jsdelivr.net/npm/@finsweet/attributes@2/attributes.js",
+      "https://cdn.jsdelivr.net/gh/studio-freight/lenis@0.2.28/bundled/lenis.js",
+      "https://unpkg.com/split-type",
+      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a708c1fc1c48959199d2bf_GSAP.txt",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a709855cafbcca155ceedd_Video%20Lazy.txt",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a709ab1dfcff352f54f098_Auto%20Year.txt",
+      "https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/js/splide.min.js"
+    ],
+    "stylesheets": [
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/css/amritpalace.webflow.shared.2bf50beab.min.css",
+      "https://fonts.googleapis.com/css?family=Bad+Script:300,400,500,600,700",
+      "https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/css/splide-core.min.css"
+    ],
+    "html": 134438
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "barba",
+    "gsap",
+    "lenis",
+    "video"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 2872,
+      "reachedY": 2872,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 5745,
+      "reachedY": 5745,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 8617,
+      "reachedY": 8617,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Amrit Palace",
+    "scrollHeight": 9461,
+    "viewportHeight": 844,
+    "screens": 11.2,
+    "libs": {
+      "gsap": true,
+      "ScrollTrigger": true,
+      "three": false,
+      "lenis": true,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": true
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 1,
+      "img": 69,
+      "svg": 2,
+      "sections": 9,
+      "buttons": 10
+    },
+    "body": {
+      "sel": "body",
+      "text": "HomeCateringGift CardsAboutReserve a TableChoose restaurantBook — OcalaBook — Ga",
+      "fontFamily": "Satoshi, Arial, sans-serif",
+      "fontSize": "3.9px",
+      "fontWeight": "500",
+      "lineHeight": "3.9px",
+      "letterSpacing": "-0.039px",
+      "textTransform": "none",
+      "color": "rgb(44, 44, 44)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "flavors",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "62.4px",
+        "fontWeight": "300",
+        "lineHeight": "49.92px",
+        "letterSpacing": "-2.496px",
+        "textTransform": "uppercase",
+        "color": "rgb(216, 203, 184)"
+      },
+      {
+        "sel": "h2",
+        "text": "The Spirit of Indian Dining",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "42.9px",
+        "fontWeight": "300",
+        "lineHeight": "38.61px",
+        "letterSpacing": "-1.716px",
+        "textTransform": "uppercase",
+        "color": "rgb(216, 203, 184)"
+      },
+      {
+        "sel": "h3",
+        "text": "signatureplates",
+        "fontFamily": "\"TT Ramillas Variable\", Georgia, sans-serif",
+        "fontSize": "35.1px",
+        "fontWeight": "300",
+        "lineHeight": "31.59px",
+        "letterSpacing": "-1.053px",
+        "textTransform": "uppercase",
+        "color": "rgb(44, 44, 44)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Book — Ocala",
+        "fontFamily": "Satoshi, Arial, sans-serif",
+        "fontSize": "4.68px",
+        "fontWeight": "500",
+        "lineHeight": "4.68px",
+        "letterSpacing": "-0.039px",
+        "textTransform": "none",
+        "color": "rgb(44, 44, 44)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "Satoshi, Arial, sans-serif",
+        "fontSize": "3.9px",
+        "fontWeight": "500",
+        "lineHeight": "3.9px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(223, 218, 213)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(44, 44, 44)",
+        "count": 835
+      },
+      {
+        "value": "rgb(216, 203, 184)",
+        "count": 292
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 36
+      },
+      {
+        "value": "rgb(223, 218, 213)",
+        "count": 31
+      },
+      {
+        "value": "rgb(34, 34, 34)",
+        "count": 6
+      },
+      {
+        "value": "rgb(212, 150, 83)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(216, 203, 184)",
+        "count": 22
+      },
+      {
+        "value": "rgb(212, 150, 83)",
+        "count": 6
+      },
+      {
+        "value": "rgb(44, 44, 44)",
+        "count": 5
+      },
+      {
+        "value": "rgb(239, 239, 239)",
+        "count": 4
+      },
+      {
+        "value": "rgba(44, 44, 44, 0.72)",
+        "count": 1
+      },
+      {
+        "value": "rgb(221, 221, 221)",
+        "count": 1
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.55)",
+        "count": 1
+      },
+      {
+        "value": "rgb(191, 180, 163)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Satoshi, Arial, sans-serif|500",
+        "count": 152
+      },
+      {
+        "value": "\"TT Ramillas Variable\", Georgia, sans-serif|300",
+        "count": 20
+      },
+      {
+        "value": "sans-serif|400",
+        "count": 11
+      },
+      {
+        "value": "Satoshi, Arial, sans-serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "webflow-icons",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Satoshi",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "TT Ramillas Variable",
+        "weight": "200 900",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Bad Script",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js",
+      "https://cdn.jsdelivr.net/npm/lazy-load-video@latest/dist/custom-video.js",
+      "https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=68a25157e0edb92947ffe4a2",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/js/webflow.a7f35181.324738ea85f19f6e.js",
+      "https://cdn.jsdelivr.net/npm/@finsweet/attributes@2/attributes.js",
+      "https://cdn.jsdelivr.net/gh/studio-freight/lenis@0.2.28/bundled/lenis.js",
+      "https://unpkg.com/split-type",
+      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/gsap.min.js",
+      "https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.3/ScrollTrigger.min.js",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a708c1fc1c48959199d2bf_GSAP.txt",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a709855cafbcca155ceedd_Video%20Lazy.txt",
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/69a709ab1dfcff352f54f098_Auto%20Year.txt",
+      "https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/js/splide.min.js"
+    ],
+    "stylesheets": [
+      "https://cdn.prod.website-files.com/68a25157e0edb92947ffe4a2/css/amritpalace.webflow.shared.2bf50beab.min.css",
+      "https://fonts.googleapis.com/css?family=Bad+Script:300,400,500,600,700",
+      "https://cdn.jsdelivr.net/npm/@splidejs/splide@3.2.2/dist/css/splide-core.min.css"
+    ],
+    "html": 136192
+  }
+}

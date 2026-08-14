@@ -10,7 +10,7 @@ Pure `rgb(0,0,0)` from first pixel to last, with light used as the only pigment 
 `desktop-hero.jpg`: black page. `MacBook Pro` at 30px/white, dead centre, top. Under it `Built for Apple Intelligence.` at ~60px, filled with a cyan→violet→magenta→amber gradient and wrapped in a wide colored bloom that spills ~60px past the glyphs. Below, a MacBook shot from a low front angle, lid nearly closed, the only bright thing in the image being the RGB-lit keyboard bed and a 1px rim light along the display edge. Then a `rgb(0, 113, 227)` pill `Buy Now`, then `From $1599 or $133/mo for 12 months` in `rgb(134, 134, 139)`. Roughly 55% of the hero viewport is empty black.
 
 ## Palette (measured)
-Three greys, one blue, nothing else in CSS.
+Three greys, one blue, nothing else in CSS. Seven background values and seven text values for the entire 8.8-screen document — the smallest measured palette of the four sites.
 
 | Value | Count | Role |
 |---|---|---|
@@ -23,6 +23,8 @@ Three greys, one blue, nothing else in CSS.
 | `rgb(245, 245, 247)` | text ×21 | secondary light |
 
 Every other color on screen — the hero gradient, the battery green, the Apple-Intelligence card's rainbow border, the app-window screenshots — arrives as pixels (video, `<img>`, WebGL), never as a CSS color. The stylesheet is monochrome plus one blue.
+
+The `oklch()` entries are Tailwind v4 utility defaults that leaked through; the intentional surfaces are the two hand-picked hexes `rgb(0,0,0)` and `rgb(29,29,31)`. Mobile `topBackgrounds` is byte-identical to desktop — no dark/light variant, no breakpoint-specific colour.
 
 ## Typography (measured)
 Self-hosted SF-alike, split one file per weight rather than a variable font: `@font-face` families literally named `Regular` (loaded), `Medium` (loaded), `SemiBold` (loaded), `Bold` (**unloaded** — declared and never used). All 44 top elements render `SemiBold|400`; `Regular|400` on 6.
@@ -37,6 +39,8 @@ Self-hosted SF-alike, split one file per weight rather than a variable font: `@f
 
 Note the inversion: the h1 (30px) is *smaller* than the h2 (60px) and h3 (48px). The product name is a label; the marketing claims are the display type. `letterSpacing: normal` and `textTransform: none` on every single row — no uppercase, no tracking anywhere on the page.
 
+Measure and rhythm: the centred body paragraph in `desktop-04.jpg` runs ~530px wide over 9 lines on a 1440px viewport (~37% measure), centre-aligned — one of only two centre-set blocks on the page, the other being the hero. Feature captions in `desktop-05.jpg` / `desktop-06.jpg` are left-aligned and capped at ~3 lines / ~300px, hugging the outer margins at ~80px from each edge.
+
 ## Structure, screen by screen
 1. **0–14% — Hero.** Gradient headline + glow, closed MacBook, blue pill, price. `desktop-hero.jpg`
 2. **14–29% — Configurator.** `desktop-01.jpg`: the laptop is now a lid-closed 3/4 top view rendered so dark that only the rim light and the Apple logo separate it from the ground. Two pill toggles sit centred at the bottom: a colour switch (silver / space-black dots) and a `14" | 16"` size switch with the active option in a white capsule. This is the WebGL model — swap colour and size and the object re-renders.
@@ -45,7 +49,7 @@ Note the inversion: the h1 (30px) is *smaller* than the h2 (60px) and h3 (48px).
 5. **50–86% — Apple Intelligence feature reel.** `desktop-05.jpg`, `desktop-06.jpg`: the laptop opens and rotates through a sequence of poses (lid at ~110° facing left, then near-front with the screen filled by a document) while short `Bold label. Grey sentence.` blocks fade in at alternating left and right margins. Screen content is a live texture — a photo editor in 05, a research doc with a pull-quote in 06.
 6. **86–100% — Spec bento + footer.** `desktop-07.jpg`: 2×2 asymmetric grid on `rgb(29,29,31)` cards with ~20px radii. One card is a photo with copy over it (`Fly through demanding tasks up to 9.8x faster.`), one is icon+text, one carries a 2px animated rainbow border around `Built for Apple Intelligence.`, one holds a green gradient battery glyph. Footer: legal line, hairline rule, 5 links.
 
-Six beats. Two of them (4 and 5) are pinned/scrubbed; the rest scroll conventionally.
+Six beats. Two of them (4 and 5) are pinned/scrubbed; the rest scroll conventionally. Beat lengths in viewports: 1.2, 1.3, 1.2, 0.6, 3.2, 1.3 — the feature reel gets 3.2 screens to itself and everything else is close to one, so the pacing is one idea per screen with one long held shot in the middle.
 
 ## Motion inventory
 
@@ -60,6 +64,10 @@ Six beats. Two of them (4 and 5) are pinned/scrubbed; the rest scroll convention
 | Laptop open + orbit | scroll scrub | lid angle and `rotation.y` are both driven by progress; laptop travels from left third to centre across ~3 viewports | scrub | `desktop-05.jpg` vs `desktop-06.jpg` |
 | Feature-caption fade | scroll enter | `Bold label. Grey body.` blocks fade+rise at alternating margins, timed to the laptop pose | ~400ms ease-out, staggered | `gsap` |
 | Bento rainbow border | continuous | 2px conic gradient border rotates around one card | ~4s linear loop | `desktop-07.jpg` |
+| Sticky transparent nav | always | 7-item nav + search + bag stay pinned at y=0 through every section, including over the full-bleed video, with no background and no blur | — | present at identical position in all 7 desktop frames |
+| Caption cross-fade between poses | scroll scrub | outgoing caption drops to ~30% opacity as the incoming one rises; `desktop-05.jpg` catches `Image AI.` mid-fade at partial opacity | ~400ms overlap | `gsap` |
+
+Nine motion events across 8.8 screens. Two are pinned scrubs, one is a video, three are load-time, three are perpetual — the same distribution as Fizzi.
 
 ## The 3D system
 - **Two canvases, two videos, and 22 images — a hybrid, not a pure WebGL page.** The hero and the opening reveal are *video*; the configurator and the feature reel are *canvas*. The page uses whichever is cheaper for the shot and the seam is invisible because everything sits on the same `rgb(0,0,0)`.
@@ -79,6 +87,9 @@ Six beats. Two of them (4 and 5) are pinned/scrubbed; the rest scroll convention
 6. **No uppercase, no letter-spacing, no text-transform on any measured element.** Nothing decorative is asked of the type.
 7. **1.00 line-height on both display sizes** (60/60, 48/48) — headlines set as tight blocks, matching Apple's own optical leading.
 8. **Colour arrives only as light.** Gradients, glows and rainbows are pixels from video/WebGL/images; the CSS palette stays monochrome, so nothing can drift out of brand.
+9. **The nav never gets a background.** Seven links sit on transparent black through the hero, over a full-bleed game video, and over the bento — no blur backdrop, no border-bottom, no scroll-shrink. Confidence that the content beneath will always be dark enough.
+10. **Zero SVG.** `counts.svg === 0` across 8.8 screens. Every icon-looking thing (the sun, the battery, the Apple Intelligence ring, the laptop glyph) is a raster asset, part of the 22 images — a deliberate choice to keep the glow and gradient rendering identical to the photography.
+11. **The bento is asymmetric.** A 2×2 grid where the four cards differ in height and content type — photo-with-copy, icon-with-copy, animated-border, gradient-glyph. Nothing repeats.
 
 ## Mobile adaptation
 Measured at 390×844: scrollHeight 7938, 9.4 screens, same 6 sections, same 2 canvases + 2 videos + 22 images, same `topBackgrounds` list. Nothing is dropped.
@@ -87,6 +98,8 @@ Measured at 390×844: scrollHeight 7938, 9.4 screens, same 6 sections, same 2 ca
 - **Two-column feature rows become one column** (`mobile-01.jpg`): left caption and right stat stack into a single left-aligned run, with generous vertical gaps standing in for horizontal separation.
 - **The laptop is pushed to the bottom half** (`mobile-02.jpg`): caption occupies the top third, the model enters from the bottom-left corner and is allowed to be cropped by two edges rather than shrunk to fit.
 - **Bento goes 1-up** (`mobile-03.jpg`): the rainbow-bordered card and the battery card become full-width, radius and 2px border preserved at scale; the footer link row becomes a vertical list.
+- **Stat pairs keep their `Up to` kickers** (`mobile-01.jpg`): `Up to` at 16px grey, `4x faster` at 20px white, `pro rendering performance than M2` at 16px grey — a three-tier micro-hierarchy that survives at a 20px peak size.
+- **Page gets *longer* in screens** (8.8 → 9.4) while getting shorter in pixels (7889 → 7938 is roughly flat). Content is re-flowed, not cut: same 6 sections, same 22 images, same 2 canvases and 2 videos.
 
 ## Steal list
 
@@ -100,6 +113,9 @@ Measured at 390×844: scrollHeight 7938, 9.4 screens, same 6 sections, same 2 ca
 | Hybrid video-in-hero, canvas-in-body | Pre-render the load-time hero animation to a muted looping `<video>`; reserve live WebGL for the moments the user can steer. Both on the same black ground so the swap is invisible. | M |
 | Asymmetric spec bento | 2×2 grid, `rgb(29,29,31)` fills, ~20px radii, mixed card types (photo+copy / icon+copy / animated-border / gradient glyph). One card gets the conic-gradient rotating border; the rest stay flat. | S |
 | One-blue rule | Allow exactly one saturated CSS colour, used only for CTA fill and links. Everything expressive comes from imagery. Enforceable as a lint rule. | S |
+| Backgroundless sticky nav | `position: sticky; top: 0; background: transparent` with no blur and no scroll-state change. Only ships if every section under it stays dark; otherwise you need the scrim and you have lost the effect. | S |
+| Mosaic fly-through behind a pinned headline | 10–14 UI screenshots on 3 parallax speeds tweened past a pinned centre headline via one `ScrollTrigger({pin:true, scrub:true})`. Proves "many apps at once" faster than any list. | M |
+| Mobile pill CTA scale-up | At the mobile breakpoint take the CTA from a small inline pill to ~55% viewport width with ~24px type, while the h1 drops to 16px. Invert the desktop weighting rather than scaling it uniformly. | S |
 
 ## Screenshots
 `assets/studies/macbook-ui/` — `desktop-hero.jpg` (gradient headline + glowing keyboard), `desktop-01.jpg` (configurator toggles, black-on-black lighting), `desktop-02.jpg` (full-bleed game video), `desktop-03.jpg` (two pinned layers mid-scrub), `desktop-04.jpg` (single white clause in a grey paragraph), `desktop-05.jpg` / `desktop-06.jpg` (laptop opening + margin captions), `desktop-07.jpg` (bento + footer), `mobile-00.jpg`–`mobile-03.jpg` (vertical recomposition). `data.json` holds all measured values above.

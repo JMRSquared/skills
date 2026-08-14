@@ -1,0 +1,541 @@
+{
+  "url": "https://fizzi.vercel.app",
+  "slug": "fizzi",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1221,
+      "reachedY": 1221,
+      "pct": 14
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 2443,
+      "reachedY": 2443,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 3664,
+      "reachedY": 3664,
+      "pct": 43
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 4886,
+      "reachedY": 4886,
+      "pct": 57
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 6107,
+      "reachedY": 6107,
+      "pct": 71
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 7329,
+      "reachedY": 7329,
+      "pct": 86
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 8550,
+      "reachedY": 8550,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "Fizzi - Soda for Gutsy People",
+    "scrollHeight": 9450,
+    "viewportHeight": 900,
+    "screens": 10.5,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 1,
+      "svg": 6,
+      "sections": 5,
+      "buttons": 3
+    },
+    "body": {
+      "sel": "body",
+      "text": "FizziLive GutsySoda Perfected3-5g sugar. 9g fiber. 5 delicious flavors.Shop NowT",
+      "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Live Gutsy",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "208px",
+        "fontWeight": "900",
+        "lineHeight": "166.4px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(249, 115, 22)"
+      },
+      {
+        "sel": "h2",
+        "text": "Try all five flavors",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "96px",
+        "fontWeight": "900",
+        "lineHeight": "96px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(8, 47, 73)"
+      },
+      {
+        "sel": "p",
+        "text": "Soda Perfected",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "60px",
+        "fontWeight": "600",
+        "lineHeight": "60px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(8, 47, 73)"
+      },
+      {
+        "sel": "button",
+        "text": "Previous Flavor",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "footer",
+        "text": "FizziLove your gut. Love your life.",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(254, 99, 52)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 69
+      },
+      {
+        "value": "rgb(8, 47, 73)",
+        "count": 52
+      },
+      {
+        "value": "rgb(254, 99, 52)",
+        "count": 24
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 19
+      },
+      {
+        "value": "rgb(7, 89, 133)",
+        "count": 17
+      },
+      {
+        "value": "rgb(249, 115, 22)",
+        "count": 13
+      },
+      {
+        "value": "rgb(254, 232, 50)",
+        "count": 8
+      },
+      {
+        "value": "rgb(113, 5, 35)",
+        "count": 3
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgba(255, 255, 255, 0.1)",
+        "count": 2
+      },
+      {
+        "value": "rgb(192, 240, 245)",
+        "count": 1
+      },
+      {
+        "value": "rgb(234, 88, 12)",
+        "count": 1
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgb(113, 5, 35)",
+        "count": 1
+      },
+      {
+        "value": "rgb(203, 239, 154)",
+        "count": 1
+      },
+      {
+        "value": "rgb(254, 99, 52)",
+        "count": 1
+      },
+      {
+        "value": "rgb(254, 232, 50)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|400",
+        "count": 28
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|700",
+        "count": 5
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|900",
+        "count": 5
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|600",
+        "count": 1
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|500",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "__alpino_5a83fb",
+        "weight": "100 900",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "__alpino_Fallback_5a83fb",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://fizzi.vercel.app/_next/static/chunks/fd9d1056-a036a0dbd179c681.js",
+      "https://fizzi.vercel.app/_next/static/chunks/23-020dc20815f4605f.js",
+      "https://fizzi.vercel.app/_next/static/chunks/main-app-f73cdb3bce740b12.js",
+      "https://fizzi.vercel.app/_next/static/chunks/b536a0f1-ec6a05890a818711.js",
+      "https://fizzi.vercel.app/_next/static/chunks/615-afc8268fbc5cf317.js",
+      "https://fizzi.vercel.app/_next/static/chunks/app/layout-c98882ce45c0872c.js",
+      "https://fizzi.vercel.app/_next/static/chunks/0f8af13e-335ca55df8ae0bef.js",
+      "https://fizzi.vercel.app/_next/static/chunks/c15bf2b0-c5f2ab0c4ce668d5.js",
+      "https://fizzi.vercel.app/_next/static/chunks/172-e816d2cee720e29d.js",
+      "https://fizzi.vercel.app/_next/static/chunks/817-1eeea1734f60e44b.js",
+      "https://fizzi.vercel.app/_next/static/chunks/676-87b553c8988b07bc.js",
+      "https://fizzi.vercel.app/_next/static/chunks/app/page-828c6a65c742a626.js",
+      "https://fizzi.vercel.app/_next/static/chunks/polyfills-78c92fac7aa8fdd8.js",
+      "https://fizzi.vercel.app/_next/static/chunks/webpack-1f4487f5f6f93772.js",
+      "https://static.cdn.prismic.io/prismic.js?new=true&repo=fizzi"
+    ],
+    "stylesheets": [
+      "https://fizzi.vercel.app/_next/static/css/e11c0ab05c6e3fd3.css"
+    ],
+    "html": 73657
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "drei",
+    "gsap",
+    "r3f",
+    "shader",
+    "three",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 2705,
+      "reachedY": 2705,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 5410,
+      "reachedY": 5410,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 8115,
+      "reachedY": 8115,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Fizzi - Soda for Gutsy People",
+    "scrollHeight": 8959,
+    "viewportHeight": 844,
+    "screens": 10.6,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 1,
+      "svg": 6,
+      "sections": 5,
+      "buttons": 3
+    },
+    "body": {
+      "sel": "body",
+      "text": "FizziLive GutsySoda Perfected3-5g sugar. 9g fiber. 5 delicious flavors.Shop NowT",
+      "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Live Gutsy",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "72px",
+        "fontWeight": "900",
+        "lineHeight": "57.6px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(249, 115, 22)"
+      },
+      {
+        "sel": "h2",
+        "text": "Try all five flavors",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "60px",
+        "fontWeight": "900",
+        "lineHeight": "60px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(8, 47, 73)"
+      },
+      {
+        "sel": "p",
+        "text": "Soda Perfected",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "48px",
+        "fontWeight": "600",
+        "lineHeight": "48px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(8, 47, 73)"
+      },
+      {
+        "sel": "button",
+        "text": "Previous Flavor",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "footer",
+        "text": "FizziLove your gut. Love your life.",
+        "fontFamily": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(254, 99, 52)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 67
+      },
+      {
+        "value": "rgb(8, 47, 73)",
+        "count": 52
+      },
+      {
+        "value": "rgb(254, 99, 52)",
+        "count": 24
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 19
+      },
+      {
+        "value": "rgb(7, 89, 133)",
+        "count": 17
+      },
+      {
+        "value": "rgb(249, 115, 22)",
+        "count": 13
+      },
+      {
+        "value": "rgb(254, 232, 50)",
+        "count": 8
+      },
+      {
+        "value": "rgb(113, 5, 35)",
+        "count": 3
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgba(255, 255, 255, 0.3)",
+        "count": 3
+      },
+      {
+        "value": "rgba(255, 255, 255, 0.1)",
+        "count": 2
+      },
+      {
+        "value": "rgb(192, 240, 245)",
+        "count": 1
+      },
+      {
+        "value": "rgb(234, 88, 12)",
+        "count": 1
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgb(113, 5, 35)",
+        "count": 1
+      },
+      {
+        "value": "rgb(203, 239, 154)",
+        "count": 1
+      },
+      {
+        "value": "rgb(254, 99, 52)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|400",
+        "count": 28
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|700",
+        "count": 5
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|900",
+        "count": 5
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|600",
+        "count": 1
+      },
+      {
+        "value": "__alpino_5a83fb, __alpino_Fallback_5a83fb, sans-serif|500",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "__alpino_5a83fb",
+        "weight": "100 900",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "__alpino_Fallback_5a83fb",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://fizzi.vercel.app/_next/static/chunks/fd9d1056-a036a0dbd179c681.js",
+      "https://fizzi.vercel.app/_next/static/chunks/23-020dc20815f4605f.js",
+      "https://fizzi.vercel.app/_next/static/chunks/main-app-f73cdb3bce740b12.js",
+      "https://fizzi.vercel.app/_next/static/chunks/615-afc8268fbc5cf317.js",
+      "https://fizzi.vercel.app/_next/static/chunks/81-72557a87d97e1f79.js",
+      "https://fizzi.vercel.app/_next/static/chunks/app/layout-c98882ce45c0872c.js",
+      "https://fizzi.vercel.app/_next/static/chunks/0f8af13e-335ca55df8ae0bef.js",
+      "https://fizzi.vercel.app/_next/static/chunks/c15bf2b0-c5f2ab0c4ce668d5.js",
+      "https://fizzi.vercel.app/_next/static/chunks/172-e816d2cee720e29d.js",
+      "https://fizzi.vercel.app/_next/static/chunks/817-1eeea1734f60e44b.js",
+      "https://fizzi.vercel.app/_next/static/chunks/app/page-828c6a65c742a626.js",
+      "https://fizzi.vercel.app/_next/static/chunks/polyfills-78c92fac7aa8fdd8.js",
+      "https://fizzi.vercel.app/_next/static/chunks/webpack-1f4487f5f6f93772.js",
+      "https://static.cdn.prismic.io/prismic.js?new=true&repo=fizzi"
+    ],
+    "stylesheets": [
+      "https://fizzi.vercel.app/_next/static/css/e11c0ab05c6e3fd3.css"
+    ],
+    "html": 73458
+  }
+}

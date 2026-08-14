@@ -1,0 +1,89 @@
+{
+  "url": "https://igloo.inc",
+  "slug": "igloo-inc",
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "wheelSteps": 0,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "wheelSteps": 1750,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-02.jpg",
+      "wheelSteps": 3500,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-03.jpg",
+      "wheelSteps": 5250,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-04.jpg",
+      "wheelSteps": 7000,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-05.jpg",
+      "wheelSteps": 8750,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-06.jpg",
+      "wheelSteps": 10500,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-07.jpg",
+      "wheelSteps": 12250,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-08.jpg",
+      "wheelSteps": 14000,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-09.jpg",
+      "wheelSteps": 15750,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-10.jpg",
+      "wheelSteps": 17500,
+      "scrollY": 0
+    },
+    {
+      "file": "desktop-11.jpg",
+      "wheelSteps": 19250,
+      "scrollY": 0
+    }
+  ],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "wheelSteps": 0,
+      "scrollY": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "wheelSteps": 1750,
+      "scrollY": 0
+    },
+    {
+      "file": "mobile-02.jpg",
+      "wheelSteps": 3500,
+      "scrollY": 0
+    },
+    {
+      "file": "mobile-03.jpg",
+      "wheelSteps": 5250,
+      "scrollY": 0
+    }
+  ],
+  "hoverErr": "TimeoutError: locator.hover: Timeout 5000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a, butt"
+}

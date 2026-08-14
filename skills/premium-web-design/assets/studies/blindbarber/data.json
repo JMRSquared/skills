@@ -1,0 +1,553 @@
+{
+  "url": "https://anniversary.blindbarber.com/",
+  "slug": "blindbarber",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 28993,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 57986,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 86980,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 115973,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 144966,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "data": {
+    "title": "Celebrating 13 Years with Blind Barber",
+    "scrollHeight": 145866,
+    "viewportHeight": 900,
+    "screens": 162.1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 26,
+      "img": 251,
+      "svg": 1,
+      "sections": 73,
+      "buttons": 18
+    },
+    "body": {
+      "sel": "body",
+      "text": "Blind Barber 13 Year Anniversary\n\nBB Live\n\n\n2010\n\n\n\n\n\n\n\n\n\n\n\n\nClose video player\n",
+      "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "lineHeight": "22.4px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(20, 20, 20)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Blind Barber 13 Year Anniversary",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "22.4px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "h2",
+        "text": "2010",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "902.25px",
+        "fontWeight": "500",
+        "lineHeight": "793.078px",
+        "letterSpacing": "-36.09px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "h3",
+        "text": "“The Blind Barber is sure to become one of the city’s premiere destinations, att",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": "500",
+        "lineHeight": "36px",
+        "letterSpacing": "-0.72px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "p",
+        "text": "Blind Barber opens in the East Village. An idea that Jeff had written on a piece",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "24.75px",
+        "fontWeight": "400",
+        "lineHeight": "24.75px",
+        "letterSpacing": "-0.2475px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Blind Barber 13 Year Anniversary",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "11.25px",
+        "fontWeight": "500",
+        "lineHeight": "12.7575px",
+        "letterSpacing": "0.225px",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "2010",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "footer",
+        "text": "Blind barber was founded in 2010. to celebrate 13 years, we’re taking A look at ",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "22.4px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(20, 20, 20)",
+        "count": 1804
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 494
+      },
+      {
+        "value": "rgb(241, 241, 241)",
+        "count": 111
+      },
+      {
+        "value": "rgb(40, 40, 40)",
+        "count": 6
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 3
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(241, 241, 241)",
+        "count": 66
+      },
+      {
+        "value": "rgb(20, 20, 20)",
+        "count": 26
+      },
+      {
+        "value": "rgb(68, 68, 68)",
+        "count": 4
+      },
+      {
+        "value": "rgb(190, 178, 166)",
+        "count": 2
+      },
+      {
+        "value": "rgb(141, 128, 101)",
+        "count": 2
+      },
+      {
+        "value": "rgb(190, 149, 97)",
+        "count": 2
+      },
+      {
+        "value": "rgb(58, 43, 29)",
+        "count": 2
+      },
+      {
+        "value": "rgb(196, 184, 166)",
+        "count": 2
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "MonumentGrotesk, Helvetica, Arial, sans-serif|500",
+        "count": 572
+      },
+      {
+        "value": "MonumentGrotesk, Helvetica, Arial, sans-serif|400",
+        "count": 279
+      },
+      {
+        "value": "MonumentGrotesk-Mono, Helvetica, Arial, sans-serif|400",
+        "count": 76
+      },
+      {
+        "value": "Times|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "MonumentGrotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk-Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://www.google-analytics.com/analytics.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-061FH90Z0E&cx=c&gtm=4e68c1h1",
+      "https://www.googletagmanager.com/gtag/js?id=UA-176801760-1",
+      "https://anniversary.blindbarber.com/assets/js/main.1b4530c32ed6b1dc3545.js"
+    ],
+    "stylesheets": [
+      "https://anniversary.blindbarber.com/assets/css/main.8eb774bff16245b615e5.css"
+    ],
+    "html": 1077093
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "gsap",
+    "swiper",
+    "video"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 31238,
+      "reachedY": 31238,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 62476,
+      "reachedY": 62476,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 93714,
+      "reachedY": 93714,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Celebrating 13 Years with Blind Barber",
+    "scrollHeight": 94558,
+    "viewportHeight": 844,
+    "screens": 112,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 26,
+      "img": 251,
+      "svg": 1,
+      "sections": 73,
+      "buttons": 18
+    },
+    "body": {
+      "sel": "body",
+      "text": "Blind Barber 13 Year Anniversary\n\nBB Live\n\n\n2023\n\n\n\n\n\n\n\n\n\n\n\n\nClose video player\n",
+      "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "lineHeight": "22.4px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(20, 20, 20)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Blind Barber 13 Year Anniversary",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "22.4px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "h2",
+        "text": "2010",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "241.28px",
+        "fontWeight": "500",
+        "lineHeight": "197.85px",
+        "letterSpacing": "-9.6512px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "h3",
+        "text": "“The Blind Barber is sure to become one of the city’s premiere destinations, att",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "15px",
+        "fontWeight": "500",
+        "lineHeight": "15px",
+        "letterSpacing": "-0.3px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "p",
+        "text": "Blind Barber opens in the East Village. An idea that Jeff had written on a piece",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "15px",
+        "fontWeight": "400",
+        "lineHeight": "15px",
+        "letterSpacing": "-0.3px",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Blind Barber 13 Year Anniversary",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "11px",
+        "fontWeight": "500",
+        "lineHeight": "13px",
+        "letterSpacing": "0.22px",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "2023",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "14px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "footer",
+        "text": "Blind barber was founded in 2010. to celebrate 13 years, we’re taking A look at ",
+        "fontFamily": "MonumentGrotesk, Helvetica, Arial, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "22.4px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(20, 20, 20)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(20, 20, 20)",
+        "count": 1803
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 494
+      },
+      {
+        "value": "rgb(241, 241, 241)",
+        "count": 111
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 5
+      },
+      {
+        "value": "rgb(40, 40, 40)",
+        "count": 5
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(241, 241, 241)",
+        "count": 67
+      },
+      {
+        "value": "rgb(20, 20, 20)",
+        "count": 26
+      },
+      {
+        "value": "rgb(68, 68, 68)",
+        "count": 3
+      },
+      {
+        "value": "rgb(209, 190, 173)",
+        "count": 2
+      },
+      {
+        "value": "rgb(77, 82, 80)",
+        "count": 2
+      },
+      {
+        "value": "rgb(60, 60, 60)",
+        "count": 2
+      },
+      {
+        "value": "rgba(0, 0, 0, 0.7)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "MonumentGrotesk, Helvetica, Arial, sans-serif|500",
+        "count": 575
+      },
+      {
+        "value": "MonumentGrotesk, Helvetica, Arial, sans-serif|400",
+        "count": 276
+      },
+      {
+        "value": "MonumentGrotesk-Mono, Helvetica, Arial, sans-serif|400",
+        "count": 76
+      },
+      {
+        "value": "Times|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "MonumentGrotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "MonumentGrotesk-Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://www.google-analytics.com/analytics.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-061FH90Z0E&cx=c&gtm=4e68c1",
+      "https://www.googletagmanager.com/gtag/js?id=UA-176801760-1",
+      "https://anniversary.blindbarber.com/assets/js/main.1b4530c32ed6b1dc3545.js"
+    ],
+    "stylesheets": [
+      "https://anniversary.blindbarber.com/assets/css/main.8eb774bff16245b615e5.css"
+    ],
+    "html": 1248950
+  }
+}

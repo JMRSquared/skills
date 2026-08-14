@@ -1,0 +1,254 @@
+{
+  "url": "https://igloo.inc",
+  "slug": "igloo-inc",
+  "capturedAt": null,
+  "errors": [
+    "hover: TimeoutError: locator.hover: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a, button').filter({ hasTex"
+  ],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "data": {
+    "title": "Igloo Inc.",
+    "scrollHeight": 900,
+    "viewportHeight": 900,
+    "screens": 1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 0,
+      "video": 0,
+      "img": 0,
+      "svg": 0,
+      "sections": 0,
+      "buttons": 0
+    },
+    "body": {
+      "sel": "body",
+      "text": "/* js */\n        div#webgl {\n            display: block;\n            position: a",
+      "fontFamily": "Times",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 27
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(160, 165, 177)",
+        "count": 2
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Times|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "IBMPlexMono-Medium",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBMPlexMono-Regular",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://www.igloo.inc/assets/index-2eb69c09.js"
+    ],
+    "stylesheets": [],
+    "html": 3012
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "gsap",
+    "shader",
+    "three",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "mobileData": {
+    "title": "Igloo Inc.",
+    "scrollHeight": 844,
+    "viewportHeight": 844,
+    "screens": 1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 0,
+      "video": 0,
+      "img": 0,
+      "svg": 0,
+      "sections": 0,
+      "buttons": 0
+    },
+    "body": {
+      "sel": "body",
+      "text": "/* js */\n        div#webgl {\n            display: block;\n            position: a",
+      "fontFamily": "Times",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 27
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(160, 165, 177)",
+        "count": 2
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Times|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "IBMPlexMono-Medium",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBMPlexMono-Regular",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://www.igloo.inc/assets/index-2eb69c09.js"
+    ],
+    "stylesheets": [],
+    "html": 3011
+  }
+}

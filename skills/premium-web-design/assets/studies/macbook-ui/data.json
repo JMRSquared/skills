@@ -1,0 +1,551 @@
+{
+  "url": "https://macbook-ui.vercel.app",
+  "slug": "macbook-ui",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 998,
+      "reachedY": 998,
+      "pct": 14
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 1997,
+      "reachedY": 1997,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 2995,
+      "reachedY": 2995,
+      "pct": 43
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 3994,
+      "reachedY": 3994,
+      "pct": 57
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 4992,
+      "reachedY": 4992,
+      "pct": 71
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 5991,
+      "reachedY": 5991,
+      "pct": 86
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 6989,
+      "reachedY": 6989,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "MacBook Pro Landing Page — React, Vite, TypeScript, Tailwind CSS, GSAP & Three.js Demo",
+    "scrollHeight": 7889,
+    "viewportHeight": 900,
+    "screens": 8.8,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 2,
+      "video": 2,
+      "img": 22,
+      "svg": 0,
+      "sections": 6,
+      "buttons": 3
+    },
+    "body": {
+      "sel": "body",
+      "text": "try {\n        history.scrollRestoration = \"manual\";\n      } catch (_) {}\n      s",
+      "fontFamily": "SemiBold",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(134, 134, 139)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "MacBook Pro",
+        "fontFamily": "SemiBold",
+        "fontSize": "30px",
+        "fontWeight": "400",
+        "lineHeight": "36px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Take a closer look.",
+        "fontFamily": "SemiBold",
+        "fontSize": "60px",
+        "fontWeight": "400",
+        "lineHeight": "60px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h3",
+        "text": "4x faster",
+        "fontFamily": "SemiBold",
+        "fontSize": "48px",
+        "fontWeight": "400",
+        "lineHeight": "48px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "p",
+        "text": "From $1599 or $133/mo for 12 months",
+        "fontFamily": "SemiBold",
+        "fontSize": "20px",
+        "fontWeight": "400",
+        "lineHeight": "28px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "nav a",
+        "text": "",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "footer",
+        "text": "More ways to shop: Find an Apple Store or other retailer near you. Or call 00080",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(134, 134, 139)",
+        "count": 119
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 81
+      },
+      {
+        "value": "rgb(245, 245, 247)",
+        "count": 21
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 2
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      },
+      {
+        "value": "rgb(66, 66, 69)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 5
+      },
+      {
+        "value": "rgb(29, 29, 31)",
+        "count": 3
+      },
+      {
+        "value": "oklch(0.269 0 0)",
+        "count": 2
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      },
+      {
+        "value": "oklch(0.87 0 0)",
+        "count": 1
+      },
+      {
+        "value": "oklch(0.205 0 0)",
+        "count": 1
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "SemiBold|400",
+        "count": 44
+      },
+      {
+        "value": "Regular|400",
+        "count": 6
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 4
+      },
+      {
+        "value": "Medium|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Regular",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Medium",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "SemiBold",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Bold",
+        "weight": "normal",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://macbook-ui.vercel.app/assets/index-BF1e6fWR.js"
+    ],
+    "stylesheets": [
+      "https://macbook-ui.vercel.app/assets/index-DcI79zau.css"
+    ],
+    "html": 15890
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "drei",
+    "gsap",
+    "r3f",
+    "shader",
+    "three",
+    "video",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 2333,
+      "reachedY": 2333,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 4667,
+      "reachedY": 4667,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 7000,
+      "reachedY": 7000,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "MacBook Pro Landing Page — React, Vite, TypeScript, Tailwind CSS, GSAP & Three.js Demo",
+    "scrollHeight": 7938,
+    "viewportHeight": 844,
+    "screens": 9.4,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 2,
+      "video": 2,
+      "img": 22,
+      "svg": 0,
+      "sections": 6,
+      "buttons": 3
+    },
+    "body": {
+      "sel": "body",
+      "text": "try {\n        history.scrollRestoration = \"manual\";\n      } catch (_) {}\n      s",
+      "fontFamily": "SemiBold",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(134, 134, 139)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "MacBook Pro",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Take a closer look.",
+        "fontFamily": "SemiBold",
+        "fontSize": "30px",
+        "fontWeight": "400",
+        "lineHeight": "36px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h3",
+        "text": "4x faster",
+        "fontFamily": "SemiBold",
+        "fontSize": "20px",
+        "fontWeight": "400",
+        "lineHeight": "28px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "p",
+        "text": "From $1599 or $133/mo for 12 months",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "nav a",
+        "text": "",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      },
+      {
+        "sel": "footer",
+        "text": "More ways to shop: Find an Apple Store or other retailer near you. Or call 00080",
+        "fontFamily": "SemiBold",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(134, 134, 139)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(134, 134, 139)",
+        "count": 118
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 81
+      },
+      {
+        "value": "rgb(245, 245, 247)",
+        "count": 21
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 2
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      },
+      {
+        "value": "rgb(66, 66, 69)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 5
+      },
+      {
+        "value": "rgb(29, 29, 31)",
+        "count": 3
+      },
+      {
+        "value": "oklch(0.269 0 0)",
+        "count": 2
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      },
+      {
+        "value": "oklch(0.87 0 0)",
+        "count": 1
+      },
+      {
+        "value": "oklch(0.205 0 0)",
+        "count": 1
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "SemiBold|400",
+        "count": 44
+      },
+      {
+        "value": "Regular|400",
+        "count": 6
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 4
+      },
+      {
+        "value": "Medium|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Regular",
+        "weight": "normal",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Medium",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "SemiBold",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Bold",
+        "weight": "normal",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://macbook-ui.vercel.app/assets/index-BF1e6fWR.js"
+    ],
+    "stylesheets": [
+      "https://macbook-ui.vercel.app/assets/index-DcI79zau.css"
+    ],
+    "html": 15086
+  }
+}

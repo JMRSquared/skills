@@ -1,0 +1,434 @@
+{
+  "url": "https://www.nudolsbanzai.it/",
+  "slug": "banzai-nudols",
+  "capturedAt": null,
+  "errors": [
+    "hover: TimeoutError: locator.hover: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a, button').filter({ hasTex"
+  ],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 12,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 25,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 37,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 49,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 61,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 74,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 86,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "data": {
+    "title": "Banzai",
+    "scrollHeight": 986,
+    "viewportHeight": 900,
+    "screens": 1.1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 8,
+      "svg": 13,
+      "sections": 0,
+      "buttons": 11
+    },
+    "body": {
+      "sel": "body",
+      "text": "<iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-TGSRWZ4G\" height=\"0",
+      "fontFamily": "Cervo, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "p",
+        "text": "Contatti",
+        "fontFamily": "\"Lilita One\", sans-serif",
+        "fontSize": "25px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Start",
+        "fontFamily": "\"Lilita One\"",
+        "fontSize": "21px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(0, 0, 0)"
+      },
+      {
+        "sel": "footer",
+        "text": "|INFORMAZIONI LEGALI Grif Srl | P.IVA 01596200210 - info@nudolsbanzai.itCookie P",
+        "fontFamily": "Cervo, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 189
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 43
+      },
+      {
+        "value": "rgb(16, 24, 32)",
+        "count": 7
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 12
+      },
+      {
+        "value": "rgb(16, 24, 32)",
+        "count": 4
+      },
+      {
+        "value": "rgb(245, 217, 63)",
+        "count": 2
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Cervo|400",
+        "count": 13
+      },
+      {
+        "value": "Cervo, sans-serif|400",
+        "count": 7
+      },
+      {
+        "value": "Times|400",
+        "count": 6
+      },
+      {
+        "value": "\"Lilita One\"|400",
+        "count": 4
+      },
+      {
+        "value": "\"Lilita One\", sans-serif|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Lilita One",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Lilita One",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cervo",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "swiper-icons",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs/core-cd40c5caf396e9e6430490ac6bae6c41.js",
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs.js",
+      "https://cs.iubenda.com/cookie-solution/confs/js/48563156.js",
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs/1.104.2/core-it.js",
+      "https://www.googletagmanager.com/gtm.js?id=GTM-TGSRWZ4G",
+      "https://cdn.iubenda.com/cs/tcf/stub.js",
+      "https://cdn.iubenda.com/cs/iubenda_cs.js",
+      "https://www.nudolsbanzai.it/webpack-runtime-c80cc011555cdaa1d88e.js",
+      "https://www.nudolsbanzai.it/framework-fd71d75819b72f1bbf4b.js",
+      "https://www.nudolsbanzai.it/fb7d5399-87439a1206f97d6e7b6e.js",
+      "https://www.nudolsbanzai.it/app-a24384a4b7476a73b50e.js"
+    ],
+    "stylesheets": [],
+    "html": 138729
+  },
+  "bundleLibs": [
+    "drei",
+    "r3f",
+    "shader",
+    "swiper",
+    "three",
+    "video",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [
+    "Uncaught TypeError: _iub.cs.configure is not a function"
+  ],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "mobileData": {
+    "title": "Banzai",
+    "scrollHeight": 844,
+    "viewportHeight": 844,
+    "screens": 1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 8,
+      "svg": 13,
+      "sections": 0,
+      "buttons": 11
+    },
+    "body": {
+      "sel": "body",
+      "text": "<iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-TGSRWZ4G\" height=\"0",
+      "fontFamily": "Cervo, sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "p",
+        "text": "Contatti",
+        "fontFamily": "\"Lilita One\", sans-serif",
+        "fontSize": "25px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Start",
+        "fontFamily": "\"Lilita One\"",
+        "fontSize": "21px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(0, 0, 0)"
+      },
+      {
+        "sel": "footer",
+        "text": "|INFORMAZIONI LEGALI Grif Srl | P.IVA 01596200210 - info@nudolsbanzai.itCookie P",
+        "fontFamily": "Cervo, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 189
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 37
+      },
+      {
+        "value": "rgb(16, 24, 32)",
+        "count": 13
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 13
+      },
+      {
+        "value": "rgb(16, 24, 32)",
+        "count": 2
+      },
+      {
+        "value": "rgb(245, 217, 63)",
+        "count": 2
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Cervo|400",
+        "count": 13
+      },
+      {
+        "value": "Cervo, sans-serif|400",
+        "count": 7
+      },
+      {
+        "value": "Times|400",
+        "count": 6
+      },
+      {
+        "value": "\"Lilita One\"|400",
+        "count": 4
+      },
+      {
+        "value": "\"Lilita One\", sans-serif|400",
+        "count": 3
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Lilita One",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Lilita One",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cervo",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "swiper-icons",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs/core-cd40c5caf396e9e6430490ac6bae6c41.js",
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs.js",
+      "https://cs.iubenda.com/cookie-solution/confs/js/48563156.js",
+      "https://cdn.iubenda.com/cookie_solution/iubenda_cs/1.104.2/core-it.js",
+      "https://www.googletagmanager.com/gtm.js?id=GTM-TGSRWZ4G",
+      "https://cdn.iubenda.com/cs/tcf/stub.js",
+      "https://cdn.iubenda.com/cs/iubenda_cs.js",
+      "https://www.nudolsbanzai.it/webpack-runtime-c80cc011555cdaa1d88e.js",
+      "https://www.nudolsbanzai.it/framework-fd71d75819b72f1bbf4b.js",
+      "https://www.nudolsbanzai.it/fb7d5399-87439a1206f97d6e7b6e.js",
+      "https://www.nudolsbanzai.it/app-a24384a4b7476a73b50e.js"
+    ],
+    "stylesheets": [],
+    "html": 138726
+  }
+}

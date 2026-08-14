@@ -254,6 +254,18 @@ high-quality royalty-free that genuinely depicts the category. WebGL, when used,
 stages and moves real images and textures rather than replacing the product with
 abstract stand-ins.
 
+To find it:
+
+```bash
+PW_DIR=<dir with node_modules/playwright> \
+  node scripts/find-photos.mjs "<specific scene>" ./photos 12
+```
+
+Then read `photos/contact-sheet.jpg` and choose by eye. Full guidance —
+querying, rejection criteria, treatments, crops, resolution — in
+`references/imagery.md`. Copy rules, conversion placement, and the phrases that
+give a page away: `references/content-and-copy.md`.
+
 ---
 
 ## Step 6 — Audit loop (mandatory when SIGHTED)
@@ -331,6 +343,8 @@ Every box needs an artifact, not a claim.
 | `references/layout-archetypes.md` | Page shape, section composition, grid, spacing |
 | `references/motion.md` | Durations, easing, reveal patterns, reduced motion |
 | `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
+| `references/imagery.md` | Sourcing, choosing, treating, and cropping photography |
+| `references/content-and-copy.md` | Words, conversion placement, and copy tells |
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |

@@ -10,6 +10,8 @@ A single WebGL soda can floats through a page whose *background color* is the se
 `desktop-hero.jpg`: full-bleed yellow `rgb(254, 232, 50)`. Wordmark centred at top. Two 3D cans (Black Cherry, Lemon Lime) tilted ~20° in from left and right edges, cropped by the viewport. Between them, `LIVE GUTSY` at 208px / 900 weight / uppercase / line-height 166.4px (0.8 ratio — lines overlap-tight) in orange `rgb(249, 115, 22)`. Sub-line `Soda Perfected` at 60px/600 in navy `rgb(8, 47, 73)`, then a 16px spec line, then a solid orange pill button. Pale yellow spheres (bubbles) drift across the field at multiple depths — visible at different positions in `desktop-hero.jpg` vs `desktop-hover.jpg`, so they animate continuously, not on scroll. No hero image file: the cans are canvas.
 
 ## Palette (measured)
+Eight background values and eight text values across a 10.5-screen page. Every opaque ground has count 1 — each section colour is used exactly once.
+
 Backgrounds, from `topBackgrounds` — every one a full-bleed section ground, count 1 each:
 - `rgb(254, 232, 50)` yellow — hero + closer band
 - `rgb(203, 239, 154)` pale lime — "Try all five flavors", "Naturally Refreshing"
@@ -49,7 +51,7 @@ Composition rules that hold across every frame:
 5. **71–86% — Alternating benefit rows.** Yellow then lime grounds, can pinned to the opposite side of the copy each time: `Gut-Friendly Goodness` (text left / can centre), `Light Calories, Big Flavor`, `Naturally Refreshing` (text left / can right). `desktop-05.jpg`, `desktop-06.jpg`
 6. **86–100% — Closer.** Vermilion ground, `SODA THAT MAKES YOU SMILE` set so large it bleeds off all four edges, a rotating `Love your gut · Love your life` circular badge, wordmark on a yellow footer strip. `desktop-07.jpg`
 
-Six discrete scroll beats. Only one of them (beat 3) is pinned.
+Six discrete scroll beats. Only one of them (beat 3) is pinned — the remaining five scroll normally, which is why the page never feels hijacked. Beat lengths in viewports: 1.5, 1.5, 2.0 (pinned), 2.0, 2.0, 1.5. Nothing shorter than 1.5 screens, so no beat reads as a strip.
 
 ## Motion inventory
 
@@ -63,6 +65,10 @@ Six discrete scroll beats. Only one of them (beat 3) is pinned.
 | Carousel flavor change | click chevron | can swaps model + the wine ground and blob shape recolor together | ~500ms, ease-out | 5 flavor grounds in palette; buttons labelled `Previous Flavor` |
 | Alternating-row can moves | scroll scrub | can translates left↔right and rescales between the three benefit rows | scrub across ~3 viewports | `desktop-05` vs `desktop-06` show the same can at opposite sides |
 | Badge spin | autoplay | circular `Love your gut · Love your life` lockup rotates | ~8s linear loop | visible in `desktop-07.jpg` and `mobile-03.jpg` at different angles |
+| Closer type bleed | scroll scrub | `SODA THAT MAKES YOU SMILE` scales up past the viewport so all four edges crop | scrub over the last ~1 viewport | `desktop-07.jpg` vs `mobile-03.jpg` show different crop points |
+| Blob morph behind carousel can | flavor change | the organic wine shape behind the can reshapes and recolors with the model | ~500ms, same timeline as the model swap | `desktop-04.jpg` |
+
+Ten distinct motion events; only two of them (the pinned word cycle and the alternating-row travel) are scroll-scrubbed. The rest are load, click, or perpetual loops — the page does not make scroll do all the work.
 
 ## The 3D system
 - **One canvas for the whole document.** `counts.canvas === 1` at 1440×900 and at 390×844. Every can on every screen is the same persistent R3F scene; sections are HTML laid over it. That is why there is exactly 1 `<img>` on the entire page.
@@ -81,6 +87,9 @@ Six discrete scroll beats. Only one of them (beat 3) is pinned.
 5. **The product is never a flat photo.** 1 `<img>` on a 10.5-screen page. Every product view is live geometry, so it is lit consistently across every beat.
 6. **Willingness to leave a frame empty.** The deleted 43% frame was a flat ice-blue field with nothing in it. The pinned beat has breathing room between words.
 7. **Copy is cropped on purpose.** In `desktop-02.jpg` the h2 is top-cropped and in `desktop-07.jpg` the closer bleeds off all four edges — the type is treated as artwork, not as a box to fit.
+8. **A ~30% measure on a 1440px page.** Body copy is held to ~430px / 3 lines while the other 70% stays product or empty colour. Most AI-built pages fill the width.
+9. **The carousel's chevrons are 1px white circles**, ~72px across, with no fill and no label — the lowest-weight control that still reads as a control.
+10. **Five sections, ten screens.** ~2 viewports per beat. Nothing is a 600px band.
 
 ## Mobile adaptation
 Measured at 390×844: scrollHeight 8959, 10.6 screens, same 5 sections, same canvas count. The story is not truncated.
@@ -88,6 +97,8 @@ Measured at 390×844: scrollHeight 8959, 10.6 screens, same 5 sections, same can
 - **The hero loses its cans.** `mobile-00.jpg` is wordmark + headline + CTA on empty yellow. The cans are positioned outside the 390px frustum. The mobile hero is a type poster; the 3D re-enters at beat 3.
 - **New scrim only on mobile.** `mobileData.topBackgrounds` adds `rgba(255, 255, 255, 0.3)` ×3, absent from desktop. `mobile-02.jpg` shows it: where narrow columns force copy on top of the can, a soft-cornered 30%-white panel sits behind the text block. That is the readability fix — a translucent plate, applied only where the layout collapses.
 - **Alternating rows become stacked overlays**, copy centred over the can rather than beside it.
+- **The closer keeps its bleed.** `mobile-03.jpg` still crops `SODA THAT MAKES YOU SMILE` on all four sides; the type just re-wraps to four lines instead of three. The art direction survives the breakpoint rather than being replaced by a safe centred block.
+- **Section count is identical (5) and screen count actually goes up** (10.5 → 10.6). The mobile page is not a shortened page; it is the same story at a narrower measure.
 
 ## Steal list
 
@@ -101,6 +112,9 @@ Measured at 390×844: scrollHeight 8959, 10.6 screens, same 5 sections, same can
 | Product-configurator carousel with ground recolor | Prev/next buttons swap the 3D model *and* tween the section background + blob shape colour in the same timeline, ~500ms ease-out. | M |
 | Continuous bubble field at 3 depths | Instanced spheres, per-instance random y-velocity and z-depth, translucent unlit material, wrapped upward — runs off the render loop, never off scroll. | M |
 | Rotating circular badge lockup | Text on an SVG `textPath` circle, `animation: spin 8s linear infinite`. Uses the brand line as ornament, no image needed. | S |
+| Four-edge type bleed closer | Final section: `font-size` large enough that the headline crops on all four sides, scrubbed up over the last viewport. Ship the crop — do not shrink to fit. | S |
+| Hairline circle nav controls | 72px circles, `border: 1px solid #fff`, transparent fill, chevron glyph only, `aria-label="Previous flavor"`. No pill, no shadow, no fill. | S |
+| ~30% measure discipline | Cap body blocks at `max-width: 30ch–430px` with an ~80px left gutter, and let the remaining 70% stay product or empty ground. | S |
 
 ## Screenshots
 `assets/studies/fizzi/` — `desktop-hero.jpg` (yellow hero), `desktop-hover.jpg` (same hero on lime — the ground tween), `desktop-01.jpg` (pinned `INTO` beat, can showing back label), `desktop-02.jpg` (five-can bouquet), `desktop-04.jpg` (wine carousel), `desktop-05.jpg` / `desktop-06.jpg` (alternating benefit rows), `desktop-07.jpg` (bleeding closer + badge), `mobile-00.jpg` (canless type hero), `mobile-01.jpg` (3D intact on mobile), `mobile-02.jpg` (the 30%-white copy plate), `mobile-03.jpg` (closer). `data.json` holds all measured values above.

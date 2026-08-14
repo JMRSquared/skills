@@ -69,6 +69,10 @@ Seven discrete beats. The intro quote and the durability section are the pinned 
 | 360° drag | pointer drag on the model | phone spins on `rotation.y`; the `360° ↻` label advertises the affordance | user-driven, damped | `desktop-07.jpg` |
 | Swatch colour change | click swatch rail | phone material re-tints; ground stays put | ~300ms | six swatches in `desktop-07.jpg` |
 | Buy hover | pointer over pill | `rgb(0,113,227)` lightens | ~150ms | `desktop-hover.jpg` vs `desktop-07.jpg` |
+| Ground colour cut | scroll | page background flips black → white → black → four colourway hues → pale blue, seven times across 13.3 screens | instant cut, not a tween | 9 black + 5 white + 4 colourway entries in `topBackgrounds` |
+| Wallpaper on the phone screen | continuous | the blue Apple wallpaper on the panel appears at two different crops between `desktop-02.jpg` (landscape) and `desktop-03.jpg` (portrait) — the texture is mapped to the rotating panel, not baked | — | `r3f`, `shader` |
+
+Eleven motion events over 13.3 screens — the densest of the four sites, and the one with the most beats that are only a single viewport long.
 
 ## The 3D system
 - **Three canvases + three videos + exactly one `<img>` and zero SVGs.** The phone, the A15 die and the configurator each get a canvas; the camera-sample footage is video. Every glyph-looking thing on this page — colour swatches, the `360° ↻` mark, the Apple logo on the phone back — is either DOM text or rendered geometry.
@@ -87,6 +91,9 @@ Seven discrete beats. The intro quote and the durability section are the pinned 
 6. **Headlines that pass behind and in front of the product** instead of sitting above it.
 7. **Real footage for the camera claim.** Underwater scuba video full-bleed, not a still.
 8. **One CTA colour**, `rgb(0, 113, 227)`, count 1 in text and 1 as fill.
+9. **The ground colour cuts rather than tweens.** Seven hard background changes across 13.3 screens, each landing on a section boundary — it reads like film cuts, not like a gradient page.
+10. **The `360° ↻` label.** Two characters and a glyph, centred above the model, telling you the object is draggable. The one piece of instructional copy on the page, and it earns its place.
+11. **`counts.img === 1` and `counts.svg === 0` over 13.3 screens.** Everything visible is canvas, video, or DOM text.
 
 ## What is measurably broken
 Worth recording, because this page looks award-caliber in stills and fails on the two things that matter most.
@@ -111,6 +118,9 @@ There isn't one, functionally. The measured breakpoint work exists in CSS — h1
 | Wireframe die + bloom | Draw the chip as a cyan line diagram, add a bloom pass, place the product in front so it occludes part of the graphic. Sells "engineering" without a photograph. | M |
 | Drag-to-spin configurator with affordance label | R3F + pointer-drag on `rotation.y` with damping, a `360° ↻` label above the model, and a vertical rail of circular swatches that re-tint the material. The label is what makes the interaction discoverable. | M |
 | Video-with-tinted-scrim proof section | Full-bleed muted loop under `rgba(<brand>, 0.4)` rising to `0.8` behind copy. The only place on this page copy is guaranteed readable — apply the same discipline anywhere copy meets imagery. | S |
+| Hard ground-colour cuts | Change `background-color` instantly at section boundaries rather than tweening. Seven cuts across the page read as edits; a continuous gradient reads as a template. | S |
+| `360° ↻` affordance label | Two characters above any draggable 3D object. Without it, drag-to-spin goes undiscovered by most visitors. | S |
+| Mobile scroll-lock regression test | The failure here is testable: load at 390px, `window.scrollTo(0, document.body.scrollHeight)`, assert `window.scrollY > 0`. Add it to CI on any pinned/scrubbed page — this site would have caught its own bug. | S |
 
 ## Screenshots
 `assets/studies/apple-iphone14/` — `desktop-hero.jpg` (quote cold open), `desktop-01.jpg` (headlines crossing the phone — the readability failure), `desktop-02.jpg` (display beat, emissive screen on black), `desktop-03.jpg` (A15 wireframe + gradient headline), `desktop-04.jpg` / `desktop-05.jpg` (Sierra Blue and RED colourway panels), `desktop-06.jpg` (underwater video + teal scrim), `desktop-07.jpg` (360° configurator + swatch rail), `desktop-hover.jpg` (Buy pill hover state), `mobile-00.jpg` (the only screen mobile can reach). `data.json` holds all measured values above, including the `reachedY: 0` mobile scroll record.

@@ -1,0 +1,631 @@
+{
+  "url": "https://nimbus-keyboards1.vercel.app",
+  "slug": "nimbus-keyboards",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1041,
+      "reachedY": 1120,
+      "pct": 15
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 2081,
+      "reachedY": 2081,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 3122,
+      "reachedY": 3581,
+      "pct": 49
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 4162,
+      "reachedY": 4201,
+      "pct": 58
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 5203,
+      "reachedY": 5201,
+      "pct": 71
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 6243,
+      "reachedY": 6321,
+      "pct": 87
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 7284,
+      "reachedY": 7284,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "Nimbus keyboard1",
+    "scrollHeight": 8184,
+    "viewportHeight": 900,
+    "screens": 9.1,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 6,
+      "video": 0,
+      "img": 12,
+      "svg": 51,
+      "sections": 11,
+      "buttons": 14
+    },
+    "body": {
+      "sel": "body",
+      "text": "BuyToggle menuBuild for the BoldTyping ReinventedFall in love with the craft tha",
+      "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Build for",
+        "fontFamily": "\"Roboto Flex\", \"Roboto Flex Fallback\"",
+        "fontSize": "96px",
+        "fontWeight": "400",
+        "lineHeight": "76.8px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Typing Reinvented",
+        "fontFamily": "\"Roboto Flex\", \"Roboto Flex Fallback\"",
+        "fontSize": "60px",
+        "fontWeight": "400",
+        "lineHeight": "60px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "p",
+        "text": "Fall in love with the craft thanks to our professional grade keycaps and switche",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Products",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "20px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "lab(65.9269 -0.832707 -8.17473)"
+      },
+      {
+        "sel": "button",
+        "text": "Buy",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "600",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "footer",
+        "text": "Nimbus home© 2025 Nimbus Keyboards. All rights reserved.ProductsAboutSupportCont",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "lab(65.9269 -0.832707 -8.17473)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 566
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 159
+      },
+      {
+        "value": "oklab(0.706998 -0.00332528 -0.0217307 / 0.8)",
+        "count": 36
+      },
+      {
+        "value": "lab(65.9269 -0.832707 -8.17473)",
+        "count": 22
+      },
+      {
+        "value": "rgba(0, 0, 0, 0)",
+        "count": 6
+      },
+      {
+        "value": "lab(35.6337 -1.58697 -10.8425)",
+        "count": 4
+      },
+      {
+        "value": "lab(8.11897 0.811279 -12.254)",
+        "count": 2
+      },
+      {
+        "value": "lab(27.1134 -0.956401 -12.3224)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "lab(91.6229 -0.159115 -2.26791)",
+        "count": 12
+      },
+      {
+        "value": "lab(96.1596 -0.0823438 -1.13575)",
+        "count": 6
+      },
+      {
+        "value": "lab(85.1236 -0.612259 -3.7138)",
+        "count": 1
+      },
+      {
+        "value": "rgb(1, 167, 225)",
+        "count": 1
+      },
+      {
+        "value": "lab(17.8299 -5.31271 -21.1584)",
+        "count": 1
+      },
+      {
+        "value": "lab(13.003 29.04 16.7519)",
+        "count": 1
+      },
+      {
+        "value": "lab(15.8111 20.9107 23.3752)",
+        "count": 1
+      },
+      {
+        "value": "lab(8.11897 0.811279 -12.254)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Roboto Flex\", \"Roboto Flex Fallback\"|400",
+        "count": 94
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 45
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|700",
+        "count": 7
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|600",
+        "count": 6
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|500",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "loaded"
+      },
+      {
+        "family": "Roboto Flex Fallback",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/2d9285e85aed01d3.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/2008ffcf9e5b170c.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/079d5ede7af38810.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/8082ab48faca5ea1.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/turbopack-cd909efe484790b5.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ca9c10fef1af829c.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/511327dbb835e3b0.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/105b5ed1f951983b.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/1effc59df0206fbf.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ff1a16fafef87110.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/7dd66bdf8a7e5707.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/b67b107e891260db.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/5c0317d63c9779e7.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/60720a3831d4787d.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/6dbc8a8106b63aa1.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/a6dad97d9634a72d.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/7f6976ffdcc8b5ca.js",
+      "https://static.cdn.prismic.io/prismic.js?new=true&repo=nimbus-keyboard1"
+    ],
+    "stylesheets": [
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ac439f7e800dff15.css"
+    ],
+    "html": 194685
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "SplitText",
+    "drei",
+    "gsap",
+    "r3f",
+    "shader",
+    "three",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 2470,
+      "reachedY": 2470,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 4940,
+      "reachedY": 4940,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 7410,
+      "reachedY": 7410,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Nimbus keyboard1",
+    "scrollHeight": 8254,
+    "viewportHeight": 844,
+    "screens": 9.8,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 6,
+      "video": 0,
+      "img": 12,
+      "svg": 51,
+      "sections": 11,
+      "buttons": 14
+    },
+    "body": {
+      "sel": "body",
+      "text": "BuyToggle menuBuild for the BoldTyping ReinventedFall in love with the craft tha",
+      "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "24px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Build for",
+        "fontFamily": "\"Roboto Flex\", \"Roboto Flex Fallback\"",
+        "fontSize": "60px",
+        "fontWeight": "400",
+        "lineHeight": "48px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Typing Reinvented",
+        "fontFamily": "\"Roboto Flex\", \"Roboto Flex Fallback\"",
+        "fontSize": "36px",
+        "fontWeight": "400",
+        "lineHeight": "40px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "p",
+        "text": "Fall in love with the craft thanks to our professional grade keycaps and switche",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "nav a",
+        "text": "Products",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "20px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "lab(65.9269 -0.832707 -8.17473)"
+      },
+      {
+        "sel": "button",
+        "text": "Buy",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "600",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "footer",
+        "text": "Nimbus home© 2025 Nimbus Keyboards. All rights reserved.ProductsAboutSupportCont",
+        "fontFamily": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "lab(65.9269 -0.832707 -8.17473)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 566
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 159
+      },
+      {
+        "value": "oklab(0.706998 -0.00332528 -0.0217307 / 0.8)",
+        "count": 36
+      },
+      {
+        "value": "lab(65.9269 -0.832707 -8.17473)",
+        "count": 22
+      },
+      {
+        "value": "rgba(0, 0, 0, 0)",
+        "count": 6
+      },
+      {
+        "value": "lab(35.6337 -1.58697 -10.8425)",
+        "count": 4
+      },
+      {
+        "value": "lab(8.11897 0.811279 -12.254)",
+        "count": 2
+      },
+      {
+        "value": "lab(27.1134 -0.956401 -12.3224)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "lab(91.6229 -0.159115 -2.26791)",
+        "count": 12
+      },
+      {
+        "value": "lab(96.1596 -0.0823438 -1.13575)",
+        "count": 6
+      },
+      {
+        "value": "lab(85.1236 -0.612259 -3.7138)",
+        "count": 1
+      },
+      {
+        "value": "rgb(1, 167, 225)",
+        "count": 1
+      },
+      {
+        "value": "lab(17.8299 -5.31271 -21.1584)",
+        "count": 1
+      },
+      {
+        "value": "lab(13.003 29.04 16.7519)",
+        "count": 1
+      },
+      {
+        "value": "lab(15.8111 20.9107 23.3752)",
+        "count": 1
+      },
+      {
+        "value": "lab(8.11897 0.811279 -12.254)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Roboto Flex\", \"Roboto Flex Fallback\"|400",
+        "count": 94
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 45
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|700",
+        "count": 7
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|600",
+        "count": 6
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|500",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "unloaded"
+      },
+      {
+        "family": "Roboto Flex",
+        "weight": "100 1000",
+        "style": "oblique 0deg 10deg",
+        "status": "loaded"
+      },
+      {
+        "family": "Roboto Flex Fallback",
+        "weight": "normal",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/2d9285e85aed01d3.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/2008ffcf9e5b170c.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/079d5ede7af38810.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/8082ab48faca5ea1.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/turbopack-cd909efe484790b5.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ca9c10fef1af829c.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/511327dbb835e3b0.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/105b5ed1f951983b.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/1effc59df0206fbf.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ff1a16fafef87110.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/7dd66bdf8a7e5707.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/b67b107e891260db.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/5c0317d63c9779e7.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/60720a3831d4787d.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/6dbc8a8106b63aa1.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/a6dad97d9634a72d.js",
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/7f6976ffdcc8b5ca.js",
+      "https://static.cdn.prismic.io/prismic.js?new=true&repo=nimbus-keyboard1"
+    ],
+    "stylesheets": [
+      "https://nimbus-keyboards1.vercel.app/_next/static/chunks/ac439f7e800dff15.css"
+    ],
+    "html": 194526
+  }
+}

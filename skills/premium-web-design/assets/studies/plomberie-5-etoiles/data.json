@@ -1,0 +1,828 @@
+{
+  "url": "https://www.plomberie5etoiles.com/",
+  "slug": "plomberie-5-etoiles",
+  "capturedAt": null,
+  "errors": [
+    "hover: TimeoutError: locator.hover: Timeout 4000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('a, button').filter({ hasTex"
+  ],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1447,
+      "reachedY": 1500,
+      "pct": 15
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 2895,
+      "reachedY": 2895,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 4342,
+      "reachedY": 4342,
+      "pct": 43
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 5790,
+      "reachedY": 5790,
+      "pct": 57
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 7237,
+      "reachedY": 7237,
+      "pct": 71
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 8685,
+      "reachedY": 8685,
+      "pct": 86
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 10132,
+      "reachedY": 10132,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "Plomberie 5 Étoiles – Services de Plomberie à Montréal",
+    "scrollHeight": 11032,
+    "viewportHeight": 900,
+    "screens": 12.3,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 0,
+      "video": 0,
+      "img": 38,
+      "svg": 50,
+      "sections": 0,
+      "buttons": 33
+    },
+    "body": {
+      "sel": "body",
+      "text": "<iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-PPZ8MWP\"\n\t\theight=\"",
+      "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "32px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(85, 85, 85)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Services de Plomberie à Montréal — Plomberie 5 Étoiles",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "38.4px",
+        "fontWeight": "800",
+        "lineHeight": "44.16px",
+        "letterSpacing": "-0.5px",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Votre plombier à Montréal, disponible 24/7",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "35.2px",
+        "fontWeight": "800",
+        "lineHeight": "42.24px",
+        "letterSpacing": "-0.3px",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h3",
+        "text": "Plomberie 5 Étoiles: Experts en Plomberie Spécialisée à Montreal",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "36px",
+        "fontWeight": "800",
+        "lineHeight": "43.2px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(50, 143, 182)"
+      },
+      {
+        "sel": "p",
+        "text": "Plomberie 5 Étoiles, votre plombier Montréal rapide et disponible 24/7.",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "18.4px",
+        "fontWeight": "600",
+        "lineHeight": "27.6px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "nav a",
+        "text": "",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "26px",
+        "fontWeight": "800",
+        "lineHeight": "52px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Menu",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "20px",
+        "fontWeight": "400",
+        "lineHeight": "20px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(85, 85, 85)"
+      },
+      {
+        "sel": "footer",
+        "text": "Contactez-nous en ligne\n\t\t\t\t  Obtenez Votre Devis Gratuit\n\n\t\t\t\t  Ou appelez-nous",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "600",
+        "lineHeight": "32px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(85, 85, 85)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(85, 85, 85)",
+        "count": 571
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 174
+      },
+      {
+        "value": "rgb(50, 143, 182)",
+        "count": 142
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 79
+      },
+      {
+        "value": "rgb(0, 51, 102)",
+        "count": 28
+      },
+      {
+        "value": "rgb(244, 244, 244)",
+        "count": 18
+      },
+      {
+        "value": "rgb(108, 117, 125)",
+        "count": 16
+      },
+      {
+        "value": "rgb(39, 58, 65)",
+        "count": 14
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 42
+      },
+      {
+        "value": "rgb(50, 143, 182)",
+        "count": 9
+      },
+      {
+        "value": "rgb(141, 110, 99)",
+        "count": 6
+      },
+      {
+        "value": "rgb(255, 152, 0)",
+        "count": 6
+      },
+      {
+        "value": "rgb(53, 181, 27)",
+        "count": 4
+      },
+      {
+        "value": "rgb(229, 229, 229)",
+        "count": 4
+      },
+      {
+        "value": "rgb(39, 58, 65)",
+        "count": 4
+      },
+      {
+        "value": "rgb(248, 250, 252)",
+        "count": 4
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|600",
+        "count": 152
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|800",
+        "count": 84
+      },
+      {
+        "value": "Roboto, \"Google Sans\", Arial, sans-serif|600",
+        "count": 24
+      },
+      {
+        "value": "sans-serif|400",
+        "count": 9
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|700",
+        "count": 9
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|900",
+        "count": 9
+      },
+      {
+        "value": "Roboto, \"Google Sans\", Arial, sans-serif|500",
+        "count": 6
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-main.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-vendor.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-chunk-vendors.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-chunk-common.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-runtime.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-app.js",
+      "https://www.google-analytics.com/analytics.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-TQHMXXCTKW&cx=c&gtm=4e68c1",
+      "https://embed.tawk.to/5f11c084a45e787d128ba210/default",
+      "https://www.googletagmanager.com/gtm.js?id=GTM-PPZ8MWP",
+      "https://analytics.ahrefs.com/analytics.js",
+      "https://unpkg.com/aos@2.3.1/dist/aos.js?g-84d11a41",
+      "https://code.jquery.com/jquery-3.6.0.min.js?g-84d11a41",
+      "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js?g-84d11a41",
+      "https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js?g-84d11a41",
+      "https://analytics.ahrefs.com/analytics.js",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/js/modernizr.custom.71422.js?g-84d11a41"
+    ],
+    "stylesheets": [
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css/raleway.css",
+      "https://unpkg.com/aos@2.3.1/dist/aos.css",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap-reboot.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap-grid.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/custom.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/plugins/form/assets/form-styles.css?g-84d11a41"
+    ],
+    "html": 162453
+  },
+  "bundleLibs": [
+    "barba",
+    "video",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 6075,
+      "reachedY": 6087,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 12150,
+      "reachedY": 12207,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 18225,
+      "reachedY": 18225,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Plomberie 5 Étoiles – Services de Plomberie à Montréal",
+    "scrollHeight": 19102,
+    "viewportHeight": 877,
+    "screens": 21.8,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": false,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 0,
+      "video": 0,
+      "img": 38,
+      "svg": 50,
+      "sections": 0,
+      "buttons": 33
+    },
+    "body": {
+      "sel": "body",
+      "text": "<iframe src=\"https://www.googletagmanager.com/ns.html?id=GTM-PPZ8MWP\"\n\t\theight=\"",
+      "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+      "fontSize": "16px",
+      "fontWeight": "600",
+      "lineHeight": "32px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(85, 85, 85)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "Services de Plomberie à Montréal — Plomberie 5 Étoiles",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "25.6px",
+        "fontWeight": "800",
+        "lineHeight": "29.44px",
+        "letterSpacing": "-0.5px",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "Votre plombier à Montréal, disponible 24/7",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "27.2px",
+        "fontWeight": "800",
+        "lineHeight": "32.64px",
+        "letterSpacing": "-0.3px",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h3",
+        "text": "Plomberie 5 Étoiles: Experts en Plomberie Spécialisée à Montreal",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "28px",
+        "fontWeight": "800",
+        "lineHeight": "33.6px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(50, 143, 182)"
+      },
+      {
+        "sel": "p",
+        "text": "Plomberie 5 Étoiles, votre plombier Montréal rapide et disponible 24/7.",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "600",
+        "lineHeight": "24px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "nav a",
+        "text": "",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "26px",
+        "fontWeight": "800",
+        "lineHeight": "52px",
+        "letterSpacing": "normal",
+        "textTransform": "uppercase",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Menu",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "20px",
+        "fontWeight": "400",
+        "lineHeight": "20px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(85, 85, 85)"
+      },
+      {
+        "sel": "footer",
+        "text": "Contactez-nous en ligne\n\t\t\t\t  Obtenez Votre Devis Gratuit\n\n\t\t\t\t  Ou appelez-nous",
+        "fontFamily": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"",
+        "fontSize": "16px",
+        "fontWeight": "600",
+        "lineHeight": "32px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(85, 85, 85)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(85, 85, 85)",
+        "count": 571
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 174
+      },
+      {
+        "value": "rgb(50, 143, 182)",
+        "count": 141
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 79
+      },
+      {
+        "value": "rgb(0, 51, 102)",
+        "count": 28
+      },
+      {
+        "value": "rgb(244, 244, 244)",
+        "count": 18
+      },
+      {
+        "value": "rgb(108, 117, 125)",
+        "count": 16
+      },
+      {
+        "value": "rgb(39, 58, 65)",
+        "count": 14
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 43
+      },
+      {
+        "value": "rgb(50, 143, 182)",
+        "count": 9
+      },
+      {
+        "value": "rgb(141, 110, 99)",
+        "count": 6
+      },
+      {
+        "value": "rgb(255, 152, 0)",
+        "count": 6
+      },
+      {
+        "value": "rgb(53, 181, 27)",
+        "count": 4
+      },
+      {
+        "value": "rgb(229, 229, 229)",
+        "count": 4
+      },
+      {
+        "value": "rgb(39, 58, 65)",
+        "count": 4
+      },
+      {
+        "value": "rgb(248, 250, 252)",
+        "count": 4
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|600",
+        "count": 152
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|800",
+        "count": 84
+      },
+      {
+        "value": "Roboto, \"Google Sans\", Arial, sans-serif|600",
+        "count": 24
+      },
+      {
+        "value": "sans-serif|400",
+        "count": 9
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|700",
+        "count": 9
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|900",
+        "count": 9
+      },
+      {
+        "value": "Roboto, \"Google Sans\", Arial, sans-serif|500",
+        "count": 6
+      },
+      {
+        "value": "Raleway, -apple-system, \"system-ui\", \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Raleway",
+        "weight": "800",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-main.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-vendor.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-chunk-vendors.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-chunk-common.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-runtime.js",
+      "https://embed.tawk.to/_s/v4/app/6a7f323f206/js/twk-app.js",
+      "https://www.google-analytics.com/analytics.js",
+      "https://www.googletagmanager.com/gtag/js?id=G-TQHMXXCTKW&cx=c&gtm=4e68c1",
+      "https://embed.tawk.to/5f11c084a45e787d128ba210/default",
+      "https://www.googletagmanager.com/gtm.js?id=GTM-PPZ8MWP",
+      "https://analytics.ahrefs.com/analytics.js",
+      "https://unpkg.com/aos@2.3.1/dist/aos.js?g-84d11a41",
+      "https://code.jquery.com/jquery-3.6.0.min.js?g-84d11a41",
+      "https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js?g-84d11a41",
+      "https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js?g-84d11a41",
+      "https://analytics.ahrefs.com/analytics.js",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/js/modernizr.custom.71422.js?g-84d11a41"
+    ],
+    "stylesheets": [
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css/raleway.css",
+      "https://unpkg.com/aos@2.3.1/dist/aos.css",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap-reboot.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/bootstrap-grid.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/themes/interwest/css-compiled/custom.css?g-84d11a41",
+      "https://www.plomberie5etoiles.com/user/plugins/form/assets/form-styles.css?g-84d11a41"
+    ],
+    "html": 162453
+  }
+}

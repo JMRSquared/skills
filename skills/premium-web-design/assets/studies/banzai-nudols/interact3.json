@@ -1,0 +1,130 @@
+{
+  "sh": 986,
+  "sy": 0,
+  "canvas": 2,
+  "colors": [
+    [
+      "rgb(255, 255, 255)",
+      13
+    ],
+    [
+      "rgb(245, 217, 63)",
+      9
+    ],
+    [
+      "rgb(16, 24, 32)",
+      3
+    ],
+    [
+      "rgb(241, 90, 82)",
+      2
+    ],
+    [
+      "rgba(16, 24, 32, 0.05)",
+      2
+    ],
+    [
+      "rgba(0, 0, 0, 0.8)",
+      1
+    ]
+  ],
+  "fonts": [
+    [
+      "Cervo|400|18px|rgb(255, 255, 255)",
+      20
+    ],
+    [
+      "Cervo|400|24px|rgb(0, 0, 0)",
+      8
+    ],
+    [
+      "\"Lilita One\"|400|200px|rgb(225, 39, 30)",
+      8
+    ],
+    [
+      "Cervo|400|14px|rgb(255, 255, 255)",
+      8
+    ],
+    [
+      "Cervo, sans-serif|400|16px|rgb(0, 0, 0)",
+      7
+    ],
+    [
+      "Times|400|16px|rgb(0, 0, 0)",
+      6
+    ],
+    [
+      "Cervo|400|43px|rgb(16, 24, 32)",
+      6
+    ],
+    [
+      "Cervo|700|18px|rgb(255, 255, 255)",
+      4
+    ],
+    [
+      "\"Lilita One\"|400|38px|rgb(255, 255, 255)",
+      4
+    ],
+    [
+      "\"Lilita One\", sans-serif|400|10px|rgb(255, 255, 255)",
+      2
+    ],
+    [
+      "\"Lilita One\"|400|28px|rgb(255, 255, 255)",
+      2
+    ],
+    [
+      "\"Lilita One\"|400|432px|rgb(225, 39, 30)",
+      2
+    ],
+    [
+      "\"Lilita One\"|400|21px|rgb(16, 24, 32)",
+      2
+    ],
+    [
+      "\"Lilita One\"|400|176px|rgb(0, 0, 0)",
+      1
+    ]
+  ],
+  "texts": [
+    "Start",
+    "Entra senza audio",
+    "Contatti",
+    "sede legale",
+    "Via Nazionale 2/1 -39044Laghetti di Egna (Bz)",
+    "Email",
+    "info@nudolsbanzai.it contattaci",
+    "contattaci",
+    "Torna indietro",
+    "Contatti",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Manzo",
+    "Nudols gusto Manzo",
+    "preparazione",
+    "Tira la linguetta e versa acqua bollente fino alla linea",
+    "Richiudi e aspetta per 3 minuti",
+    "Mescola con cura e mangia il tuo pasto caldo",
+    "Tira la linguetta e versa acqua bollente fino alla linea",
+    "Richiudi e aspetta per 3 minuti",
+    "Mescola con cura e mangia il tuo pasto caldo",
+    "valori nutrizionali",
+    "Rosy",
+    "rosy",
+    "Scopri tutti i gusti",
+    "yakisoba classico",
+    "pollo",
+    "curry",
+    "verdure",
+    "INFORMAZIONI LEGALI",
+    "Grif Srl | P.IVA 01596200210 - info@nudolsbanzai.it",
+    "Clicca su “Accetta” per acconsentire il salvataggio dei cookie. Visualizza la Cookie Policy per maggiori informazioni.",
+    "Accetta",
+    "Rifiuta"
+  ]
+}

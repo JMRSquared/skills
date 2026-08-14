@@ -60,6 +60,38 @@ Rhythm across 15 chapters: paper → paper → **dark** → dark → paper → p
 | 7 | Carousel | `swiper` present in bundle; the edge-bleeding B&W row in `desktop-02` runs past both viewport edges | `bundleLibs`; frame |
 | 8 | Hover | No hover state detected on the first CTA — hover frame was pixel-identical to rest state | `desktop-hover.jpg` was a duplicate of `desktop-05` and was deleted |
 
+## Chapter grammar (the repeating unit)
+Fifteen chapters, one shell. Learning this is most of the value of the study:
+
+```
+[ ground: #F1F1F1 or #141414, flipped every ~2 chapters ]
+
+  2010            <- pinned rail, 15 rows, 30px pitch,
+  2011               active #141414 / rest #282828
+> 2012
+  2013
+  …                        JULY 2011                <- MonumentGrotesk-Mono 11px caps
+  2024
+                  36px pull-quote, max 4 lines,
+                  line-height 1.00, centred, -0.72px ls
+
+         [ img ]     [ img ]     [ img ]            <- translateY -6 / 0 / -12px
+                                                       widths NOT equal
+
+              [ 902px year numeral, cropped by both viewport edges ]
+```
+
+Variants observed across the five captured chapters:
+| Variant | Frame | Change from the shell |
+|---|---|---|
+| Quote + 3-up | `desktop-01` | The default. Copy above, images below. |
+| Image-only | `desktop-02` | No copy at all. One screen of black-and-white reportage, one image bleeding right. |
+| Video + column | `desktop-03` | 640×355 video left, mono date + two 24px paragraphs right, inline underlined `FULL VIDEO` link. |
+| Numeral-dominant | `desktop-04` | 902px year owns the frame; a single 4-line paragraph overlaps its ascenders. |
+| Still-life + bleed | `desktop-05` | Studio product shot on paper with a cast shadow, then a full-bleed interior video takes the bottom third. |
+
+Rule: **no two consecutive chapters use the same variant**, and every chapter contains exactly one mono date. The copy budget per chapter is 4 lines of quote or 2 short paragraphs — never both.
+
 ## How it sells a LOCAL SERVICE
 This is the honest edge case in the set: **it is a brand microsite, not a booking funnel** — and it is worth studying precisely because it shows what a local business does with the *other* half of its site budget.
 

@@ -1,0 +1,493 @@
+{
+  "url": "https://apple-iphone14.vercel.app",
+  "slug": "apple-iphone14",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1577,
+      "reachedY": 1620,
+      "pct": 15
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 3154,
+      "reachedY": 3240,
+      "pct": 29
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 4731,
+      "reachedY": 4731,
+      "pct": 43
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 6309,
+      "reachedY": 6351,
+      "pct": 58
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 7886,
+      "reachedY": 7971,
+      "pct": 72
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 9463,
+      "reachedY": 9463,
+      "pct": 86
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 11040,
+      "reachedY": 11040,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "React App",
+    "scrollHeight": 11940,
+    "viewportHeight": 900,
+    "screens": 13.3,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 3,
+      "video": 3,
+      "img": 1,
+      "svg": 0,
+      "sections": 8,
+      "buttons": 1
+    },
+    "body": {
+      "sel": "body",
+      "text": "You need to enable JavaScript to run this app. “ You can't connect the dots look",
+      "fontFamily": "\"Source Sans Pro\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "iPhone 14 Pro Max",
+        "fontFamily": "\"Source Sans Pro light\"",
+        "fontSize": "31px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(151, 151, 151)"
+      },
+      {
+        "sel": "h2",
+        "text": "iPhone",
+        "fontFamily": "\"Source Sans Pro\"",
+        "fontSize": "22px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(0, 0, 0)"
+      },
+      {
+        "sel": "p",
+        "text": "“ You can't connect the dots looking forward;",
+        "fontFamily": "\"Source Sans Pro\", sans-serif",
+        "fontSize": "31px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Buy",
+        "fontFamily": "Arial",
+        "fontSize": "13.3333px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 76
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 26
+      },
+      {
+        "value": "rgb(151, 151, 151)",
+        "count": 6
+      },
+      {
+        "value": "rgb(33, 94, 124)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 9
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 5
+      },
+      {
+        "value": "rgba(33, 94, 124, 0.4)",
+        "count": 2
+      },
+      {
+        "value": "rgba(33, 94, 124, 0.8)",
+        "count": 1
+      },
+      {
+        "value": "rgb(155, 181, 206)",
+        "count": 1
+      },
+      {
+        "value": "rgb(249, 229, 201)",
+        "count": 1
+      },
+      {
+        "value": "rgb(80, 95, 78)",
+        "count": 1
+      },
+      {
+        "value": "rgb(87, 79, 111)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Source Sans Pro\", sans-serif|400",
+        "count": 10
+      },
+      {
+        "value": "\"Source Sans Pro\", sans-serif|700",
+        "count": 5
+      },
+      {
+        "value": "\"Source Sans Pro light\"|400",
+        "count": 4
+      },
+      {
+        "value": "\"Source Sans Pro light\"|700",
+        "count": 4
+      },
+      {
+        "value": "\"Source Sans Pro\", sans-serif|600",
+        "count": 4
+      },
+      {
+        "value": "Times|400",
+        "count": 2
+      },
+      {
+        "value": "\"Source Sans Pro\"|700",
+        "count": 2
+      },
+      {
+        "value": "\"Source Sans Pro\"|400",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Source Sans Pro light",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Source Sans Pro",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://apple-iphone14.vercel.app/static/js/main.883dc842.js"
+    ],
+    "stylesheets": [
+      "https://apple-iphone14.vercel.app/static/css/main.e6c13ad2.css"
+    ],
+    "html": 9171
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "drei",
+    "gsap",
+    "r3f",
+    "shader",
+    "three",
+    "video",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    }
+  ],
+  "mobileData": {
+    "title": "React App",
+    "scrollHeight": 10330,
+    "viewportHeight": 844,
+    "screens": 12.2,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 3,
+      "video": 3,
+      "img": 1,
+      "svg": 0,
+      "sections": 8,
+      "buttons": 1
+    },
+    "body": {
+      "sel": "body",
+      "text": "You need to enable JavaScript to run this app. “ You can't connect the dots look",
+      "fontFamily": "\"Source Sans Pro\", sans-serif",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "lineHeight": "normal",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(0, 0, 0)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "iPhone 14 Pro Max",
+        "fontFamily": "\"Source Sans Pro light\"",
+        "fontSize": "22px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "h2",
+        "text": "iPhone",
+        "fontFamily": "\"Source Sans Pro\"",
+        "fontSize": "22px",
+        "fontWeight": "700",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(0, 0, 0)"
+      },
+      {
+        "sel": "p",
+        "text": "“ You can't connect the dots looking forward;",
+        "fontFamily": "\"Source Sans Pro\", sans-serif",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      },
+      {
+        "sel": "button",
+        "text": "Buy",
+        "fontFamily": "Arial",
+        "fontSize": "13.3333px",
+        "fontWeight": "400",
+        "lineHeight": "normal",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(255, 255, 255)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 76
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 27
+      },
+      {
+        "value": "rgb(151, 151, 151)",
+        "count": 5
+      },
+      {
+        "value": "rgb(155, 181, 206)",
+        "count": 1
+      },
+      {
+        "value": "rgb(0, 113, 227)",
+        "count": 1
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 9
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 5
+      },
+      {
+        "value": "rgba(155, 181, 206, 0.4)",
+        "count": 2
+      },
+      {
+        "value": "rgba(155, 181, 206, 0.8)",
+        "count": 1
+      },
+      {
+        "value": "rgb(155, 181, 206)",
+        "count": 1
+      },
+      {
+        "value": "rgb(249, 229, 201)",
+        "count": 1
+      },
+      {
+        "value": "rgb(80, 95, 78)",
+        "count": 1
+      },
+      {
+        "value": "rgb(87, 79, 111)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Source Sans Pro\", sans-serif|400",
+        "count": 10
+      },
+      {
+        "value": "\"Source Sans Pro\", sans-serif|700",
+        "count": 5
+      },
+      {
+        "value": "\"Source Sans Pro light\"|400",
+        "count": 4
+      },
+      {
+        "value": "\"Source Sans Pro light\"|700",
+        "count": 4
+      },
+      {
+        "value": "\"Source Sans Pro\", sans-serif|600",
+        "count": 4
+      },
+      {
+        "value": "Times|400",
+        "count": 2
+      },
+      {
+        "value": "\"Source Sans Pro\"|700",
+        "count": 2
+      },
+      {
+        "value": "\"Source Sans Pro\"|400",
+        "count": 1
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Source Sans Pro light",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Source Sans Pro",
+        "weight": "normal",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://apple-iphone14.vercel.app/static/js/main.883dc842.js"
+    ],
+    "stylesheets": [
+      "https://apple-iphone14.vercel.app/static/css/main.e6c13ad2.css"
+    ],
+    "html": 8906
+  }
+}
