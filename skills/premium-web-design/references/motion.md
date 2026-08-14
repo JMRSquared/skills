@@ -83,6 +83,30 @@ document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 Reveal at 12–15% visibility, not at 50% — content that animates in after the
 user is already reading it feels broken.
 
+### The masked-reveal deadlock
+
+Chrome folds an element's own `clip-path` into the rectangle it reports to
+IntersectionObserver. An image hidden with `clip-path: inset(0 0 100% 0)` has a
+zero-height intersection rectangle, so it never fires `isIntersecting`, so the
+class that would unclip it is never added. The element stays masked for ever and
+the page ships with an empty rectangle where the hero image should be.
+
+**Observe the parent, clip the child.**
+
+```html
+<div class="reveal-frame"><img class="reveal-clip" src="…" alt="…"></div>
+```
+```css
+.js .reveal-frame .reveal-clip{clip-path:inset(0 0 100% 0);transform:scale(1.06)}
+.js .reveal-frame.is-in .reveal-clip{
+  clip-path:inset(0 0 0 0);transform:none;
+  transition:clip-path var(--d-enter) var(--ease-out),transform var(--d-enter) var(--ease-out);
+}
+```
+
+The same trap applies to `opacity: 0` only when an ancestor also has
+`content-visibility: hidden`. Plain `opacity: 0` still reports intersection.
+
 ## Signature moments
 
 Three per page, not thirty. Each one must:
@@ -104,6 +128,10 @@ particles with no relationship to the product, a counter animation.
 Custom cursors are a signature or a liability. If you build one:
 - Keep the native cursor's affordance legible (it must still say "clickable")
 - Use `pointer: fine` media query to disable entirely on touch
+- **Declare the `pointer: coarse` block after your width breakpoints.** Media
+  queries carry no specificity of their own, so a later `@media (max-width: …)`
+  rule re-setting `grid-template-columns` silently overrides the touch layout
+  you wrote above it. Source order is the only thing deciding the winner.
 - Lerp toward the pointer at ~0.15 per frame; instant tracking feels cheap,
   heavy lag feels broken
 

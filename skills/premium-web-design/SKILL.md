@@ -163,6 +163,18 @@ PW_DIR=<dir with node_modules/playwright> STEPS=8 \
   node scripts/study-site.mjs "<url>" <slug> assets/studies
 ```
 
+**Virtual-scroll sites read as broken.** `igloo-inc`, `lusion` and
+`activetheory` drive everything from wheel events and never write
+`window.scrollY`, so `scrollHeight` equals the viewport height and every
+capture step reports `reachedY: 0`. Two of the three also render zero `<img>`
+elements, because the imagery lives in WebGL. A first pass at `igloo.inc`
+captured eight identical blank frames in Times and looked like a dead site; it
+was a live site that had not booted yet. When a capture shows
+`scrollHeight == viewportHeight` plus a fallback font plus `fontFaces` marked
+`unloaded`, raise `SETTLE`, trust the wheel-stepped frames over the DOM probe,
+and sample runtime colour and type from the pixels rather than from
+`data.json`.
+
 ---
 
 ## Step 3 — Art Direction Contract
