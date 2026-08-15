@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Fieldmark 01 · a camera, turned by scroll</title>
 
-<!-- premium-web-design: tier=C mobile=B -->
+<!-- premium-web-design: tier=C mobile=B kind=demo -->
 
 <!--
 =============================================================================
@@ -46,13 +46,27 @@
                survive the navigation, and the next page starts down a GPU
                context. Chrome only keeps 16.
 
+  HOW TO CHECK WHICH PATH RAN
+    Never from a screenshot - the fallback is a correct-looking page.
+
+        document.documentElement.dataset.scenePath   // "webgl" | "sequence"
+        document.documentElement.dataset.sceneRenderer
+        document.querySelectorAll('canvas').length   // 1 on the webgl path
+
+    Every downgrade also prints one `console.info` naming the condition
+    that caused it. See GUARD 15.
+
   THE FALLBACK IS NOT AN APOLOGY
-    Under any of: no WebGL2, a viewport under 860px, or prefers-reduced-motion,
-    the renderer is never constructed and a three-frame image sequence runs
+    Under any of: no WebGL2 at all, a viewport under 860px, or
+    prefers-reduced-motion, the renderer is never constructed and a three-frame image sequence runs
     instead - the same three beats, the same copy, crossfaded on the same
     scroll maths. ambition-tiers.md calls for exactly this: "a scrubbed 3D
     sequence becomes a scrubbed image sequence". The stills are renders of
     this scene at the centre of each beat, so the two paths agree.
+    A SOFTWARE renderer (SwiftShader, llvmpipe) is NOT one of those cases.
+    It still gets the real scene, at devicePixelRatio 1. Refusing to render
+    on a CPU rasteriser is how this file spent a week serving a sequence
+    inside every headless browser that checked it.
 
   THE MODEL
     Camera 01, Poly Haven, CC0, https://polyhaven.com/a/Camera_01 - 26,987
@@ -60,6 +74,20 @@
     assets/model/camera-01.gltf.js as a gzipped base64 string because a page
     opened over file:// cannot fetch() a sibling file; that file's header
     explains the packing and says what to do instead in production.
+
+  TWO SPARSE FINDINGS THAT ARE ANSWERS, NOT OMISSIONS
+    `image-density 1` - the page carries one piece of media because that
+    piece is a live 3D object the reader turns themselves. A product render
+    page is the one archetype where a photograph would be the weaker asset.
+    `ground-flips 0` - see below.
+
+  ONE GROUND, ON PURPOSE
+    The auditor reports `ground-flips 0` here and that is the intended
+    answer. All three pure-WebGL sites in this skill's corpus - igloo.inc,
+    activetheory.net, lusion.co - hold a single near-black ground for the
+    whole scroll, because a scene lit by its own key light has nothing to
+    gain from a paper chapter cutting into it. The ground flips once, into
+    --ground-2 under the specs, and stops there.
 
   HOW TO ADAPT
     BEATS is the whole narrative. Add a fourth entry, add a fourth <li> to the
@@ -237,7 +265,7 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
    panels side by side, and the object never feels like it is behind the
    page. The blur and the 72% ground are what keep the copy readable where
    they cross. */
-.beats{ position:relative; z-index:2; margin-right:-3rem; }
+.beats{ position:relative; z-index:2; margin-right:-6rem; }
 .beats__plate{
   background:rgba(11,11,13,0.72);
   backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
@@ -273,8 +301,14 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
 /* The second type event. A page whose largest type is in the first screen
    and never returns is a brochure; this wordmark runs past the right edge
    at display scale so the frame reads as a window, not a box. */
-.wordmark{
-  font-size:clamp(3.5rem, 13vw, 13rem); line-height:0.86; margin:0 0 3rem;
+h2.display.wordmark{
+  /* 17vw, nowrap, and no reveal on it. It is wider than the viewport at
+     every width in the range, so it runs off the right edge - the second
+     type event the page needs, and the one element that tells the reader
+     the frame is a window rather than a box. It carries no reveal class
+     because an element that is invisible until it is scrolled to cannot
+     do that job for the reader who never scrolls that far. */
+  font-size:clamp(3.5rem, 17vw, 18rem); line-height:0.84; margin:0 0 3rem;
   white-space:nowrap; width:max-content;
 }
 .specs__grid{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:var(--gutter); margin-top:3rem; }
@@ -393,7 +427,7 @@ html:not(.is-loading) .loadbar{ display:none; }
     <ul class="hero__meta">
       <li><b>26,987</b> triangles</li>
       <li><b>4</b> PBR materials</li>
-      <li><b>3</b> scroll beats</li>
+      <li><b>3</b> camera moves</li>
       <li><b>1.5</b> viewport-heights each</li>
     </ul>
   </section>
@@ -467,7 +501,7 @@ html:not(.is-loading) .loadbar{ display:none; }
 
   <div class="specs-band">
     <section class="specs wrap">
-      <h2 class="display wordmark rv">Fieldmark 01</h2>
+      <h2 class="display wordmark">Fieldmark 01</h2>
       <p class="note rv">Four numbers, and the reason each one is what it is. Everything else about this camera is a decision you make in the field.</p>
       <dl class="specs__grid">
         <div class="rv"><dt>Shutter</dt><dd>1/4000</dd></div>
@@ -483,7 +517,7 @@ html:not(.is-loading) .loadbar{ display:none; }
     <ul>
       <li>Model: <a href="https://polyhaven.com/a/Camera_01">Camera 01</a>, Poly Haven, CC0. Rajil Jose Macatangay.</li>
       <li>Renderer: three.js r169, ESM from jsDelivr. Environment light from <code>RoomEnvironment</code>, no HDRI file.</li>
-      <li>Scroll construction measured on apple.com/uk/iphone-17-pro, 2026-08-15.</li>
+      <li>Stage construction measured on apple.com/uk/iphone-17-pro, 2026-08-15.</li>
       <li>Fieldmark 01 is an invented product. The copy is a writing sample, not a spec sheet.</li>
     </ul>
   </footer>
@@ -713,22 +747,54 @@ html:not(.is-loading) .loadbar{ display:none; }
      Constructed only when all three of these hold. Each is a real
      product decision, not a capability check dressed up as one.
      ------------------------------------------------------------------- */
-  function webgl2Available() {
+  /* =================================================================
+     GUARD 15 - A CAPABILITY GATE THAT CAN DOWNGRADE MUST SAY SO.
+     The expensive version of this bug: the page decides it cannot run
+     the scene, serves the fallback, and every automated check passes
+     because the fallback is a correct page. The screenshot looks right,
+     the console is empty, and nobody finds out for a week. Three
+     separate investigations into this exact demo started that way.
+     So: every gate below records a reason, prints it with console.info,
+     writes it to <html data-scene-path> for an assertion to read, and
+     puts it in the readout for a human. `document.documentElement
+     .dataset.scenePath === "webgl"` is the check a test should make -
+     never a screenshot.
+     ================================================================= */
+  function inspectWebGL() {
+    var out = { webgl2: false, renderer: 'unknown', software: false };
     try {
       var c = document.createElement('canvas');
       var gl = c.getContext('webgl2');
-      if (!gl) return false;
-      /* A software rasteriser reports WebGL2 and then renders 26,987
-         triangles at 4fps. SwiftShader is the common one. */
+      if (!gl) return out;
+      out.webgl2 = true;
       var dbg = gl.getExtension('WEBGL_debug_renderer_info');
-      var name = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
-      gl.getExtension('WEBGL_lose_context') && gl.getExtension('WEBGL_lose_context').loseContext();
-      return !/swiftshader|llvmpipe|software/i.test(name);
-    } catch (e) { return false; }
+      out.renderer = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : 'masked';
+      /* SwiftShader and llvmpipe are CPU rasterisers. They report full
+         WebGL2 and then draw 26,987 triangles at single-digit frames.
+         That is a reason to spend LESS, not a reason to refuse: the
+         scene still runs, at devicePixelRatio 1 and with the render
+         loop already gated on "did anything change". Refusing outright
+         is what made this demo serve a pre-rendered sequence inside a
+         headless browser launched with --use-gl=swiftshader, which is
+         exactly the environment a CI check runs in. */
+      out.software = /swiftshader|llvmpipe|software|basic render/i.test(out.renderer);
+      var lose = gl.getExtension('WEBGL_lose_context');
+      if (lose) lose.loseContext();
+    } catch (e) { out.error = String(e.message || e).slice(0, 80); }
+    return out;
   }
 
+  var caps = inspectWebGL();
+  var reason =
+    reduced.matches   ? 'prefers-reduced-motion: reduce' :
+    phoneQ.matches    ? 'viewport under 860px (phone build)' :
+    !caps.webgl2      ? ('no WebGL2 context' + (caps.error ? ' (' + caps.error + ')' : '')) : null;
+
   window.__SCENE = {
-    ok: !reduced.matches && !phoneQ.matches && webgl2Available(),
+    ok: !reason,
+    softwareGL: caps.software,
+    caps: caps,
+    reason: reason,
     figure: figure, readout: readout, seq: seq,
     beatOf: beatOf, smooth: smooth, mix: mix,
     setTick: function (fn) { sceneTick = fn; },
@@ -736,10 +802,20 @@ html:not(.is-loading) .loadbar{ display:none; }
     kill: function () { alive = false; stop(); }
   };
 
+  document.documentElement.dataset.scenePath = reason ? 'sequence' : 'webgl';
+  document.documentElement.dataset.sceneRenderer = caps.renderer;
+  if (reason) {
+    console.info('[three-scroll-scene] image-sequence fallback: ' + reason +
+      ' · renderer="' + caps.renderer + '" · webgl2=' + caps.webgl2);
+  } else if (caps.software) {
+    console.info('[three-scroll-scene] WebGL path on a SOFTWARE renderer ("' +
+      caps.renderer + '") · devicePixelRatio pinned to 1');
+  } else {
+    console.info('[three-scroll-scene] WebGL path · renderer="' + caps.renderer + '"');
+  }
+
   if (!window.__SCENE.ok) {
-    readout.innerHTML = phoneQ.matches
-      ? 'Renderer <b>off</b> &middot; phone build, three stills'
-      : 'Renderer <b>off</b> &middot; no WebGL2, three stills';
+    readout.innerHTML = 'Renderer <b>off</b> &middot; ' + reason + ', three stills';
     /* The fallback has its own load sequence: hold the frame until the FIRST
        still has decoded, not until all three. Waiting for the whole sequence
        would keep the frame blank for the two images the reader cannot see
@@ -796,7 +872,7 @@ if (S && S.ok) {
      with a normal map on it; 2.0 is for small canvases and flat shading.
      Uncapped on a 3x phone is 9x the fragments and about 20fps.
      ===================================================================== */
-  const DPR_CAP = 1.5;
+  const DPR_CAP = S.softwareGL ? 1 : 1.5;
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -982,12 +1058,18 @@ if (S && S.ok) {
     window.__RELEASE_LOAD();
     const ms = Math.round(performance.now() - t0);
     S.readout.innerHTML = 'Renderer <b>three.js r' + THREE.REVISION + '</b> &middot; DPR ' +
-      renderer.getPixelRatio().toFixed(2) + ' &middot; ready in ' + ms + ' ms';
+      renderer.getPixelRatio().toFixed(2) + (S.softwareGL ? ' &middot; software GL' : '') +
+      ' &middot; ready in ' + ms + ' ms';
   } catch (err) {
     /* GUARD 13: any failure in here leaves the page on the fallback path,
        which is still sitting in the DOM because it was never removed.
        There is no state to unwind. */
     window.__RELEASE_LOAD();
+    /* GUARD 15 again, on the path that actually bit: a loader that throws
+       leaves a page that looks finished. Say it out loud and mark the root
+       so an assertion can fail on it. */
+    document.documentElement.dataset.scenePath = 'sequence';
+    console.info('[three-scroll-scene] image-sequence fallback: scene failed to build — ' + err.message);
     S.readout.innerHTML = 'Renderer <b>off</b> &middot; ' + String(err.message).slice(0, 60) + ', three stills';
     renderer.dispose();
     if (renderer.domElement.parentNode) renderer.domElement.remove();

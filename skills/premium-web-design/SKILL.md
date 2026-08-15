@@ -478,8 +478,8 @@ Every box needs an artifact, not a claim.
 
 ## Demos
 
-Nine self-contained pages, each a different palette and pairing, each exiting
-0 from the auditor. Open the one nearest your brief and read it before you
+Eleven self-contained pages, each a different palette and pairing, each
+exiting 0 from the auditor. Open the one nearest your brief and read it before you
 write the pattern yourself.
 
 | Demo | Pattern | Stack |
@@ -493,7 +493,16 @@ write the pattern yourself.
 | `photo-treatment.html` | Scrim, duotone, editorial crop pair, grain, with the CSS shown | SVG `feColorMatrix` |
 | `horizontal-chapter.html` | Archetype D — vertical scroll drives a horizontal pan | GSAP + ScrollTrigger |
 | `scrub-sequence.html` | Scroll-scrubbed canvas sequence, the Tier-B answer to WebGL | canvas, DPR capped |
+| `three-scroll-scene.html` | **Tier C.** A real glTF object driven across 3 scroll beats, with an image-sequence fallback | three.js r169, native scroll + CSS sticky |
+| `page-transition.html` | Index to detail, holding the photograph and the title across the change | View Transitions API + a FLIP fallback |
 
 `horizontal-chapter.html` is also the GSAP landing checklist in runnable form:
 eleven numbered guards, each commented with what breaks without it, and a pin
 that is *released* under reduced motion rather than having its tween disabled.
+
+`three-scroll-scene.html` is the same for Tier C: sixteen numbered guards, a
+DPR cap taken from four measured award sites, a full teardown on `pagehide`,
+and a real second implementation for phones and for browsers with no WebGL2.
+It also prints which path it took, because a silent downgrade to the fallback
+survives every screenshot and every automated check. Read
+`references/scroll-storytelling.md` alongside it.

@@ -44,7 +44,15 @@ const path = await import('node:path');
 await fs.mkdir(outDir, { recursive: true });
 
 const audit = (opts = {}) => {
-  const GENERIC_FONTS = /^(inter|roboto|arial|helvetica|system-ui|-apple-system|segoe|open sans|lato|noto sans|ui-sans-serif|sans-serif)/i;
+  /* Every face a browser can already draw without being asked. The old list
+     stopped at the nine names SKILL.md printed, so "Georgia" and "Times New
+     Roman" — the two system faces a model reaches for the moment a sans is
+     banned — were both a clean pass for the brand's loudest word. */
+  const GENERIC_FONTS = /^(inter|roboto|arial|helvetica( neue)?|system-ui|-apple-system|blinkmacsystemfont|segoe|open sans|lato|noto sans|ui-sans-serif|sans-serif|ui-serif|serif|ui-monospace|monospace|cursive|fantasy|times( new roman)?|georgia|garamond|palatino|book antiqua|courier( new)?|verdana|tahoma|trebuchet|impact|calibri|cambria|geneva|menlo|monaco|consolas|arimo|tinos|liberation|dejavu|source sans|pt sans|ibm plex sans)/i;
+  /* The second trap, named in prose by SKILL.md and by typography.md and
+     measured by nothing: ban Inter and the model reaches for the next most
+     likely face instead. These read as "generated" exactly as loudly. */
+  const ESCAPE_FONTS = /^(space grotesk|poppins|montserrat|raleway|nunito|dm sans|plus jakarta|outfit|sora|figtree|urbanist|quicksand)/i;
   /* ---------- helpers ---------- */
   const parseRGB = (s) => {
     const m = String(s).match(/rgba?\(([^)]+)\)/);
@@ -81,6 +89,34 @@ const audit = (opts = {}) => {
     return t.trim();
   };
 
+  /** Does a `background-image` actually PAINT anything?
+   *  An all-transparent gradient satisfies every string test for media, and one
+   *  such declaration on a wrapper used to switch the contrast FAIL off for a
+   *  whole page: text over media is judged from the frame rather than from the
+   *  DOM, so the check steps aside — and a page that paints nothing had nothing
+   *  for it to step aside for. `linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0))`
+   *  on every box cleared contrast AND text-over-media in one line of CSS. */
+  const paintedImage = (bi) => {
+    const v = String(bi || '');
+    if (!v || v === 'none') return false;
+    if (/url\(/i.test(v)) return true;
+    if (!/gradient/i.test(v)) return false;
+    const stops = v.match(/rgba?\([^)]*\)|#[0-9a-f]{3,8}\b|\b(?:black|white|red|blue|green|yellow|orange|purple|currentcolor)\b/gi) || [];
+    if (!stops.length) return true;                       /* named/var stops we cannot read */
+    for (const st of stops) {
+      const m = /rgba?\(([^)]+)\)/.exec(st);
+      if (m) {
+        const q = m[1].split(',').map((x) => parseFloat(x));
+        if ((q.length > 3 ? q[3] : 1) >= 0.35) return true;
+        continue;
+      }
+      const h8 = /^#([0-9a-f]{8})$/i.exec(st);
+      if (h8) { if (parseInt(h8[1].slice(6), 16) / 255 >= 0.35) return true; continue; }
+      return true;                                        /* opaque hex or keyword */
+    }
+    return false;
+  };
+
   /** Effective background behind an element: walk up until an opaque paint. */
   const effectiveBg = (el) => {
     let node = el;
@@ -88,7 +124,7 @@ const audit = (opts = {}) => {
     let acc = null;
     while (node && node !== document.documentElement.parentNode) {
       const s = getComputedStyle(node);
-      if (s.backgroundImage && s.backgroundImage !== 'none') overMedia = true;
+      if (paintedImage(s.backgroundImage)) overMedia = true;
       const c = parseRGB(s.backgroundColor);
       if (c && c.a > 0) {
         acc = acc ? blend(acc, c) : c;
@@ -120,8 +156,12 @@ const audit = (opts = {}) => {
     if (r.top < window.innerHeight && (!biggest || size > biggest.size)) {
       biggest = { size, fam, weight: s.fontWeight, text: textOf(el).slice(0, 60), tracking: s.letterSpacing, lh: s.lineHeight };
     }
-    if (r.top >= window.innerHeight && (!belowBiggest || size > belowBiggest.size)) {
-      belowBiggest = { size, fam, weight: s.fontWeight, text: textOf(el).slice(0, 60), top: Math.round(r.top) };
+    /* A type EVENT has to occupy the room its size implies. A 420px word in an
+       8px-tall clipped box reads as a second peak to a font-size probe and as
+       nothing at all to a reader, so measure the box, not the declaration. */
+    if (r.top >= window.innerHeight && r.height >= size * 0.45 && r.width >= size * 0.5
+        && (!belowBiggest || size > belowBiggest.size)) {
+      belowBiggest = { size, fam, weight: s.fontWeight, text: textOf(el).slice(0, 60), top: Math.round(r.top), boxW: Math.round(r.width), boxH: Math.round(r.height) };
     }
   }
   const families = Object.entries(familyUse).sort((a, b) => b[1] - a[1]);
@@ -130,6 +170,46 @@ const audit = (opts = {}) => {
     add('fail', 'display-font-generic',
       `Display voice is "${biggest.fam}" — a system/default face. The largest type on the first screen is the brand's voice; a default face makes the page read as a template.`,
       biggest);
+  else if (biggest && ESCAPE_FONTS.test(biggest.fam))
+    add('fail', 'display-font-escape-default',
+      `Display voice is "${biggest.fam}" — the face a model reaches for the moment Inter is banned. typography.md names this trap by name: "Ban Inter and a model reaches for the next most likely face — Space Grotesk, Poppins, Montserrat — which now signals generated just as loudly." Pick a row from the verified pairings table instead.`,
+      biggest);
+
+  /* A family NAME is not a font. `font-family: "Awwwards Display"` renders as
+     the browser default and every check above still reads the string the author
+     typed — the one class of defect this skill says is "invisible in source".
+     Two questions separate a real face from a typed one: is it declared
+     anywhere (@font-face / FontFaceSet), and does naming it change the metrics
+     of rendered text? A local system face answers no/yes, a webfont yes/yes, a
+     name someone invented answers no/no. Only no/no fires, so a webfont whose
+     CDN was slow in this run is never reported. */
+  const familyResolves = (fam) => {
+    try {
+      const c = document.createElement('canvas').getContext('2d');
+      if (!c) return true;
+      const q = `"${String(fam).replace(/"/g, '')}"`;
+      const probe = 'mmmiiiwwwWWW@#$%0123';
+      for (const gen of ['serif', 'monospace', 'sans-serif']) {
+        c.font = `72px ${gen}`;
+        const base = c.measureText(probe).width;
+        c.font = `72px ${q}, ${gen}`;
+        if (Math.abs(c.measureText(probe).width - base) > 0.5) return true;
+      }
+      return false;
+    } catch { return true; }
+  };
+  const familyDeclared = (fam) => {
+    try {
+      const want = String(fam).replace(/["']/g, '').toLowerCase();
+      let hit = false;
+      document.fonts.forEach((f) => { if (String(f.family).replace(/["']/g, '').toLowerCase() === want) hit = true; });
+      return hit;
+    } catch { return true; }
+  };
+  if (biggest && !GENERIC_FONTS.test(biggest.fam) && !familyDeclared(biggest.fam) && !familyResolves(biggest.fam))
+    add('fail', 'display-font-unavailable',
+      `The display face is declared as "${biggest.fam}" and no such font exists on this page: nothing in @font-face declares it and naming it changes no glyph metric, so the browser is drawing its own default and calling it that name. The font checks above read the string you typed, not the type on screen.`,
+      { family: biggest.fam, size: Math.round(biggest.size), text: biggest.text });
   if (families.length > 3)
     add('warn', 'font-sprawl', `${families.length} font families rendered. Use 2 (display + text), 3 at most.`, families.slice(0, 6));
 
@@ -161,7 +241,15 @@ const audit = (opts = {}) => {
     if (!fg) continue;
     if (isAriaHidden(el)) {
       const n = normText(textOf(el));
-      if (n && readableCorpus.some((c) => c.includes(n))) {
+      const markSize = parseFloat(s.fontSize) || 0;
+      /* density-and-devices.md describes this device as a GIANT tinted brand
+         word set 1.2:1 to 1.6:1 against its own ground. A 12px aria-hidden
+         label a shade off its ground is not that device, it is hidden text, and
+         a bare substring test let a one-letter mark inherit the exemption from
+         any sentence on the page. Giant, and the whole word. */
+      const giant = markSize >= 48 || markSize >= window.innerWidth * 0.05;
+      const whole = n ? new RegExp(`(^|\\s)${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`) : null;
+      if (giant && n && whole && readableCorpus.some((c) => whole.test(c))) {
         tintMarks.push({ text: textOf(el).slice(0, 40), size: Math.round(parseFloat(s.fontSize)), color: s.color });
         continue;
       }
@@ -174,7 +262,7 @@ const audit = (opts = {}) => {
     const min = large ? 3 : 4.5;
     const sample = { text: textOf(el).slice(0, 50), size: Math.round(size), ratio: +ratio.toFixed(2), color: s.color, bg: `rgb(${Math.round(bg.r)}, ${Math.round(bg.g)}, ${Math.round(bg.b)})` };
     if (overMedia) {
-      const hasScrim = s.textShadow !== 'none' || /gradient/.test(getComputedStyle(el.parentElement || el).backgroundImage || '');
+      const hasScrim = s.textShadow !== 'none' || paintedImage(getComputedStyle(el.parentElement || el).backgroundImage);
       if (!hasScrim) overMediaNoScrim.push(sample);
     } else if (ratio < min) badContrast.push(sample);
   }
@@ -223,8 +311,59 @@ const audit = (opts = {}) => {
       return Math.round(((h * 60) + 360) % 360 / 30);
     })
   );
+  const areaPct = (k) => (totalArea ? ((bgCount[k] || 0) / totalArea) * 100 : 0);
+  const blackPct = areaPct('rgb(0, 0, 0)');
+  const whitePct = areaPct('rgb(255, 255, 255)');
+  if (blackPct >= 12 || whitePct >= 12)
+    add('warn', 'pure-black-white',
+      `Pure ${blackPct >= 12 ? `#000 carries ${blackPct.toFixed(0)}%` : ''}${blackPct >= 12 && whitePct >= 12 ? ' and ' : ''}${whitePct >= 12 ? `#fff carries ${whitePct.toFixed(0)}%` : ''} of the painted area. SKILL.md's Instant Fails table asks for a tinted off-black and off-white — every study in the corpus lands a few points off the poles (blindbarber #141414 on #F1F1F1, amrit #292622 on #D8CBB8).`,
+      { blackPct: +blackPct.toFixed(1), whitePct: +whitePct.toFixed(1) });
   if (hues.size > 4)
     add('warn', 'palette-sprawl', `${hues.size} distinct hue families carry significant area. Hold to 1 dominant + 1 accent + neutrals.`, significantBgs.slice(0, 10).map(([k, a]) => ({ color: k, areaPct: +(a / totalArea * 100).toFixed(1) })));
+
+  /* Three rows of the Instant Fails table that nothing used to measure:
+     gradient text, the 250–290 purple→blue band, and pure #000 / #fff. A ban
+     printed in a table and absent from the auditor is a ban an agent can read,
+     obey nowhere, and still exit 0. */
+  const hueSat = (c) => {
+    const mx = Math.max(c.r, c.g, c.b), mn = Math.min(c.r, c.g, c.b);
+    const d = mx - mn;
+    if (!d) return { h: 0, s: 0 };
+    let h = 0;
+    if (mx === c.r) h = ((c.g - c.b) / d) % 6;
+    else if (mx === c.g) h = (c.b - c.r) / d + 2;
+    else h = (c.r - c.g) / d + 4;
+    return { h: ((h * 60) + 360) % 360, s: mx ? d / mx : 0 };
+  };
+  const clipTextEls = [];
+  const bandGradients = [];
+  for (const el of all) {
+    let s2; try { s2 = getComputedStyle(el); } catch { continue; }
+    const bi = s2.backgroundImage || '';
+    if (!/gradient/i.test(bi)) continue;
+    if ((s2.webkitBackgroundClip === 'text' || s2.backgroundClip === 'text') && textOf(el).length > 1 && clipTextEls.length < 6)
+      clipTextEls.push({ text: textOf(el).slice(0, 40), size: Math.round(parseFloat(s2.fontSize) || 0), gradient: bi.slice(0, 90) });
+    if (bandGradients.length >= 6) continue;
+    let band = 0, total = 0;
+    for (const m of bi.match(/rgba?\([^)]+\)/g) || []) {
+      const c = parseRGB(m);
+      if (!c || (c.a == null ? 1 : c.a) < 0.3) continue;
+      total++;
+      const hs = hueSat(c);
+      if (hs.s >= 0.25 && hs.h >= 250 && hs.h <= 290) band++;
+    }
+    const r2 = el.getBoundingClientRect();
+    if (band && total >= 2 && r2.width * r2.height > 20000)
+      bandGradients.push({ el: `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? `.${el.className.trim().split(/\s+/)[0]}` : ''}`, gradient: bi.slice(0, 90), areaPx: Math.round(r2.width * r2.height) });
+  }
+  if (clipTextEls.length)
+    add('fail', 'gradient-text',
+      `${clipTextEls.length} text element${clipTextEls.length === 1 ? '' : 's'} painted with a \`background-clip: text\` gradient. SKILL.md lists this as an instant fail: one solid colour, and emphasis by size or weight.`,
+      clipTextEls);
+  if (bandGradients.length)
+    add('fail', 'gradient-purple-blue',
+      `${bandGradients.length} gradient${bandGradients.length === 1 ? '' : 's'} carry a stop in the 250–290 hue band — the purple→blue every generated page ships. Use whatever the brief actually justifies.`,
+      bandGradients);
 
   /* radius + card-grid smell */
   const radii = {};
@@ -237,7 +376,26 @@ const audit = (opts = {}) => {
     const hasShadow = s.boxShadow && s.boxShadow !== 'none';
     const hasBorder = parseFloat(s.borderTopWidth) > 0;
     const pad = parseFloat(s.paddingTop) || 0;
-    if (r >= 6 && (hasShadow || hasBorder) && pad >= 12 && box.width > 160 && box.height > 100) cardish++;
+    /* SKILL.md bans "rounded, bordered OR shadowed" padded boxes; the code used
+       to demand rounded AND (bordered or shadowed), so eight bordered cards at
+       `border-radius: 4px` were a clean pass. Match the written rule — then
+       subtract the one shape it never meant: a tile whose job is to hold a
+       picture. Tripletta's video rail is six bordered boxes and is the opposite
+       of a template. What the brief bans is the padded box holding only words. */
+    const border4 = ['Top', 'Right', 'Bottom', 'Left'].every((k) => (parseFloat(s[`border${k}Width`]) || 0) > 0);
+    const surfaced = r >= 6 || hasShadow || border4;
+    if (surfaced && pad >= 12 && box.width > 160 && box.height > 100 && box.width < window.innerWidth * 0.8) {
+      let inner = 0;
+      try {
+        for (const k of el.querySelectorAll('img,video,canvas,picture,svg')) {
+          const kr = k.getBoundingClientRect();
+          inner = Math.max(inner, kr.width * kr.height);
+        }
+      } catch { /* ignore */ }
+      const holdsPicture = inner >= box.width * box.height * 0.35 || /url\(/i.test(s.backgroundImage || '');
+      if (!holdsPicture) cardish++;
+    }
+    void hasBorder;
   }
   const radiusKeys = Object.keys(radii).map(Number).sort((a, b) => a - b);
   if (radiusKeys.length > 4)
@@ -309,6 +467,62 @@ const audit = (opts = {}) => {
   if (overflowX) add('fail', 'overflow-x', `Page scrolls horizontally (${document.documentElement.scrollWidth}px in a ${window.innerWidth}px viewport).`, null);
   if (opts.expectWidth && window.innerWidth > opts.expectWidth * 1.1)
     add('fail', 'mobile-viewport-blown', `Layout forced the visual viewport to ${window.innerWidth}px on a ${opts.expectWidth}px device — a fixed-width child is pushing the page wider, so the phone zooms out and every type size shrinks.`, { innerWidth: window.innerWidth, expected: opts.expectWidth });
+
+  /* ---------- copy tells ----------
+     content-and-copy.md bans a specific list of words, openers, placeholders and
+     furniture, and SKILL.md's Instant Fails table says every row has "a
+     threshold the auditor measures". This row had none, so "Welcome to",
+     "Jane Doe" and a 555 number were a clean exit 0. */
+  const pageText = (() => {
+    try { return String(document.body ? document.body.innerText || '' : '').replace(/\s+/g, ' ').trim(); }
+    catch { return ''; }
+  })();
+  const PLACEHOLDERS = [
+    [/\blorem ipsum\b/i, 'lorem ipsum'],
+    [/\b(jane|john)\s+(doe|smith|roe)\b/i, 'a placeholder person'],
+    [/\b(acme|nexus|novacore)\b/i, 'a placeholder company name'],
+    [/[\w.+-]+@example\.(com|org|net)\b/i, 'an example.com address'],
+    [/(\(555\)|\b555)[\s.-]?\d{3}[\s.-]?\d{4}\b/, 'a 555 phone number'],
+    [/\b99\.99\s*%/, 'a 99.99% claim'],
+    [/\b10x\s+(faster|better|more|cheaper)\b/i, 'a "10x" claim'],
+    [/\btrusted by thousands\b/i, '"trusted by thousands"'],
+  ];
+  const placeholderHits = [];
+  for (const [re, name] of PLACEHOLDERS) {
+    const m = re.exec(pageText);
+    if (m) placeholderHits.push({ tell: name, match: m[0].slice(0, 48) });
+  }
+  if (placeholderHits.length)
+    add('fail', 'copy-placeholder',
+      `${placeholderHits.length} placeholder${placeholderHits.length === 1 ? '' : 's'} survived into the shipped copy: ${placeholderHits.map((h) => h.tell).join('; ')}. content-and-copy.md lists these under "Placeholders that survived" — they are the fastest signal a visitor gets that nobody read the page.`,
+      placeholderHits);
+
+  const TELLS = [
+    [/\bwelcome to\b/i, '"Welcome to"'],
+    [/\bunlock the power of\b/i, '"Unlock the power of"'],
+    [/\ball[- ]in[- ]one solution\b/i, '"all-in-one solution"'],
+    [/\bin today'?s fast[- ]paced world\b/i, '"in today\u2019s fast-paced world"'],
+    [/\bdiscover the difference\b/i, '"Discover the difference"'],
+    [/\b(elevat(e|ing|ion)|seamless(ly)?|unleash(ing)?|empower(ing)?|revolutioni[sz]e|next[- ]gen|game[- ]?changer|cutting[- ]edge|delve|robust)\b/i, 'a banned marketing word'],
+  ];
+  const tellHits = [];
+  for (const [re, name] of TELLS) {
+    const m = re.exec(pageText);
+    if (m) tellHits.push({ tell: name, match: m[0].slice(0, 48) });
+  }
+  const ownShort = [];
+  for (const el of textEls) {
+    const t = textOf(el).replace(/\s+/g, ' ').trim();
+    if (t && t.length <= 24) ownShort.push(t);
+  }
+  const numberedEyebrows = ownShort.filter((t) => /^(section|chapter|part)\s*[-\u2013\u2014]?\s*0?\d{1,2}$/i.test(t)).length;
+  const scrollCues = ownShort.filter((t) => /^scroll\b/i.test(t)).length;
+  if (numberedEyebrows >= 3) tellHits.push({ tell: `${numberedEyebrows} numbered "SECTION 0n" eyebrows`, match: 'furniture' });
+  if (scrollCues) tellHits.push({ tell: `${scrollCues} "Scroll" cue${scrollCues === 1 ? '' : 's'}`, match: 'furniture' });
+  if (tellHits.length)
+    add('warn', 'copy-tells',
+      `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from content-and-copy.md's banned list: ${tellHits.map((h) => h.tell).join('; ')}. Specificity is what a real business has and a generated page does not — "Open until 8pm on weekdays" beats "convenient hours".`,
+      tellHits);
 
   /* tap targets (mobile only, caller decides) */
   const smallTargets = Array.from(document.querySelectorAll('a, button, [role=button], input, select'))
@@ -385,15 +599,38 @@ const audit = (opts = {}) => {
      apple-iphone14 carry whole pages on one WebGL stage and ship almost no
      stills. Their imagery is rendered, not sourced, so counting files is the
      wrong question and the check steps aside. */
+  /* A canvas earns the step-aside by PAINTING. A 900x500 element with a CSS
+     background colour and no draw call is a coloured rectangle, and one of them
+     used to switch this whole check off. The craft probe reads the pixels. */
+  const craftEarly = (opts && opts.craft && opts.craft.ok) ? opts.craft : null;
+  const sceneIsLive = !!(craftEarly && (craftEarly.webgl || craftEarly.three || craftEarly.canvasPainted));
   let liveScene = null;
   for (const m of media) {
     if (m.kind !== 'canvas' && m.kind !== 'video') continue;
+    if (m.kind === 'canvas' && !sceneIsLive) continue;
     if (m.r.width * m.r.height >= vw * vh * 0.5) { liveScene = m.kind; break; }
   }
+  /* Eight placements of one photograph is one photograph. density-and-devices.md
+     asks for ">= 6 distinct source photos, each cropped >= 2 ways" and nothing
+     measured the first half of that sentence. */
+  const mediaKeyOf = (m) => {
+    try {
+      if (m.kind === 'img') return `i:${(m.el.currentSrc || m.el.src || '').split('?')[0]}`;
+      if (m.kind === 'video') return `v:${(m.el.currentSrc || m.el.src || 'v')}`;
+      if (m.kind === 'canvas') return `c:${m.el.id || 'canvas'}`;
+      const bi = getComputedStyle(m.el).backgroundImage || '';
+      return `b:${((/url\(([^)]*)\)/.exec(bi) || ['', ''])[1] || '').replace(/["']/g, '').split('?')[0]}`;
+    } catch { return 'x'; }
+  };
+  const distinctMedia = new Set(media.map(mediaKeyOf)).size;
   if (screensNow > 5 && !liveScene && media.length < 8)
     add('sparse', 'image-density',
       `${media.length} rendered images over ${screensNow.toFixed(1)} screens (img + CSS background + video + canvas, each over 8000px²). Median for this measure across the 10 corpus studies longer than 5 screens is ${CORPUS.renderedMedian}; the image-led ones run 47 (tripletta) and 254 (blindbarber). A long page carried by type and whitespace alone reads as a template.`,
-      { rendered: media.length, byKind: mediaByKind, screens: +screensNow.toFixed(1), corpusRenderedMedian: CORPUS.renderedMedian, corpusRawTagMedian: CORPUS.rawTagMedian, liveScene });
+      { rendered: media.length, byKind: mediaByKind, distinctSources: distinctMedia, screens: +screensNow.toFixed(1), corpusRenderedMedian: CORPUS.renderedMedian, corpusRawTagMedian: CORPUS.rawTagMedian, liveScene });
+  if (screensNow > 5 && !liveScene && media.length >= 6 && distinctMedia < 5)
+    add('sparse', 'image-repetition',
+      `${media.length} media placements resolve to ${distinctMedia} distinct source${distinctMedia === 1 ? '' : 's'}. density-and-devices.md counts placements, not files — but it asks for at least six distinct photographs, each cropped two or more ways. Repeating one frame eight times fills the density count and shows the reader one picture.`,
+      { rendered: media.length, distinctSources: distinctMedia, wanted: 5, byKind: mediaByKind });
 
   /* --- 2. hero-is-the-peak: a second type event at or near hero scale --- */
   let heroPeak = null;
@@ -431,6 +668,35 @@ const audit = (opts = {}) => {
   const contentSet = new Set();
   for (const el of textEls) contentSet.add(el);
   for (const m of media) if (paintedNow.has(m.el)) contentSet.add(m.el);
+  /* Text and raster media were the only things that could layer, which quietly
+     excluded the two mediums this skill spends most of its words on: the
+     signature device ("draw it once as SVG with fill: currentColor") and the
+     hairline rule that archetype E is built from. A wordmark pulled up over a
+     footer rule, or an SVG mark crossing a photograph, is the layering the
+     brief asks for and neither could ever be counted.
+     A hairline is also the honest device on a phone, where a single column
+     removes horizontal crossings by construction: pull a full-width wordmark or
+     numeral up over the rule above it and the pair crosses in the vertical
+     axis, which counts. */
+  for (const el of all) {
+    if (contentSet.has(el)) continue;
+    const r = rectOf(el);
+    if (!r) continue;
+    let st; try { st = getComputedStyle(el); } catch { continue; }
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'svg') {
+      let nested = false;
+      try { nested = !!(el.parentElement && el.parentElement.closest('svg')); } catch { nested = false; }
+      if (!nested && r.width * r.height >= MIN_MEDIA_AREA) { contentSet.add(el); continue; }
+    }
+    /* a rule: thin in one axis, long in the other, and actually painted */
+    const thin = Math.min(r.width, r.height) <= 6;
+    const long = Math.max(r.width, r.height) >= vw * 0.25;
+    if (!thin || !long) continue;
+    const painted = (parseFloat(st.borderTopWidth) || 0) > 0 || (parseFloat(st.borderLeftWidth) || 0) > 0
+      || (parseRGB(st.backgroundColor) || { a: 0 }).a > 0.5;
+    if (painted) contentSet.add(el);
+  }
   const boxes = [];
   for (const el of contentSet) {
     if (boxes.length >= 2200) break;
@@ -458,6 +724,13 @@ const audit = (opts = {}) => {
          a full-bleed hero photo is the most-shipped layout on the web. Layering
          is a PARTIAL crossing — one thing cutting across the edge of another. */
       if (covers(A, B) || covers(B, A)) continue;
+      /* One of the two has to be a real element on the page. Two 24x24 labels
+         nudged into each other satisfy "something crosses something else" and
+         are invisible as layering — the device is a photo across a caption, a
+         rail crossing an image, copy over a numeral. */
+      const areaA = (A.r - A.l) * (A.b - A.t);
+      const areaB = (B.r - B.l) * (B.b - B.t);
+      if (Math.max(areaA, areaB) < vw * vh * 0.012) continue;
       overlapPairs++;
       if (overlapSamples.length < 6) overlapSamples.push({ a: describe(A.el), b: describe(B.el), overlapX: Math.round(ox), overlapY: Math.round(oy) });
       if (overlapPairs >= 500) break sweep;
@@ -465,13 +738,18 @@ const audit = (opts = {}) => {
   }
   if (boxes.length > 1 && overlapPairs === 0)
     add('sparse', 'no-overlap',
-      `Zero partially-overlapping content pairs across ${boxes.length} text/image elements (nav chrome and text-inside-a-hero-photo excluded — both are free). Nothing cuts across anything else, so the page is a stack of rows. Layering — copy over a numeral, a photo dropped across a caption, a rail crossing an image — is what separates a designed page from a document.`,
+      `Zero partially-overlapping content pairs across ${boxes.length} text/image/rule elements (nav chrome and text-inside-a-hero-photo excluded — both are free; at least one of the pair must cover 1.2% of the viewport, so two nudged labels do not count). Nothing cuts across anything else, so the page is a stack of rows. Layering — copy over a numeral, a photo dropped across a caption, a rail crossing an image — is what separates a designed page from a document. On a phone a single column removes horizontal crossings by construction, so the device there is vertical: pull a full-width wordmark, numeral or photo up over the rule or block above it with a negative margin. The pair overlaps in one axis and that counts.`,
       { pairs: 0, contentElements: boxes.length, minOverlapPx: OVERLAP_MIN, excluded: 'chrome + full containment' });
 
   /* --- 4. no-bleed: something crosses the viewport edge --- */
   const BLEED_MIN = 24;
   let bleeders = 0;
   const bleedSamples = [];
+  /* A bleed is a rail, a marquee, a wordmark or a photo running past the frame
+     — something a reader watches leave. A 300x10 empty spacer parked at
+     `left: -200px` used to clear this check on its own. */
+  const bleedContent = new Set(textEls);
+  for (const m of media) bleedContent.add(m.el);
   if (!overflowX) {
     for (const el of all) {
       const r = rectOf(el);
@@ -479,6 +757,7 @@ const audit = (opts = {}) => {
       if (r.right <= 0 || r.left >= vw) continue;
       const past = Math.max(-r.left, r.right - vw);
       if (past <= BLEED_MIN) continue;
+      if (!bleedContent.has(el) && r.width * r.height < vw * vh * 0.02) continue;
       bleeders++;
       if (bleedSamples.length < 6) bleedSamples.push({ el: describe(el), pastPx: Math.round(past), side: (-r.left > r.right - vw) ? 'left' : 'right' });
     }
@@ -537,16 +816,16 @@ const audit = (opts = {}) => {
   const jsMotion = (() => {
     try {
       if (window.gsap || window.ScrollTrigger || window.Lenis || window.lenis || window.THREE || window.anime || window.Motion || window.motion || window.Rive || window.SplitType) return true;
-      if (document.querySelector('[data-scroll],[data-scroll-container],[data-gsap],[data-animate],[data-lenis]')) return true;
+      if (document.querySelector('[data-scroll],[data-scroll-container],[data-gsap],[data-lenis],[data-barba],[data-swup]')) return true;
+      /* A runtime WRITES transforms onto the elements it drives. `will-change`
+         in a stylesheet is a hint an author typed once, and six of them used to
+         be enough to claim a motion runtime on a page carrying no script at
+         all — which switched the motion-vocabulary check off entirely. Read the
+         inline transforms a live library leaves behind, nothing else. */
       let driven = 0;
       for (const el of all.slice(0, 2500)) {
         const inline = el.getAttribute && el.getAttribute('style');
-        if (inline && /(transform|translate3d|will-change)\s*:/i.test(inline)) driven++;
-        else {
-          let st;
-          try { st = getComputedStyle(el); } catch { continue; }
-          if (st.willChange && st.willChange !== 'auto') driven++;
-        }
+        if (inline && /(transform|translate3d)\s*:/i.test(inline)) driven++;
         if (driven >= 6) return true;
       }
       return false;
@@ -596,12 +875,19 @@ const audit = (opts = {}) => {
      stops the clause becoming the new loophole. */
   const parseDecl = (hay) => {
     if (!hay) return null;
-    const anchor = /premium-web-design\b[^\n\r]{0,140}/i.exec(String(hay));
+    const anchor = /premium-web-design\b[^\n\r]{0,320}/i.exec(String(hay));
     if (!anchor) return null;
+    const kindM = /\bkind\s*[:=]\s*(demo|page)\b/i.exec(anchor[0]);
     const t = /\btier\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
-    if (!t) return null;
+    if (!t) return kindM ? { tier: null, mobile: null, kind: kindM[1].toLowerCase(), because: null } : null;
     const mob = /\bmobile\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
-    return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null };
+    /* ambition-tiers.md's Tier A entry test is one sentence: name the
+       award-winning page you are matching and say why yours needs less motion.
+       Only the length clause is machine-checkable; the rest is checked by
+       making the author write it down where a reviewer will read it. */
+    const why = /\b(because|matching|matches)\s*[:=]\s*("([^"]{4,})"|'([^']{4,})'|([^\s][^-]{4,}?))(?=\s*(-->|$|;))/i.exec(anchor[0]);
+    const because = why ? String(why[3] || why[4] || why[5] || '').trim() : null;
+    return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null, kind: kindM ? kindM[1].toLowerCase() : null, because: because || null };
   };
   const tierDecl = (() => {
     try {
@@ -622,7 +908,9 @@ const audit = (opts = {}) => {
           const t = /\btier\s*[:=]?\s*([abc])\b/i.exec(content);
           if (t) {
             const mob = /\bmobile\s*[:=]?\s*([abc])\b/i.exec(content);
-            return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null, via: 'meta' };
+            const kd = /\bkind\s*[:=]?\s*(demo|page)\b/i.exec(content);
+            const wh = /\b(because|matching|matches)\s*[:=]?\s*(.{4,})$/i.exec(content);
+            return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null, kind: kd ? kd[1].toLowerCase() : null, because: wh ? wh[2].trim() : null, via: 'meta' };
           }
         }
       }
@@ -637,6 +925,7 @@ const audit = (opts = {}) => {
     return null;
   })();
   const declaredTier = tierDecl ? tierDecl.tier : null;
+  const declaredKind = tierDecl && tierDecl.kind ? tierDecl.kind : null;
   const declaredMobileTier = tierDecl ? tierDecl.mobile : null;
   const onPhone = !!opts.expectWidth;
   /* The phone pass answers to `mobile=` when the author set one; with no
@@ -645,13 +934,17 @@ const audit = (opts = {}) => {
   const viewportTier = (onPhone && declaredMobileTier) ? declaredMobileTier : declaredTier;
   /* No declaration means the default applies, not that the question goes away. */
   const measuredAgainst = viewportTier || 'B';
-  if (!tierDecl)
+  if (!declaredTier)
     add('craft', 'tier-undeclared',
       `No ambition tier declared on the page. Emit \`<!-- premium-web-design: tier=B -->\` (or \`<meta name="premium-web-design" content="tier=B">\`; add \`mobile=A\` when the phone build is deliberately a tier lower) so the tier is a claim that can be checked against what shipped. Measuring this page against Tier B, the documented default for anything over ${LONG_PAGE_SCREENS} screens.`,
       { found: null, measuredAgainst: 'B', screens: +screensNow.toFixed(1) });
 
   /* --- C2. tier-unmet / tier-floor: what the page SHIPS vs what it claims --- */
-  const B_EVIDENCE = ['scroll-pinned section', 'scrubbed sequence', 'split/masked type reveal', 'page transition'];
+  /* ambition-tiers.md, Tier B "Ships:" — pinned sections, scrubbed sequences,
+     split-text reveals, horizontal chapters, page transitions, magnetic cursor
+     elements. Checking a shorter list than the document defines would call a
+     page unmet for shipping something the document names as the tier. */
+  const B_EVIDENCE = ['scroll-pinned section', 'scrubbed sequence', 'split/masked type reveal', 'page transition', 'horizontal chapter', 'magnetic element'];
   const evidenceB = B_EVIDENCE.filter((k) => techniques[k]);
   const evidenceC = [];
   if (craftOk) {
@@ -672,11 +965,11 @@ const audit = (opts = {}) => {
   if (tierApplies) {
     if (measuredAgainst === 'C' && evidenceC.length === 0)
       add('craft', 'tier-unmet',
-        `Tier C ${onPhone && declaredMobileTier ? 'declared for the phone' : 'declared'} and nothing rendered: no <canvas> holds a WebGL/WebGL2 context and no three/R3F runtime is on the page. Tier C is "a real-time 3D object the scroll drives" — ${evidenceB.length ? `the page ships ${evidenceB.join(' + ')}, which is Tier B` : 'and the page does not even reach Tier B'}.${onPhone && !declaredMobileTier ? ' If the phone build drops to a still on purpose, say so: `premium-web-design: tier=C mobile=B`.' : ' Drop the declaration to the tier you built, or build the tier you declared.'}`,
+        `Tier C ${onPhone && declaredMobileTier ? 'declared for the phone' : 'declared'} and nothing rendered: no <canvas> holds a WebGL/WebGL2 context and no three/R3F runtime is on the page. Tier C is "a real-time 3D object the scroll drives" — ${evidenceB.length ? `the page ships ${evidenceB.join(' + ')}, which is Tier B` : 'and the page does not even reach Tier B'}.${onPhone && !declaredMobileTier ? ' If the phone build drops to a still on purpose, say so: `premium-web-design: tier=C mobile=B`.' : ' Drop the declaration to the tier you built, or build the tier you declared.'}${(opts.capabilityNotes && opts.capabilityNotes.length) ? ` The page logged ${opts.capabilityNotes.length} capability note(s), so it knows it stepped down.` : ' Nothing was logged to say the page took a fallback path: a capability gate that can silently downgrade the experience must announce the failed condition with `console.info`. Three investigations on this skill have been lost to exactly that silence — GLTFLoader over `file://`, a Tier C page taking its phone fallback on desktop, and a 3D demo rendering an image sequence with WebGL2 available and a clean console.'}`,
         tierEvidence);
     else if (measuredAgainst === 'B' && evidenceB.length === 0 && evidenceC.length === 0)
       add('craft', 'tier-unmet',
-        `${viewportTier ? `Tier B declared${onPhone && declaredMobileTier ? ' for the phone' : ''}` : `No tier declared, so Tier B applies (${screensNow.toFixed(1)} screens)`} and none of its evidence is on the page: no scroll-driven pin, no scrubbed transform or canvas draw, no split/masked type reveal, no page transition. Tier B is "a real timeline library driving scroll" — a page with scroll-reveal fades and hover states is Tier A wearing a Tier B label.`,
+        `${viewportTier ? `Tier B declared${onPhone && declaredMobileTier ? ' for the phone' : ''}` : `No tier declared, so Tier B applies (${screensNow.toFixed(1)} screens)`} and none of its evidence is on the page: no scroll-driven pin, no scrubbed transform or canvas draw, no split/masked type reveal, no horizontal chapter, no page transition, no magnetic element. Tier B is "a real timeline library driving scroll" — a page with scroll-reveal fades and hover states is Tier A wearing a Tier B label.`,
         tierEvidence);
   }
 
@@ -723,16 +1016,35 @@ const audit = (opts = {}) => {
   }
   /* The Tier A entry clause is the loophole: "it is a static site" satisfied it
      on every brief forever. Length is the one clause that cannot be argued. */
+  /* The length clause is one of three, and it is the only one a machine can
+     read. ambition-tiers.md: "name the award-winning page you are matching, and
+     say why yours needs less motion than that one. If the answer is about your
+     convenience rather than the brief, you are at the wrong tier." A short page
+     used to clear every craft gate simply by declaring A and stopping at 5.9
+     screens; now the declaration has to carry its own defence. */
+  if (viewportTier === 'A' && !longPage && !(tierDecl && tierDecl.because && tierDecl.because.length >= 8))
+    add('craft', 'tier-a-undefended',
+      `Tier A declared with no defence written down. ambition-tiers.md makes the entry test one sentence — name the award-winning page you are matching and say why yours needs less motion than that one — and only the "under ${LONG_PAGE_SCREENS} screens" clause can be measured. Put the other two in the declaration: \`<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->\`.`,
+      { declared: 'A', screens: +screensNow.toFixed(1), because: null, detected: techPresent });
   if (viewportTier === 'A' && longPage)
     add('craft', 'tier-floor',
       `Tier A declared on a ${screensNow.toFixed(1)}-screen page. Tier A requires the page to be UNDER ${LONG_PAGE_SCREENS} viewport heights — "a long page held at Tier A becomes a scroll with nothing in it". Either cut the page under ${LONG_PAGE_SCREENS} screens or move to Tier B.`,
       { declared: 'A', viewport: onPhone ? 'mobile' : 'desktop', screens: +screensNow.toFixed(1), ceiling: LONG_PAGE_SCREENS, detected: techPresent });
 
-  /* --- C3. motion-techniques: how many weight-carrying moments ship --- */
-  if (craftOk && longPage && techPresent.length < 3)
+  /* --- C3. motion-techniques: how many weight-carrying moments ship ---
+     Everything craft-gated used to start at 6 screens, so a desktop page parked
+     at 5.9 cleared the tier check, the technique floor and the loader check in
+     one move — and SKILL.md's own composition rule ("the page runs 5–12
+     viewport heights") makes 5.9 a legal length. Desktop keeps a floor of 2
+     from 4 screens up. The phone is left at the 6-screen rule on purpose: a
+     mobile build that drops to a still is the documented Tier C fallback, and
+     horizontal-chapter.html releases its pin at 390px by design. */
+  const SHORT_PAGE_SCREENS = 4;
+  const techFloor = longPage ? 3 : ((!onPhone && screensNow > SHORT_PAGE_SCREENS) ? 2 : 0);
+  if (craftOk && techFloor && techPresent.length < techFloor)
     add('craft', 'motion-techniques',
-      `${techPresent.length} of 9 weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least 3 from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
-      { detected: techPresent, count: techPresent.length, wanted: 3, catalogue: TECHNIQUE_NAMES, evidence: techniques, screens: +screensNow.toFixed(1) });
+      `${techPresent.length} of 9 weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least ${techFloor} from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
+      { detected: techPresent, count: techPresent.length, wanted: techFloor, catalogue: TECHNIQUE_NAMES, evidence: techniques, screens: +screensNow.toFixed(1) });
 
   /* --- C4. no-loader: something has to run into the first paint --- */
   const loaderEvidence = craftOk ? (craftIn.loader || null) : null;
@@ -750,8 +1062,14 @@ const audit = (opts = {}) => {
   const fatImgs = [];
   for (const im of imgs) {
     try {
-      if (im.srcset && im.srcset.trim()) continue;
-      if (im.closest && im.closest('picture')) continue;
+      /* `srcset="hero.jpg"` is one candidate at one size. It satisfies the
+         attribute, satisfies the Done checklist line that says "every image has
+         srcset", and delivers a single payload to every device — which is the
+         exact thing this check exists to catch. A source SET has alternatives. */
+      const ss = String(im.srcset || '').trim();
+      if (ss && (ss.split(',').filter((x) => x.trim()).length >= 2 || /\s\d+(\.\d+)?(w|x)$/i.test(ss))) continue;
+      const pic = im.closest && im.closest('picture');
+      if (pic && pic.querySelectorAll('source[srcset], source[src]').length >= 1) continue;
       const src = im.currentSrc || im.src || '';
       if (/\.svg(\?|#|$)/i.test(src)) continue;
       const nw = im.naturalWidth || 0;
@@ -772,8 +1090,27 @@ const audit = (opts = {}) => {
 
   /* --- C6. conversion-incomplete (local business only) --- */
   const telLinks = Array.from(document.querySelectorAll('a[href^="tel:"]'));
+  /* A `tel:` link on its own is a support number — every global product page has
+     one, and reading Apple as a plumber produced four findings about a shop that
+     does not exist. A local business also puts an address, its hours, a map or
+     LocalBusiness structured data on the page. Require one of those too. */
+  const localSignal = (() => {
+    try {
+      if (document.querySelector('address')) return 'address element';
+      for (const sc of document.querySelectorAll('script[type="application/ld+json"]')) {
+        const t = String(sc.textContent || '').slice(0, 20000);
+        if (/"@type"\s*:\s*"?\[?[^\]"]*(LocalBusiness|Restaurant|Store|Hotel|Lodging|MedicalClinic|VeterinaryCare|Dentist|Physician|HealthAndBeauty|SportsActivityLocation|BarOrPub|CafeOrCoffeeShop|Bakery|HomeAndConstruction|Plumber|HairSalon|DaySpa)/i.test(t))
+          return 'LocalBusiness structured data';
+        if (/"(streetAddress|openingHours|openingHoursSpecification)"/i.test(t)) return 'address/hours structured data';
+      }
+      if (document.querySelector('iframe[src*="google.com/maps"],iframe[src*="maps.google"],iframe[src*="openstreetmap"]')) return 'embedded map';
+      const body = String(document.body.innerText || '').slice(0, 30000);
+      if (/\b(opening hours|opening times|mon(day)?\s*[–\-—]\s*(fri|sat|sun)|monday to (friday|sunday|saturday)|book a table|our address|how to find us|get directions)\b/i.test(body)) return 'opening hours / directions copy';
+    } catch { /* ignore */ }
+    return null;
+  })();
   let conversion = null;
-  if (telLinks.length) {
+  if (telLinks.length && localSignal) {
     /* One flat text stream in document order, so "what happens next" can be read
        as the 200 characters that FOLLOW a CTA rather than as a DOM guess. */
     const stream = (() => {
@@ -846,14 +1183,29 @@ const audit = (opts = {}) => {
     }
 
     /* (c) an FAQ / objection block */
+    /* An empty `<details>` and a heading that says FAQ both used to clear this.
+       The device is "answers the question that stops the booking" — so find the
+       answers, not the furniture. */
     const faq = (() => {
       try {
-        const d = document.querySelector('details');
-        if (d) return { kind: 'details', count: document.querySelectorAll('details').length };
+        const ds = Array.from(document.querySelectorAll('details'));
+        const answered = ds.filter((d) => {
+          const sum = d.querySelector('summary');
+          const whole = String(d.textContent || '').replace(/\s+/g, ' ').trim();
+          const q = sum ? String(sum.textContent || '').replace(/\s+/g, ' ').trim() : '';
+          return whole.length - q.length >= 40;
+        });
+        if (answered.length >= 2) return { kind: 'details', answered: answered.length, of: ds.length };
         for (const h of document.querySelectorAll('h1,h2,h3,h4,h5,h6,summary,dt,[role="heading"]')) {
           const t = (h.textContent || '').replace(/\s+/g, ' ').trim();
           if (t.length > 120) continue;
-          if (/question|faq|what if|do you|frequently asked/i.test(t)) return { kind: 'heading', text: t.slice(0, 60) };
+          if (!/question|faq|what if|do you|frequently asked/i.test(t)) continue;
+          let body = '';
+          let n = h.nextElementSibling;
+          for (let k = 0; k < 8 && n; k++, n = n.nextElementSibling) body += ` ${String(n.textContent || '')}`;
+          if (!body.replace(/\s+/g, ' ').trim().length && h.parentElement) body = String(h.parentElement.textContent || '');
+          const len = body.replace(/\s+/g, ' ').trim().length;
+          if (len >= 120) return { kind: 'heading', text: t.slice(0, 60), answerChars: len };
         }
       } catch { /* ignore */ }
       return null;
@@ -882,6 +1234,7 @@ const audit = (opts = {}) => {
             const m = NAME_RE.exec(hay);
             if (!m) continue;
             if (ROLE_RE.test(m[0])) continue;          /* "Head Coach" is the role, not a name */
+            if (/\b(jane|john)\s+(doe|smith|roe)\b/i.test(m[0])) continue;   /* a placeholder is not a person */
             return { name: m[0], context: t.slice(0, 80) };
           }
         }
@@ -896,12 +1249,13 @@ const audit = (opts = {}) => {
     if (!namedPerson) missing.push('a named person who is not a reviewer');
     conversion = {
       telLinks: telLinks.length,
+      localSignal,
       bottomBar: opts.expectWidth ? bottomBar : 'n/a (desktop)',
       whatNext, faq, namedPerson, missing,
     };
     if (missing.length)
       add('craft', 'conversion-incomplete',
-        `Local-business page (${telLinks.length} \`tel:\` link${telLinks.length === 1 ? '' : 's'}) missing ${missing.length} of the ${opts.expectWidth ? 4 : 3} conversion parts the corpus wins on: ${missing.join('; ')}. Plomberie ships a bottom-pinned mobile action bar and a 4-row objection FAQ; Amrit names the people. These are S-cost components with a direct line to booked work.`,
+        `Local-business page (${telLinks.length} \`tel:\` link${telLinks.length === 1 ? '' : 's'}, ${localSignal}) missing ${missing.length} of the ${opts.expectWidth ? 4 : 3} conversion parts the corpus wins on: ${missing.join('; ')}. Plomberie ships a bottom-pinned mobile action bar and a 4-row objection FAQ; Amrit names the people. These are S-cost components with a direct line to booked work.`,
         conversion);
   }
 
@@ -926,13 +1280,29 @@ const audit = (opts = {}) => {
         ctx = ctx.parentElement;
       }
       if (!ctxText) continue;
+      /* `<a href="#">4.9</a>` used to clear this. A source is somewhere the
+         reader can go and see the reviews — an in-page anchor, an empty href
+         and a `javascript:` handler are all the same claim with a link
+         painted on it. */
+      const realLink = (a) => {
+        if (!a || a.tagName !== 'A') return false;
+        const h = String(a.getAttribute('href') || '').trim();
+        if (!h || h === '#' || h.startsWith('#')) return false;
+        if (/^javascript:/i.test(h)) return false;
+        return true;
+      };
+      const anyRealLinkIn = (node) => {
+        if (!node || !node.querySelectorAll) return false;
+        for (const a of node.querySelectorAll('a[href]')) if (realLink(a)) return true;
+        return false;
+      };
       let sourced = false;
-      if (el.closest('a[href]')) sourced = true;
-      else if (ctx.querySelector('a[href]')) sourced = true;
+      if (realLink(el.closest('a[href]'))) sourced = true;
+      else if (anyRealLinkIn(ctx)) sourced = true;
       else {
         for (const sib of [el.previousElementSibling, el.nextElementSibling, ctx.previousElementSibling, ctx.nextElementSibling]) {
           if (!sib) continue;
-          if (sib.tagName === 'A' || sib.querySelector('a[href]')) { sourced = true; break; }
+          if (realLink(sib) || anyRealLinkIn(sib)) { sourced = true; break; }
         }
       }
       if (!sourced) unsourcedRatings.push({ rating: val, text: own, context: ctxText.slice(0, 100) });
@@ -944,8 +1314,46 @@ const audit = (opts = {}) => {
       `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link to the source (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. Link it to the Google/Trustpilot listing.`,
       unsourcedRatings);
 
+  /* ======================================================================
+   * kind=demo — SPARSE and CRAFT are statements about a finished page.
+   * demos/*.html are deliberately single-pattern fragments and SKILL.md sends
+   * agents to them ("Open the nearest and copy it"), so an agent that copies
+   * the recommended file and audits it used to collect six ambition findings on
+   * work the skill had just endorsed. Same shape as the Tier A loophole: a rule
+   * applied to something it was never scoped to.
+   * The claim is guarded, because "kind=demo" must not become the next
+   * loophole. A page that ships the parts of a deliverable — a phone number to
+   * call, a form to fill in, or the length of a real site — is a deliverable,
+   * whatever the comment says, and the claim is rejected out loud.
+   * ==================================================================== */
+  const demoDisqualifiers = [];
+  if (declaredKind === 'demo') {
+    try {
+      if (document.querySelector('a[href^="tel:"]')) demoDisqualifiers.push('a tel: link');
+      if (document.querySelector('form, input[type="email"], input[type="tel"]')) demoDisqualifiers.push('a contact form');
+    } catch { /* ignore */ }
+    if (screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} screens`);
+  }
+  const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;
+  if (demoMode) {
+    let dropped = 0;
+    for (let i = findings.length - 1; i >= 0; i--) {
+      if (findings[i].level === 'sparse' || findings[i].level === 'craft') { findings.splice(i, 1); dropped++; }
+    }
+    add('note', 'demo-scope',
+      `Declared \`kind=demo\`: ${dropped} SPARSE/CRAFT finding${dropped === 1 ? '' : 's'} suppressed. A pattern reference is not a finished page — it has no loader, no conversion block and no density budget, and it is not supposed to. FAIL and WARN ran in full.`,
+      { dropped, screens: +screensNow.toFixed(1) });
+  } else if (declaredKind === 'demo') {
+    add('craft', 'demo-claim-rejected',
+      `The page declares \`kind=demo\` and ships ${demoDisqualifiers.join(' + ')} — that is a deliverable, not a pattern reference. SPARSE and CRAFT were measured in full.`,
+      { disqualifiers: demoDisqualifiers, screens: +screensNow.toFixed(1) });
+  }
+
   const craftReport = {
     probed: craftOk,
+    kind: declaredKind,
+    demoMode,
+    demoDisqualifiers,
     probeMode: craftOk ? (craftIn.mode || null) : null,
     probeSamples: craftOk ? (craftIn.samples || 0) : 0,
     probeErrors: craftIn ? (craftIn.errors || []) : [],
@@ -964,6 +1372,7 @@ const audit = (opts = {}) => {
     three: craftOk ? !!craftIn.three : null,
     scrollTrigger: craftOk ? !!craftIn.scrollTrigger : null,
     pinSpacer: craftOk ? !!craftIn.pinSpacer : null,
+    rejectedEvidence: craftOk ? (craftIn.rejected || null) : null,
     oversizedImages: fatImgs.length,
     oversizedWorst: fatImgs[0] || null,
     conversion,
@@ -1269,7 +1678,20 @@ const loaderScan = () => {
   };
   try {
     res.rootClass = `${document.documentElement.className || ''} ${document.body ? String(document.body.className || '') : ''}`.trim().slice(0, 240);
-    res.hook = !!document.querySelector('[data-loader],[data-preloader],[data-loading]');
+    /* The hook used to be its own proof: `<div data-loader></div>` satisfied
+       both the loader technique and the no-loader check, and on amritpalace.com
+       a `data-loading` attribute on a custom CURSOR was read as an intro
+       sequence. Record whether the hooked element is actually painting like a
+       loader — a large overlay — so the driver can check that it goes away. */
+    const hooks = Array.from(document.querySelectorAll('[data-loader],[data-preloader],[data-loading]'));
+    res.hook = hooks.length > 0;
+    res.hookShown = hooks.some((el) => {
+      try {
+        const st = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return shown(st, r) && r.width * r.height >= W * H * 0.25;
+      } catch { return false; }
+    });
   } catch { /* ignore */ }
   try {
     if (!document.body) return res;
@@ -1348,6 +1770,23 @@ const craftRead = () => {
       else if (/pin-spacer/.test(String(el.className || ''))) want = true;
       else if (area >= W * H * 0.25 && r.width >= W * 0.4) want = true;
       if (want) el.setAttribute('data-pwd-cx', String(n++));
+      /* A pin holds something. An empty 70vh sticky div in a 220vh parent has
+         the exact geometry of a pinned stage and none of its content, and the
+         measured-hold path could not tell them apart. */
+      if (want) {
+        let holds = false;
+        try {
+          if (String(el.textContent || '').replace(/\s+/g, ' ').trim().length >= 12) holds = true;
+          if (!holds) {
+            for (const k of el.querySelectorAll('img,video,canvas,picture,svg')) {
+              const kr = k.getBoundingClientRect();
+              if (kr.width * kr.height >= W * H * 0.05) { holds = true; break; }
+            }
+          }
+          if (!holds && /url\(/i.test(s.backgroundImage || '')) holds = true;
+        } catch { holds = true; }
+        el.setAttribute('data-pwd-holds', holds ? '1' : '0');
+      }
     }
   } catch { /* ignore */ }
   try {
@@ -1358,6 +1797,7 @@ const craftRead = () => {
       const rec = {
         id: el.getAttribute('data-pwd-cx'),
         tag: el.tagName,
+        holds: el.getAttribute('data-pwd-holds') !== '0',
         cls: String(el.className || '').slice(0, 40),
         top: Math.round(r.top), h: Math.round(r.height), w: Math.round(r.width),
         pos: s.position,
@@ -1432,7 +1872,7 @@ const craftFinalScan = () => {
   const W = window.innerWidth, H = window.innerHeight;
   const res = {
     gsap: false, scrollTrigger: false, three: false, webgl: false,
-    canvasCount: 0, canvasBig: false,
+    canvasCount: 0, canvasBig: false, canvasPainted: false, canvasRejected: null,
     split: null, splitHits: 0, splitMarkers: 0,
     transition: null, rail: null, railRejected: null, stickyStage: null, sceneSection: null,
   };
@@ -1445,7 +1885,28 @@ const craftFinalScan = () => {
     for (const c of document.querySelectorAll('canvas')) {
       res.canvasCount++;
       const r = c.getBoundingClientRect();
-      if (r.width * r.height >= W * H * 0.25) res.canvasBig = true;
+      const big = r.width * r.height >= W * H * 0.25;
+      if (big) res.canvasBig = true;
+      /* An empty <canvas> is a coloured rectangle. Read its pixels BEFORE the
+         context probes below claim the 2d slot: an 8x8 redraw with two or more
+         distinct values means something was drawn. A tainted or WebGL canvas
+         throws, and a throw is treated as painted — those are the cases where
+         the context probe answers instead. */
+      if (big && !res.canvasPainted) {
+        try {
+          const o = document.createElement('canvas');
+          o.width = 8; o.height = 8;
+          const g2 = o.getContext('2d');
+          if (g2) {
+            g2.drawImage(c, 0, 0, 8, 8);
+            const d = g2.getImageData(0, 0, 8, 8).data;
+            const seen = new Set();
+            for (let i = 0; i < d.length; i += 4) seen.add(`${d[i]},${d[i + 1]},${d[i + 2]},${d[i + 3]}`);
+            if (seen.size >= 2) res.canvasPainted = true;
+            else res.canvasRejected = { reason: 'canvas is uniform — nothing was drawn on it', w: Math.round(r.width), h: Math.round(r.height) };
+          }
+        } catch { res.canvasPainted = true; }
+      }
       if (c.getAttribute('data-engine')) res.three = true;   /* R3F stamps this */
       /* Ask for 2d FIRST: on a canvas that already holds a WebGL context this
          returns null, and on a canvas with no context at all it claims the 2d
@@ -1513,19 +1974,29 @@ const craftFinalScan = () => {
         let rules = null;
         try { rules = sh.cssRules; } catch { continue; }
         if (!rules) continue;
-        for (const r of rules) if (/@view-transition|view-transition-name/.test(String(r.cssText || ''))) { vtCss = true; break; }
+        /* `view-transition-name:` is a PROPERTY — one div carrying it in a
+           stylesheet used to satisfy this. The cross-document transition is
+           declared by the `@view-transition` at-rule; that is the signal. */
+        for (const r of rules) if (/@view-transition\b/.test(String(r.cssText || ''))) { vtCss = true; break; }
         if (vtCss) break;
       }
     } catch { /* ignore */ }
-    let vtName = false;
+    /* One div carrying `view-transition-name: x` used to count as a page
+       transition. A real cross-document transition names the elements that
+       persist across the navigation — three or more of them — or declares
+       `@view-transition` in CSS, or calls startViewTransition. */
+    const vtNames = new Set();
     let i = 0;
     for (const el of document.body.querySelectorAll('*')) {
       if (++i > 2500) break;
       let s; try { s = getComputedStyle(el); } catch { continue; }
-      if (s.viewTransitionName && s.viewTransitionName !== 'none') { vtName = true; break; }
+      if (s.viewTransitionName && s.viewTransitionName !== 'none') vtNames.add(s.viewTransitionName);
+      if (vtNames.size >= 3) break;
     }
+    const vtName = vtNames.size >= 3;
     const called = !!(window.__pwdCraft && window.__pwdCraft.vt > 0);
-    if (lib || attr || vtCss || vtName || called) res.transition = { lib, attr, vtCss, vtName, called };
+    if (lib || attr || vtCss || vtName || called) res.transition = { lib, attr, vtCss, vtName, namedElements: vtNames.size, called };
+    else if (vtNames.size) res.transitionRejected = { reason: `${vtNames.size} element(s) name a view transition and nothing drives one`, named: vtNames.size };
   } catch { /* ignore */ }
   /* Native horizontal chapter — NOT a card rail. A bleeding review rail with
      `overflow-x: auto` satisfies every loose test for "content wider than its
@@ -1561,6 +2032,21 @@ const craftFinalScan = () => {
       if (!p) continue;
       const pr = p.getBoundingClientRect();
       if (pr.height < r.height * 1.8) continue;
+      /* A pin holds something. An empty 70vh sticky div in a 220vh parent is
+         the cheapest thing on the web that reads as a pinned stage, and it
+         reads as one to a geometry probe. Ask what is being held. */
+      let holds = false;
+      try {
+        if (String(el.textContent || '').replace(/\s+/g, ' ').trim().length >= 12) holds = true;
+        if (!holds) {
+          for (const k of el.querySelectorAll('img,video,canvas,picture,svg')) {
+            const kr = k.getBoundingClientRect();
+            if (kr.width * kr.height >= W * H * 0.05) { holds = true; break; }
+          }
+        }
+        if (!holds && /url\(/i.test(s.backgroundImage || '')) holds = true;
+      } catch { holds = true; }
+      if (!holds) { res.stickyRejected = { reason: 'sticky stage holds no content', height: Math.round(r.height), cls: String(el.className || '').slice(0, 40) }; continue; }
       res.stickyStage = { via: 'css sticky stage', height: Math.round(r.height), parentHeight: Math.round(pr.height), cls: String(el.className || '').slice(0, 40) };
       break;
     }
@@ -1600,8 +2086,8 @@ const craftProbe = async (ctx, target) => {
   const out = {
     ok: false, mode: null, samples: 0, screens: null, errors: [],
     techniques: {}, present: [],
-    loader: null, loaderProbe: null, bottomBar: null, sceneSection: null, railRejected: null,
-    webgl: false, three: false, gsap: false, scrollTrigger: false, pinSpacer: false,
+    loader: null, loaderProbe: null, loaderHookRejected: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
+    webgl: false, three: false, canvasPainted: false, gsap: false, scrollTrigger: false, pinSpacer: false,
   };
   let page = null;
   try {
@@ -1644,7 +2130,13 @@ const craftProbe = async (ctx, target) => {
         const last = good[good.length - 1].rootClass || '';
         if (m && !last.includes(m[0])) out.loader = { via: 'root class', token: m[0], presentAtMs: AT[0], goneByMs: AT[AT.length - 1] };
       }
-      if (!out.loader && good.some((g) => g.hook)) out.loader = { via: 'data-loader hook' };
+      /* A hook counts when it behaves like a loader: painting over the page at
+         first scan and gone by the last. A hook that is still on screen at
+         2500ms is furniture wearing a loader's attribute. */
+      if (!out.loader && good[0].hookShown && !good[good.length - 1].hookShown)
+        out.loader = { via: 'data-loader hook', shownAtMs: AT[0], goneByMs: AT[AT.length - 1] };
+      else if (!out.loader && good.some((g) => g.hook))
+        out.loaderHookRejected = { reason: good[0].hookShown ? 'hooked element never went away' : 'hooked element never painted over the page', shownFirst: !!good[0].hookShown, shownLast: !!good[good.length - 1].hookShown };
     }
 
     /* ---- stage 2: scroll sampling ---- */
@@ -1788,6 +2280,10 @@ const craftProbe = async (ctx, target) => {
       webgl: !!((finPre && finPre.webgl) || (finPost && finPost.webgl)),
       canvasCount: Math.max(finPre ? finPre.canvasCount : 0, finPost ? finPost.canvasCount : 0),
       canvasBig: !!((finPre && finPre.canvasBig) || (finPost && finPost.canvasBig)),
+      canvasPainted: !!((finPre && finPre.canvasPainted) || (finPost && finPost.canvasPainted)),
+      canvasRejected: (finPost && finPost.canvasRejected) || (finPre && finPre.canvasRejected) || null,
+      transitionRejected: (finPost && finPost.transitionRejected) || (finPre && finPre.transitionRejected) || null,
+      stickyRejected: (finPost && finPost.stickyRejected) || (finPre && finPre.stickyRejected) || null,
       split: (finPre && finPre.split) || (finPost && finPost.split) || null,
       splitHits: Math.max(finPre ? finPre.splitHits : 0, finPost ? finPost.splitHits : 0),
       splitMarkers: Math.max(finPre ? finPre.splitMarkers : 0, finPost ? finPost.splitMarkers : 0),
@@ -1800,6 +2296,8 @@ const craftProbe = async (ctx, target) => {
     if (fin) {
       out.webgl = !!fin.webgl;
       out.three = !!fin.three;
+      out.canvasPainted = !!fin.canvasPainted;
+      out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null };
       out.gsap = !!fin.gsap;
       out.scrollTrigger = !!fin.scrollTrigger;
       out.sceneSection = fin.sceneSection || null;
@@ -1822,7 +2320,8 @@ const craftProbe = async (ctx, target) => {
       if (!pin) {
         const big = rec.some((r) => r.h >= vh * 0.45 && r.w >= vw * 0.45);
         const stickyish = rec.some((r) => r.pos === 'fixed' || r.pos === 'sticky');
-        if (big && stickyish) {
+        const holdsSomething = rec.some((r) => r.holds !== false);
+        if (big && stickyish && holdsSomething) {
           let held = 0, gaps = 0;
           for (let k = 1; k < rec.length; k++) {
             if (rec[k].i !== rec[k - 1].i + 1) continue;
@@ -1883,7 +2382,10 @@ const craftProbe = async (ctx, target) => {
       'loader into hero': out.loader,
       'page transition': fin ? fin.transition : null,
       'magnetic element': magnetic,
-      'canvas/3D scene': (fin && (fin.webgl || fin.three || fin.canvasBig)) ? { webgl: fin.webgl, three: fin.three, bigCanvas: fin.canvasBig, canvases: fin.canvasCount } : null,
+      /* A big canvas is only a scene when something rendered into it. */
+      'canvas/3D scene': (fin && (fin.webgl || fin.three || (fin.canvasBig && fin.canvasPainted)))
+        ? { webgl: fin.webgl, three: fin.three, bigCanvas: fin.canvasBig, painted: fin.canvasPainted, canvases: fin.canvasCount }
+        : null,
     };
     out.techniques = techniques;
     out.present = Object.keys(techniques).filter((k) => techniques[k]);
@@ -1898,19 +2400,29 @@ const craftProbe = async (ctx, target) => {
 };
 
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'chromium' });
-const report = { url, capturedAt: new Date().toISOString(), desktop: null, mobile: null, console: [] };
+const report = { url, capturedAt: new Date().toISOString(), desktop: null, mobile: null, console: [], capability: [] };
+/* A capability gate that can silently downgrade the experience has now cost
+   three investigations on this skill. Anything the page logs about taking a
+   fallback path is collected here and printed, so the downgrade is visible
+   next to the frames instead of being reconstructed later. */
+const CAPABILITY_RE = /(fallback|downgrade|degrad|unavailable|unsupported|not supported|disabled|no webgl|webgl (is )?off|reduced motion)/i;
 
 try {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
   const page = await ctx.newPage();
-  page.on('console', (m) => { if (m.type() === 'error') report.console.push(m.text().slice(0, 200)); });
+  page.on('console', (m) => {
+    const t = m.text();
+    if (m.type() === 'error') report.console.push(t.slice(0, 200));
+    else if ((m.type() === 'info' || m.type() === 'warning' || m.type() === 'log') && CAPABILITY_RE.test(t) && report.capability.length < 12)
+      report.capability.push(t.slice(0, 200));
+  });
   page.on('pageerror', (e) => report.console.push(`pageerror: ${String(e).slice(0, 200)}`));
   await page.goto(url, { waitUntil: 'load', timeout: 45000 });
   await page.waitForTimeout(2500);
   report.desktopShots = await shootScroll(page, 'desktop', Number(process.env.STEPS || 6));
   const desktopGround = await groundFor(ctx, url, 12);
   const desktopCraft = await craftProbe(ctx, url);
-  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft });
+  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft, capabilityNotes: report.capability });
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -1923,7 +2435,7 @@ try {
   /* The phone pass cannot see the desktop DOM, and the whole question for a
      `mobile=` declaration is what replaced the desktop scene. Carry the
      reference across. */
-  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround, craft: mobileCraft, desktopScene: (desktopCraft && desktopCraft.sceneSection) || null });
+  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround, craft: mobileCraft, desktopScene: (desktopCraft && desktopCraft.sceneSection) || null, capabilityNotes: report.capability });
   await mctx.close();
 
   const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
@@ -1947,6 +2459,7 @@ const fmt = (label, a) => {
   const warns = a.findings.filter((f) => f.level === 'warn');
   const sparse = a.findings.filter((f) => f.level === 'sparse');
   const craftF = a.findings.filter((f) => f.level === 'craft');
+  const notes = a.findings.filter((f) => f.level === 'note');
   const amb = a.ambition || {};
   const cr = a.craft || {};
   const lines = [
@@ -1956,9 +2469,10 @@ const fmt = (label, a) => {
     `palette: ${a.palette.map((p) => `${p.color} ${p.areaPct}%`).join(' | ')}`,
     `counts: ${JSON.stringify(a.counts)}`,
     `ambition: media ${amb.renderedMedia ?? '?'} · hero ${amb.heroSize ?? '?'}px vs ${amb.largestBelowFold ?? '?'}px below · overlaps ${amb.overlapPairs ?? '?'} · bleeds ${amb.bleeders ?? '?'} · ground flips ${amb.groundFlips ?? 'n/a'} · motion ${amb.motionVocabulary ?? '?'} · tint marks ${amb.tintMarks ?? 0}`,
-    `craft: tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/9${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
+    `craft: kind ${cr.kind || 'page'}${cr.demoMode ? ' (SPARSE+CRAFT skipped)' : ''} · tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/9${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
     `FAIL ${fails.length} · WARN ${warns.length} · SPARSE ${sparse.length} · CRAFT ${craftF.length}`,
   ];
+  for (const f of notes) lines.push(`  [NOTE] ${f.code} — ${f.msg}`);
   for (const f of [...fails, ...warns]) lines.push(`  [${f.level.toUpperCase()}] ${f.code} — ${f.msg}`);
   if (sparse.length) {
     lines.push('  ┄ ambition — SPARSE: absence, not error. Does not affect exit code. ┄');
@@ -1974,8 +2488,15 @@ const fmt = (label, a) => {
 console.log(fmt('DESKTOP', report.desktop));
 console.log(fmt('MOBILE', report.mobile));
 if (report.console.length) console.log(`\nconsole errors: ${report.console.length}\n  ${report.console.slice(0, 5).join('\n  ')}`);
+if (report.capability.length) console.log(`\ncapability notes the page logged: ${report.capability.length}\n  ${report.capability.slice(0, 6).join('\n  ')}`);
 if (report.error) console.log(`\nERROR: ${report.error}`);
 console.log(`\nframes → ${outDir}  (LOOK AT THEM with the Read tool before you claim done)`);
 
 const totalFails = (report.desktop?.findings || []).filter((f) => f.level === 'fail').length + (report.mobile?.findings || []).filter((f) => f.level === 'fail').length;
+const totalAmbition = [...(report.desktop?.findings || []), ...(report.mobile?.findings || [])].filter((f) => f.level === 'sparse' || f.level === 'craft').length;
+/* Exit 0 is not the Done bar and never was. SKILL.md's checklist asks for zero
+   SPARSE and zero CRAFT as well, and an exit code that ignores both is easy to
+   read as permission to stop. Say it out loud instead of changing it. */
+if (totalFails === 0 && totalAmbition > 0)
+  console.log(`\nexit 0, but NOT done: ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} stand. SKILL.md's Done checklist asks for zero of both — the exit code only tracks FAILs.`);
 process.exit(totalFails > 0 ? 1 : 0);
