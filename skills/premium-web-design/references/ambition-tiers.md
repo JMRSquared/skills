@@ -19,8 +19,27 @@ crops and overlaps, a marquee or index list, view transitions.
 This tier has produced Site of the Day winners. `plomberie5etoiles.com` and
 most restaurant winners are essentially Tier A with exceptional art direction.
 
-**Choose it when:** the photography is strong, the timeline is short, the stack
-is plain HTML/CSS or a static site, or the audience is on mid-range phones.
+**Choose it when ALL of these hold.** Not any. All.
+
+- The page is **under 6 viewport heights**. A long page held at Tier A becomes a
+  scroll with nothing in it.
+- The brief has **no sequence**: no process, no timeline, no chapters, no
+  before-and-after, no product revealed progressively. If you can write the
+  offer as "first, then, then", the story has beats and beats want Tier B.
+- The photography is genuinely exceptional and there is enough of it to carry
+  every screen on its own.
+
+**"It is a static site" is not a reason.** That clause used to sit in this list
+and it is the reason two pages shipped from this skill with zero pinned
+sections, zero scrubs and zero transitions while passing every check. Every
+deliverable this skill produces is a static file, so a condition satisfied by
+the output format is satisfied on every brief, forever. It said nothing about
+whether the *work* deserved Tier A. GSAP is a script tag and ScrollTrigger runs
+fine on a static file, so the stack never was the constraint.
+
+The honest Tier A test is one sentence: **name the award-winning page you are
+matching, and say why yours needs less motion than that one.** If the answer is
+about your convenience rather than the brief, you are at the wrong tier.
 
 ## Tier B — Choreographed (default)
 
@@ -33,7 +52,8 @@ Requires: GSAP + ScrollTrigger (or Motion's scroll APIs), and a build where you
 can verify pin spacing at three widths.
 
 **Choose it when:** the story has beats — a process, a timeline, a chapter
-structure, a product revealed progressively.
+structure, a product revealed progressively. **This is the default. A page over
+6 screens is at Tier B unless you can defend Tier A against the test above.**
 
 ## Tier C — Rendered
 

@@ -25,6 +25,7 @@ Four mechanisms, and the fix for each. Everything below is one of these fixes.
 | Adjectives with no numbers | "Expressive typography" and "art-directed spacing" carry no values, so the model emits its default: Inter at 36px, 14px grey body, 8px radius everywhere | **Step 3** — an Art Direction Contract of literal values, written before any component code |
 | Never looking | Contrast, optical spacing, real type size, crops, overlaps, and broken fonts are invisible in source. A self-scored 9/10 ends the improvement loop with nothing rendered | **Step 6** — `scripts/audit-page.mjs` renders and measures the page, and you read the frames |
 | Ambition past reliability | Quotas demanding WebGL and scrub on every brief produce collapsed pins, stretched canvases, and copy unreadable over motion | **Step 4** — pick a tier you can land. A broken Tier C loses to a perfect Tier A. |
+| Ambition promised, never enforced | The skill says Awwwards, cinematic, 3D scroll storytelling, and marks Tier B the default. Then every gate measures only what to avoid, so a page with no pin, no scrub, no transition and no scene passes cleanly and the tier ladder is decorative | **Step 4** — declare the tier in the markup, and the auditor now detects what you actually shipped and reports `CRAFT` when the declaration and the page disagree |
 | Restraint with nothing behind it | Every other rule here is a *don't*. Obey them all and you ship a page that is correct, tasteful, and forgettable: six images, the biggest type in the hero, nothing overlapping, nothing bleeding, two ground changes in nine screens | **Step 4b** — a density floor and a signature device, both measured by the auditor as SPARSE findings |
 
 ## Activation
@@ -36,14 +37,15 @@ demos, scroll-story experiences.
 **Do not auto-fire** on authenticated app chrome, design-system work, or pure
 logic/API/infra edits. `/premium-web-design` applies the full bar on demand.
 
-**Companions:** photography → `/jmr-image` (Unsplash, commercial-safe) or
+**Companions:** photography → `/jmr-image` (Unsplash then Pexels, commercial-safe) or
 `scripts/find-photos.mjs` (no key, contact sheet). 2D cutouts →
 `/pngimg-assets` (CC BY-NC). glTF/GLB + HDRIs → `/gltf-assets` (Poly Haven CC0
 first). Owner photography still dominates any physical product, place, or
 service hero.
 
-`/jmr-image` with no `UNSPLASH_ACCESS_KEY` set silently searches pngimg only,
-which is CC BY-NC, and still exits 0. Check the key before a commercial build.
+`/jmr-image` with neither `UNSPLASH_ACCESS_KEY` nor `PEXELS_API_KEY` set
+silently searches pngimg only, which is CC BY-NC, and still exits 0. Check
+the keys before a commercial build.
 
 When `react-tsx-component` also applies: this skill owns visual direction,
 composition, motion, and asset quality; that one owns component form.
@@ -241,6 +243,18 @@ Full detail, entry requirements, and the failure modes to guard:
 | **B — Choreographed** (default) | GSAP/ScrollTrigger or Motion scroll: pins, scrubs, split reveals, transitions | The story has beats |
 | **C — Rendered** | WebGL/R3F on top of B | The object *is* the story, and a credible model exists |
 
+**Declare the tier in the page**, first line of `<head>`, so the auditor can
+check the claim against what you built:
+
+```html
+<!-- premium-web-design: tier=B -->
+```
+
+A page over 6 screens declaring `tier=A` is reported as `tier-floor`. A page
+declaring B or C with no detectable pin, scrub, transition or scene is reported
+as `tier-unmet`. Both are CRAFT findings: they do not fail the build, they tell
+you the page is not the thing you said it was.
+
 Answer three questions in one line each before building:
 
 1. Which tier, and why is the tier below not enough here?
@@ -295,6 +309,40 @@ that meet both conditions and counts them as ambition instead.
 **The failure mode of this step is noise.** Density comes from real content
 shown more ways, never from ornament. Every image is a real subject, every
 device instance carries information, and if a mark says nothing, delete it.
+
+---
+
+## Step 4c — The craft floor
+
+Three gates that the corpus meets and restraint rules never produce. All three
+are measured; see the `CRAFT` block in the auditor output.
+
+**Three weight-carrying motion techniques, minimum, on any page over 6 screens.**
+Not three fade-ups. From `references/motion.md`: a scroll-pinned chapter stage,
+a scrubbed sequence tied to a real object, a masked or split type reveal at
+display scale, a cursor-driven preview on an index list, a horizontal chapter,
+a load sequence that resolves into the hero, a page transition, a magnetic
+element, a canvas or 3D scene. Runnable implementations of every one of these
+are in `demos/`. Open the nearest and copy it rather than inventing it.
+
+**Images ship responsively.** `srcset` with real widths, or `<picture>` with
+WebP or AVIF and a JPEG fallback. A source more than 1.8× its rendered CSS
+width is reported. A 2400px hero sent whole to a 390px phone is the single
+laziest thing a premium page can do.
+
+**Local business pages close the loop.** These four come straight from the
+corpus steal lists and every one of them was missing from a page that otherwise
+scored perfectly:
+
+| Device | Why | From |
+|---|---|---|
+| Fixed bottom action bar on phones | Thumb zone. Pin it to the **bottom**, never the top | `amrit-palace`, `plomberie-5-etoiles` |
+| One line saying what happens after the button | "We confirm by text within the hour" | `content-and-copy.md` |
+| An FAQ or objection block | Answers the question that stops the booking | `plomberie-5-etoiles` |
+| A named human who is not a reviewer | Trust attaches to people, not companies | `plomberie-5-etoiles` |
+
+A rating with no link to its source is reported as `rating-unsourced`. Publishing
+`4.9` with nothing behind it is the same class of claim as a fabricated review.
 
 ---
 
@@ -404,6 +452,11 @@ Every box needs an artifact, not a claim.
 - [ ] Signature device named, and repeating at least four times
 - [ ] The largest type on the page is not in the hero
 - [ ] `audit-page.mjs` reports zero SPARSE findings
+- [ ] `audit-page.mjs` reports zero CRAFT findings
+- [ ] Tier declared in the markup, and the page actually contains that tier's evidence
+- [ ] Three or more weight-carrying motion techniques, named
+- [ ] Every image has `srcset` or a `<picture>` source set
+- [ ] Local business: bottom action bar, what-happens-next line, FAQ, a named human
 - [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
 
 ## Reference map
@@ -418,6 +471,7 @@ Every box needs an artifact, not a claim.
 | `references/imagery.md` | Sourcing, choosing, treating, and cropping photography |
 | `references/content-and-copy.md` | Words, conversion placement, and copy tells |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
+| `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |
