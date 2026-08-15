@@ -112,6 +112,43 @@ Test it by jumping straight to 40% of the page on load and counting elements
 that are inside the viewport at `opacity: 0`. It should be zero, or one that is
 mid-transition.
 
+### A state class you remove is a state class that snaps back
+
+The `.js` gate and the sweep above both cover the element never being *revealed*.
+Neither covers the author revealing it and then taking the class away. One build
+added `is-done` to a hero and removed it 700ms later to tidy up; every line
+snapped back to `translateY(150%)` and the H1 disappeared on both viewports.
+
+The rule: **the class that ends a reveal is the resting state, so it is
+permanent.** If you need a temporary class for the animation, add a second one
+and never remove the one the final layout depends on.
+
+This is the failure `reduced-motion.jpg` is best at exposing, because under
+reduced motion the class is never added at all, so the frame shows you exactly
+what a visitor sees when the sequence does not run.
+
+### Type over a transparent nav reads as a contrast failure
+
+A fixed nav with no background over a dark hero photograph composites, to the
+auditor, against `body`. `build-loop.md` explains that the contrast check cannot
+see photograph pixels; here is the fix it does not give.
+
+Reported 1.22:1 on eight nav links that are perfectly legible on screen. Adding
+a `text-shadow` alone does not clear it. What works is giving the nav a real
+gradient `background-image` **and** a `text-shadow` on the links: the gradient
+flips the element into the over-media branch, and the shadow then satisfies the
+scrim requirement.
+
+```css
+.nav{
+  background-image:linear-gradient(to bottom, rgb(0 0 0 / .55), transparent);
+}
+.nav a{ text-shadow:0 1px 2px rgb(0 0 0 / .55); }
+```
+
+That is also the honest fix rather than a trick: a nav floating on a photograph
+does need a scrim, and it will need one on a light frame of the same video.
+
 ### The masked-reveal deadlock
 
 Chrome folds an element's own `clip-path` into the rectangle it reports to
