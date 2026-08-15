@@ -8,6 +8,39 @@ This site defeats a naive DOM probe. `scrollHeight` never exceeds the viewport, 
 
 That is itself the first finding: **a site can be a Site-of-the-Year winner and be structurally invisible to every automated audit, SEO crawler and accessibility tree in the industry.** The one measured value the probe got right — `rgb(160, 165, 177)` `#A0A5B1` — is the loader ground, and it turns out to be the whole brand.
 
+## How it is actually built, measured
+
+The capture caveat above said the runtime counts were `unverified` because the
+DOM probe saw nothing. They are now verified, by patching prototypes before the
+bundle ran rather than by querying the DOM after it.
+
+| What | Measured |
+|---|---|
+| `attachShadow` calls | exactly one, `{ mode: "closed" }` |
+| Canvases created | one, inside that closed root |
+| Context requested | `getContext('webgl2', { alpha: true, depth: false, stencil: false, antialias: false, premultipliedAlpha: true, preserveDrawingBuffer: false })` |
+| `document.getElementsByTagName('canvas').length` | **0**, while a full WebGL scene is drawing |
+| Body | `touch-action: none` |
+| Scroll | `scrollHeight === innerHeight` across 19,200 of wheel delta |
+
+**A closed shadow root cannot be traversed from outside.** No DOM query finds
+that canvas, which is why the first capture of this site produced a blank page
+in Times and why any tool that counts `document` canvases will report this page
+as shipping no WebGL. The only way to see it is to patch
+`HTMLCanvasElement.prototype.getContext` in an init script that runs before page
+scripts, and record the request.
+
+Two things worth stealing from that shape, and one worth not:
+
+- `depth: false, stencil: false, antialias: false` on a scene that is composited
+  rather than depth-sorted is a real saving, and `preserveDrawingBuffer: false`
+  is the default you want unless you need to read pixels back.
+- `touch-action: none` plus a virtualised scroll is what lets the wheel drive a
+  narrative that is not a document.
+- The closed root buys nothing an open one would not, and it costs every
+  accessibility tool, every extension and every auditor the ability to see the
+  page. Use `{ mode: "open" }`.
+
 ## Art direction in one line
 A cold-storage scientific survey of one object: a single arctic-grey world, one glowing igloo, and every word on screen set in 12px mono like an instrument readout — the copy behaves as telemetry printed over the render, never as a headline.
 
