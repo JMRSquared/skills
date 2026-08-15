@@ -117,6 +117,33 @@ overcast) and hold it across the page — or force consistency with a treatment.
 Grain over photography (see `color-and-light.md`) hides compression artefacts
 and pulls stock toward film.
 
+## Download it. Never hotlink it.
+
+Every image the page shows must be a local file the project owns. A build that
+points `src` at `images.unsplash.com` or `images.pexels.com` is one privacy
+blocker, one corporate proxy, one offline train, or one rate limit away from a
+page with no photographs on it. On a page carried by photography that is not a
+degraded experience, it is a blank one.
+
+Measured on a build that hotlinked all of it: with those two hosts blocked,
+**0 of 38 images loaded** and the page collapsed to type on flat colour.
+
+```bash
+# pull each one down, then point src at the local copy
+skills/jmr-image/scripts/jmr-image.sh get "<full-res url>" --out public/images
+```
+
+Then verify by blocking the hosts, not by trusting that they will be up:
+
+```js
+await page.route('**://images.unsplash.com/**', r => r.abort());
+await page.route('**://images.pexels.com/**',   r => r.abort());
+// reload: every above-the-fold image must still render
+```
+
+Record the credits in `CREDITS.md` as you go. Both licences are commercial-safe
+and both ask for attribution.
+
 ## Cropping
 
 - Crop hard. A tight crop on hands, a face at the edge of frame, or a detail at

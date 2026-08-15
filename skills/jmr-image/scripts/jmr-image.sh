@@ -375,6 +375,7 @@ cmd_get() {
     case "$1" in
       --out) out="$2"; shift 2 ;;
       -*)    warn "Unknown option: $1"; shift ;;
+      --name) name="$2"; shift 2 ;;
       *)     url="$1"; shift ;;
     esac
   done
@@ -386,6 +387,7 @@ cmd_get() {
   echo "URL: $url"
   echo ""
 
+  local name="${name:-}"
   local source="unknown"
   local resolved_url="$url"
 
@@ -402,7 +404,17 @@ cmd_get() {
     fi
   fi
 
-  if save_image "$resolved_url" "$out" "direct"; then
+  # Derive a stem from the URL. Every `get` used the literal stem "direct",
+  # so a second download silently overwrote the first and a batch of twenty
+  # left one file behind. --name overrides.
+  local stem="${name:-}"
+  if [[ -z "$stem" ]]; then
+    stem=$(printf '%s' "$url" | sed -e 's/[?#].*$//' -e 's#.*/##' -e 's/\.[A-Za-z0-9]\{2,5\}$//')
+    stem=$(printf '%s' "$stem" | tr -c 'A-Za-z0-9._-' '-' | sed -e 's/^-*//' -e 's/-*$//')
+    [[ -z "$stem" ]] && stem="direct"
+  fi
+
+  if save_image "$resolved_url" "$out" "$stem"; then
     echo ""
     ok "Done — saved to $out"
   fi

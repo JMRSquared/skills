@@ -399,6 +399,8 @@ Every box needs an artifact, not a claim.
 - [ ] No console errors in `audit.json`
 - [ ] Composition variety rules met (≥4 layout families, ≤2 consecutive splits)
 - [ ] Real photography carries any physical product, place, or service
+- [ ] Every image is a local file. Nothing hotlinks a third-party host
+- [ ] Verified by blocking the image hosts and reloading
 - [ ] Signature device named, and repeating at least four times
 - [ ] The largest type on the page is not in the hero
 - [ ] `audit-page.mjs` reports zero SPARSE findings
