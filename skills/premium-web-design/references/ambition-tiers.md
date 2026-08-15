@@ -176,6 +176,20 @@ each one against your build before claiming done.
 - `scrub: true` with no smoothing → jitter on trackpads. Use `scrub: 0.6–1.2`.
 - Animating `top`/`left`/`width` instead of `transform` → layout thrash.
 - Scrub tied to an element that lazy-loads → the animation starts mid-way.
+- **Translating further than the container has content for** → the tail of the
+  travel is empty ground. One build translated 260px inside a container padded
+  16% and the bottom third of the pinned stage rendered black for the whole
+  second half of the scrub. The auditor scores the scrub as present, because it
+  is: the transform is monotonic and real. Nothing measures whether the frame is
+  empty, so screenshot the stage at 25%, 50% and 75% of the pin and look at it.
+
+**Cursor-driven previews**
+- Percentage margins on a `position: fixed` element resolve against the viewport
+  **width on both axes**. `margin-inline-start: -50%; margin-block-start: -52%`
+  parked one preview 720px left and 749px above the pointer — tracking it
+  perfectly, permanently off-screen. Use `transform: translate(-50%, -50%)`.
+  The auditor now requires the preview to land within half a viewport of the
+  pointer, and reports the miss under `technique-near-miss` when it does not.
 
 **React Three Fiber**
 - Canvas with no explicit height → 0px tall, or stretched to a wrong aspect.

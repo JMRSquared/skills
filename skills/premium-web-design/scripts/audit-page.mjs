@@ -233,6 +233,7 @@ const audit = (opts = {}) => {
     if (n) readableCorpus.push(n);
   }
   const tintMarks = [];
+  const tintRejected = [];
   const badContrast = [];
   const overMediaNoScrim = [];
   for (const el of textEls) {
@@ -249,6 +250,8 @@ const audit = (opts = {}) => {
          any sentence on the page. Giant, and the whole word. */
       const giant = markSize >= 48 || markSize >= window.innerWidth * 0.05;
       const whole = n ? new RegExp(`(^|\\s)${n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\s|$)`) : null;
+      if (giant && n && whole && !readableCorpus.some((c) => whole.test(c)))
+        tintRejected.push({ text: textOf(el).slice(0, 40), size: Math.round(markSize), reason: 'the same string does not appear anywhere on the page as readable text — the match is on the WHOLE normalised string, so a giant "14" needs a readable "14", not "fourteen weeks"' });
       if (giant && n && whole && readableCorpus.some((c) => whole.test(c))) {
         tintMarks.push({ text: textOf(el).slice(0, 40), size: Math.round(parseFloat(s.fontSize)), color: s.color });
         continue;
@@ -282,6 +285,10 @@ const audit = (opts = {}) => {
       `${badContrast.length} text elements below WCAG AA, across ${grouped.length} distinct colour pairings (worst ${grouped[0].worstRatio}:1).`,
       grouped.slice(0, 8));
   }
+  if (tintRejected.length)
+    add('note', 'tint-mark-not-exempt',
+      `${tintRejected.length} giant \`aria-hidden\` mark${tintRejected.length === 1 ? ' was' : 's were'} measured for contrast rather than exempted as a tint device. The exemption rule, stated here because it is stricter than the prose and was previously only discoverable in the source: the mark's text, lowercased and stripped to letters and digits, must appear as a WHOLE token inside some readable element's text. A giant "14" next to the words "fourteen weeks" does not match; a giant "14" next to a readable "14 weeks" does.`,
+      tintRejected.slice(0, 4));
   if (overMediaNoScrim.length)
     add('warn', 'text-over-media', `${overMediaNoScrim.length} text elements sit on an image/gradient with no scrim or text-shadow. Text over photography needs a gradient scrim, not hope.`, overMediaNoScrim.slice(0, 8));
 
@@ -418,6 +425,12 @@ const audit = (opts = {}) => {
 
   /* section rhythm */
   const sections = Array.from(document.querySelectorAll('section, main > div, [data-section]')).filter(visible);
+  const describeShort = (el) => {
+    try {
+      const cls = (el.className && typeof el.className === 'string') ? `.${el.className.trim().split(/\s+/)[0]}` : '';
+      return `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : cls}`;
+    } catch { return '?'; }
+  };
   const thin = sections.filter((el) => {
     const s = getComputedStyle(el);
     const r = el.getBoundingClientRect();
@@ -537,19 +550,33 @@ const audit = (opts = {}) => {
      nothing measured, and a build from the skill alone shipped six across ten
      sections without noticing. An eyebrow is a short label set small, in caps
      or on wide tracking, sitting in the page rather than in the chrome. */
+  /* Narrow on purpose. A caps label inside a panel is a caption, a chapter
+     name or a figure credit — horizontal-chapter.html numbers four chapters
+     inside one section and none of them is an eyebrow. The furniture the rule
+     bans is the label that OPENS a section, one per block, announcing structure
+     the composition should already show. So: the first text in a section, and
+     the same section must also carry a heading the eyebrow is sitting above. */
   const eyebrows = [];
-  for (const el of textEls) {
+  const eyebrowLooking = (el) => {
     const t = textOf(el).replace(/\s+/g, ' ').trim();
-    if (!t || t.length > 28 || t.length < 2) continue;
-    let s3; try { s3 = getComputedStyle(el); } catch { continue; }
+    if (!t || t.length > 28 || t.length < 2) return null;
+    let s3; try { s3 = getComputedStyle(el); } catch { return null; }
     const size = parseFloat(s3.fontSize) || 0;
-    if (size > 20) continue;
+    if (size > 20) return null;
     const track = parseFloat(s3.letterSpacing);
     const caps = s3.textTransform === 'uppercase' || (t === t.toUpperCase() && /[A-Z]/.test(t));
-    if (!caps && !(track >= size * 0.07)) continue;
-    try { if (el.closest('nav, header, footer, [role="navigation"], [class*="nav" i], [class*="menu" i], [class*="footer" i], a, button, li')) continue; } catch { /* keep it */ }
-    eyebrows.push({ text: t.slice(0, 28), size: Math.round(size), tracking: s3.letterSpacing });
-    if (eyebrows.length > 40) break;
+    if (!caps && !(track >= size * 0.07)) return null;
+    return { text: t.slice(0, 28), size: Math.round(size), tracking: s3.letterSpacing };
+  };
+  for (const sec of sections) {
+    try {
+      if (sec.closest('nav, header, footer, [role="navigation"]')) continue;
+      if (!sec.querySelector('h1,h2,h3')) continue;
+      const first = sec.querySelector('p,span,div,em,small,b,strong,h4,h5,h6');
+      if (!first) continue;
+      const hit = eyebrowLooking(first);
+      if (hit) eyebrows.push({ ...hit, section: describeShort(sec) });
+    } catch { /* skip this section */ }
   }
   const sectionCount = Math.max(sections.length, 1);
   if (eyebrows.length > Math.ceil(sectionCount / 3) && eyebrows.length >= 3)
@@ -1256,14 +1283,24 @@ const audit = (opts = {}) => {
     })();
 
     /* (d) a named person who is not a reviewer */
-    const ROLE_RE = /\b(manager|director|nurse|coach|surgeon|founder|head|owner|chef|principal|instructor|dentist|veterinar\w*|vet|physio\w*|therapist|proprietor)\b/i;
+    /* The old list was an undocumented allow-list of sixteen professions, and
+       "Rowan Attwell, framebuilder" did not count — one build had to write
+       "founder and framebuilder" after reading this regex. No natural title for
+       a framebuilder, joiner, glazier, florist, upholsterer or baker was on it.
+       So: a much longer list, plus a shape test. Occupation nouns in English
+       overwhelmingly end -er, -or, -ist, -smith, -wright, -maker or -monger,
+       and the line has to be short enough to be a title rather than prose. */
+    const ROLE_RE = /\b(manager|director|nurse|coach|surgeon|founder|co-?founder|head|owner|chef|principal|instructor|dentist|veterinar\w*|vet|physio\w*|therapist|proprietor|partner|associate|apprentice|foreman|lead|curator|conservator|midwife|hygienist|orthodontist|osteopath|chiropractor|podiatrist|optician|pharmacist|radiographer|sommelier|patissier|p\u00e2tissier|barber|butcher|baker|brewer|potter|tailor|cobbler|blacksmith|farrier|luthier|ceramicist|weaver|glazier|joiner|florist|upholsterer|stonemason|mason|thatcher|decorator|landscaper|gardener|electrician|plumber|roofer|carpenter|mechanic|technician|engineer|designer|photographer|framebuilder|builder|maker|guide|trainer|groomer|editor|architect|goldsmith|silversmith|bookbinder|printer|welder)\b/i;
+    const ROLE_SHAPE = /\b[a-z]{4,}(er|or|ist|smith|wright|maker|monger|ier)\b/;
     const NAME_RE = /\b[A-Z][a-zà-öø-ÿ'’-]{1,}\s+[A-Z][A-Za-zà-öø-ÿ'’-]{1,}\b/;
     const namedPerson = (() => {
       try {
         for (const el of all) {
           const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
           if (t.length < 4 || t.length > 140) continue;
-          if (!ROLE_RE.test(t)) continue;
+          /* short enough to be a title, not a paragraph that happens to
+             contain an occupation noun */
+          if (!ROLE_RE.test(t) && !(t.length <= 90 && ROLE_SHAPE.test(t.toLowerCase()))) continue;
           if (el.querySelector('*') && el.children.length > 6) continue;
           let reviewish = false;
           try { reviewish = !!el.closest('blockquote, q, [class*="review" i], [class*="testimonial" i], [id*="review" i], [id*="testimonial" i]'); } catch { reviewish = false; }
@@ -1421,13 +1458,19 @@ const audit = (opts = {}) => {
   }
   const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;
   if (demoMode) {
-    let dropped = 0;
+    const droppedCodes = [];
     for (let i = findings.length - 1; i >= 0; i--) {
-      if (findings[i].level === 'sparse' || findings[i].level === 'craft') { findings.splice(i, 1); dropped++; }
+      if (findings[i].level === 'sparse' || findings[i].level === 'craft') { droppedCodes.unshift(`${findings[i].level}:${findings[i].code}`); findings.splice(i, 1); }
     }
+    /* Name what was suppressed, every time. The disqualifiers above cannot
+       catch every deliverable that bolts `kind=demo` on — so the exemption is
+       built to be worthless as a dodge instead of impossible to claim. The
+       codes still print, the craft header still reads `kind demo (SPARSE+CRAFT
+       skipped)`, and a page using this to go quiet produces output that names
+       its own dodge in full. */
     add('note', 'demo-scope',
-      `Declared \`kind=demo\`: ${dropped} SPARSE/CRAFT finding${dropped === 1 ? '' : 's'} suppressed. A pattern reference is not a finished page — it has no loader, no conversion block and no density budget, and it is not supposed to. FAIL and WARN ran in full.`,
-      { dropped, screens: +screensNow.toFixed(1) });
+      `Declared \`kind=demo\`: ${droppedCodes.length} SPARSE/CRAFT finding${droppedCodes.length === 1 ? '' : 's'} suppressed${droppedCodes.length ? ` — ${droppedCodes.join(', ')}` : ''}. A pattern reference is not a finished page: it has no loader, no conversion block and no density budget, and it is not supposed to. FAIL and WARN ran in full. If this is a deliverable, that list is your punch list and the declaration is wrong.`,
+      { dropped: droppedCodes.length, codes: droppedCodes, screens: +screensNow.toFixed(1) });
   } else if (declaredKind === 'demo') {
     add('craft', 'demo-claim-rejected',
       `The page declares \`kind=demo\` and ships ${demoDisqualifiers.join(' + ')} — that is a deliverable, not a pattern reference. SPARSE and CRAFT were measured in full.`,
@@ -2223,7 +2266,7 @@ const craftProbe = async (ctx, target) => {
   const out = {
     ok: false, mode: null, samples: 0, screens: null, errors: [],
     techniques: {}, present: [],
-    loader: null, loaderProbe: null, loaderHookRejected: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
+    loader: null, loaderProbe: null, loaderHookRejected: null, cursorRejected: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
     webgl: false, three: false, canvasPainted: false, gsap: false, scrollTrigger: false, pinSpacer: false,
   };
   let page = null;
@@ -2372,8 +2415,21 @@ const craftProbe = async (ctx, target) => {
             const a = mapA.get(b.id);
             if (!a) continue;
             const dx = b.cx - a.cx, dy = b.cy - a.cy;
+            /* Correlated movement is not the same as following. A preview
+               wrapper centred with percentage margins on a `position: fixed`
+               element resolves BOTH axes against the viewport width, which
+               parked one build's preview 720px left and 749px above the
+               pointer: it tracked the cursor perfectly, permanently off-screen,
+               and scored as present on every pass. Ask where it ended up. */
+            const near = Math.abs(b.cx - bx) <= geom.vw * 0.5 && Math.abs(b.cy - by) <= geom.vh * 0.5;
+            const onScreen = b.cx > -40 && b.cx < geom.vw + 40 && b.cy > -40 && b.cy < geom.vh + 40;
             if (dx >= (bx - ax) * 0.4 && dy >= (by - ay) * 0.3) {
-              cursorHit = { el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, movedX: dx, movedY: dy, mouseDx: bx - ax, mouseDy: by - ay, atSample: i };
+              if (!near || !onScreen) {
+                if (!out.cursorRejected)
+                  out.cursorRejected = { reason: `preview tracks the pointer but lands ${Math.round(Math.abs(b.cx - bx))}px across and ${Math.round(Math.abs(b.cy - by))}px away from it${onScreen ? '' : ', off-screen'}`, el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, cx: b.cx, cy: b.cy, pointerX: bx, pointerY: by, hint: 'percentage margins on a `position: fixed` element resolve against the viewport WIDTH on both axes — use translate(-50%, -50%) instead' };
+                continue;
+              }
+              cursorHit = { el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, movedX: dx, movedY: dy, mouseDx: bx - ax, mouseDy: by - ay, offsetFromPointer: [Math.round(b.cx - bx), Math.round(b.cy - by)], atSample: i };
               break;
             }
           }
@@ -2460,7 +2516,7 @@ const craftProbe = async (ctx, target) => {
       out.three = !!fin.three;
       out.canvasPainted = !!fin.canvasPainted;
       out.webglVia = fin.webglVia || null;
-      out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null };
+      out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null, cursor: out.cursorRejected || null };
       out.gsap = !!fin.gsap;
       out.scrollTrigger = !!fin.scrollTrigger;
       out.sceneSection = fin.sceneSection || null;

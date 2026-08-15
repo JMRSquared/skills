@@ -308,7 +308,15 @@ phone reflows a four-screen photo essay to nine.
 
 `kind=demo` exempts a single-pattern reference from the density and ambition
 checks, which are statements about a finished page. It does not exempt anything
-that looks like a deliverable, and the auditor says so when it rejects a claim.
+that looks like a deliverable — a `tel:` link with a marked-up address,
+LocalBusiness JSON-LD or an embedded map; a contact form; more than 8 desktop
+screens — and the auditor says so when it rejects a claim.
+
+The exemption is built to be useless as a dodge rather than impossible to claim.
+Every suppressed finding is still **named** in the output, and the craft line
+reads `kind demo (SPARSE+CRAFT skipped)` on every pass, so a deliverable
+declaring itself a demo prints its own punch list. Nothing is hidden; only the
+counts move.
 
 Full code-by-code table: `references/build-loop.md`.
 
