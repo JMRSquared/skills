@@ -83,6 +83,35 @@ document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
 Reveal at 12–15% visibility, not at 50% — content that animates in after the
 user is already reading it feels broken.
 
+### The observer is not enough on its own
+
+`IntersectionObserver` misses an element entirely when the scroll jumps further
+than the viewport in a single frame: a fast wheel, a hash link, a restored
+scroll position on reload, an anchor from another page. The element never
+intersects, the class never lands, and it sits at `opacity: 0` for ever. The
+`.js` gate above protects you from JS being *dead*. It does nothing about JS
+being alive and skipped, and that is the case you will actually ship.
+
+Put a sweep behind the observer. Anything already above the fold is revealed
+whether or not the observer ever fired:
+
+```js
+var pending = [];
+function sweep() {
+  var h = innerHeight;
+  pending = pending.filter(function (rec) {
+    var r = rec.el.getBoundingClientRect();
+    if (r.top < h * 0.95 || r.bottom < 0) { rec.el.classList.add(rec.cls); return false; }
+    return true;
+  });
+}
+addEventListener('scroll', function () { requestAnimationFrame(sweep); }, { passive: true });
+```
+
+Test it by jumping straight to 40% of the page on load and counting elements
+that are inside the viewport at `opacity: 0`. It should be zero, or one that is
+mid-transition.
+
 ### The masked-reveal deadlock
 
 Chrome folds an element's own `clip-path` into the rectangle it reports to
