@@ -69,7 +69,15 @@ jobs:
           # It is reference material for the Claude Code path only — copying it
           # into three more surfaces would quadruple the repo for no benefit.
           # The measured studies that matter are markdown and still sync.
-          SYNC_EXCLUDE=(--exclude 'premium-web-design/assets/studies/')
+          # The runnable demo under demos/act-director is source and a 944 KB
+          # model. Its build output and installed packages never belong in a
+          # synced surface, and a local run of this step would otherwise copy
+          # 270 MB of node_modules into three tracked directories.
+          SYNC_EXCLUDE=(
+            --exclude 'premium-web-design/assets/studies/'
+            --exclude 'node_modules/'
+            --exclude 'demos/*/dist/'
+          )
 
           rsync -a --delete "${SYNC_EXCLUDE[@]}" skills/ plugins/jmrsquared-standards/skills/
           rsync -a --delete "${SYNC_EXCLUDE[@]}" skills/ .cursor/skills/

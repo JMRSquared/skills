@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#07090c" />
+    <meta name="color-scheme" content="dark" />
+    <title>Act Director — scroll-driven 3D reference build</title>
+    <meta
+      name="description"
+      content="A four-act scroll-driven 3D story: one continuous timeline, keyframe tracks, a director, and a camera that solves its own distance."
+    />
+    <!-- The story cannot start until the product arrives, so fetch it early. -->
+    <link
+      rel="preload"
+      href="./models/cassette_player/cassette_player_1k.gltf"
+      as="fetch"
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
