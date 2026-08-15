@@ -248,7 +248,20 @@ check the claim against what you built:
 
 ```html
 <!-- premium-web-design: tier=B -->
+<!-- premium-web-design: tier=C mobile=B -->    phone build is a tier lower, on purpose
+<!-- premium-web-design: tier=A kind=demo -->   a pattern reference, not a page
 ```
+
+`mobile=` is the Tier C phone-fallback requirement written down. Declaring it
+is how you honour "never ship a heavy model to a phone" without being told you
+failed to build the tier you declared. The fallback still has to paint
+something: an empty section on the phone is reported as `tier-fallback-missing`.
+
+`kind=demo` exempts a single-pattern reference from the density and ambition
+checks, which are statements about a finished page. It does not exempt anything
+that looks like a deliverable, and the auditor says so when it rejects a claim.
+
+Full code-by-code table: `references/build-loop.md`.
 
 A page over 6 screens declaring `tier=A` is reported as `tier-floor`. A page
 declaring B or C with no detectable pin, scrub, transition or scene is reported
