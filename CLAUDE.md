@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `npm-local-publish` + `pngimg-assets` (24 skills). `premium-web-design` at Awwwards SOTD bar. Canonical edits in `skills/` only.
+- **Notes:** Shipping `gltf-assets` (25 skills) as the 3D companion to `pngimg-assets` for `/premium-web-design` (Sketchfab + Poly Haven). Canonical edits in `skills/` only.
 
 ## Purpose
 

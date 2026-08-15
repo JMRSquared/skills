@@ -36,9 +36,14 @@ demos, scroll-story experiences.
 **Do not auto-fire** on authenticated app chrome, design-system work, or pure
 logic/API/infra edits. `/premium-web-design` applies the full bar on demand.
 
-**Companions:** 2D cutouts → `/pngimg-assets` (CC BY-NC). glTF/GLB + HDRIs →
-`/gltf-assets` (Poly Haven CC0 first). Owner photography still dominates any
-physical product, place, or service hero.
+**Companions:** photography → `/jmr-image` (Unsplash, commercial-safe) or
+`scripts/find-photos.mjs` (no key, contact sheet). 2D cutouts →
+`/pngimg-assets` (CC BY-NC). glTF/GLB + HDRIs → `/gltf-assets` (Poly Haven CC0
+first). Owner photography still dominates any physical product, place, or
+service hero.
+
+`/jmr-image` with no `UNSPLASH_ACCESS_KEY` set silently searches pngimg only,
+which is CC BY-NC, and still exits 0. Check the key before a commercial build.
 
 When `react-tsx-component` also applies: this skill owns visual direction,
 composition, motion, and asset quality; that one owns component form.
@@ -315,8 +320,12 @@ abstract stand-ins.
 To find it:
 
 ```bash
+# default: contact sheet, no API key, choose by eye
 PW_DIR=<dir with node_modules/playwright> \
   node scripts/find-photos.mjs "<specific scene>" ./photos 12
+
+# or, when the frame is already decided or Step 0 reported BLIND
+skills/jmr-image/scripts/jmr-image.sh search "<specific scene>" --limit 10
 ```
 
 Then read `photos/contact-sheet.jpg` and choose by eye. Full guidance —

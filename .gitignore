@@ -8,3 +8,4 @@ wonderhire-compress.md
 .claude/worktrees/
 evals/snapshots/*.html
 evals/snapshots/*.png
+.gstack/

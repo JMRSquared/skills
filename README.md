@@ -55,6 +55,8 @@ Two tiers.
 | `code-quality` | Any TS/TSX edit |
 | `npm-local-publish` | Local npm release when CI OIDC fails or user asks to publish with 2FA (Dia + TTY expect) |
 | `pngimg-assets` | Searching or downloading transparent PNG assets from pngimg.com (CC BY-NC gate) |
+| `gltf-assets` | Searching or downloading glTF/GLB (Sketchfab + Poly Haven) and HDRIs for R3F / `/premium-web-design` |
+| `jmr-image` | Searching or downloading photography — Unsplash first (commercial-safe), pngimg fallback for cutouts |
 
 **Companion:**
 
@@ -67,6 +69,8 @@ Two tiers.
 | `jmr-help` | `/jmr-help` — quick-reference card |
 | `npm-local-publish` | `/npm-local-publish` — Dia + TTY local npm publish when Trusted Publishing is unavailable |
 | `pngimg-assets` | `/pngimg-assets` — search + download transparent PNG cutouts (CC BY-NC gate) |
+| `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
+| `jmr-image` | `/jmr-image` — search + download photography from Unsplash and pngimg |
 
 ---
 
@@ -91,13 +95,13 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 ### What You Get
 
-Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**24** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**26** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
 | Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
-| **24** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
+| **26** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
-| `/agents-execute`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets` slash commands | Y | — | Y | — | — | — | — |
+| `/agents-execute`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image` slash commands | Y | — | Y | — | — | — | — |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -106,7 +110,7 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 <details>
 <summary><strong>Claude Code — full details</strong></summary>
 
-The plugin install gives you all **24** skills + SessionStart hook + statusline.
+The plugin install gives you all **26** skills + SessionStart hook + statusline.
 
 ```bash
 claude plugin marketplace add jmrsquared/skills
@@ -157,7 +161,7 @@ Auto-activates via `GEMINI.md` context file every session.
 <details>
 <summary><strong>Cursor / Windsurf / Cline / Copilot — full details</strong></summary>
 
-`npx skills add` installs all **24** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
+`npx skills add` installs all **26** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
 
 | Agent | Command | Rule file location |
 |-------|---------|--------------------|
@@ -213,6 +217,8 @@ In any Claude Code session once installed:
 - `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
+- `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
+- `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; without it the script falls back to pngimg, which is CC BY-NC.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
 

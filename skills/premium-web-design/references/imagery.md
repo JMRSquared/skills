@@ -10,13 +10,49 @@ is the look people mean when they say a page seems AI-generated.
 
 ## Finding photography
 
+Two routes. They do different jobs and the choice is not a preference.
+
+### `/jmr-image` — the licence-aware route
+
+```bash
+SCRIPT=skills/jmr-image/scripts/jmr-image.sh
+"$SCRIPT" search "swimmers lido morning light" --limit 10
+"$SCRIPT" download unsplash --index 3 --out public/images
+```
+
+bash and curl only, no browser, so it works when Step 0 reported BLIND. Use it
+when you already know the frame you want, or when the build has no Playwright.
+
+**Check the key before you trust the results.** With no `UNSPLASH_ACCESS_KEY`
+in the environment the script prints one warning line, skips Unsplash entirely,
+searches only pngimg, and still **exits 0**. pngimg is CC BY-NC 4.0. Almost
+every site built with this skill is commercial, so a silent fallback ships a
+licence violation into a client build and nothing fails to tell you.
+
+```bash
+[ -n "$UNSPLASH_ACCESS_KEY" ] || echo "no key: jmr-image is pngimg-only, CC BY-NC"
+```
+
+No key and a commercial brief means: set the key, or use `find-photos.mjs`
+below, which needs none. Never resolve it by shipping the pngimg result.
+
+| Destination | Unsplash | pngimg |
+|---|---|---|
+| Client site, product, anything monetised | yes, credit it | **no** |
+| Internal mockup, deck, throwaway demo | yes | yes, credit it |
+
+### `scripts/find-photos.mjs` — the choose-by-eye route
+
 ```bash
 PW_DIR=<dir with node_modules/playwright> \
   node scripts/find-photos.mjs "<specific scene>" ./photos 12
 ```
 
-It searches Unsplash and Pexels in a real browser, writes `photos/contact-sheet.jpg`,
-and prints full-resolution URLs with credit links.
+It searches Unsplash and Pexels in a real browser, needs no API key, writes
+`photos/contact-sheet.jpg`, and prints full-resolution URLs with credit links.
+**This is the default for a new build**, because a hero chosen from a list of
+filenames is a hero chosen at random, and the contact sheet is the only way to
+choose by eye.
 
 **Read the contact sheet with the Read tool and choose by eye.** Picking from a
 filename is picking at random, and one wrong hero image undoes every other
@@ -121,6 +157,7 @@ system: scrub it, mask it, parallax it, depth-layer it.
 ## Licensing
 
 Unsplash and Pexels are free for commercial use with no attribution required;
-credit anyway. `/pngimg-assets` cutouts are CC BY-NC — mockups and non-commercial
-work only. Poly Haven is CC0. Confirm the current licence before a commercial
+credit anyway. `/jmr-image` reaches both Unsplash and pngimg; pngimg and
+`/pngimg-assets` cutouts are CC BY-NC, so mockups and non-commercial work only.
+Poly Haven is CC0. Confirm the current licence before a commercial
 launch, and never ship a client site on an asset whose licence you did not check.
