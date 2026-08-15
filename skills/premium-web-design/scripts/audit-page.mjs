@@ -503,7 +503,12 @@ const audit = (opts = {}) => {
     [/\ball[- ]in[- ]one solution\b/i, '"all-in-one solution"'],
     [/\bin today'?s fast[- ]paced world\b/i, '"in today\u2019s fast-paced world"'],
     [/\bdiscover the difference\b/i, '"Discover the difference"'],
-    [/\b(elevat(e|ing|ion)|seamless(ly)?|unleash(ing)?|empower(ing)?|revolutioni[sz]e|next[- ]gen|game[- ]?changer|cutting[- ]edge|delve|robust)\b/i, 'a banned marketing word'],
+    /* `robust` and `leverage` are on content-and-copy.md's list as MARKETING
+       adjectives, and both have ordinary uses that have nothing to do with
+       generated prose — amritpalace.com describes a robust curry. A tell that
+       fires on a real award site is a tell that gets ignored, so they are out
+       of the machine list and stay in the written one. */
+    [/\b(elevat(e|ing|ion)|seamless(ly)?|unleash(ing)?|empower(ing)?|revolutioni[sz]e|next[- ]gen|game[- ]?changer|cutting[- ]edge|delve)\b/i, 'a banned marketing word'],
   ];
   const tellHits = [];
   for (const [re, name] of TELLS) {
@@ -515,9 +520,13 @@ const audit = (opts = {}) => {
     const t = textOf(el).replace(/\s+/g, ' ').trim();
     if (t && t.length <= 24) ownShort.push(t);
   }
-  const numberedEyebrows = ownShort.filter((t) => /^(section|chapter|part)\s*[-\u2013\u2014]?\s*0?\d{1,2}$/i.test(t)).length;
+  /* "Chapter 01" in a chapter-based layout is content — layout-archetypes.md
+     builds two archetypes out of chapters and demos/horizontal-chapter.html
+     numbers four of them. The banned furniture is generic numbering stamped on
+     every block, so `SECTION`/`PART` only, and only once there are four. */
+  const numberedEyebrows = ownShort.filter((t) => /^(section|part)\s*[-\u2013\u2014]?\s*0?\d{1,2}$/i.test(t)).length;
   const scrollCues = ownShort.filter((t) => /^scroll\b/i.test(t)).length;
-  if (numberedEyebrows >= 3) tellHits.push({ tell: `${numberedEyebrows} numbered "SECTION 0n" eyebrows`, match: 'furniture' });
+  if (numberedEyebrows >= 4) tellHits.push({ tell: `${numberedEyebrows} numbered "SECTION 0n" eyebrows`, match: 'furniture' });
   if (scrollCues) tellHits.push({ tell: `${scrollCues} "Scroll" cue${scrollCues === 1 ? '' : 's'}`, match: 'furniture' });
   if (tellHits.length)
     add('warn', 'copy-tells',
@@ -1328,11 +1337,18 @@ const audit = (opts = {}) => {
    * ==================================================================== */
   const demoDisqualifiers = [];
   if (declaredKind === 'demo') {
+    /* A lone `tel:` link is NOT the disqualifier. Every demo in demos/ was
+       briefed to carry a plausible business with real-sounding names and real
+       prices, so a phone number is the brief being obeyed — and reading it as
+       proof the file is a deliverable rejected the skill's own references.
+       Reuse the local-business test the conversion check already uses: a phone
+       number PLUS an address, hours, a map or LocalBusiness structured data.
+       Length is the clause that is hardest to trip by accident. */
     try {
-      if (document.querySelector('a[href^="tel:"]')) demoDisqualifiers.push('a tel: link');
+      if (telLinks.length && localSignal) demoDisqualifiers.push(`a tel: link and ${localSignal}`);
       if (document.querySelector('form, input[type="email"], input[type="tel"]')) demoDisqualifiers.push('a contact form');
     } catch { /* ignore */ }
-    if (screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} screens`);
+    if (screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} screens — a pattern reference is not this long`);
   }
   const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;
   if (demoMode) {

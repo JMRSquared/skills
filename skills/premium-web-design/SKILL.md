@@ -27,6 +27,7 @@ Four mechanisms, and the fix for each. Everything below is one of these fixes.
 | Ambition past reliability | Quotas demanding WebGL and scrub on every brief produce collapsed pins, stretched canvases, and copy unreadable over motion | **Step 4** — pick a tier you can land. A broken Tier C loses to a perfect Tier A. |
 | Ambition promised, never enforced | The skill says Awwwards, cinematic, 3D scroll storytelling, and marks Tier B the default. Then every gate measures only what to avoid, so a page with no pin, no scrub, no transition and no scene passes cleanly and the tier ladder is decorative | **Step 4** — declare the tier in the markup, and the auditor now detects what you actually shipped and reports `CRAFT` when the declaration and the page disagree |
 | Restraint with nothing behind it | Every other rule here is a *don't*. Obey them all and you ship a page that is correct, tasteful, and forgettable: six images, the biggest type in the hero, nothing overlapping, nothing bleeding, two ground changes in nine screens | **Step 4b** — a density floor and a signature device, both measured by the auditor as SPARSE findings |
+| Counts satisfied, intent defeated | Every gate that counts something can be fed something that costs nothing. An adversarial page cleared FAIL 0 / WARN 0 / SPARSE 0 / CRAFT 0 with an empty `<canvas>`, an empty `<div data-loader>`, one `view-transition-name`, an empty sticky div, eight copies of one photograph, `srcset="pic.jpg"`, an empty `<details>`, `<a href="#">4.9</a>`, a 420px word clipped to 8px, and a display face that does not exist. Every check read a declaration instead of a result | **Step 6** — the auditor now reads results: canvas pixels, loader disappearance, distinct image sources, box geometry, font availability, and whether a link goes anywhere |
 
 ## Activation
 
@@ -421,28 +422,37 @@ finding means and how to fix it: `references/build-loop.md`.
 
 ## Instant fails
 
-Each one has a threshold the auditor measures and a named replacement. A ban with
-no successor just sends you to the next-most-generic option.
+Each row has a named replacement — a ban with no successor just sends you to the
+next-most-generic option — and a **Measured** column saying what the auditor
+actually does about it. That column used to be a claim ("each one has a threshold
+the auditor measures") and it was false for seven of these rows, which is a
+worse failure than not having the rule: an agent reads the table, assumes the
+linter is holding the line, and ships the thing.
 
-| Fail | Threshold | Ship instead |
-|---|---|---|
-| Generic display face | Largest first-screen face matches `inter\|roboto\|arial\|helvetica\|system-ui\|-apple-system\|segoe\|open sans\|lato` | A pairing from `references/typography.md`. Not Space Grotesk or Poppins either — those are where every model goes when you ban Inter. |
-| Font sprawl | >3 families rendered | 2: display + text, contrasted across an axis (serif/sans, condensed/wide) |
-| Card-grid template | ≥6 rounded, bordered or shadowed, padded boxes | Index rows with hairlines · asymmetric editorial blocks · a horizontal gallery · one large statement instead of six equal ones |
-| Radius chaos | >4 distinct radii | Exactly 2, or 0 everywhere. Nested: inner = outer − gap |
-| Palette sprawl | >4 hue families with real area | 1 dominant + 1 accent + tinted neutrals |
-| Hero type small | <4.5vw on the first screen | 6–14vw |
-| Body type small | <16px | 17–18px |
-| Contrast | <4.5:1 body, <3:1 for ≥24px | Darken the text, not the brand colour |
-| Text over media, no scrim | No scrim, no text-shadow | `linear-gradient(to top, rgb(0 0 0 / .78), transparent 65%)` |
-| Section rhythm | Half the sections under 48px breathing room | 96–200px between movements |
-| Measure too wide | >92 characters per line | 60–75ch |
-| Pure `#000` / `#fff` | — | Tinted off-black and off-white |
-| Gradient text | Any `background-clip: text` gradient | One solid colour; emphasis by size or weight |
-| Purple→blue gradient | Any gradient in the 250–290 hue band | Whatever the brief actually justifies |
-| Box/primitive 3D stand-in | `<boxGeometry>` as the product | A real `.glb`, or real photography inside the motion system |
-| Uniform motion | Same enter animation on ≥4 components; same hover scale on ≥3; stagger on ≥2 lists in one view | Different motion per meaning — see `references/motion.md` |
-| Copy tells | "Welcome to", "Unlock the power of", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen, Acme/Nexus/Jane Doe, `99.99%`, `Scroll ↓`, `SECTION 01` on every block | Real names, real prices, real phone numbers, specific numbers (`47.2%`, `£64`), and no scroll cue |
+**Read the three "you" rows yourself. Nothing else will.**
+
+| Fail | Threshold | Measured | Ship instead |
+|---|---|---|---|
+| Generic display face | Largest first-screen face is a system/default face — the list now covers Georgia, Times, Verdana, Courier and the rest, not just the sans-serifs | FAIL `display-font-generic` | A pairing from `references/typography.md` |
+| Default-escape display face | Space Grotesk, Poppins, Montserrat, DM Sans, Outfit, Sora — where every model goes the moment you ban Inter | FAIL `display-font-escape-default` | A row from the verified pairings table, not the next likeliest name |
+| Display face that does not exist | The family is named in CSS, declared in no `@font-face`, and changes no glyph metric — the browser is drawing its default under your name | FAIL `display-font-unavailable` | Load the face, and check the frame |
+| Font sprawl | >3 families rendered | WARN `font-sprawl` | 2: display + text, contrasted across an axis (serif/sans, condensed/wide) |
+| Card-grid template | ≥6 padded boxes that are rounded **or** bordered **or** shadowed and hold only words. A tile holding a photograph is not this | FAIL `card-grid-template` | Index rows with hairlines · asymmetric editorial blocks · a horizontal gallery · one large statement instead of six equal ones |
+| Radius chaos | >4 distinct radii | WARN `radius-chaos` | Exactly 2, or 0 everywhere. Nested: inner = outer − gap |
+| Palette sprawl | >4 hue families with real area | WARN `palette-sprawl` | 1 dominant + 1 accent + tinted neutrals |
+| Hero type small | <4.5vw on the first screen | WARN `hero-type-small` | 6–14vw |
+| Body type small | <16px | **you** — and the corpus argues with the rule: Amrit Palace sets body at 14.4px and nav at 10.4px and won SOTD. 17–18px is the default to beat, not a law. Beat it on purpose or not at all | 17–18px unless you can say why |
+| Contrast | <4.5:1 body, <3:1 for ≥24px | FAIL `contrast` | Darken the text, not the brand colour |
+| Text over media, no scrim | No scrim, no text-shadow. A gradient only counts as a scrim when one of its stops actually paints (alpha ≥ 0.35) | WARN `text-over-media` | `linear-gradient(to top, rgb(0 0 0 / .78), transparent 65%)` |
+| Section rhythm | Half the sections under 48px breathing room | WARN `section-rhythm` | 96–200px between movements |
+| Measure too wide | >92 characters per line | WARN `measure-too-wide` | 60–75ch |
+| Pure `#000` / `#fff` | Either pole carrying ≥12% of the painted area | WARN `pure-black-white` | Tinted off-black and off-white |
+| Gradient text | Any `background-clip: text` gradient | FAIL `gradient-text` | One solid colour; emphasis by size or weight |
+| Purple→blue gradient | A gradient stop in the 250–290 hue band with real saturation and area | FAIL `gradient-purple-blue` | Whatever the brief actually justifies |
+| Box/primitive 3D stand-in | `<boxGeometry>` as the product | **you** — a cube renders as cleanly as a car and no probe can tell you which one you shipped. Look at the frame | A real `.glb`, or real photography inside the motion system |
+| Uniform motion | Same enter animation on ≥4 components; same hover scale on ≥3; stagger on ≥2 lists in one view | **you** — SPARSE `motion-vocabulary` counts distinct declarations and will not catch one gesture used four times | Different motion per meaning — see `references/motion.md` |
+| Copy placeholders | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" | FAIL `copy-placeholder` | Real names, real prices, real phone numbers |
+| Copy tells | "Welcome to", "Unlock the power of", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, `Scroll ↓`, `SECTION 01` on four or more blocks | WARN `copy-tells` | Specific numbers (`47.2%`, `£64`), and no scroll cue |
 
 ---
 
