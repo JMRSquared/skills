@@ -203,6 +203,16 @@ same idea at a lower cost: a scrubbed 3D sequence becomes a scrubbed image
 sequence; a pinned horizontal chapter becomes a vertical one; a particle field
 becomes a single still with grain.
 
+**Declare it.** `mobile=` takes any lower tier, not only the C→B case: the
+pinned-chapter-to-swipe-rail move above is B→A, and without a declaration the
+phone is measured against the full desktop tier and told it failed to build
+something it deliberately did not build.
+
+```html
+<!-- premium-web-design: tier=C mobile=B -->   3D on desktop, scrubbed stills on the phone
+<!-- premium-web-design: tier=B mobile=A -->   pinned chapter on desktop, a vertical read on the phone
+```
+
 Cap particle counts, cap DPR, and never ship a 4MB model to a phone.
 
 Declare the step down (`tier=C mobile=B`) and paint something in the scene's

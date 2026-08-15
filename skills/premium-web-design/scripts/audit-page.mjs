@@ -533,6 +533,30 @@ const audit = (opts = {}) => {
       `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from content-and-copy.md's banned list: ${tellHits.map((h) => h.tell).join('; ')}. Specificity is what a real business has and a generated page does not — "Open until 8pm on weekdays" beats "convenient hours".`,
       tellHits);
 
+  /* Step 1: "Max 1 eyebrow label per 3 sections". A stated absolute that
+     nothing measured, and a build from the skill alone shipped six across ten
+     sections without noticing. An eyebrow is a short label set small, in caps
+     or on wide tracking, sitting in the page rather than in the chrome. */
+  const eyebrows = [];
+  for (const el of textEls) {
+    const t = textOf(el).replace(/\s+/g, ' ').trim();
+    if (!t || t.length > 28 || t.length < 2) continue;
+    let s3; try { s3 = getComputedStyle(el); } catch { continue; }
+    const size = parseFloat(s3.fontSize) || 0;
+    if (size > 20) continue;
+    const track = parseFloat(s3.letterSpacing);
+    const caps = s3.textTransform === 'uppercase' || (t === t.toUpperCase() && /[A-Z]/.test(t));
+    if (!caps && !(track >= size * 0.07)) continue;
+    try { if (el.closest('nav, header, footer, [role="navigation"], [class*="nav" i], [class*="menu" i], [class*="footer" i], a, button, li')) continue; } catch { /* keep it */ }
+    eyebrows.push({ text: t.slice(0, 28), size: Math.round(size), tracking: s3.letterSpacing });
+    if (eyebrows.length > 40) break;
+  }
+  const sectionCount = Math.max(sections.length, 1);
+  if (eyebrows.length > Math.ceil(sectionCount / 3) && eyebrows.length >= 3)
+    add('warn', 'eyebrow-density',
+      `${eyebrows.length} eyebrow labels across ${sectionCount} sections. SKILL.md's composition rule is one per three sections — ${Math.ceil(sectionCount / 3)} here. An eyebrow on every block is furniture: it announces structure the composition should already be showing.`,
+      eyebrows.slice(0, 10));
+
   /* tap targets (mobile only, caller decides) */
   const smallTargets = Array.from(document.querySelectorAll('a, button, [role=button], input, select'))
     .filter(visible)
@@ -1031,11 +1055,17 @@ const audit = (opts = {}) => {
      convenience rather than the brief, you are at the wrong tier." A short page
      used to clear every craft gate simply by declaring A and stopping at 5.9
      screens; now the declaration has to carry its own defence. */
-  if (viewportTier === 'A' && !longPage && !(tierDecl && tierDecl.because && tierDecl.because.length >= 8))
+  /* Both Tier A checks are DESKTOP measurements. The 6-screen ceiling is about
+     how long the page was authored; a phone reflows a four-screen photo essay
+     to nine and that says nothing about ambition. And `mobile=` is the
+     documented step down at ANY tier — ambition-tiers.md prescribes "a pinned
+     horizontal chapter becomes a vertical one", which is B→A — so a declared
+     `mobile=A` must not be punished by a ceiling meant for the desktop build. */
+  if (!onPhone && viewportTier === 'A' && !longPage && !(tierDecl && tierDecl.because && tierDecl.because.length >= 8))
     add('craft', 'tier-a-undefended',
       `Tier A declared with no defence written down. ambition-tiers.md makes the entry test one sentence — name the award-winning page you are matching and say why yours needs less motion than that one — and only the "under ${LONG_PAGE_SCREENS} screens" clause can be measured. Put the other two in the declaration: \`<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->\`.`,
       { declared: 'A', screens: +screensNow.toFixed(1), because: null, detected: techPresent });
-  if (viewportTier === 'A' && longPage)
+  if (!onPhone && viewportTier === 'A' && longPage)
     add('craft', 'tier-floor',
       `Tier A declared on a ${screensNow.toFixed(1)}-screen page. Tier A requires the page to be UNDER ${LONG_PAGE_SCREENS} viewport heights — "a long page held at Tier A becomes a scroll with nothing in it". Either cut the page under ${LONG_PAGE_SCREENS} screens or move to Tier B.`,
       { declared: 'A', viewport: onPhone ? 'mobile' : 'desktop', screens: +screensNow.toFixed(1), ceiling: LONG_PAGE_SCREENS, detected: techPresent });
@@ -1049,7 +1079,12 @@ const audit = (opts = {}) => {
      mobile build that drops to a still is the documented Tier C fallback, and
      horizontal-chapter.html releases its pin at 390px by design. */
   const SHORT_PAGE_SCREENS = 4;
-  const techFloor = longPage ? 3 : ((!onPhone && screensNow > SHORT_PAGE_SCREENS) ? 2 : 0);
+  /* A page measured against Tier A is exempt: a four-screen announcement with
+     exceptional photography and no sequence is what Tier A is FOR, and firing
+     here would punish the tier for existing. The Tier A claim is held to
+     account by `tier-a-undefended` instead — you may take the exemption, you
+     may not take it silently. */
+  const techFloor = longPage ? 3 : ((!onPhone && screensNow > SHORT_PAGE_SCREENS && measuredAgainst !== 'A') ? 2 : 0);
   if (craftOk && techFloor && techPresent.length < techFloor)
     add('craft', 'motion-techniques',
       `${techPresent.length} of 9 weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least ${techFloor} from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
@@ -1293,11 +1328,23 @@ const audit = (opts = {}) => {
          reader can go and see the reviews — an in-page anchor, an empty href
          and a `javascript:` handler are all the same claim with a link
          painted on it. */
+      /* `<a href="#">4.9</a>` used to clear this, and so did a Google Maps
+         SEARCH url — which is the unfalsifiable claim with a link painted on
+         it, not a source. A source is a specific resource: a place page, a
+         profile, a listing. A query is the reader doing the work you claimed
+         to have done. */
       const realLink = (a) => {
         if (!a || a.tagName !== 'A') return false;
         const h = String(a.getAttribute('href') || '').trim();
         if (!h || h === '#' || h.startsWith('#')) return false;
         if (/^javascript:/i.test(h)) return false;
+        let u = null;
+        try { u = new URL(h, document.baseURI); } catch { return false; }
+        if (!/^https?:$/i.test(u.protocol)) return true;   /* tel:/mailto: are not review sources but not our business */
+        const path = String(u.pathname || '/').replace(/\/+$/, '');
+        if (!path || path === '') return false;            /* the bare host proves nothing */
+        if (/\/(search|results|find)\b/i.test(path)) return false;
+        for (const k of ['q', 'query', 'search', 'search_query', 'keyword', 'term']) if (u.searchParams.has(k)) return false;
         return true;
       };
       const anyRealLinkIn = (node) => {
@@ -1320,7 +1367,7 @@ const audit = (opts = {}) => {
   }
   if (unsourcedRatings.length)
     add('craft', 'rating-unsourced',
-      `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link to the source (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. Link it to the Google/Trustpilot listing.`,
+      `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link that reaches the reviews (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. The link has to land on the listing itself: a place page, a profile, a Trustpilot page. \`href="#"\`, a bare host and a Maps *search* URL are all the claim with a link painted on it — a search hands the reader the work you said you had done.`,
       unsourcedRatings);
 
   /* ======================================================================
@@ -1344,11 +1391,33 @@ const audit = (opts = {}) => {
        Reuse the local-business test the conversion check already uses: a phone
        number PLUS an address, hours, a map or LocalBusiness structured data.
        Length is the clause that is hardest to trip by accident. */
+    /* Two rounds of getting this wrong, both in the same direction. A lone
+       `tel:` rejected every demo, because every demo was briefed to carry a
+       plausible business. Then `tel:` plus any local signal still rejected
+       loader-to-hero.html, because "open until 8pm" is what a plausible
+       business says. So: only the signals nobody writes into a pattern
+       reference — a marked-up postal address, LocalBusiness structured data, or
+       an embedded map. Those belong to a contact page, not to a demo. */
     try {
-      if (telLinks.length && localSignal) demoDisqualifiers.push(`a tel: link and ${localSignal}`);
+      const hardLocal = (() => {
+        try {
+          if (document.querySelector('address')) return 'a marked-up postal address';
+          for (const sc of document.querySelectorAll('script[type="application/ld+json"]')) {
+            const t = String(sc.textContent || '').slice(0, 20000);
+            if (/"@type"\s*:\s*"?\[?[^\]"]*(LocalBusiness|Restaurant|Store|Hotel|Lodging|MedicalClinic|VeterinaryCare|Dentist|Physician|HealthAndBeauty|SportsActivityLocation|BarOrPub|CafeOrCoffeeShop|Bakery|HomeAndConstruction|Plumber|HairSalon|DaySpa)/i.test(t))
+              return 'LocalBusiness structured data';
+          }
+          if (document.querySelector('iframe[src*="google.com/maps"],iframe[src*="maps.google"],iframe[src*="openstreetmap"]')) return 'an embedded map';
+        } catch { /* ignore */ }
+        return null;
+      })();
+      if (telLinks.length && hardLocal) demoDisqualifiers.push(`a tel: link and ${hardLocal}`);
       if (document.querySelector('form, input[type="email"], input[type="tel"]')) demoDisqualifiers.push('a contact form');
     } catch { /* ignore */ }
-    if (screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} screens — a pattern reference is not this long`);
+    /* Length is measured on DESKTOP only. A phone reflows a four-screen photo
+       essay to nine and that says nothing about ambition — photo-treatment.html
+       runs 4.9 screens at 1440 and 9.3 at 390. */
+    if (!onPhone && screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} desktop screens — a pattern reference is not this long`);
   }
   const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;
   if (demoMode) {
@@ -1364,6 +1433,19 @@ const audit = (opts = {}) => {
       `The page declares \`kind=demo\` and ships ${demoDisqualifiers.join(' + ')} — that is a deliverable, not a pattern reference. SPARSE and CRAFT were measured in full.`,
       { disqualifiers: demoDisqualifiers, screens: +screensNow.toFixed(1) });
   }
+
+  /* Every "not quite" the probe found, said out loud. Four techniques are
+     rejected on evidence rather than counted, and a rejection nobody can see is
+     the same failure as a capability downgrade nobody logs: the author reads
+     `techniques 3/9`, has no idea which candidate missed or by how much, and
+     the only route to the answer is reading this file. */
+  const rejectedList = (craftOk && craftIn.rejected && typeof craftIn.rejected === 'object')
+    ? Object.entries(craftIn.rejected).filter(([, v]) => v && typeof v === 'object')
+    : [];
+  if (rejectedList.length)
+    add('note', 'technique-near-miss',
+      `${rejectedList.length} motion technique candidate${rejectedList.length === 1 ? '' : 's'} found and rejected on evidence: ${rejectedList.map(([k, v]) => `${k} — ${v.reason || 'rejected'}${v.ratio ? ` (${v.ratio} of the ${v.need} it needs)` : ''}`).join('; ')}. These are not findings; they are the near-misses behind the technique count, so a one-technique swing is never a geometry constant you have to read the auditor to discover.`,
+      Object.fromEntries(rejectedList));
 
   const craftReport = {
     probed: craftOk,
@@ -1897,8 +1979,34 @@ const craftFinalScan = () => {
     res.scrollTrigger = !!(window.ScrollTrigger || (window.gsap && window.gsap.plugins && window.gsap.plugins.scrollTrigger));
     res.three = !!(window.THREE || window.__THREE__ || window.__THREE_DEVTOOLS__);
   } catch { /* ignore */ }
+  /* A requested WebGL context is weaker evidence than a painting canvas — a
+     page could ask for one and never draw — but nothing does that by accident,
+     and the alternative is scoring the Site of the Year 2024 as having no
+     scene. Open shadow roots are walked too; a closed one leaves only this. */
   try {
-    for (const c of document.querySelectorAll('canvas')) {
+    const req = (window.__pwdCraft && window.__pwdCraft.glContexts) || 0;
+    if (req > 0) {
+      res.webgl = true;
+      res.webglVia = `getContext(${((window.__pwdCraft.glTypes || [])[0]) || 'webgl'}) requested ${req}x`;
+      res.canvasPainted = true;
+    }
+  } catch { /* ignore */ }
+  const allCanvases = (() => {
+    const out = [];
+    const walk = (root, depth) => {
+      if (!root || depth > 4) return;
+      let list = [];
+      try { list = Array.from(root.querySelectorAll('canvas')); } catch { list = []; }
+      for (const c of list) out.push(c);
+      let hosts = [];
+      try { hosts = Array.from(root.querySelectorAll('*')).slice(0, 4000); } catch { hosts = []; }
+      for (const h of hosts) if (h.shadowRoot) walk(h.shadowRoot, depth + 1);
+    };
+    try { walk(document, 0); } catch { /* ignore */ }
+    return out;
+  })();
+  try {
+    for (const c of allCanvases) {
       res.canvasCount++;
       const r = c.getBoundingClientRect();
       const big = r.width * r.height >= W * H * 0.25;
@@ -2047,7 +2155,20 @@ const craftFinalScan = () => {
       const p = el.parentElement;
       if (!p) continue;
       const pr = p.getBoundingClientRect();
-      if (pr.height < r.height * 1.8) continue;
+      if (pr.height < r.height * 1.8) {
+        /* A one-technique swing on a geometry constant nobody can see is the
+           same class of failure as a silent capability downgrade. Record the
+           miss and the number it missed by. */
+        if (!res.stickyRejected)
+          res.stickyRejected = {
+            reason: 'sticky stage has too little scroll room to hold against',
+            ratio: +(pr.height / Math.max(r.height, 1)).toFixed(2), need: 1.8,
+            heightPx: Math.round(r.height), parentHeightPx: Math.round(pr.height),
+            cls: String(el.className || '').slice(0, 40),
+            fix: 'the pin needs a parent at least 1.8x the stage height — e.g. a 86svh stage under a 4-panel hold, or `top` set so the stage is shorter than the viewport',
+          };
+        continue;
+      }
       /* A pin holds something. An empty 70vh sticky div in a 220vh parent is
          the cheapest thing on the web that reads as a pinned stage, and it
          reads as one to a geometry probe. Ask what is being held. */
@@ -2111,10 +2232,34 @@ const craftProbe = async (ctx, target) => {
     page.on('pageerror', () => { /* the audited page's errors are reported elsewhere */ });
     await page.addInitScript(() => {
       try {
-        window.__pwdCraft = { vt: 0 };
+        window.__pwdCraft = { vt: 0, glContexts: 0, glTypes: [] };
         const orig = document.startViewTransition;
         if (typeof orig === 'function')
           document.startViewTransition = function (...a) { try { window.__pwdCraft.vt++; } catch { /* ignore */ } return orig.apply(this, a); };
+      } catch { /* ignore */ }
+      /* igloo.inc — Site of the Year 2024, a full-screen WebGL narrative —
+         reports `document.getElementsByTagName('canvas').length === 0`. It
+         creates one canvas inside `attachShadow({ mode: 'closed' })`, and a
+         closed root cannot be traversed from outside by any DOM query. Walking
+         `document` for canvases and calling getContext on each can never see
+         it, so the best WebGL page on the web measured as having none.
+         Count the REQUEST instead, at the prototype, before any page script
+         runs. `orig` is captured here so a page reassigning getContext later
+         cannot detach the counter. */
+      try {
+        const proto = HTMLCanvasElement.prototype;
+        const origGet = proto.getContext;
+        if (typeof origGet === 'function') {
+          proto.getContext = function (type, ...rest) {
+            try {
+              if (/webgl/i.test(String(type))) {
+                window.__pwdCraft.glContexts++;
+                if (window.__pwdCraft.glTypes.length < 4) window.__pwdCraft.glTypes.push(String(type));
+              }
+            } catch { /* ignore */ }
+            return origGet.call(this, type, ...rest);
+          };
+        }
       } catch { /* ignore */ }
     });
 
@@ -2297,6 +2442,7 @@ const craftProbe = async (ctx, target) => {
       canvasCount: Math.max(finPre ? finPre.canvasCount : 0, finPost ? finPost.canvasCount : 0),
       canvasBig: !!((finPre && finPre.canvasBig) || (finPost && finPost.canvasBig)),
       canvasPainted: !!((finPre && finPre.canvasPainted) || (finPost && finPost.canvasPainted)),
+      webglVia: (finPost && finPost.webglVia) || (finPre && finPre.webglVia) || null,
       canvasRejected: (finPost && finPost.canvasRejected) || (finPre && finPre.canvasRejected) || null,
       transitionRejected: (finPost && finPost.transitionRejected) || (finPre && finPre.transitionRejected) || null,
       stickyRejected: (finPost && finPost.stickyRejected) || (finPre && finPre.stickyRejected) || null,
@@ -2313,6 +2459,7 @@ const craftProbe = async (ctx, target) => {
       out.webgl = !!fin.webgl;
       out.three = !!fin.three;
       out.canvasPainted = !!fin.canvasPainted;
+      out.webglVia = fin.webglVia || null;
       out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null };
       out.gsap = !!fin.gsap;
       out.scrollTrigger = !!fin.scrollTrigger;

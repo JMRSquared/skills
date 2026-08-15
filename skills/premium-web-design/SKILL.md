@@ -59,8 +59,10 @@ Run this before anything else:
 
 ```bash
 node -e "import('playwright').then(()=>console.log('SIGHTED')).catch(()=>console.log('BLIND'))"
-# If it prints BLIND, try a directory that has playwright installed:
-#   PW_DIR=/path/to/dir/with/node_modules node -e "import(process.env.PW_DIR+'/node_modules/playwright/index.mjs').then(()=>console.log('SIGHTED'))"
+# If it prints BLIND, try a directory that has playwright installed. PW_DIR is
+# the directory CONTAINING node_modules, and the catch matters or a genuinely
+# blind agent gets an unhandled rejection instead of the word BLIND:
+#   PW_DIR=/path/to/dir node -e "import(process.env.PW_DIR+'/node_modules/playwright/index.mjs').then(()=>console.log('SIGHTED')).catch(()=>console.log('BLIND'))"
 # To install: mkdir -p ~/.pw && cd ~/.pw && npm i playwright && npx playwright install chromium
 ```
 
@@ -95,6 +97,11 @@ Signature moments (exactly 3):
   3. <moment> → section, and the asset it needs
 ```
 
+The three numbered lists in this skill are **independent axes, not a matched
+set**. Vibe *n* points at palette *n* in `color-and-light.md`, deliberately. The
+twelve typography pairings are a separate axis and any pairing may sit under any
+vibe: cross them on feeling, not on number.
+
 **Vibe** — 1 Night studio (cinematic dark) · 2 Paper warm (editorial craft) ·
 3 Clinic calm (care, quiet) · 4 Ink & sand (heritage trade) · 5 Bright signal
 (energetic consumer) · 6 Cold steel (technical). Palettes in
@@ -111,9 +118,12 @@ chapter driven by vertical scroll.
 
 Composition variety is mechanical, not a matter of taste:
 
-- An 8-section page uses **≥4 different layout families**
-- **Max 2 consecutive** image-left/text-right splits
-- **Max 1 eyebrow label per 3 sections**
+- An 8-section page uses **≥4 different layout families** — a family is one row
+  of the section-composition table in `references/layout-archetypes.md`, not one
+  colour of the same row. Nothing measures this; count them yourself
+- **Max 2 consecutive** image-left/text-right splits — not measured
+- **Max 1 eyebrow label per 3 sections** — measured, as WARN `eyebrow-density`.
+  A build from this skill alone shipped six across ten sections
 - Hero headline lands in **2–3 lines at 1440, 768, and 390** — widen the
   container before shrinking the type
 - The page runs **5–12 viewport heights of content**. Three screens is a brochure.
@@ -284,10 +294,17 @@ are matching and say why yours needs less motion than that one. Without it the
 auditor reports `tier-a-undefended`. A reviewer reads that string, so "the stack
 is plain HTML" is not one of the answers.
 
-`mobile=` is the Tier C phone-fallback requirement written down. Declaring it
-is how you honour "never ship a heavy model to a phone" without being told you
-failed to build the tier you declared. The fallback still has to paint
-something: an empty section on the phone is reported as `tier-fallback-missing`.
+`mobile=` declares a step down at **any** tier, not just C→B. `ambition-tiers.md`
+prescribes the Tier B one in as many words — "a pinned horizontal chapter becomes
+a vertical one" — so `tier=B mobile=A` is a legitimate declaration and the phone
+pass is then measured against A. Declaring it is how you honour "never ship a
+heavy model to a phone" without being told you failed to build the tier you
+declared. The fallback still has to paint something: an empty section on the
+phone is reported as `tier-fallback-missing`.
+
+The two Tier A checks (`tier-floor`, `tier-a-undefended`) run on the **desktop
+pass only**. The 6-screen ceiling is about how long the page was authored, and a
+phone reflows a four-screen photo essay to nine.
 
 `kind=demo` exempts a single-pattern reference from the density and ambition
 checks, which are statements about a finished page. It does not exempt anything

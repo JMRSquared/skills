@@ -133,9 +133,14 @@ checked against what shipped:
 <!-- premium-web-design: tier=C mobile=B -->   <!-- phone build is deliberately a tier lower -->
 ```
 
-`mobile=` is the Tier C phone-fallback requirement written down. It is not a
-let-off: on the phone pass the auditor resolves the section that carries the
-canvas on desktop and checks that something real is painted there instead.
+`mobile=` declares a step down at **any** tier. `ambition-tiers.md` prescribes
+the Tier B one — "a pinned horizontal chapter becomes a vertical one" — so
+`tier=B mobile=A` is a legitimate declaration and the phone is then measured
+against A. It is not a let-off: where a desktop `<canvas>` exists, the phone pass
+resolves the section that carried it and checks that something real is painted
+there instead. `tier-floor` and `tier-a-undefended` run on the desktop pass only,
+because the 6-screen ceiling is about authored length and a phone reflows a
+four-screen photo essay to nine.
 
 | Code | What it means | The fix |
 |---|---|---|
@@ -150,7 +155,9 @@ canvas on desktop and checks that something real is painted there instead.
 | `no-loader` | Nothing runs before or into the first paint on a page over 6 screens. | `demos/loader-to-hero.html` builds one that resolves into the hero, skips on any input, and has a watchdog. |
 | `img-not-responsive` | An `<img>` decoding at over 2.5× its rendered CSS width with no *real* source set. `srcset="hero.jpg"` is one candidate at one size and no longer counts; the attribute needs two or more candidates or a `w`/`x` descriptor, and a `<picture>` needs at least one `<source>`. | `imagery.md` asks for 2× display width. 2.5× is the flag so a correct retina asset never trips it; a 6× payload always does. |
 | `conversion-incomplete` | A page with a `tel:` link missing any of: a bottom-pinned mobile action bar, what-happens-next copy within 200 characters after a CTA, an FAQ/objection block, a named person who is not a reviewer. | All four are S-cost components from the Plomberie and Amrit steal lists with a direct line to booked work. |
-| `rating-unsourced` | A 3.0–5.0 rating near the word review/star/rating with no link in or beside it that goes anywhere. `<a href="#">4.9</a>` is the claim with a link painted on it and is rejected. | `content-and-copy.md` bans star ratings with no source. Link it to the Google or Trustpilot listing. |
+| `rating-unsourced` | A 3.0–5.0 rating near the word review/star/rating with no link that reaches the reviews. Rejected: `href="#"`, an in-page anchor, `javascript:`, a bare host with no path, any `/search` path, and any `?q=`/`?query=`-style URL. A Maps search hands the reader the verification you claimed to have done. | `content-and-copy.md` bans star ratings with no source. Link the place page, the profile, or the Trustpilot listing. |
+| `eyebrow-density` (WARN) | More eyebrow labels than one per three sections. An eyebrow is a short label (≤28 chars) under 20px in caps or on ≥0.07em tracking, outside nav/header/footer/links. | Step 1's rule, previously unmeasured — a build from this skill alone shipped six across ten sections. Delete them: an eyebrow on every block announces structure the composition should already show. |
+| `technique-near-miss` (NOTE) | Not a finding. Lists the motion-technique candidates the probe found and rejected, and why — an unpainted canvas, a loader hook that never went away, a lone `view-transition-name`, a sticky stage with too little scroll room (with the ratio it missed by). | Read it when the technique count is one below where you expected. A one-technique swing on a geometry constant you can only find by reading the auditor is the same failure as a downgrade nobody logs. |
 | `conversion-incomplete` (tightened) | The FAQ and the named human are now read on content, not shape: two `<details>` carrying 40+ characters of answer past the summary, or a heading matching FAQ followed by 120+ characters. An empty accordion is furniture. "Jane Doe, Owner" is rejected as a person and reported as `copy-placeholder`. | Answer the question that stops the booking, and name someone real. |
 
 ## The exit code is not the Done bar

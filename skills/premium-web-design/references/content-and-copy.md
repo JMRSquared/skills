@@ -19,6 +19,12 @@ Doe, John Smith, lorem ipsum, `hello@example.com`, `+1 (555) 123-4567`.
 **Fake precision:** `99.99% uptime`, `10x faster`, `$100.00`, three identical
 stat columns, "trusted by thousands", star ratings with no source.
 
+A **search URL is not a source.** Linking `4.8 / 214 reviews` to a Google Maps
+search query passes the letter of the rule and hands the reader the verification
+you claimed to have done. The link has to land on the listing itself — a place
+page, a profile, a Trustpilot page. The auditor rejects `href="#"`, a bare host,
+any `/search` path and any `?q=`-style query.
+
 **Furniture:** `SECTION 01` eyebrows on every block, `Scroll ↓` cues, decorative
 status dots, live counters, an intro paragraph explaining how good the site is.
 

@@ -75,6 +75,12 @@ high reward — needs real photography.
 Alternating 100vh imagery and generously-set text. Almost impossible to make
 ugly if the photography is good. The safest route to a premium result.
 
+**A "layout family" is one row of the table below**, or one of the seven page
+archetypes above used as a section shape. Step 1 asks an 8-section page for four
+of them. Six variations on "full-width row with a headline on the left" is one
+family six times, whatever the background colour does. Nothing measures this —
+count them yourself before you claim the rule.
+
 ## Section compositions (use instead of cards)
 
 | Instead of | Build |

@@ -152,6 +152,14 @@ family looks unresolved.
 Never use weight 100–300 for anything a person has to read. Never set body copy
 in the display face.
 
+**Step 3's contract says "commit: 200–300 or 800–900". Several pairings here
+cannot.** Libre Caslon Display, the row labelled heritage trade, ships weight
+400 only. So does Instrument Serif. Familjen Grotesk stops at 700. The rule is
+about *committing to an extreme rather than sitting in the middle of a family's
+range*, so read it against the range the family actually offers: take the
+lightest or the heaviest cut it has, and do not mix three weights from the
+middle. A 400-only face is already committed, because it has nothing else.
+
 ## Where agents go wrong
 
 | Mistake | What it looks like | Fix |
