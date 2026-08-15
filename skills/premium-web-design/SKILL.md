@@ -360,6 +360,13 @@ SPARSE 0. **Design floor** is what the corpus does and what you are aiming at.
 | Largest type | **not** in the hero | second event ≥80% of hero, and its box has to fit the glyphs | true of 5 of 6 image-led studies |
 | Overlaps | ≥3, of three different kinds | ≥1, and one of the pair must cover 1.2% of the viewport | Amrit ships exactly 1 on both viewports |
 | Edge bleeds | ≥2 | ≥1, carrying text, media, or 2% of the viewport | a fully contained page reads as a document |
+
+**Bleed left, or clip.** A right-hand bleed adds to `documentElement.scrollWidth`
+and trips the `overflow-x` FAIL, which the same auditor calls "always a bug,
+never a style". A left bleed costs nothing. If a device has to run off the right
+edge, put `overflow-x: clip` on its own section rather than letting the page
+scroll, and never `overflow-x: hidden` on an ancestor of a sticky element or the
+pin silently stops working.
 | Ground flips | 1 per 2–3 screens | ≥3 on a page over 6 screens | Tripletta 1.2, Hagi's 1.6, Amrit 2.8 |
 | Device repeats | ≥4, changing each time | **not measured** — nothing can tell a repeating branded object from a repeated shape | Amrit's review card, Blind Barber's year rail |
 
