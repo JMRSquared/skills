@@ -91,6 +91,46 @@ breaking the composition:
 - One phone number, tappable (`tel:`), formatted the way locals write it.
 - Say what happens next after the button: "we confirm by text within the hour".
 
+## Small budgets
+
+**Middot-chained micro-labels: about six per page.** The pattern is
+`EST. 1998 · SHEFFIELD · MON–SAT`, set 10–12px in caps or mono. It is a real
+corpus device. Amrit flanks its hero with two 10px labels; Blind Barber runs
+11.25px chrome with a mono cut reserved for dates. It also costs one line to
+type, which is why two pages built from this skill shipped **48** and **39** of
+them. At that count the label stops being a label: every block carries a caption,
+so no caption means anything, and the page reads as a spreadsheet in a display
+face.
+
+The measured ceiling. Hagi's entire functional type layer is **24 leaf nodes** of
+11px sans across the whole homepage, nav links, footer links and legal included.
+Blind Barber's mono label system is **76 nodes across 162 screens**, every one a
+date or a legal line. Six chained labels on a nine-screen page is already
+generous against both, and the `eyebrow-density` WARN is a separate, looser
+check, and clearing it says nothing about this.
+
+Each label that survives carries something the composition cannot say: a date, a
+place, a price, a state. Delete the ones restating the heading beneath them.
+
+**A marquee carries the page's most interesting string.** Both pages from this
+skill that shipped one ran their postal address through it. A marquee is the
+largest type on the page moving under its own clock. It is the loudest thing you
+own, and an address is what a footer is for.
+
+What the corpus runs through one:
+
+- Hagi's: `SELF-CARE AS IDENTITY. RITUAL AS EXPRESSION.` at 150px cream on
+  `#151515`, two rows, clipped at both edges on desktop and still clipped at
+  390px. They did not shrink it to fit.
+- Tripletta: city names at ~130px with a photographed burrata plate dropped
+  inline between two of them at cap height, so the location list reads as a
+  ticker you have to wait for. The band appears twice, in two themes, at 1.5
+  screens and 6.5 screens.
+
+Both are the sentence the business would print on a shirt. Write that sentence,
+or run the thing the reader came for, the services, the locations, the price,
+and give it a photograph as punctuation. Then let it clip.
+
 ## Length
 
 Award pages carry less copy than agencies expect and more than agents write.

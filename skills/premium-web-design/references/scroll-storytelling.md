@@ -240,7 +240,7 @@ product page with a conversion goal.
    inside 45ms reads as a flicker, not as loading. Anything slower releases
    the instant it is ready.
 3. **Resolve into the scene rather than covering it.** Hold the frame's
-   contents at opacity 0 and fade them up over `--d-enter` once the object is
+   contents at opacity 0 and fade them up over `--t-arrive` once the object is
    in the scene graph. Active Theory holds pure black until the scene can
    paint, with no loader at all.
 

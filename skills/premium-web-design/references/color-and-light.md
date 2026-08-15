@@ -4,6 +4,22 @@ Ugly pages are usually not badly composed. They are badly coloured: a purple
 gradient, six accent hues, pure black on pure white, and a drop shadow on
 everything.
 
+There are **two** legitimate colour models in the corpus, not one. Pick one per
+site before you write a token:
+
+- **Rationed accent.** One dominant hue, one accent held to a few percent of
+  the painted area, tinted neutrals. Amrit Palace runs saffron on exactly five
+  backgrounds across 11.4 screens. Hagi's whole homepage carries one saturated
+  colour and it is a raster sticker. This is the model the formula below
+  describes, and it is the right answer most of the time.
+- **Field.** Four to six complete themes, each painting whole viewport-width
+  bands at full saturation, rotating as the page scrolls. Tripletta ships six-plus
+  brand colours this way and won Site of the Day. Rules in **Colour as a field**
+  below.
+
+They do not mix. A rationed accent inside a rotating field palette is invisible;
+a field palette with one hue is just a ground.
+
 ## The formula
 
 A premium page runs on **five values**, not a palette generator's ten:
@@ -126,6 +142,57 @@ that orange is a fill and a large-type colour only — never small text.
 Check every text/ground pairing you invent hits 4.5:1 (3:1 for type ≥24px).
 `--ink-muted` is the one that usually fails — verify it, do not assume it.
 
+## Colour as a field
+
+The formula above forecloses the loudest site in the corpus, so here is the other
+model with its own rules rather than as an exception.
+
+Tripletta paints whole viewport-width bands in forest `rgb(0,70,50)` `#004632`,
+teal `rgb(0,119,125)` `#00777D` and orange `rgb(255,106,0)` `#FF6A00` at full
+saturation, plus pink `#F9CEE1`, red `#B42318` and blue `#314B98` in the same
+token set. The desktop probe measured orange text on 2 413 elements over butter
+`#FFEEB2` on 150 backgrounds; the mobile probe of the same URL measured teal on
+ice. The theme changes between bands and between page loads.
+
+|  | Rationed accent | Field |
+|---|---|---|
+| Corpus | Amrit: saffron on 5 backgrounds in 11.4 screens. Hagi's: 7 values, 4 of them near-neutrals within 20 units of each other | Tripletta: 6+ saturated hues, each used at full field strength across a whole band |
+| Accent area | 2–10% | up to a whole band |
+| What a ground flip is | the ground and its inverse | the theme swap *is* the flip, and Tripletta flips every 1.2 screens |
+| What the accent means | "act here", one meaning, held all page | "this is a different chapter" |
+| Failure mode | tasteful and forgettable | a paint chart |
+
+### Rules for the field model
+
+The discipline lives inside the band, not across the page.
+
+1. **Exactly three values live at once.** Every Tripletta band is a light ground,
+   a mid tint for the giant type, and one saturated accent doing all the text and
+   all the fills. Define four to six complete `{ground, tint, accent}` triples and
+   never let a fourth value into a band.
+2. **The accent is ink, not fill.** Contrast is always saturated-on-light, never
+   white-on-colour. That single rule is what stops six hues reading as six brands.
+3. **Each accent clears 4.5:1 as body text on its own ground.** The tint sits at
+   1.2:1–1.6:1 against that ground so the giant word reads as texture; mark it
+   `aria-hidden="true"` and put the same string somewhere as real text, which is
+   the tint-mark exemption the auditor already applies, not an extra rule.
+4. **Assign per band and cycle in order**, through one `data-theme` attribute.
+   Offsetting the starting index per page load is optional and Tripletta does it.
+5. **`palette-sprawl` will fire** at more than four hue families with real area.
+   That WARN is right about the ordinary case and wrong about this one. Answer it
+   in the one line the audit loop asks for: name the model and the triple count.
+
+```css
+:root                { --ground:#FEF8DD; --tint:#BDD0A0; --accent:#004632; }
+[data-theme="teal"]  { --ground:#FFEEB2; --tint:#CEE9EB; --accent:#00777D; }
+[data-theme="orange"]{ --ground:#FFEEB2; --tint:#FFEEB2; --accent:#FF6A00; }
+[data-theme]         { background:var(--ground); color:var(--accent); }
+[data-theme] .mark   { color:var(--tint); }
+```
+
+Those triples are Tripletta's measured own. Use them to check the shape of yours;
+a site that ships them is a site wearing a pizzeria's clothes.
+
 ## Gradients
 
 Allowed, in three forms only:
@@ -188,6 +255,11 @@ saturation ~10% so it does not vibrate on a dark ground.
 
 ## Colour and meaning
 
-The accent means one thing on the whole site — usually "act here". If the
-accent appears on a heading, a badge, a link, a border, and a background, it
-has stopped meaning anything and the page reads as noisy.
+Under the rationed model the accent means one thing on the whole site, usually
+"act here". If it appears on a heading, a badge, a link, a border and a
+background, it has stopped meaning anything and the page reads as noisy.
+
+Under the field model the accent means "which chapter this is", and it does all
+the text and all the fills inside its band on purpose. That is not the rule
+breaking; it is the other rule. What both models share: within any one screen,
+the reader can name what the colour is telling them.

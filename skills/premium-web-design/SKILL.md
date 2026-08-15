@@ -17,7 +17,7 @@ what ships.
 
 ## Why sites built with this skill used to come out ugly
 
-Four mechanisms, and the fix for each. Everything below is one of these fixes.
+Eight mechanisms, and the fix for each. Everything below is one of these fixes.
 
 | Failure | Mechanism | Fix |
 |---|---|---|
@@ -27,6 +27,7 @@ Four mechanisms, and the fix for each. Everything below is one of these fixes.
 | Ambition past reliability | Quotas demanding WebGL and scrub on every brief produce collapsed pins, stretched canvases, and copy unreadable over motion | **Step 4** — pick a tier you can land. A broken Tier C loses to a perfect Tier A. |
 | Ambition promised, never enforced | The skill says Awwwards, cinematic, 3D scroll storytelling, and marks Tier B the default. Then every gate measures only what to avoid, so a page with no pin, no scrub, no transition and no scene passes cleanly and the tier ladder is decorative | **Step 4** — declare the tier in the markup, and the auditor now detects what you actually shipped and reports `CRAFT` when the declaration and the page disagree |
 | Restraint with nothing behind it | Every other rule here is a *don't*. Obey them all and you ship a page that is correct, tasteful, and forgettable: six images, the biggest type in the hero, nothing overlapping, nothing bleeding, two ground changes in nine screens | **Step 4b** — a density floor and a signature device, both measured by the auditor as SPARSE findings |
+| The skill became the house style | Four sites, four agents, no shared context, and every automated gate passed. All four shipped `cubic-bezier(0.16,1,0.3,1)`, `cubic-bezier(0.7,0,0.84,0)`, `120ms`/`240ms`/`400ms`/`700ms` and one `translateY(14px)` reveal, copied out of `motion.md` from under the words "use these, do not invent curves". Two also copied the gutter and section-spacing clamps. A jury compared them to the corpus and rejected all four: they moved identically, ran one symmetric band rhythm end to end, and three of them closed on the same FAQ accordion, footer wordmark and key/value table taken from the steal lists | **Step 3 and `references/motion.md`**: the motion tokens are now ranges with reasoning and a three-line budget you state, one non-uniform motion is required at Tier B and above, bands carry two spacing values, and no more than two components come from any one study |
 | Counts satisfied, intent defeated | Every gate that counts something can be fed something that costs nothing. An adversarial page cleared FAIL 0 / WARN 0 / SPARSE 0 / CRAFT 0 with an empty `<canvas>`, an empty `<div data-loader>`, one `view-transition-name`, an empty sticky div, eight copies of one photograph, `srcset="pic.jpg"`, an empty `<details>`, `<a href="#">4.9</a>`, a 420px word clipped to 8px, and a display face that does not exist. Every check read a declaration instead of a result | **Step 6** — the auditor now reads results: canvas pixels, loader disappearance, distinct image sources, box geometry, font availability, and whether a link goes anywhere |
 
 ## Activation
@@ -185,6 +186,32 @@ Do this, in order:
 Every major section you ship traces to one of those lines or to the brief. A
 section that traces to neither is a section you invented on autopilot.
 
+**The steal lists are a menu, not a component library.** Three of four pages
+built from this skill closed on the same three components: a `<details>` FAQ
+accordion, a full-width footer wordmark in a face used nowhere else on the page,
+and a key/value hairline table. None of the three was in any brief. Caps:
+
+- **Two components maximum from any one study.** Take a third and you are
+  rebuilding that site with different photographs.
+- **Name the source per component in the build notes**, the way the take-list
+  above does. A component nobody can trace was reached for, not chosen.
+- **The FAQ accordion is not a default closing section.** One study of fifteen
+  ships one: `plomberie-5-etoiles`, the nominee rather than a Site of the Day,
+  where four rows answer the customer's literal questions (`Offrez-vous un
+  service d'urgence en plomberie ?`) on a page whose entire job is booking a
+  plumber. Step 4c asks a local-business page for an objection block and that is
+  what it means. A feature list restated behind `<summary>` is furniture, and
+  the auditor already reads that check on content rather than shape.
+- **A full-width footer wordmark needs a face that already carries the page.**
+  Amrit's works because Satoshi has already set 159 leaf nodes of body and label
+  text by the time the footer arrives; Tripletta's giant `TRIPLETTA` works
+  because Oswald 700 sets 207. A face introduced for one word at the bottom is a
+  third family doing one job, and `font-sprawl` is the smaller half of that
+  problem.
+- **One key/value hairline table per page.** Where the content genuinely is a
+  catalogue, take Amrit's rule instead: 5–6 rows per block, each block on its own
+  ground, never two adjacent, each closed by one button that opens the full set.
+
 To study a site not in the corpus:
 
 ```bash
@@ -226,26 +253,58 @@ wins. Values and rationale: `references/typography.md`, `references/color-and-li
 --measure:        66ch;
 /* display : body size ratio ≥ 5:1 */
 
-/* colour — 1 dominant + 1 accent + tinted neutrals, never #000 or #fff */
+/* colour: state the model here, RATIONED ACCENT or FIELD, then fill the rest.
+   Rationed: 1 dominant + 1 accent + tinted neutrals, accent ≤10% of area
+             (Amrit rations saffron to 5 backgrounds across 11.4 screens).
+   Field:    4–6 complete {ground, tint, accent} triples, one per band, the
+             accent painting whole viewport-width bands at full saturation
+             (Tripletta: #004632, #00777D, #FF6A00, theme flipping every 1.2
+             screens). Rules for both in references/color-and-light.md.
+   Never #000 or #fff either way. */
 --ground:     #______;   /* ≥50% of painted area */
 --ground-2:   #______;
 --edge:       #______;
 --ink:        #______;   /* ≥4.5:1 on ground */
 --ink-muted:  #______;   /* verify this one — it is the one that fails */
---accent:     #______;   /* ≤10% of area */
+--accent:     #______;   /* rationed: ≤10% of area. Field: whole bands */
 
-/* space — 4px base */
---section-y:  clamp(5rem, 12vh, 12rem);   /* 96–200px between movements */
---gutter:     clamp(1.25rem, 4vw, 5rem);
+/* space: 4px base. Bands are asymmetric: two values, not one.
+   Two of four pages built from this skill shipped the old single token
+   verbatim and ran the same padding on every band for their whole length. */
+--band-y-in:  ___px;   /* 64–160 desktop, entering a band */
+--band-y-out: ___px;   /* 96–240 desktop, leaving it. Differ by ≥1.4× */
+--gutter:     clamp(___rem, ___vw, ___rem);  /* 20–28px phone, 48–96px desktop */
 --radius-sm:  __px;  --radius-lg: __px;   /* exactly 2 radii, or 0 everywhere.
                                             0 is the usual answer once the card
                                             grid is gone. Delete both if unused. */
 
-/* motion */
---ease-out: cubic-bezier(0.16, 1, 0.3, 1);
---ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
---d-press: 120ms; --d-state: 240ms; --d-layout: 400ms; --d-enter: 700ms;
+/* motion: derive these. references/motion.md carries the ranges and the
+   reasoning; it no longer prints a set to paste, because four pages built from
+   this skill shipped the same two curves and the same four durations. */
+--e-settle: cubic-bezier(_, _, _, _);  /* enters + hovers: low x1, y1 ≥ ~0.8 */
+--e-leave:  cubic-bezier(_, _, _, _);  /* exits: the mirror of settle */
+--t-tap:    ___ms;   /* 90–160  */
+--t-state:  ___ms;   /* 150–320 */
+--t-panel:  ___ms;   /* 300–520 */
+--t-arrive: ___ms;   /* 450–900 */
+--t-drift:  ___s;    /* 20–60, linear only */
 ```
+
+Then three more lines, in chat, under the block. They are not CSS and they are
+the part that decides whether the page moves or merely animates:
+
+```
+Slowest motion:  <element> at <duration or cycle>, because <what the reader is
+                 being given time to do>
+Fastest motion:  <element> at <duration>, because <what has to feel instant>
+Unrequested:     <the one element moving at a rate the reader did not ask for>,
+                 at <rate>, against <what it is measured against>
+```
+
+Blind Barber's 902px numerals outrun the copy laid over them. Hagi's three
+photographs leave the frame at three rates. Tripletta scrubs its collage
+per-item. None of that was asked for, and it is why those pages read as
+authored. A page whose three lines name the same number twice has one speed.
 
 Measured anchors from the corpus, for calibration: Tripletta runs its display at
 270px/18.8vw · Fizzi 208px/14.4vw at line-height 0.80 · Amrit Palace 115px/8vw at
@@ -419,6 +478,18 @@ that resolves into the hero, a page transition, a magnetic element, a canvas or
 3D scene. Runnable implementations of every one of these are in `demos/`. Open
 the nearest and copy it rather than inventing it.
 
+**One non-uniform motion, minimum, at Tier B and above.** Two elements the reader
+can see at once, moving at different rates through the same scroll range. A
+stagger is not this: a stagger is one rate applied at offsets. All four pages
+built from this skill moved at exactly one rate, "700ms after it enters", and two
+of them were declared Tier B. Every corpus site does the opposite: Blind Barber's
+902px numerals outrun the copy laid over them, Hagi's three photographs leave the
+frame at three rates, Tripletta gives every photo in the `WALLOVE` grid its own
+scrub speed. Buildable forms, corpus measurements, and the rule that rate
+differences under about 15% read as a rendering bug: `references/motion.md`,
+**Non-uniform motion**. The cheapest is three photographs on three `translateY`
+ranges over one trigger, about twelve lines of JS.
+
 **A technique is a thing that happens, not a thing that is declared.** Four of
 these nine could be claimed for nothing until an adversarial page claimed all
 four at once, so the auditor now reads the result instead of the markup:
@@ -493,6 +564,19 @@ or service, the dominant visual is real photography — owner assets first, then
 high-quality royalty-free that genuinely depicts the category. WebGL, when used,
 stages and moves real images and textures rather than replacing the product with
 abstract stand-ins.
+
+**Imagery is a gate, not a step. Write down what each image depicts, then read it
+against the copy that will sit beside it.** Four pages built from this skill
+cleared every automated check and were rejected in ten seconds each on the same
+fault: a Chinese-labelled milling machine on a Sheffield espresso page, a carbon
+full-suspension mountain bike on a steel framebuilder's, a bare brick wall
+captioned "the green door", a woodturning lathe throwing wood shavings in an
+exhibition named after metal swarf, and a two-tone red-and-cream 3D model wearing
+a gold "Magic" medallion under copy reading "stripped to bare metal, re-enamelled
+in a single colour". No probe catches any of them and nothing else on the page
+survives one. **Refuse to ship where the hero product is not the product.** The
+list to write, the four questions to ask of it, and the fixes in order of
+preference are in `references/imagery.md` under **The subject gate**.
 
 To find it:
 
@@ -580,6 +664,10 @@ linter is holding the line, and ships the thing.
 | Purple→blue gradient | A gradient stop in the 250–290 hue band with real saturation and area | FAIL `gradient-purple-blue` | Whatever the brief actually justifies |
 | Box/primitive 3D stand-in | `<boxGeometry>` as the product | **you** — a cube renders as cleanly as a car and no probe can tell you which one you shipped. Look at the frame | A real `.glb`, or real photography inside the motion system |
 | Uniform motion | Same enter animation on ≥4 components; same hover scale on ≥3; stagger on ≥2 lists in one view | **you** — SPARSE `motion-vocabulary` counts distinct declarations and will not catch one gesture used four times | Different motion per meaning — see `references/motion.md` |
+| Motion tokens copied whole | Four or more of the easing curves or durations printed anywhere in this skill, shipped unchanged | WARN `motion-tokens-verbatim` | Ranges and the three-line budget in `references/motion.md`. The numbers are not wrong; four pages reaching the same seven means none of them chose |
+| One rate for the whole page | Nothing moves at a rate other than "n ms after it enters", on a Tier B or C page | **you**. A scrub, a pin and a stagger all read as motion to a probe, and none of them is two rates in one frame | One non-uniform pair: three photographs on three travel ranges, or a numeral outrunning the copy over it |
+| Image contradicts its copy | The photograph, model or caption depicts something other than what the sentence beside it claims | **you**. No probe can see what is in a frame. A jury sees it in ten seconds | The subject gate in `references/imagery.md`: write what each image depicts, check it against the copy, refuse to ship where the hero product is not the product |
+| Symmetric bands end to end | One `padding-block` value on every section, so the page breathes at one rate for its whole length | **you**. `section-rhythm` reads `padding-top`/`margin-top` only and fires only past half the sections | Asymmetric bands differing by ≥1.4×, plus one committed one-sided silence. Hagi's pays 450px of black between two loud sections |
 | Copy placeholders | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" | FAIL `copy-placeholder` | Real names, real prices, real phone numbers |
 | Copy tells | "Welcome to", "Unlock the power of", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, `Scroll ↓`, `SECTION 01` on four or more blocks | WARN `copy-tells` | Specific numbers (`47.2%`, `£64`), and no scroll cue |
 
@@ -608,6 +696,14 @@ linter and not the bar.
 - [ ] Verified by blocking the image hosts and reloading
 - [ ] Signature device named, and repeating at least four times
 - [ ] The largest type on the page is not in the hero
+- [ ] Motion budget stated: slowest, fastest, and the one element moving at a rate the reader did not ask for
+- [ ] No four easing curves or durations copied unchanged out of this skill
+- [ ] One non-uniform motion shipped and named, at Tier B or above
+- [ ] What every image depicts is written down, and read against the copy beside it
+- [ ] No more than two components taken from any one study, each named with its source
+- [ ] Most bands asymmetric, and one committed one-sided silence on the page
+- [ ] Colour model named: rationed accent, or field
+- [ ] Six or fewer middot-chained micro-labels, and any marquee carries the page's best string
 - [ ] `audit-page.mjs` reports zero SPARSE findings
 - [ ] `audit-page.mjs` reports zero CRAFT findings
 - [ ] Tier declared in the markup, and the page actually contains that tier's evidence
@@ -624,12 +720,12 @@ linter and not the bar.
 | Open this | When |
 |---|---|
 | `references/typography.md` | Choosing faces, sizes, tracking, scale |
-| `references/color-and-light.md` | Palette, gradients, shadow, texture, dark mode |
-| `references/layout-archetypes.md` | Page shape, section composition, grid, spacing |
-| `references/motion.md` | Durations, easing, reveal patterns, reduced motion |
+| `references/color-and-light.md` | The two colour models (rationed accent, field), palettes, gradients, shadow, texture, dark mode |
+| `references/layout-archetypes.md` | Page shape, section composition, grid, asymmetric band spacing |
+| `references/motion.md` | Duration and easing ranges, the motion budget, non-uniform motion, reveal patterns, reduced motion |
 | `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
-| `references/imagery.md` | Sourcing, choosing, treating, and cropping photography |
-| `references/content-and-copy.md` | Words, conversion placement, and copy tells |
+| `references/imagery.md` | Sourcing, the subject gate, treating, and cropping photography |
+| `references/content-and-copy.md` | Words, conversion placement, copy tells, and the micro-label and marquee budgets |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
 | `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
 | `references/build-loop.md` | The audit loop and what each finding means |

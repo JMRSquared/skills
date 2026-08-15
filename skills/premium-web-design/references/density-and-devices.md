@@ -251,6 +251,14 @@ Duplicate the track's items exactly twice. Put the rail outside `.wrap` or the
 negative margin has nothing to escape. Under `prefers-reduced-motion` pause the
 marquee and keep the clipping, since the clip is the composition.
 
+**What goes in the marquee is a budget, not a slot.** It is the largest type on
+the page moving under its own clock, so it carries the page's best string: Hagi's
+runs a manifesto at 150px, Tripletta runs city names with a photographed plate
+inline as a glyph. Two pages built from this skill ran their postal address
+through one. The rule and the counts are in `content-and-copy.md` under **Small
+budgets**, alongside the six-per-page cap on middot-chained micro-labels that two
+of those pages blew past at 48 and 39.
+
 ## 6. Ground flips
 
 | Site | Flips | Screens | One flip every |

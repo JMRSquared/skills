@@ -99,12 +99,18 @@ equal boxes says nothing is more important than anything else.
 
 ## Grid and spacing
 
+Two of four pages built from this skill shipped
+`--gutter: clamp(1.25rem, 4vw, 5rem)` and `--section-y: clamp(5rem, 12vh, 12rem)`
+character for character, because those two strings used to be printed here as
+values rather than as ranges. The ranges:
+
+| Token | Phone | Desktop | Note |
+|---|---|---|---|
+| Gutter | 20–28px | 48–96px | Wide gutters read editorial. Hagi's hero holds ~300px of empty above its headline |
+| Measure | | 60–75ch | 92ch is where the auditor speaks |
+| Band spacing | 64–96px | 96–240px | Two values per band, not one. See below |
+
 ```css
-:root {
-  --gutter: clamp(1.25rem, 4vw, 5rem);
-  --measure: 68ch;
-  --section-y: clamp(5rem, 12vh, 12rem);   /* 80–190px between movements */
-}
 .wrap { width: min(100% - var(--gutter) * 2, 90rem); margin-inline: auto; }
 ```
 
@@ -112,10 +118,47 @@ equal boxes says nothing is more important than anything else.
   per page — never accidentally.
 - **Asymmetry beats symmetry.** A 5/7 split reads designed; a 6/6 split reads
   default. Centre only the hero, and only if the hero is a statement.
-- Vertical rhythm between sections: 96–200px desktop, 64–96px phone. Cramped
-  section spacing is the most common single cause of a cheap-looking page.
+- Cramped section spacing is the most common single cause of a cheap-looking
+  page. Uniform section spacing is the second.
 - Give one element per screen permission to be much larger than everything
   else. Scale contrast is what makes a composition read as art direction.
+
+### The vertical metronome
+
+All four pages built from this skill ran one symmetric `padding-block` on every
+band. Each band was spaced correctly and the page still read as a template,
+because a page that breathes at exactly one rate for its whole length is a page
+with a metronome under it.
+
+**Most bands are asymmetric.** Declare a top and a bottom per band and make them
+differ by at least 1.4×. Which one is bigger follows from what the band does: a
+band continuing the thought above it opens tight and closes wide; a band changing
+subject opens wide.
+
+```css
+.band            { padding-block: var(--band-y-in) var(--band-y-out); }
+.band--continues { padding-block: calc(var(--band-y-in) * 0.5) var(--band-y-out); }
+.band--turns     { padding-block: var(--band-y-out) var(--band-y-in); }
+```
+
+**One committed one-sided silence per page.** Hagi's pays 450px of black between
+the photo collage and the film section, half a viewport at its 900px capture
+height, and puts nothing in it (`desktop-04`). One section, one ground, no
+content:
+
+```css
+.silence { min-height: 50vh; background: var(--inverse); }
+```
+
+It only reads as confidence when the rest of the page is dense.
+`density-and-devices.md` section 7 is the precondition, not a separate rule: pay
+half a screen for nothing on a nine-screen page carrying six images and you have
+a gap, not a beat.
+
+Neither move argues with the auditor. `section-rhythm` reads `padding-top` and
+`margin-top` only, and fires only when **more than half** the full sections start
+under 48px, so asymmetric bands clear it, and so does the one band that opens
+tight because a silence just ended.
 
 ## First viewport
 

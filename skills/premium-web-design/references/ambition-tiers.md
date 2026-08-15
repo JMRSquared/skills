@@ -70,6 +70,16 @@ chapters, page transitions, magnetic cursor elements, image sequence playback.
 Requires: GSAP + ScrollTrigger (or Motion's scroll APIs), and a build where you
 can verify pin spacing at three widths.
 
+**Also requires one non-uniform motion**, at this tier and above: two elements
+the reader can see at once, moving at different rates through the same scroll
+range. Four pages built from this skill moved at exactly one rate, "700ms after
+it enters", and two of them carried a `tier=B` declaration with no pin and no
+scrub behind it. Every corpus site does the opposite: Blind Barber's 902px
+numerals outrun the copy over them, Hagi's three photographs leave the frame at
+three rates, Tripletta scrubs each photo in its collage at its own speed. Forms
+and the numbers that stop it reading as a rendering bug: `references/motion.md`,
+**Non-uniform motion**.
+
 **Choose it when:** the story has beats — a process, a timeline, a chapter
 structure, a product revealed progressively. **This is the default. A page over
 6 screens is at Tier B unless you can defend Tier A against the test above.**

@@ -90,6 +90,7 @@ auditor is silent. Three passes is normal. One pass means you did not look.
 | `gradient-purple-blue` | A gradient stop in the 250–290 hue band with real saturation and area. | Whatever the brief actually justifies. |
 | `pure-black-white` (WARN) | `#000` or `#fff` carrying ≥12% of the painted area. | Tinted off-black and off-white. Blindbarber runs `#141414` on `#F1F1F1`. |
 | `copy-placeholder` | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" survived into the shipped copy. | Real names, real prices, real numbers. If you invented them, say which ones in one line to the user. |
+| `motion-tokens-verbatim` (WARN) | Four or more of the easing curves or durations printed in this skill shipped unchanged. Four sites built from this skill by four agents who never spoke shipped `cubic-bezier(0.16,1,0.3,1)`, `cubic-bezier(0.7,0,0.84,0)`, `120ms`, `240ms`, `400ms` and `700ms` between them, and moved identically. The numbers are not wrong; arriving at them by copying is. | `references/motion.md` now gives ranges and asks for three lines naming the page's slowest motion, its fastest, and the one element moving at a rate the reader did not ask for. Derive the values from those. |
 | `copy-tells` (WARN) | "Welcome to", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, a `Scroll` cue, or four or more `SECTION 0n` eyebrows. `Chapter 01` is content, not furniture, and does not count. `robust` and `leverage` are on the written list and not the machine one — amritpalace.com describes a robust curry, and a tell that fires on an award site gets ignored. | Specificity. "Open until 8pm on weekdays" beats "convenient hours". |
 
 ## SPARSE — the ambition block
@@ -203,6 +204,12 @@ Ask these in order, out loud, per frame:
 4. Is there anywhere my eye can rest, or is every pixel occupied?
 5. Would this frame survive being printed in a magazine, motion removed?
 6. What is the ugliest 200px of this frame? Fix that before anything else.
+7. Does every photograph here depict the thing the sentence beside it names?
+   Say what is actually in the frame out loud before you answer. This is the
+   check four pages failed while passing everything the auditor measures. See
+   **The subject gate** in `imagery.md`.
+8. Does anything on this screen move at a different rate from anything else, or
+   does the whole page arrive at one speed?
 
 If the honest answer to #1 is no, stop adding features and fix the page.
 

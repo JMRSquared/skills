@@ -111,6 +111,67 @@ colour temperatures read as a collage of stock; six from the same lighting
 family read as a commissioned shoot. Pick a light (warm tungsten, cold daylight,
 overcast) and hold it across the page — or force consistency with a treatment.
 
+## The subject gate
+
+Everything above is about finding a good photograph. This is about whether the
+good photograph is a photograph of the right thing, and it is the check that
+four pages built from this skill failed while passing every automated gate.
+
+What shipped:
+
+- A Sheffield espresso roaster's process section illustrated with a
+  Chinese-labelled milling machine
+- A steel framebuilder's hero carrying a carbon full-suspension mountain bike
+- A caption reading "the green door" over a photograph of a bare brick wall
+- An exhibition named after metal swarf, illustrated by a woodturning lathe
+  throwing wood shavings
+- Copy reading "stripped to bare metal, re-enamelled in a single colour" under a
+  two-tone red-and-cream 3D model wearing a gold "Magic" medallion
+
+No probe catches any of these. Every one is fatal in front of a person, because
+a visitor who catches the page lying about its own product stops believing the
+rest of it, and a jury reaches that conclusion in about ten seconds.
+
+**Before an image lands in the repo, write one line saying what it depicts.** Not
+what you want it to mean. What is in the frame. Keep the list beside the licence
+lines in `CREDITS.md`:
+
+```
+hero.jpg         a lugged steel road frame, unpainted, held in a bench vice.
+                 Filed lug edges visible. Nobody in frame.
+process-02.jpg   a hand-held torch brazing a seat lug, silver flowing at the
+                 joint. Gloved hands, workshop background out of focus.
+shop-01.jpg      shopfront at dusk, green painted door, brass letters reading
+                 the wrong business name. REJECTED
+```
+
+Then read each line against the copy that will sit next to it:
+
+1. **Is the subject the thing this page sells?** A milling machine is not an
+   espresso machine. A carbon full-suspension bike is not a steel frame. If the
+   answer is no, the image is out, however good it is.
+2. **Does the caption describe this frame?** "The green door" needs a green door
+   in it.
+3. **Does the material match?** Wood shavings are not metal swarf. Enamel is not
+   bare metal. A two-tone finish is not "a single colour".
+4. **Does a badge, model name or medallion in frame argue with the copy?** The
+   rule above says a stranger's mark makes a photograph unusable. A
+   *contradicting* mark on your own subject is the same failure with the copy's
+   fingerprints on it.
+
+**Refuse to ship where the hero product is not the product.** The fixes, in
+order of preference:
+
+1. Find the right frame. Two more queries costs ten minutes.
+2. Recrop so the contradicting element is out of shot. A tight crop on the joint
+   is better art direction than a wide shot of the wrong bike anyway.
+3. Rewrite the copy to describe the object you actually have.
+   `ambition-tiers.md` gives the same instruction about a Tier C model, and says
+   the same thing about it: rewriting is usually faster and always more honest.
+4. Ship the section with type and no image.
+
+Shipping the wrong photograph is not on that list.
+
 ## Treatments
 
 ```css
