@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picture desk · The Coal Room</title>
+
+<!--
+=============================================================================
+  PATTERN
+    Photographic staging, four treatments on one page. Every treatment is
+    shown at full size and then documented underneath as a copyable CSS
+    sample, so the file is both a demo and the reference for the demo.
+
+      01  Gradient scrim under display type on a full-bleed frame
+      02  Duotone mapped into two brand values with an SVG feComponentTransfer
+      03  Editorial crop pair, one 4:5 and one 16:9, deliberately misaligned
+      04  Grain layer over the photograph
+
+  DERIVES FROM
+    Amrit Palace (amritpalace.com). See references/site-studies/amrit-palace.md.
+    Three colours, one typeface, and a candlelit room shot two stops down.
+    The scrim recipe and the "type sits inside the photograph's own tonal
+    range rather than punching a white hole in it" rule both come from there.
+
+  FAILURE MODE AVOIDED
+    text-over-media. An agent drops white type on a photograph, checks it once
+    against the frame it happened to load, and ships. The photo changes, the
+    crop changes at 390px, and half the headline vanishes into a highlight.
+    Every text run here is a direct child of an element that paints a real
+    gradient, so legibility does not depend on today's image.
+    The second one: flat, untreated stock at four different colour
+    temperatures reading as a collage. Duotone and grain force one look.
+
+  HOW TO ADAPT
+    Swap the five palette values and the two font families at the top of the
+    stylesheet, then re-point the img src attributes. The duotone filter is
+    the only thing that needs editing by hand: put your ground colour in the
+    first tableValues slot and your accent in the second, as 0-1 channel
+    fractions. Everything else is token-driven.
+
+  PALETTE     "Night studio", references/color-and-light.md, verbatim
+              --ground #0B0B0D  --ground-2 #141417  --edge #24242A
+              --ink #F4F3F1     --ink-muted #A2A2AC --accent #E8FF4A
+  TYPE        Pairing 1, references/typography.md, verbatim:
+              Instrument Serif (display) + Instrument Sans (body).
+              Geist Mono is the third face, admitted under the "mono doing
+              real work" clause. It sets the code samples and nothing else.
+  MOTION      Durations and curves from references/motion.md only.
+  PHOTOGRAPHY Unsplash, 1600px sources, free licence. Credits in the footer.
+=============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Instrument+Sans:wght@400;500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ---- palette: "Night studio", color-and-light.md ---- */
+  --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
+  --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
+
+  /* ---- scale: typography.md ---- */
+  --step-hero: clamp(3.25rem, 11vw, 11rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-h3:   clamp(1.375rem, 2.2vw, 2rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* ---- motion: motion.md ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --d-state:  240ms;
+  --d-enter:  700ms;
+
+  /* ---- grid: layout-archetypes.md ---- */
+  --gutter: clamp(1.5rem, 4vw, 5rem);
+  --section-y: clamp(5rem, 9vw, 9rem);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Instrument Sans", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55; letter-spacing:0;
+  -webkit-font-smoothing:antialiased;
+}
+/* height:auto is load-bearing. The width/height attributes below are there to
+   reserve space before load, but they also land as a presentational
+   `height: 1067px`, and a definite width AND height makes the browser ignore
+   every aspect-ratio you declare. Every crop on this page depends on it. */
+img{ display:block; max-width:100%; height:auto; }
+figure{ margin:0; }
+
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+/* Grid and flex children default to min-width:auto, which lets one wide child
+   (here: a code sample) push the whole document past the viewport. */
+.band__head > *, .duo > *, .crops > *, .grainrow > *, .colophon > *{ min-width:0; }
+
+/* ---------- type roles ---------- */
+.display{
+  font-family:"Instrument Serif", Georgia, serif;
+  font-weight:400; line-height:0.92; letter-spacing:-0.035em;
+  text-wrap:balance; margin:0;
+}
+h1.display{ font-size:var(--step-hero); }
+h2.display{ font-size:var(--step-h2); letter-spacing:-0.02em; line-height:1; }
+h3.display{ font-size:var(--step-h3); letter-spacing:-0.015em; line-height:1.05; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase;
+  letter-spacing:0.14em; font-weight:500; margin:0; color:var(--accent);
+}
+.label--quiet{ color:var(--ink-muted); }
+.lead{ font-size:var(--step-lead); line-height:1.4; max-width:34ch; margin:0; }
+.note{ max-width:58ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.note strong{ color:var(--ink); font-weight:500; }
+.cap{
+  font-size:var(--step-small); color:var(--ink-muted); margin:0.75rem 0 0;
+  max-width:44ch;
+}
+.cap b{ color:var(--ink); font-weight:500; }
+
+/* ---------- 01 · full-bleed frame + scrim ---------- */
+.hero{ position:relative; isolation:isolate; min-height:100vh; overflow:hidden; }
+.hero__img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:50% 46%;
+}
+/* Two gradients, not one. The lower stack carries the headline, the upper
+   one carries the masthead. Nothing here depends on the photo being dark. */
+.hero__scrim{
+  position:relative; z-index:1; min-height:100vh;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:0 var(--gutter) clamp(3rem, 7vw, 6rem);
+  background-image:
+    linear-gradient(to top, rgb(0 0 0 / .84) 0%, rgb(0 0 0 / .34) 38%, transparent 66%);
+}
+.hero__bar{
+  position:absolute; inset:0 0 auto 0;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:1rem var(--gutter);
+  background-image:linear-gradient(to bottom, rgb(0 0 0 / .62) 0%, transparent 100%);
+}
+.hero__bar a{
+  color:var(--ink); text-decoration:none; font-size:var(--step-label);
+  text-transform:uppercase; letter-spacing:0.14em; font-weight:500;
+  display:inline-flex; align-items:center; min-height:44px; padding:0 0.25rem;
+  transition:color var(--d-state) var(--ease-out);
+}
+.hero__bar a:hover{ color:var(--accent); }
+.hero__scrim > .label{ margin-bottom:1.5rem; }
+.hero__scrim > h1{ margin-bottom:1.5rem; max-width:12ch; }
+.hero__scrim > .lead{ color:var(--ink); }
+
+/* ---------- shared section shell ---------- */
+.band{ padding:var(--section-y) 0; border-top:1px solid var(--edge); }
+.band__head{
+  display:grid; grid-template-columns:5fr 7fr; gap:2rem var(--gutter);
+  align-items:start; margin-bottom:3rem;
+}
+.band__head > div:first-child > h2{ margin:0.75rem 0 0; }
+
+/* ---------- code samples ---------- */
+pre{
+  margin:2rem 0 0; padding:1.5rem; background:var(--ground-2);
+  border:1px solid var(--edge); border-radius:0;
+  /* the sample scrolls inside its own box; min-width:0 stops the grid item
+     from sizing itself to the longest line and blowing the phone viewport */
+  overflow-x:auto; min-width:0;
+  /* left axis, not full bleed: the sample is documentation, not a slab */
+  max-width:62rem;
+}
+code{
+  font-family:"Geist Mono", ui-monospace, monospace;
+  font-size:0.8125rem; line-height:1.7; color:var(--ink);
+  display:block; width:max-content; white-space:pre;
+}
+.c-cm{ color:var(--ink-muted); }
+.c-v{ color:var(--accent); }
+
+/* ---------- 02 · duotone ---------- */
+.duo{ display:grid; grid-template-columns:1fr 1fr; gap:var(--gutter); }
+.duo figure{ position:relative; }
+.duo img{ width:100%; aspect-ratio:3/2; object-fit:cover; }
+/* Lift the exposure BEFORE the map. A frame this dark lands entirely in the
+   shadow slot otherwise, and a duotone with no highlight is just a tint. */
+.is-duotone img{ filter:brightness(1.7) contrast(1.15) url(#duotone-night); }
+
+/* ---------- 03 · editorial crop pair ---------- */
+.crops{ display:grid; grid-template-columns:repeat(12, 1fr); gap:var(--gutter); }
+.crop--tall{ grid-column:1 / span 5; }
+.crop--tall img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:52% 38%; }
+.crop--wide{ grid-column:7 / span 6; margin-top:clamp(3rem, 9vw, 8.5rem); }
+.crop--wide img{ width:100%; aspect-ratio:16/9; object-fit:cover; object-position:50% 55%; }
+
+/* ---------- 04 · grain ---------- */
+.grainrow{ display:grid; grid-template-columns:8fr 4fr; gap:var(--gutter); align-items:start; }
+.grained{ position:relative; isolation:isolate; }
+.grained img{ width:100%; aspect-ratio:21/9; object-fit:cover; object-position:50% 52%; }
+.grained::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  opacity:.06; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.swatch{
+  aspect-ratio:1/1; border:1px solid var(--edge);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- colophon + footer ---------- */
+.colophon{ display:grid; grid-template-columns:repeat(3, 1fr); gap:2rem var(--gutter); }
+.colophon dl{ margin:0; }
+.colophon dt{ font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em; font-weight:500; color:var(--ink-muted); }
+.colophon dd{ margin:0.75rem 0 0; font-size:var(--step-body); }
+.colophon dd span{ display:block; color:var(--ink-muted); }
+.swatches{ display:flex; gap:0.5rem; margin-top:1rem; }
+.colophon dd span.swatches{ color:inherit; }
+.swatches i{ width:2.5rem; height:2.5rem; display:block; border:1px solid var(--edge); }
+
+footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
+.credits{ display:flex; flex-wrap:wrap; gap:0.5rem 2rem; margin:1.5rem 0 0; padding:0; list-style:none; }
+.credits a{
+  color:var(--ink-muted); font-size:var(--step-small); text-decoration:none;
+  border-bottom:1px solid var(--edge);
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
+}
+.credits a:hover{ color:var(--accent); border-color:var(--accent); }
+
+/* ---------- motion: one gesture per meaning ---------- */
+/* Visible state is the default. The hidden state only exists once JS says so,
+   so a script error or a dead observer can never leave the page blank. */
+.js .rv-wipe{ opacity:0; clip-path:inset(0 0 100% 0); transform:translateY(12px); }
+.js .rv-wipe.is-in{
+  opacity:1; clip-path:inset(0 0 0 0); transform:none;
+  transition:opacity var(--d-enter) var(--ease-out),
+             clip-path var(--d-enter) var(--ease-out),
+             transform var(--d-enter) var(--ease-out);
+}
+.js .rv-scale{ overflow:hidden; }
+.js .rv-scale img, .js .rv-scale .swatch{ opacity:0; transform:scale(1.06); }
+.js .rv-scale.is-in img, .js .rv-scale.is-in .swatch{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform 900ms var(--ease-out);
+}
+.js .rv-fade{ opacity:0; }
+.js .rv-fade.is-in{ opacity:1; transition:opacity var(--d-enter) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+/* ---------- 390px ---------- */
+@media (max-width: 860px){
+  .band__head{ grid-template-columns:1fr; }
+  .duo{ grid-template-columns:1fr; }
+  .crops{ grid-template-columns:1fr; }
+  .crop--tall, .crop--wide{ grid-column:auto; }
+  .crop--wide{ margin-top:0; }
+  .grainrow{ grid-template-columns:1fr; }
+  .swatch{ max-width:14rem; }
+  .colophon{ grid-template-columns:1fr; }
+  .hero__scrim > h1{ max-width:none; }
+  /* art-direct the phone crop rather than inheriting the desktop one:
+     at 390 the desktop centre lands on an empty piano lid */
+  .hero__img{ object-position:74% 42%; }
+}
+</style>
+</head>
+<body>
+
+<!-- Duotone filter. Luminance in feColorMatrix, then each channel is remapped
+     across a two-stop table: index 0 is the shadow colour, index 1 the
+     highlight. #0B0B0D -> #E8FF4A as 0-1 fractions. Kept in the document (not
+     display:none) because some engines drop filters on hidden subtrees. -->
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <filter id="duotone-night" color-interpolation-filters="sRGB">
+    <feColorMatrix type="matrix" values="
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0      0      0      1 0"/>
+    <feComponentTransfer>
+      <feFuncR type="table" tableValues="0.043 0.910"/>
+      <feFuncG type="table" tableValues="0.043 1.000"/>
+      <feFuncB type="table" tableValues="0.051 0.290"/>
+    </feComponentTransfer>
+  </filter>
+</svg>
+
+<!-- ============================ 01 · SCRIM ============================ -->
+<header class="hero">
+  <img class="hero__img" alt="Piano and double bass on a red-curtained stage, lit from the wings"
+       src="https://images.unsplash.com/photo-1710951403281-93d866a223cd?w=1600&q=80&auto=format"
+       width="1600" height="1065" fetchpriority="high" decoding="async">
+  <div class="hero__scrim">
+    <div class="hero__bar">
+      <a href="#colophon">The Coal Room</a>
+      <a href="#t01">Picture desk</a>
+    </div>
+    <p class="label">Bristol · 214 seats · doors 7pm</p>
+    <h1 class="display">Photographs carry the room</h1>
+    <p class="lead">One light source, two stops down, and nothing shot on a white wall.</p>
+  </div>
+</header>
+
+<!-- ============================ COLOPHON ============================ -->
+<section class="band" id="colophon">
+  <div class="wrap">
+    <div class="colophon">
+      <dl>
+        <dt>Palette</dt>
+        <dd>Night studio<span>color-and-light.md, copied whole</span>
+          <span class="swatches" aria-hidden="true">
+            <i style="background:#0B0B0D"></i><i style="background:#141417"></i>
+            <i style="background:#24242A"></i><i style="background:#F4F3F1"></i>
+            <i style="background:#E8FF4A"></i>
+          </span>
+        </dd>
+      </dl>
+      <dl>
+        <dt>Type</dt>
+        <dd>Instrument Serif + Instrument Sans<span>typography.md pairing 1. Geist Mono sets the code and nothing else.</span></dd>
+      </dl>
+      <dl>
+        <dt>Photography</dt>
+        <dd>Five frames, one light<span>Every frame is stage light or desk light. No daylight, no second colour temperature.</span></dd>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<!-- ======================== 01 · notes + code ======================== -->
+<section class="band" id="t01">
+  <div class="wrap">
+    <div class="band__head">
+      <div>
+        <p class="label">Treatment 01</p>
+        <h2 class="display rv-wipe">Gradient scrim</h2>
+      </div>
+      <div>
+        <p class="note">The frame above is the finished article. Two gradients do the work: a heavy one rising from the bottom edge under the headline, a light one falling from the top under the masthead. <strong>The photograph is never asked to be dark enough on its own.</strong> Ink is #F4F3F1 rather than pure white, so the words sit inside the picture's tonal range instead of punching a hole in it.</p>
+      </div>
+    </div>
+
+    <pre class="rv-fade"><code><span class="c-cm">/* the scrim is a layer, not a hope */</span>
+.hero__scrim {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 var(--gutter) clamp(3rem, 7vw, 6rem);
+  background-image: linear-gradient(
+    to top,
+    rgb(0 0 0 / <span class="c-v">.84</span>) 0%,
+    rgb(0 0 0 / <span class="c-v">.34</span>) 38%,
+    transparent 66%
+  );
+}
+<span class="c-cm">/* second scrim, top-down, so the masthead reads too */</span>
+.hero__bar {
+  background-image: linear-gradient(
+    to bottom, rgb(0 0 0 / <span class="c-v">.62</span>) 0%, transparent 100%
+  );
+}
+.hero__img { object-fit: cover; object-position: <span class="c-v">50% 46%</span>; }</code></pre>
+  </div>
+</section>
+
+<!-- =========================== 02 · DUOTONE =========================== -->
+<section class="band" id="t02">
+  <div class="wrap">
+    <div class="band__head">
+      <div>
+        <p class="label">Treatment 02</p>
+        <h2 class="display rv-wipe">Duotone</h2>
+      </div>
+      <div>
+        <p class="note">Stock arrives at four colour temperatures and reads as a collage. A duotone flattens every frame to luminance and then remaps it between two values you already own: <strong>#0B0B0D in the shadows, #E8FF4A in the highlights.</strong> Six photographs treated this way read as one commissioned shoot.</p>
+      </div>
+    </div>
+
+    <div class="duo">
+      <figure class="rv-scale">
+        <img alt="Mixing console faders under blue light, untreated"
+             src="https://images.unsplash.com/photo-1509335919466-c196457ea95a?w=1600&q=80&auto=format"
+             width="1600" height="1067" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>Untreated.</b> Cool tungsten blue that belongs to this frame and no other on the page.</figcaption>
+      </figure>
+      <figure class="rv-scale is-duotone">
+        <img alt="The same console mapped into the two brand values"
+             src="https://images.unsplash.com/photo-1509335919466-c196457ea95a?w=1600&q=80&auto=format"
+             width="1600" height="1067" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>Duotone.</b> Same file, mapped into ground and accent. Now it belongs to the site.</figcaption>
+      </figure>
+    </div>
+
+    <pre class="rv-fade"><code><span class="c-cm">&lt;!-- one filter, reused by every treated image --&gt;</span>
+&lt;svg width="0" height="0" style="position:absolute"&gt;
+  &lt;filter id="duotone-night" color-interpolation-filters="sRGB"&gt;
+    <span class="c-cm">&lt;!-- 1. collapse to luminance --&gt;</span>
+    &lt;feColorMatrix type="matrix" values="
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0.2126 0.7152 0.0722 0 0
+      0      0      0      1 0"/&gt;
+    <span class="c-cm">&lt;!-- 2. shadow -> #0B0B0D, highlight -> #E8FF4A --&gt;</span>
+    &lt;feComponentTransfer&gt;
+      &lt;feFuncR type="table" tableValues="<span class="c-v">0.043 0.910</span>"/&gt;
+      &lt;feFuncG type="table" tableValues="<span class="c-v">0.043 1.000</span>"/&gt;
+      &lt;feFuncB type="table" tableValues="<span class="c-v">0.051 0.290</span>"/&gt;
+    &lt;/feComponentTransfer&gt;
+  &lt;/filter&gt;
+&lt;/svg&gt;
+
+.is-duotone img {
+  <span class="c-cm">/* lift first: an unlifted dark frame never reaches
+     the highlight colour and the duotone reads as mud */</span>
+  filter: brightness(<span class="c-v">1.7</span>) contrast(<span class="c-v">1.15</span>)
+          url(#duotone-night);
+}</code></pre>
+  </div>
+</section>
+
+<!-- ========================= 03 · CROP PAIR ========================= -->
+<section class="band" id="t03">
+  <div class="wrap">
+    <div class="band__head">
+      <div>
+        <p class="label">Treatment 03</p>
+        <h2 class="display rv-wipe">Crop pair</h2>
+      </div>
+      <div>
+        <p class="note">Two ratios, chosen rather than inherited: 4:5 for a person, 16:9 for a place. The wide frame starts in column 7 and drops 136px below the tall one. <strong>The misalignment is the composition.</strong> Two images at the same height on the same baseline is what a template does; the offset is what makes a reader's eye travel.</p>
+      </div>
+    </div>
+
+    <div class="crops">
+      <figure class="crop--tall rv-scale">
+        <img alt="Bass player resting against his instrument between sets"
+             src="https://images.unsplash.com/photo-1710951403141-353d4e5c7cbf?w=1600&q=80&auto=format"
+             width="1600" height="1065" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>4:5 · people.</b> Cropped to the shoulders so the frame is about a person, not a stage.</figcaption>
+      </figure>
+      <figure class="crop--wide rv-scale">
+        <img alt="A wall of illuminated VU meters on a recording console"
+             src="https://images.unsplash.com/photo-1581618048889-8a9c8d4be95d?w=1600&q=80&auto=format"
+             width="1600" height="1067" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>16:9 · place.</b> Dropped 136px so the pair reads as a spread rather than a row.</figcaption>
+      </figure>
+    </div>
+
+    <pre class="rv-fade"><code>.crops     { display: grid; grid-template-columns: repeat(12, 1fr);
+             gap: var(--gutter); }
+
+.crop--tall{ grid-column: 1 / span 5; }
+.crop--tall img { aspect-ratio: <span class="c-v">4/5</span>;
+                  object-fit: cover;
+                  object-position: <span class="c-v">52% 38%</span>; }
+
+<span class="c-cm">/* column 7, not column 6, and pushed down a whole step */</span>
+.crop--wide{ grid-column: 7 / span 6;
+             margin-top: clamp(3rem, 9vw, 8.5rem); }
+.crop--wide img { aspect-ratio: <span class="c-v">16/9</span>;
+                  object-fit: cover;
+                  object-position: <span class="c-v">50% 55%</span>; }
+
+<span class="c-cm">/* on a phone the offset is noise, so it goes away */</span>
+@media (max-width: 860px) {
+  .crops { grid-template-columns: 1fr; }
+  .crop--tall, .crop--wide { grid-column: auto; margin-top: 0; }
+}</code></pre>
+  </div>
+</section>
+
+<!-- =========================== 04 · GRAIN =========================== -->
+<section class="band" id="t04">
+  <div class="wrap">
+    <div class="band__head">
+      <div>
+        <p class="label">Treatment 04</p>
+        <h2 class="display rv-wipe">Grain</h2>
+      </div>
+      <div>
+        <p class="note">One SVG turbulence tile, no network request, laid over the photograph at 6% with <strong>mix-blend-mode: overlay</strong>. It hides JPEG blocking in the shadows and pulls compressed stock back toward film. Pick one surface texture for a site and hold it: grain or a hairline grid or a vignette, never all three.</p>
+      </div>
+    </div>
+
+    <div class="grainrow">
+      <figure class="grained rv-scale">
+        <img alt="Double bass and drum kit waiting on an empty stage"
+             src="https://images.unsplash.com/photo-1720764511354-84e463d70b2b?w=1600&q=80&auto=format"
+             width="1600" height="1067" loading="lazy" decoding="async">
+        <figcaption class="cap"><b>Grained at 6%.</b> Look at the shadow under the bass: the banding is gone.</figcaption>
+      </figure>
+      <figure class="rv-scale">
+        <div class="swatch"></div>
+        <figcaption class="cap"><b>The tile at 100%.</b> 140 x 140, fractalNoise, three octaves. It repeats, and at 6% nobody sees the repeat.</figcaption>
+      </figure>
+    </div>
+
+    <pre class="rv-fade"><code>.grained { position: relative; isolation: isolate; }
+.grained::after {
+  content: ""; position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: <span class="c-v">.06</span>; mix-blend-mode: <span class="c-v">overlay</span>;
+  background-image: url("data:image/svg+xml,\
+%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E\
+%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' \
+baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E\
+%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E\
+%3C/svg%3E");
+}
+
+<span class="c-cm">/* site-wide version: swap inset for position:fixed and put it
+   on one element only, above the content, below the cursor */</span></code></pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="label label--quiet">Frames</p>
+    <p class="note" style="margin-top:1rem">All five photographs are Unsplash, free licence, credited anyway. Sources load at 1600px and never render wider than that.</p>
+    <ul class="credits">
+      <li><a href="https://unsplash.com/photos/1710951403281-93d866a223cd">Stage, piano and bass</a></li>
+      <li><a href="https://unsplash.com/photos/1509335919466-c196457ea95a">Console faders</a></li>
+      <li><a href="https://unsplash.com/photos/1710951403141-353d4e5c7cbf">Bass player</a></li>
+      <li><a href="https://unsplash.com/photos/1581618048889-8a9c8d4be95d">VU meters</a></li>
+      <li><a href="https://unsplash.com/photos/1720764511354-84e463d70b2b">Empty stage</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* The hidden state is only ever authored when we know we can undo it.
+     Under reduced motion we never add `js`, so every reveal target keeps its
+     default visible state and the still composition is complete. */
+  if (reduced || !('IntersectionObserver' in window)) return;
+  document.documentElement.classList.add('js');
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+
+  document.querySelectorAll('.rv-wipe, .rv-scale, .rv-fade')
+    .forEach(function (el) { io.observe(el); });
+})();
+</script>
+</body>
+</html>

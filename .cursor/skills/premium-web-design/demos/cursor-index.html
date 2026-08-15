@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ellery &amp; Crane — barbering and shaving, Marylebone</title>
+
+<!--
+  PATTERN — Desktop craft: a lerped custom cursor with real states, a magnetic
+  CTA, and a cursor-driven image preview on an index list.
+    · One rAF loop drives everything. The ring chases the pointer at 0.15 per
+      frame; a 5px dot stays welded to the exact hotspot so the affordance never
+      lies about where the click lands.
+    · States are declared in markup with `data-cursor` — link, view, cta — not
+      inferred from tag names, so a designer can change a state without touching
+      the loop.
+    · The magnet pulls the button 35% of the pointer's offset inside a 150px
+      radius, and releases outside it. The button's label never moves relative to
+      its own box, so the hit area and the paint stay in agreement.
+    · Hovering an index row cross-fades a photograph that follows the pointer —
+      the reason the list is a list and not a card grid.
+
+  DERIVES FROM — references/site-studies/amrit-palace.md (menu-led index rows:
+  number, name, hairline, price on the right) and pizzato.md (one pill component
+  used four ways, the fourth being a cursor that prints `Click` over an
+  interactive photograph). layout-archetypes.md calls archetype E the best
+  replacement for a card grid.
+
+  FAILURE MODES IT AVOIDS
+    · A custom cursor on touch. Everything here is behind `(pointer: fine) and
+      (hover: hover)`; `cursor: none` is never applied on a phone, the cursor
+      nodes stay `display:none`, and the rAF loop is never started. A phone gets
+      an ordinary, complete, tappable index.
+    · Instant tracking (feels cheap) and heavy lag (feels broken). 0.15/frame is
+      the value motion.md specifies.
+    · A cursor that outruns the layout. The loop writes `translate3d` on two
+      fixed-position nodes and nothing else — no width, no top/left, no reads
+      after writes, so it stays on the compositor.
+    · Hover-only information. Every price and every barber's name is in the DOM
+      and visible without hovering; the preview adds atmosphere, never content.
+    · Reduced motion. No cursor, no magnet, no preview — the rows keep a plain
+      ground-shift on hover so the page still answers a pointer.
+
+  ADAPT
+    · `LERP` (0.15) and `MAGNET` (radius 150, pull 0.35) are the only tuning
+      constants. Raise the pull past ~0.4 and the button stops feeling attached
+      to the page.
+    · Add a state by adding a `data-cursor` value and one CSS rule. The loop
+      needs no change.
+    · Swap `data-img` on a row to change its preview. Ship those at 2×.
+    · Every duration/easing token below is copied from references/motion.md.
+
+  PALETTE  Ink & sand   (color-and-light.md, palette 4)
+  TYPE     Libre Caslon Display + Karla   (typography.md, pairing 9)
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* Ink & sand — color-and-light.md palette 4, verbatim */
+  --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
+  --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
+
+  /* motion.md — do not invent curves */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
+
+  /* typography.md scale */
+  --step-hero: clamp(2.75rem, 7.5vw, 6rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --section-y:96px;
+}
+@media (min-width:900px){ :root{ --section-y:152px; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Karla", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+img{ display:block; max-width:100%; height:auto; }
+a{ color:inherit; text-decoration:none; }
+p{ text-wrap:pretty; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:4px; }
+
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted); margin:0;
+}
+.serif{ font-family:"Libre Caslon Display", serif; font-weight:400; }
+
+/* one hairline grid at 3% — color-and-light.md: pick ONE texture */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:1; opacity:.02;
+  background-image:linear-gradient(to right, var(--ink) 1px, transparent 1px);
+  background-size:calc(100% / 12) 100%;
+}
+
+/* ── masthead ─────────────────────────────────────────────── */
+.masthead{ position:relative; z-index:5; padding-top:24px; padding-bottom:24px; }
+.masthead .wrap{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.mark{
+  font-family:"Libre Caslon Display",serif; font-size:1.25rem; letter-spacing:.01em;
+  display:inline-flex; align-items:center; min-height:44px;
+}
+.nav{ display:flex; gap:8px; align-items:center; }
+.nav a{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted); padding:12px;
+  min-height:44px; display:inline-flex; align-items:center;
+  transition:color var(--d-state) var(--ease-out);
+}
+.nav a:hover,.nav a:focus-visible{ color:var(--ink); }
+@media (max-width:719px){ .nav a:not(.nav-key){ display:none; } }
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{ position:relative; z-index:2; padding-top:56px; padding-bottom:0; }
+.hero .grid{ display:grid; gap:40px; align-items:end; }
+@media (min-width:900px){ .hero .grid{ grid-template-columns:5fr 7fr; gap:64px; } }
+.hero h1{
+  font-family:"Libre Caslon Display",serif; font-weight:400;
+  font-size:var(--step-hero); line-height:.98; letter-spacing:-.025em;
+  margin:20px 0 28px; max-width:8em;
+}
+.hero .sub{ margin:0 0 32px; color:var(--ink-muted); max-width:38ch; }
+.hero-meta{ display:grid; gap:8px; margin:0; }
+.hero-meta div{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--edge); padding-top:8px; padding-bottom:8px; }
+.hero-meta dt{ font-size:var(--step-small); color:var(--ink-muted); }
+.hero-meta dd{ margin:0; font-size:var(--step-small); font-variant-numeric:tabular-nums; }
+.hero figure{ margin:0; overflow:hidden; }
+.hero figure img{ width:100%; aspect-ratio:4/3; object-fit:cover; filter:brightness(.86) saturate(.9); }
+
+/* ── the index ────────────────────────────────────────────── */
+.index{ padding-top:var(--section-y); position:relative; z-index:2; }
+.index-head{ display:grid; gap:16px; margin-bottom:48px; }
+@media (min-width:900px){ .index-head{ grid-template-columns:1fr 1fr; align-items:end; gap:40px; } }
+.index-head h2{
+  font-family:"Libre Caslon Display",serif; font-weight:400; font-size:var(--step-h2);
+  line-height:1.02; letter-spacing:-.02em; margin:12px 0 0; max-width:9em;
+}
+.index-head p{ margin:0; color:var(--ink-muted); max-width:44ch; }
+
+.rows{ border-top:1px solid var(--edge); }
+.row{
+  display:grid; grid-template-columns:auto 1fr auto; gap:20px; align-items:baseline;
+  padding:24px 0; border-bottom:1px solid var(--edge);
+  transition:border-color var(--d-state) var(--ease-out);
+}
+@media (min-width:720px){ .row{ padding:28px 0; } }
+.row .n{ font-size:var(--step-label); letter-spacing:.14em; color:var(--ink-muted); font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
+.row .name{
+  font-family:"Libre Caslon Display",serif; font-size:clamp(1.5rem,3vw,2.5rem);
+  line-height:1.05; letter-spacing:-.02em;
+  transition:transform var(--d-state) var(--ease-out);
+}
+.row .name small{
+  display:block; font-family:"Karla",sans-serif; font-size:var(--step-small);
+  color:var(--ink-muted); letter-spacing:0; margin-top:6px;
+}
+.row .fee{ font-size:clamp(1.125rem,1.6vw,1.375rem); font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
+@media (hover:hover) and (pointer:fine){
+  .row:hover{ border-color:var(--accent); }
+  .row:hover .name{ transform:translateX(10px); }
+  .row:hover .fee{ color:var(--accent); }
+  .row:hover .n{ color:var(--ink); }
+}
+/* touch and reduced-motion keep an answer to a press, without the travel */
+.row:focus-visible .fee{ color:var(--accent); }
+.row:active{ background:var(--ground-2); }
+
+/* ── magnetic CTA ─────────────────────────────────────────── */
+.book{ padding-top:var(--section-y); position:relative; z-index:2; }
+.book .inner{
+  background:var(--ground-2); padding:56px var(--gutter) 56px;
+  display:grid; gap:32px; align-items:center;
+}
+@media (min-width:900px){ .book .inner{ grid-template-columns:1fr auto; gap:64px; padding:88px 72px; } }
+.book h2{
+  font-family:"Libre Caslon Display",serif; font-weight:400; font-size:var(--step-h2);
+  line-height:1.04; letter-spacing:-.02em; margin:0; max-width:11em;
+}
+.book p{ margin:16px 0 0; color:var(--ink-muted); max-width:44ch; }
+.magnet{ justify-self:start; will-change:transform; }
+.cta{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-height:56px; padding:18px 36px;
+  background:var(--accent); color:var(--ground);
+  font-size:var(--step-body); font-weight:500; letter-spacing:.01em;
+  transition:background-color var(--d-state) var(--ease-out),
+             color var(--d-state) var(--ease-out),
+             transform var(--d-press) var(--ease-out);
+}
+.cta:hover,.cta:focus-visible{ background:var(--ink); color:var(--ground); }
+.cta:active{ transform:scale(.97); }
+
+/* ── footer ───────────────────────────────────────────────── */
+.foot{ margin-top:var(--section-y); padding-top:56px; padding-bottom:48px; border-top:1px solid var(--edge); position:relative; z-index:2; }
+.foot .wrap{ display:grid; gap:32px; }
+@media (min-width:900px){ .foot .wrap{ grid-template-columns:repeat(3,1fr); gap:48px; } }
+.foot p{ margin:8px 0 0; font-size:var(--step-small); color:var(--ink-muted); }
+.foot a.line{ color:var(--ink); border-bottom:1px solid var(--edge); display:inline-flex; align-items:center; min-height:44px; transition:border-color var(--d-state) var(--ease-out); }
+.foot a.line:hover{ border-color:var(--accent); }
+.foot .stamp{
+  font-family:"Libre Caslon Display",serif; font-size:clamp(2rem,7vw,5rem);
+  letter-spacing:-.03em; line-height:1; color:var(--ink); margin:56px 0 0;
+}
+
+/* ══ CURSOR + PREVIEW ════════════════════════════════════════
+   Nothing in this block exists on touch, on a mouse-less device, or before JS
+   proves it can drive the loop. */
+.cur, .cur-dot, .preview{ display:none; }
+
+@media (hover:hover) and (pointer:fine){
+  .js.cursor-on .cur,
+  .js.cursor-on .cur-dot,
+  .js.cursor-on .preview{ display:block; }
+  .js.cursor-on, .js.cursor-on *{ cursor:none; }
+
+  .cur{
+    position:fixed; top:0; left:0; z-index:90; pointer-events:none;
+    width:44px; height:44px; margin:-22px 0 0 -22px;
+    border:1px solid var(--ink); border-radius:50%;
+    transition:width var(--d-state) var(--ease-out),
+               height var(--d-state) var(--ease-out),
+               margin var(--d-state) var(--ease-out),
+               background-color var(--d-state) var(--ease-out),
+               border-color var(--d-state) var(--ease-out),
+               opacity var(--d-state) var(--ease-out);
+  }
+  .cur-dot{
+    position:fixed; top:0; left:0; z-index:91; pointer-events:none;
+    width:5px; height:5px; margin:-2.5px 0 0 -2.5px;
+    background:var(--ink); border-radius:50%;
+    transition:opacity var(--d-state) var(--ease-out),
+               width var(--d-state) var(--ease-out),
+               height var(--d-state) var(--ease-out),
+               margin var(--d-state) var(--ease-out),
+               background-color var(--d-state) var(--ease-out);
+  }
+  .cur-label{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-size:var(--step-label); letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ground); opacity:0; transition:opacity var(--d-state) var(--ease-out);
+  }
+
+  /* states — one rule each */
+  .cur.is-link{ width:68px; height:68px; margin:-34px 0 0 -34px; border-color:var(--accent); }
+  .cur.is-link ~ .cur-dot{ opacity:0; }
+  .cur.is-view{ width:96px; height:96px; margin:-48px 0 0 -48px; background:var(--ink); border-color:var(--ink); }
+  .cur.is-view .cur-label{ opacity:1; }
+  .cur.is-view ~ .cur-dot{ opacity:0; }
+  /* Over the magnetic CTA the ring gets OUT OF THE WAY. A 112px accent disc on
+     an accent button erases the label it is meant to invite you to press —
+     the magnet and the button's own colour flip are the state. */
+  .cur.is-cta{ width:0; height:0; margin:0; opacity:0; border-color:transparent; }
+  .cur.is-cta ~ .cur-dot{ width:9px; height:9px; margin:-4.5px 0 0 -4.5px; background:var(--ground); }
+  .cur.is-off, .cur.is-off ~ .cur-dot{ opacity:0; }
+
+  .preview{
+    position:fixed; top:0; left:0; z-index:80; pointer-events:none;
+    --pw:clamp(240px, 22vw, 340px);
+    width:var(--pw); aspect-ratio:4/5; overflow:hidden;
+    /* centred on the pointer vertically, clear of the row's own text to the
+       right — a preview that covers the line you are reading is a bug */
+    margin:calc(var(--pw) * -0.625) 0 0 96px;
+    opacity:0; transition:opacity var(--d-state) var(--ease-out);
+  }
+  .preview img{
+    width:100%; height:100%; object-fit:cover;
+    filter:brightness(.9) saturate(.9);
+    transform:scale(1.06); transition:transform 600ms var(--ease-out), opacity var(--d-state) var(--ease-out);
+  }
+  .preview.is-on{ opacity:1; }
+  .preview.is-on img{ transform:none; }
+}
+
+/* ══ REVEALS ═════════════════════════════════════════════════ */
+.js .reveal{ opacity:0; transform:translateY(16px); }
+.js .reveal.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+  transition-delay:calc(var(--i, 0) * 60ms);
+}
+.js .reveal-image{ overflow:hidden; }
+.js .reveal-image img{ transform:scale(1.06); }
+.js .reveal-image.is-in img{ transform:none; transition:transform 900ms var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  .js .reveal{ opacity:1 !important; transform:none !important; }
+  .js .reveal-image img{ transform:none !important; }
+  .cur, .cur-dot, .preview{ display:none !important; }
+  .js.cursor-on, .js.cursor-on *{ cursor:auto !important; }
+  .row:hover .name{ transform:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="mark" href="#" data-cursor="link">Ellery &amp; Crane</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#index" data-cursor="link">Services</a>
+      <a href="#barbers" data-cursor="link">Barbers</a>
+      <a class="nav-key" href="#book" data-cursor="link">Book</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="grid">
+        <div>
+          <p class="label reveal">Marylebone · Since 1974</p>
+          <h1 class="reveal" style="--i:1">One chair, one hour, no music you have to shout over.</h1>
+          <p class="sub reveal" style="--i:2">Three barbers, six services, and a booking sheet that is still a paper diary. Walk-ins before eleven; after that, ring the shop.</p>
+          <dl class="hero-meta reveal" style="--i:3">
+            <div><dt>Tuesday to Saturday</dt><dd>09:00 – 19:00</dd></div>
+            <div><dt>Longest appointment</dt><dd>75 min</dd></div>
+            <div><dt>Chairs</dt><dd>3</dd></div>
+          </dl>
+        </div>
+        <figure class="reveal-image" data-cursor="view">
+          <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1600&q=80&auto=format"
+               alt="The shop floor at Ellery and Crane: three chairs against exposed brick under warm bulbs"
+               width="1600" height="1200">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="index" id="index">
+    <div class="wrap">
+      <div class="index-head">
+        <div>
+          <p class="label reveal">Services and prices</p>
+          <h2 class="reveal" style="--i:1">Everything we do, and what it costs</h2>
+        </div>
+        <p class="reveal" style="--i:2">Prices are the same for every barber and have not changed since March. A cut includes a wash, and a shave includes two hot towels and a cold one at the end.</p>
+      </div>
+
+      <div class="rows">
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=1200&q=80&auto=format">
+          <span class="n">01</span>
+          <span class="name">Cut &amp; finish<small>45 minutes · wash, cut, and a proper dry finish</small></span>
+          <span class="fee">£48</span>
+        </a>
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=1200&q=80&auto=format">
+          <span class="n">02</span>
+          <span class="name">Skin fade<small>50 minutes · clipper work down to the skin, blended by hand</small></span>
+          <span class="fee">£52</span>
+        </a>
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1596728325488-58c87691e9af?w=1200&q=80&auto=format">
+          <span class="n">03</span>
+          <span class="name">Hot towel shave<small>40 minutes · straight razor, two hot towels, one cold</small></span>
+          <span class="fee">£45</span>
+        </a>
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=1200&q=80&auto=format">
+          <span class="n">04</span>
+          <span class="name">Beard shape<small>25 minutes · razor line-out, trim, and oil</small></span>
+          <span class="fee">£32</span>
+        </a>
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=1200&q=80&auto=format">
+          <span class="n">05</span>
+          <span class="name">Grey blending<small>60 minutes · softened, not covered — patch test first</small></span>
+          <span class="fee">£40</span>
+        </a>
+        <a class="row reveal" href="#book" data-cursor="link"
+           data-img="https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=1200&q=80&auto=format">
+          <span class="n">06</span>
+          <span class="name">Two chairs, one after the other<small>75 minutes · for a father and son, or anyone else</small></span>
+          <span class="fee">£78</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="book" id="book">
+    <div class="wrap">
+      <div class="inner">
+        <div>
+          <h2 class="reveal">The diary is on the counter. Ring it or come in.</h2>
+          <p class="reveal" style="--i:1">Sam Okafor works Tuesday to Friday, Dot Reilly Wednesday to Saturday, Marek Nowak every day but Thursday. If you want a particular pair of hands, say so when you ring.</p>
+        </div>
+        <div class="magnet" id="magnet">
+          <a class="cta" href="tel:+442075550149" data-cursor="cta">Ring 020 7555 0149</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" id="barbers">
+  <div class="wrap">
+    <div>
+      <p class="label">The shop</p>
+      <p>14 New Cavendish Street<br>London W1G 8UR</p>
+    </div>
+    <div>
+      <p class="label">Hours</p>
+      <p>Tuesday to Saturday<br>09:00 – 19:00, last cut 18:15</p>
+    </div>
+    <div>
+      <p class="label">Barbers</p>
+      <p>Sam Okafor · Dot Reilly · Marek Nowak</p>
+    </div>
+  </div>
+  <div class="wrap"><p class="stamp">Ellery &amp; Crane</p></div>
+</footer>
+
+<!-- starts hidden: a ring parked in the middle of the page before the reader has
+     moved anything reads as a rendering bug, not as craft -->
+<div class="cur is-off" id="cur" aria-hidden="true"><span class="cur-label">View</span></div>
+<div class="cur-dot" id="curDot" aria-hidden="true"></div>
+<!-- the preview ships with the first row's photograph already set: an <img>
+     with no src is a broken image the moment anything inspects the DOM, and it
+     also means the first hover has nothing decoded to show -->
+<div class="preview" id="preview" aria-hidden="true">
+  <img id="previewImg" alt="" width="1200" height="1500"
+       src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=1200&q=80&auto=format">
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── scroll reveals (everyone gets these) ─────────────────── */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+  document.querySelectorAll('.reveal, .reveal-image').forEach(function (el) { io.observe(el); });
+
+  /* ── the desktop-only layer ───────────────────────────────── */
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)');
+  if (!fine.matches || reduce) return;
+
+  var LERP = 0.15;                       /* motion.md: ~0.15 per frame */
+  var MAGNET = { radius: 150, pull: 0.35 };
+
+  var cur     = document.getElementById('cur');
+  var dot     = document.getElementById('curDot');
+  var preview = document.getElementById('preview');
+  var pImg    = document.getElementById('previewImg');
+  var magnet  = document.getElementById('magnet');
+
+  root.classList.add('cursor-on');
+
+  var pointer = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  var ring    = { x: pointer.x, y: pointer.y };
+  var prev    = { x: pointer.x, y: pointer.y };
+  var mag     = { x: 0, y: 0, tx: 0, ty: 0 };
+  var running = true;
+
+  function frame() {
+    if (!running) return;
+    ring.x += (pointer.x - ring.x) * LERP;
+    ring.y += (pointer.y - ring.y) * LERP;
+    prev.x += (pointer.x - prev.x) * LERP;
+    prev.y += (pointer.y - prev.y) * LERP;
+    mag.x  += (mag.tx - mag.x) * LERP;
+    mag.y  += (mag.ty - mag.y) * LERP;
+
+    cur.style.transform     = 'translate3d(' + ring.x + 'px,' + ring.y + 'px,0)';
+    dot.style.transform     = 'translate3d(' + pointer.x + 'px,' + pointer.y + 'px,0)';
+    preview.style.transform = 'translate3d(' + prev.x + 'px,' + prev.y + 'px,0)';
+    magnet.style.transform  = 'translate3d(' + mag.x.toFixed(2) + 'px,' + mag.y.toFixed(2) + 'px,0)';
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  /* one listener, no per-element handlers: state is read off the hovered node */
+  window.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse') return;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+
+    cur.classList.remove('is-off');          /* first real move shows the cursor */
+
+    var hit = e.target.closest ? e.target.closest('[data-cursor]') : null;
+    var state = hit ? hit.getAttribute('data-cursor') : '';
+    cur.classList.toggle('is-link', state === 'link');
+    cur.classList.toggle('is-view', state === 'view');
+    cur.classList.toggle('is-cta',  state === 'cta');
+
+    var src = hit && hit.getAttribute('data-img');
+    if (src) {
+      if (pImg.getAttribute('src') !== src) pImg.setAttribute('src', src);
+      preview.classList.add('is-on');
+    } else {
+      preview.classList.remove('is-on');
+    }
+
+    /* magnet: pull inside the radius, release outside it */
+    var r = magnet.getBoundingClientRect();
+    var dx = e.clientX - (r.left + r.width / 2 - mag.x);
+    var dy = e.clientY - (r.top + r.height / 2 - mag.y);
+    if (Math.hypot(dx, dy) < MAGNET.radius) {
+      mag.tx = dx * MAGNET.pull;
+      mag.ty = dy * MAGNET.pull;
+    } else {
+      mag.tx = 0; mag.ty = 0;
+    }
+  }, { passive: true });
+
+  /* leaving the window, or a page that lost focus, must not leave a ghost */
+  document.addEventListener('pointerleave', function () {
+    cur.classList.add('is-off');
+    preview.classList.remove('is-on');
+    mag.tx = 0; mag.ty = 0;
+  });
+  window.addEventListener('blur', function () {
+    cur.classList.add('is-off');
+    preview.classList.remove('is-on');
+    mag.tx = 0; mag.ty = 0;
+  });
+
+  /* a mouse can become a finger: a plugged-out mouse or a hybrid device flips
+     this query, and the whole layer has to leave with it */
+  function onChange() {
+    if (fine.matches) { if (!running) { running = true; requestAnimationFrame(frame); } root.classList.add('cursor-on'); }
+    else {
+      running = false;
+      root.classList.remove('cursor-on');
+      magnet.style.transform = '';
+      preview.classList.remove('is-on');
+    }
+  }
+  if (fine.addEventListener) fine.addEventListener('change', onChange);
+})();
+</script>
+</body>
+</html>
