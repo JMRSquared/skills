@@ -83,6 +83,13 @@ auditor is silent. Three passes is normal. One pass means you did not look.
 | `no-motion` | Nothing declares a transition. | At minimum: hover states, scroll reveals with a real easing curve, and one signature moment. |
 | `tap-targets` | Interactive elements under 40px on phone. | 44px minimum. |
 | `overflow-x` | Page scrolls sideways. | Always a bug. Never a style. |
+| `display-font-escape-default` | The display face is Space Grotesk, Poppins, Montserrat, DM Sans, Outfit or Sora — the face a model reaches for the moment Inter is banned. typography.md named this trap in prose and nothing measured it. | A row from the verified pairings table. |
+| `display-font-unavailable` | The display family is named in CSS, declared in no `@font-face`, and changes no glyph metric: the browser is drawing its own default under your name. Every other font check reads the string you typed. | Load the face properly, then look at the frame. A webfont that was merely slow in this run never trips it — the check needs *both* "not declared anywhere" and "changes nothing". |
+| `gradient-text` | A `background-clip: text` gradient. | One solid colour; emphasis by size or weight. |
+| `gradient-purple-blue` | A gradient stop in the 250–290 hue band with real saturation and area. | Whatever the brief actually justifies. |
+| `pure-black-white` (WARN) | `#000` or `#fff` carrying ≥12% of the painted area. | Tinted off-black and off-white. Blindbarber runs `#141414` on `#F1F1F1`. |
+| `copy-placeholder` | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" survived into the shipped copy. | Real names, real prices, real numbers. If you invented them, say which ones in one line to the user. |
+| `copy-tells` (WARN) | "Welcome to", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, a `Scroll` cue, or four or more `SECTION 0n` eyebrows. `Chapter 01` is content, not furniture, and does not count. `robust` and `leverage` are on the written list and not the machine one — amritpalace.com describes a robust curry, and a tell that fires on an award site gets ignored. | Specificity. "Open until 8pm on weekdays" beats "convenient hours". |
 
 ## SPARSE — the ambition block
 
@@ -106,7 +113,8 @@ studies longer than five screens:
 | `no-overlap` | Zero partially-overlapping content pairs. Nav chrome and text-inside-a-hero-photo are excluded — both are free, every page has them. | Let something cut across something else: copy over a numeral, a photo dropped across a caption, a sticky rail crossing an image. Layering is what separates a designed page from a stack of rows. |
 | `no-bleed` | Nothing crosses the viewport edge (while the page does not scroll horizontally). | Run a photo row, a marquee or a wordmark past the edge so the frame reads as a window onto something larger, not as a box with margins. |
 | `ground-flips` | Fewer than 3 ground-colour changes on a page over 6 screens, sampled at 12 scroll positions. | Blind Barber flips paper `#F1F1F1` to ink `#141414` every ~2 chapters and deletes every divider. Amrit runs sand, dark photo, saffron panel, sand. One ground for a whole page makes the scroll feel like one long section. |
-| `motion-vocabulary` | Fewer than 4 *distinct* transition/animation declarations (unique property + duration + easing) on a page over 6 screens, with no JS motion runtime present. | One easing curve repeated everywhere is a default, not a vocabulary. Want four registers: a state change, an enter, a scroll-linked move, one slow ambient one. See `references/motion.md`. |
+| `motion-vocabulary` | Fewer than 4 *distinct* transition/animation declarations (unique property + duration + easing) on a page over 6 screens, with no JS motion runtime present. "A JS motion runtime present" now means a library global, a library data-attribute, or six elements carrying an **inline** transform a runtime wrote — `will-change` typed into a stylesheet used to be enough to switch this check off on a page with no script at all. | One easing curve repeated everywhere is a default, not a vocabulary. Want four registers: a state change, an enter, a scroll-linked move, one slow ambient one. See `references/motion.md`. |
+| `image-repetition` | Six or more media placements resolving to fewer than 5 distinct sources. | density-and-devices.md counts placements rather than files on purpose — but it also asks for six distinct photographs, each cropped two or more ways. Eight placements of one frame is one picture. |
 
 ## CRAFT — the ambition you claimed
 
@@ -134,12 +142,47 @@ canvas on desktop and checks that something real is painted there instead.
 | `tier-undeclared` | No `premium-web-design: tier=…` in the source. The page is measured against Tier B, the documented default. | Declare it. If it is Tier A, say so and meet the entry clause. |
 | `tier-unmet` | The declared tier's evidence is not on the page. Tier B wants a scroll-driven pin, a scrubbed transform/canvas/video, a split or masked type reveal, or a page transition. Tier C wants a `<canvas>` holding a WebGL context, or three/R3F. | Build the tier, or drop the declaration to the tier you built. Both are honest; the label without the work is not. |
 | `tier-floor` | `tier=A` on a page over 6 viewport heights. | `ambition-tiers.md` puts the Tier A ceiling at 6 screens. Cut the page or move to Tier B. |
+| `tier-a-undefended` | `tier=A` declared with no `because=` in the declaration. Three clauses gate Tier A and only length can be measured, so a page could clear every craft gate by declaring A and stopping at 5.9 screens. | Write the other two clauses down: `tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one"`. A reviewer reads that string. |
+| `demo-claim-rejected` | `kind=demo` on something that ships a `tel:` link **and** an address, hours, a map or LocalBusiness JSON-LD; or a contact form; or more than 8 screens. | That is a deliverable. Drop the `kind=demo` and meet the bar, or cut it back to the pattern it claims to be. A lone phone number is *not* a disqualifier — every demo was briefed to carry a plausible business. |
 | `tier-fallback-missing` | `mobile=` declares a step down, and the section holding the desktop scene paints nothing in its place on the phone. | Art-direct a still into the same section. A scene switched off is a hole, not a fallback. |
-| `motion-techniques` | Fewer than 3 distinct weight-carrying techniques on a page over 6 screens, out of: scroll-pinned section, scrubbed sequence, split/masked type reveal at display scale, cursor-driven preview, horizontal chapter, loader into hero, page transition, magnetic element, canvas/3D scene. | Pick the two or three the brief actually wants and build them completely. Scroll-reveal fades and hover states are the floor, not techniques. |
+| `motion-techniques` | Fewer than 3 distinct weight-carrying techniques on a page over 6 screens — or fewer than 2 on a **desktop** page over 4 screens that is not measured against Tier A. Out of: scroll-pinned section, scrubbed sequence, split/masked type reveal at display scale, cursor-driven preview, horizontal chapter, loader into hero, page transition, magnetic element, canvas/3D scene. The phone keeps the 6-screen rule: a mobile build that drops to a still is the documented Tier C fallback, and `horizontal-chapter.html` releases its pin at 390px by design. | Pick the two or three the brief actually wants and build them completely. Scroll-reveal fades and hover states are the floor, not techniques. |
+| — | **Four of those nine used to be free.** An empty `<canvas>`, `<div data-loader></div>`, one `view-transition-name`, and an empty sticky div claimed four techniques between them and cost nothing. Each is now measured on its result: canvas pixels that are not uniform (or a WebGL context request, counted at the prototype so a closed shadow root cannot hide it — `igloo.inc` creates its canvas in one); an overlay that paints and then goes; a transition library, `@view-transition`, a real `startViewTransition()` call or three named elements; a sticky stage that holds text, media or a background image. | Build the thing. The demos in `demos/` each build one properly. |
 | `no-loader` | Nothing runs before or into the first paint on a page over 6 screens. | `demos/loader-to-hero.html` builds one that resolves into the hero, skips on any input, and has a watchdog. |
-| `img-not-responsive` | An `<img>` with no `srcset` and no `<picture>` decoding at over 2.5× its rendered CSS width. | `imagery.md` asks for 2× display width. 2.5× is the flag so a correct retina asset never trips it; a 6× payload always does. |
+| `img-not-responsive` | An `<img>` decoding at over 2.5× its rendered CSS width with no *real* source set. `srcset="hero.jpg"` is one candidate at one size and no longer counts; the attribute needs two or more candidates or a `w`/`x` descriptor, and a `<picture>` needs at least one `<source>`. | `imagery.md` asks for 2× display width. 2.5× is the flag so a correct retina asset never trips it; a 6× payload always does. |
 | `conversion-incomplete` | A page with a `tel:` link missing any of: a bottom-pinned mobile action bar, what-happens-next copy within 200 characters after a CTA, an FAQ/objection block, a named person who is not a reviewer. | All four are S-cost components from the Plomberie and Amrit steal lists with a direct line to booked work. |
-| `rating-unsourced` | A 3.0–5.0 rating near the word review/star/rating with no link in or beside it. | `content-and-copy.md` bans star ratings with no source. Link it to the Google or Trustpilot listing. |
+| `rating-unsourced` | A 3.0–5.0 rating near the word review/star/rating with no link in or beside it that goes anywhere. `<a href="#">4.9</a>` is the claim with a link painted on it and is rejected. | `content-and-copy.md` bans star ratings with no source. Link it to the Google or Trustpilot listing. |
+| `conversion-incomplete` (tightened) | The FAQ and the named human are now read on content, not shape: two `<details>` carrying 40+ characters of answer past the summary, or a heading matching FAQ followed by 120+ characters. An empty accordion is furniture. "Jane Doe, Owner" is rejected as a person and reported as `copy-placeholder`. | Answer the question that stops the booking, and name someone real. |
+
+## The exit code is not the Done bar
+
+`process.exit` tracks FAILs and nothing else. SPARSE and CRAFT are deliberately
+outside it — absence and unmet ambition are notes, not build breaks — but that
+design is easy to read as permission to stop, and it was read that way twice.
+The auditor now prints a closing line whenever it exits 0 with either class
+standing:
+
+```
+exit 0, but NOT done: 6 SPARSE/CRAFT findings stand. SKILL.md's Done checklist
+asks for zero of both — the exit code only tracks FAILs.
+```
+
+## Capability downgrades must announce themselves
+
+Three separate investigations on this skill were lost to a silent fallback:
+`GLTFLoader` failing over `file://`, a Tier C page taking its phone path on
+desktop, and a 3D demo rendering an image sequence with WebGL2 available. In
+each case the console was clean and the page rendered something other than what
+it claimed, so the only way to find it was to reconstruct the whole render path.
+
+Any gate that can degrade the experience logs the failed condition:
+
+```js
+if (!gl) { console.info('[capability] no WebGL context — falling back to the image sequence'); }
+```
+
+`audit-page.mjs` collects anything logged that mentions a fallback, downgrade,
+unavailable or unsupported condition and prints it under the frames, and
+`tier-unmet` says plainly when nothing was logged.
 
 ## Reading your own frames
 

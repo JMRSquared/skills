@@ -88,6 +88,13 @@ Reject anything with these, no matter how well it matches the brief:
 - Visible stock watermarks, or the same face you have already used
 - A subject centred with even lighting and no depth
 - Obvious AI generation: warped hands, melted text, impossible reflections
+- **Another business's name, logo or signage anywhere in frame.** This is the
+  one that makes a photograph unusable rather than merely weak, and it is
+  invisible in a contact sheet. Three downloads on one build carried a `healthy
+  Shotz` wall logo, an estate agent's board reading `LET AGREED`, and a shop
+  fascia reading `WILLOW & WOLF`. A page claiming to be one business cannot
+  show another's mark. Check every shortlisted frame at full resolution before
+  you place it, not at thumbnail size.
 
 Prefer: one light source with direction, real depth of field, a subject caught
 mid-action, hands doing work, an environment with texture. A photograph where
@@ -190,6 +197,12 @@ on a page whose `srcset` markup was otherwise correct.
   render at the wrong height, and the page runs long. No auditor check catches
   it. If your attribute ratio and your CSS ratio disagree, the attributes win.
 - Prefer AVIF/WebP with a JPEG fallback where the stack supports it.
+- **`srcset` needs alternatives.** `srcset="hero.jpg"` satisfies the attribute,
+  satisfies a checklist line reading "every image has srcset", and ships one
+  payload to every device — and it used to make the auditor skip the image
+  entirely. Two or more candidates with real `w`/`x` descriptors, or a
+  `<picture>` carrying at least one `<source>`. Anything less is not measured as
+  responsive because it is not responsive.
 
 ## 3D, when it applies
 

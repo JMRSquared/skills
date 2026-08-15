@@ -17,6 +17,13 @@ signal that nobody art-directed this.
 Two families. Three only when a mono is doing real work (specs, timestamps,
 labels). Never four.
 
+The ban list is wider than the six names above: Georgia, Times New Roman,
+Verdana, Tahoma, Trebuchet, Courier, Palatino and Impact are all faces a browser
+already has, and the auditor now reads them as default voices too. Naming a face
+that does not exist is worse than either — `font-family: "Awwwards Display"`
+renders as the browser default and every font check reads the string you typed,
+which is why `display-font-unavailable` exists.
+
 There is a second trap. Ban Inter and a model reaches for the next most likely
 face — Space Grotesk, Poppins, Montserrat — which now signals "generated" just
 as loudly. Pick from the table below, and do not use the same display face on

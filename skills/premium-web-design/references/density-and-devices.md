@@ -58,6 +58,12 @@ Count placements, not files. Four originals honestly make 14 to 16.
 Gradient meshes, colour blobs, glass panels, icon sets and particle fields are
 not density. They are what an agent reaches for when it runs out of pictures.
 
+Neither is the same photograph eight times. Placements are counted, not files —
+that is the point of the crops above — but the auditor also counts **distinct
+sources**, and reports `image-repetition` below five. Four originals cropped
+four ways each is sixteen placements from four sources and clears both numbers;
+one original placed eight times clears neither.
+
 ## 2. The signature device
 
 Every site in the corpus has one repeating branded object, and it is the thing
@@ -206,6 +212,16 @@ Unequal `fr` values matter. Equal columns with unequal offsets read as a bug.
 Three overlaps per page is the working minimum: one type-over-media, one
 media-over-section-edge, one content-over-giant-type.
 
+**On a phone the crossing is vertical.** A single column removes horizontal
+overlap by construction, which is why two of the three corpus mobile builds
+report `no-overlap`. The device that still works at 390px: pull a full-width
+wordmark, numeral or photograph up over the rule or the block above it with a
+negative margin. The pair crosses in one axis, and one axis is what the check
+asks for. A hairline rule counts as a participant — so does an `<svg>` over
+8000px², which is how the signature device this file tells you to draw earns
+its layering. What does not count is two small labels nudged into each other:
+one of the pair has to cover 1.2% of the viewport.
+
 ## 5. Edge bleed
 
 Clipped in the corpus: Amrit's testimonial rail cuts cards mid-word at both edges
@@ -280,7 +296,7 @@ Run this against the rendered frames. None of it is visible in source.
 
 ```
 image placements           >= 2.5 x screens     (9 screens -> 23)
-distinct source photos     >= 6, each cropped >= 2 ways
+distinct source photos     >= 6, each cropped >= 2 ways   (auditor floor: 5)
 largest type on the page   NOT in the first viewport
 ratio largest : hero       >= 1.5x
 overlaps                   >= 3   type/media, media/section-edge, content/giant-type

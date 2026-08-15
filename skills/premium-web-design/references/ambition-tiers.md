@@ -41,6 +41,25 @@ The honest Tier A test is one sentence: **name the award-winning page you are
 matching, and say why yours needs less motion than that one.** If the answer is
 about your convenience rather than the brief, you are at the wrong tier.
 
+**Write that sentence into the declaration.** Only the length clause can be
+measured, so the fix for the other two is to make them visible:
+
+```html
+<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->
+```
+
+Without `because=` the auditor reports `tier-a-undefended`. This closes the
+successor to the old "it is a static site" loophole: a page could satisfy every
+craft gate by declaring Tier A and stopping at 5.9 viewport heights — under the
+ceiling, under the long-page floor, and inside SKILL.md's own "5–12 viewport
+heights" composition rule the whole time. You may still take the exemption. You
+may not take it silently.
+
+**A defended Tier A page is exempt from the desktop technique floor.** A
+four-screen announcement carried by photography, with no sequence and nothing to
+transact, is what this tier is for — the floor exists for pages measured against
+B or C. That exemption is the reason `because=` is not optional.
+
 ## Tier B — Choreographed (default)
 
 Everything in A, plus a real timeline library driving scroll.
@@ -185,3 +204,30 @@ sequence; a pinned horizontal chapter becomes a vertical one; a particle field
 becomes a single still with grain.
 
 Cap particle counts, cap DPR, and never ship a 4MB model to a phone.
+
+Declare the step down (`tier=C mobile=B`) and paint something in the scene's
+place. An empty section on the phone is reported as `tier-fallback-missing`; a
+scene switched off is a hole, not a fallback.
+
+## Announce every downgrade
+
+Three investigations on this skill have been lost to a capability gate that
+failed quietly: `GLTFLoader` blocked by `file://`, a Tier C page taking its
+phone fallback on desktop, and a 3D demo rendering an image sequence with WebGL2
+available. Every one of them had a clean console and a page that was not what it
+claimed.
+
+**Any gate that can degrade the experience logs the failed condition.**
+
+```js
+if (!renderer) {
+  console.info('[capability] WebGL unavailable — rendering the scrubbed image sequence instead');
+  return mountSequenceFallback();
+}
+```
+
+One line, at the point of the decision, naming what failed. `audit-page.mjs`
+collects anything logged that mentions a fallback, downgrade, unavailable or
+unsupported condition, prints it under the frames, and says so in `tier-unmet`
+when nothing was logged. A downgrade nobody can see costs an investigation every
+time.
