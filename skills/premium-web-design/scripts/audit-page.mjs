@@ -1407,6 +1407,438 @@ const audit = (opts = {}) => {
       `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link that reaches the reviews (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. The link has to land on the listing itself: a place page, a profile, a Trustpilot page. \`href="#"\`, a bare host and a Maps *search* URL are all the claim with a link painted on it — a search hands the reader the work you said you had done.`,
       unsourcedRatings);
 
+
+  /* ======================================================================
+   * SIGNATURE (mixed levels) — everything above this line measures whether a
+   * page is well made. Nothing above it could tell whether the page was made
+   * by anyone in particular.
+   * Four sites were built from this skill by four different agents. All four
+   * exited FAIL 0 · SPARSE 0 · CRAFT 0. A jury put them next to the fifteen
+   * corpus studies and rejected all four, and the reasons were the same five
+   * reasons every time: the skill's own printed constants shipped verbatim,
+   * one entrance animation applied to the whole page, the same four resolution
+   * components at the bottom, symmetric padding on every band, and — on one of
+   * them — a headline that never painted at all.
+   * The checks below measure those five things.
+   * ==================================================================== */
+
+  /* The CSS the page actually ships, as text and as a rule list. Cross-origin
+     sheets throw on `cssRules` and are skipped: a page whose CSS we cannot
+     read reports nothing here rather than guessing. */
+  const sigRules = (() => {
+    const out = [];
+    const walk = (list) => {
+      for (const r of list) {
+        if (out.length > 8000) return;
+        try {
+          if (r.style && r.selectorText) out.push(r);
+          /* Chrome gives every CSSStyleRule a `cssRules` list for nested CSS,
+             so this cannot be an `else` — an `else if` here silently returns
+             zero rules on every modern page. */
+          if (r.cssRules && r.cssRules.length && !(r.constructor && r.constructor.name === 'CSSKeyframesRule')) walk(r.cssRules);
+        } catch { /* exotic or cross-origin rule */ }
+      }
+    };
+    try { for (const ss of document.styleSheets) { try { walk(ss.cssRules); } catch { /* cross-origin */ } } } catch { /* ignore */ }
+    return out;
+  })();
+  const sigCssText = (() => {
+    const parts2 = [];
+    let len = 0;
+    const push = (s) => { if (!s || len > 1500000) return; parts2.push(s); len += s.length; };
+    try { for (const st of document.querySelectorAll('style')) push(st.textContent || ''); } catch { /* ignore */ }
+    for (const r of sigRules) { try { push(r.cssText); } catch { /* ignore */ } }
+    try { let n = 0; for (const el of document.querySelectorAll('[style]')) { push(el.getAttribute('style') || ''); if (++n > 500) break; } } catch { /* ignore */ }
+    return parts2.join('\n');
+  })();
+  /* Whitespace out, leading zeros off: `cubic-bezier(0.16, 1, 0.3, 1)` and
+     `cubic-bezier(.16,1,.3,1)` are the same paste. */
+  const NORMCSS = (s) => String(s).toLowerCase().replace(/\s+/g, '').replace(/(^|[^\d\w.])0\./g, '$1.');
+  const sigCssNorm = NORMCSS(sigCssText);
+  const escRe = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+  /* --- S1. motion-tokens-verbatim: the skill's own constants are a fingerprint
+     references/motion.md used to print a set of curves and durations under the
+     instruction "Use these. Do not invent curves", and all four builds shipped
+     them character for character. It now prints ranges and one worked example
+     instead — so the worked example is in this list too, because an example
+     nobody is measured against is just the next default. */
+  const SIG_TOKENS = [
+    { lit: 'cubic-bezier(0.16, 1, 0.3, 1)', group: 'printed default', what: 'the ease-out curve' },
+    { lit: 'cubic-bezier(0.7, 0, 0.84, 0)', group: 'printed default', what: 'the ease-in curve' },
+    { lit: 'cubic-bezier(0.65, 0, 0.35, 1)', group: 'printed default', what: 'the ease-move curve' },
+    { lit: '120ms', time: true, group: 'printed default', what: 'the press duration' },
+    { lit: '240ms', time: true, group: 'printed default', what: 'the state duration' },
+    { lit: '400ms', time: true, group: 'printed default', what: 'the layout duration' },
+    { lit: '700ms', time: true, group: 'printed default', what: 'the enter duration' },
+    { lit: 'clamp(1.25rem, 4vw, 5rem)', group: 'printed default', what: 'the gutter' },
+    { lit: 'clamp(5rem, 12vh, 12rem)', group: 'printed default', what: 'the section rhythm' },
+    { lit: 'translateY(14px)', group: 'printed default', what: 'the reveal offset' },
+    { lit: 'cubic-bezier(0.22, 1, 0.36, 1)', group: 'worked example', what: 'the example ease-out' },
+    { lit: 'cubic-bezier(0.55, 0, 1, 0.45)', group: 'worked example', what: 'the example ease-in' },
+    { lit: '110ms', time: true, group: 'worked example', what: 'the example press duration' },
+    { lit: '200ms', time: true, group: 'worked example', what: 'the example state duration' },
+    { lit: '460ms', time: true, group: 'worked example', what: 'the example layout duration' },
+    { lit: '620ms', time: true, group: 'worked example', what: 'the example enter duration' },
+    { lit: '34s', time: true, group: 'worked example', what: 'the example ambient duration' },
+  ];
+  const sigTokenHits = [];
+  if (sigCssNorm.length > 40) {
+    for (const t of SIG_TOKENS) {
+      const n = NORMCSS(t.lit);
+      let re;
+      try { re = t.time ? new RegExp(`(^|[^\\d.])${escRe(n)}(?![\\d])`) : new RegExp(escRe(n)); } catch { continue; }
+      if (re.test(sigCssNorm)) sigTokenHits.push({ literal: t.lit, group: t.group, what: t.what });
+    }
+  }
+  if (sigTokenHits.length >= 4)
+    add('warn', 'motion-tokens-verbatim',
+      `${sigTokenHits.length} of the ${SIG_TOKENS.length} literal values this skill has printed appear in the CSS unchanged: ${sigTokenHits.map((h) => h.literal).join(', ')}. references/motion.md gives ranges, an easing shape rule and a three-line budget you state yourself; the numbers in it are illustrative, and its worked example is in this list for the same reason. One or two matches is a page that landed on a good curve. Four is a page that pasted, and it will move exactly like every other page built from this skill.`,
+      { matched: sigTokenHits.length, of: SIG_TOKENS.length, hits: sigTokenHits, threshold: 4 });
+
+  /* --- S2. root-class-descendant: two classes on <html>, joined by a space
+     `.js .is-loaded .hero__line span { transform: none }` never matches when
+     `js` and `is-loaded` are both on `<html>`, because a descendant combinator
+     asks for one inside the other. The near-miss is what makes it lethal:
+     `.is-loaded .loader { visibility: hidden }` in the same block DOES match,
+     so the loader clears on cue and the page looks finished while the largest
+     element on the screen is still parked outside its mask. */
+  const sigRootClasses = new Set();
+  try { for (const c of document.documentElement.classList) sigRootClasses.add(c); } catch { /* ignore */ }
+  const rootDescBugs = [];
+  if (sigRootClasses.size >= 2) {
+    for (const r of sigRules) {
+      if (rootDescBugs.length >= 6) break;
+      let selText = '';
+      try { selText = String(r.selectorText || ''); } catch { continue; }
+      for (const sel of selText.split(',')) {
+        const s = sel.trim();
+        if (!s || rootDescBugs.length >= 6) continue;
+        const segs = s.split(/\s+/);
+        for (let i = 1; i < segs.length; i++) {
+          const a = /^\.([\w-]+)$/.exec(segs[i - 1]);
+          const b = /^\.([\w-]+)/.exec(segs[i]);
+          if (a && b && sigRootClasses.has(a[1]) && sigRootClasses.has(b[1])) {
+            rootDescBugs.push({ selector: s.slice(0, 100), pair: [a[1], b[1]], fix: `.${a[1]}.${b[1]}` });
+            break;
+          }
+        }
+      }
+    }
+  }
+  if (rootDescBugs.length)
+    add('warn', 'root-class-descendant',
+      `${rootDescBugs.length} selector${rootDescBugs.length === 1 ? ' joins' : 's join'} two classes that both live on \`<html>\` with a descendant combinator, so ${rootDescBugs.length === 1 ? 'it' : 'they'} can never match: \`${rootDescBugs[0].selector}\` needs \`${rootDescBugs[0].fix}\`. Both \`${rootDescBugs[0].pair[0]}\` and \`${rootDescBugs[0].pair[1]}\` are on the root element right now. This is invisible in review — the rule is well-formed CSS and the state class does land — and when the dead rule is the one that releases a masked headline, the page looks loaded and the headline is gone.`,
+      rootDescBugs);
+
+  /* --- S3. motion-uniform: how many ways does anything enter?
+     Entrance motion is written as a PAIR of rules — a from-state that parks the
+     element (`opacity: 0`, `transform: translateY(14px)`) and a state rule that
+     adds a class and a transition. Read the pair, not the element: by the time
+     this runs the reveals have played and every from-state is back to `none`.
+     A page driving entrances from a JS runtime writes no such pair, reports
+     zero, and the check says nothing about it — which is why the corpus, all
+     GSAP, is silent here rather than perfect. */
+  const sigSplitTop = (v) => {
+    const o = []; let d = 0, b = '';
+    for (const c of String(v || '')) {
+      if (c === '(') d++; else if (c === ')') d--;
+      if (c === ',' && d === 0) { o.push(b.trim()); b = ''; continue; }
+      b += c;
+    }
+    if (b.trim()) o.push(b.trim());
+    return o;
+  };
+  const sigRootCS = (() => { try { return getComputedStyle(document.documentElement); } catch { return null; } })();
+  const sigVar = (v) => {
+    let s = String(v || '');
+    for (let i = 0; i < 4 && /var\(/.test(s) && sigRootCS; i++)
+      s = s.replace(/var\(\s*(--[\w-]+)\s*(?:,([^)]*))?\)/g, (m, n, f) => ((sigRootCS.getPropertyValue(n) || '').trim() || String(f || '').trim() || m));
+    return s;
+  };
+  const SIG_MOVE = new Set(['transform', 'opacity', 'all', 'clip-path', '-webkit-clip-path', 'filter', 'translate', 'scale', 'rotate', 'mask-image', '-webkit-mask-image']);
+  const sigSegs = (r) => {
+    let out = [];
+    try {
+      const tr = sigVar(r.style.transition || '');
+      if (tr) out = sigSplitTop(tr).map((s) => ({
+        prop: (/^\s*([a-zA-Z-]+)/.exec(s) || [])[1] || '',
+        dur: (/(-?[\d.]+m?s)/.exec(s) || [])[1] || '',
+        ease: (/(cubic-bezier\([^)]*\)|steps\([^)]*\)|linear|ease-in-out|ease-in|ease-out|ease)/.exec(s) || [])[1] || '',
+      }));
+      else {
+        const tp = sigVar(r.style.transitionProperty || '');
+        if (!tp) return [];
+        const dl = sigSplitTop(sigVar(r.style.transitionDuration || ''));
+        const el = sigSplitTop(sigVar(r.style.transitionTimingFunction || ''));
+        out = sigSplitTop(tp).map((p, i) => ({ prop: p, dur: dl[i % Math.max(dl.length, 1)] || '', ease: el[i % Math.max(el.length, 1)] || '' }));
+      }
+    } catch { return []; }
+    return out.filter((s) => s.prop && SIG_MOVE.has(s.prop) && parseFloat(s.dur) > 0);
+  };
+  const sigShape = (tf, op, cp) => {
+    const p = [];
+    const t = String(tf || '').trim();
+    if (t && t !== 'none') for (const m of t.matchAll(/([a-zA-Z0-9]+)\(([^)]*)\)/g)) p.push(`${m[1].toLowerCase()}(${m[2].trim()})`);
+    if (cp && cp !== 'none') p.push('clip');
+    if (op != null && op < 0.5) p.push('fade');
+    return p.join(' + ');
+  };
+  const sigRecipes = new Map();
+  for (const r of sigRules) {
+    const segs = sigSegs(r);
+    if (!segs.length) continue;
+    let selText = '';
+    try { selText = String(r.selectorText || ''); } catch { continue; }
+    for (const sel of selText.split(',').map((x) => x.trim())) {
+      if (!sel) continue;
+      /* the base is this selector minus ONE class token, anywhere in it: the
+         state class is `.rv.is-in` on some pages and `.frame.is-in .clip` on
+         others, and only stripping the trailing token finds the first. */
+      const bases = [];
+      for (const m of sel.matchAll(/\.[\w-]+/g)) {
+        const b = (sel.slice(0, m.index) + sel.slice(m.index + m[0].length)).replace(/\s+/g, ' ').trim();
+        if (b && b !== sel && !/^[\s>+~]|[\s>+~]$/.test(b)) bases.push(b);
+      }
+      for (const base of bases) {
+        for (const r2 of sigRules) {
+          let s2 = '';
+          try { s2 = String(r2.selectorText || ''); } catch { continue; }
+          if (!s2.split(',').map((x) => x.trim()).includes(base)) continue;
+          let tf = '', op = null, cp = '';
+          try {
+            tf = sigVar(r2.style.transform || '');
+            op = r2.style.opacity !== '' ? parseFloat(r2.style.opacity) : null;
+            cp = r2.style.clipPath || r2.style.webkitClipPath || '';
+          } catch { continue; }
+          const parked = (tf && tf !== 'none') || (op != null && op < 0.5) || (cp && cp !== 'none');
+          if (!parked) continue;
+          let n = 0;
+          try { n = document.querySelectorAll(base).length; } catch { n = 0; }
+          if (!n) continue;
+          const s0 = segs[0];
+          const durMs = Math.round(parseFloat(s0.dur) * (/ms\s*$/.test(s0.dur) ? 1 : 1000));
+          const shape = sigShape(tf, op, cp) || 'move';
+          const key = `${shape} · ${durMs}ms · ${s0.ease}`;
+          if (!sigRecipes.has(key)) sigRecipes.set(key, { recipe: key, elements: 0, ease: s0.ease, selectors: [] });
+          const g = sigRecipes.get(key);
+          g.elements += n;
+          if (g.selectors.length < 3) g.selectors.push(base);
+        }
+      }
+    }
+  }
+  const sigRecipeList = [...sigRecipes.values()].sort((a, b) => b.elements - a.elements);
+  const sigRevealEls = sigRecipeList.reduce((a, b) => a + b.elements, 0);
+  const sigEasings = new Set(sigRecipeList.map((r) => NORMCSS(r.ease)).filter(Boolean));
+  const sigDominant = sigRevealEls ? sigRecipeList[0].elements / sigRevealEls : 0;
+  /* The written gate is "a page over 6 screens". A four-screen page that runs
+     eleven elements through one recipe is the same defect at a shorter length,
+     so ten or more entering elements opens the gate too. */
+  if (sigRevealEls >= 8 && (screensNow > 6 || sigRevealEls >= 10)) {
+    const why = [];
+    if (sigRecipeList.length < 3) why.push(`${sigRecipeList.length} distinct recipe${sigRecipeList.length === 1 ? '' : 's'}`);
+    if (sigDominant >= 0.65) why.push(`one recipe carries ${Math.round(sigDominant * 100)}% of them`);
+    if (sigEasings.size === 1) why.push('every entrance runs the same easing curve');
+    if (why.length)
+      add('craft', 'motion-uniform',
+        `${sigRevealEls} elements enter with motion and the page has ${sigRecipeList.length} way${sigRecipeList.length === 1 ? '' : 's'} of doing it — ${why.join('; ')}. The one it repeats is \`${sigRecipeList[0].recipe}\`, on ${sigRecipeList[0].elements} elements (${sigRecipeList[0].selectors.join(', ')}). A page over ${LONG_PAGE_SCREENS} screens wants at least three: what a headline does is not what a photograph does is not what a price list does. One recipe on everything is a utility class, not a decision, and it is what makes four pages built from this skill move identically.`,
+        { revealingElements: sigRevealEls, distinctRecipes: sigRecipeList.length, dominantShare: +sigDominant.toFixed(2), easings: [...sigEasings], recipes: sigRecipeList.slice(0, 6), screens: +screensNow.toFixed(1) });
+  }
+
+  /* --- S4. stock-resolution: the bottom of the page, assembled from parts
+     Three of the four rejected builds ended in a `<details>` FAQ, a key/value
+     hairline table, a full-width footer wordmark in a face used nowhere else,
+     and a bordered mono chip in the hero's lower right. Each of those is a
+     legitimate option — plomberie-5-etoiles ships the accordion and the steal
+     list rates it S-cost — so presence alone is not the finding. The finding is
+     the SET: three or more of the four together is a resolution assembled from
+     the steal-lists rather than designed for this page. */
+  const sigStock = [];
+  let sigDetails = 0;
+  try { sigDetails = Array.from(document.querySelectorAll('details')).filter((d) => d.querySelector('summary')).length; } catch { sigDetails = 0; }
+  if (sigDetails >= 3) sigStock.push({ part: 'a <details> FAQ accordion', detail: `${sigDetails} rows` });
+
+  const sigKvTables = [];
+  for (const el of all) {
+    if (sigKvTables.length >= 6) break;
+    let kids;
+    try { kids = Array.from(el.children).filter(visible); } catch { continue; }
+    if (kids.length < 3) continue;
+    let rows = 0;
+    for (const k of kids) {
+      let ks; try { ks = getComputedStyle(k); } catch { continue; }
+      const hair = ['Top', 'Bottom'].some((sd) => { const w = parseFloat(ks[`border${sd}Width`]) || 0; return w > 0 && w <= 2; });
+      if (!hair) continue;
+      const kr = k.getBoundingClientRect();
+      if (kr.height > 170 || kr.width < 160) continue;
+      let cells = 0;
+      try { for (const c of k.children) if (String(c.textContent || '').trim().length) cells++; } catch { cells = 0; }
+      const t = String(k.textContent || '').replace(/\s+/g, ' ').trim();
+      if (cells === 2 && t.length < 160 && (ks.display === 'flex' || ks.display === 'grid' || ks.display === 'table-row')) rows++;
+    }
+    if (rows >= 3) sigKvTables.push({ el: describeShort(el), rows });
+  }
+  if (sigKvTables.length) sigStock.push({ part: 'a key/value hairline table', detail: `${sigKvTables.length} of them: ${sigKvTables.map((t) => `${t.el} (${t.rows} rows)`).join(', ')}` });
+
+  const sigFamNodes = {};
+  for (const el of textEls) {
+    let s; try { s = getComputedStyle(el); } catch { continue; }
+    const fam = s.fontFamily.split(',')[0].replace(/["']/g, '').trim();
+    sigFamNodes[fam] = (sigFamNodes[fam] || 0) + 1;
+  }
+  const sigOrphanMarks = [];
+  const sigDocH = document.documentElement.scrollHeight;
+  for (const el of textEls) {
+    if (sigOrphanMarks.length >= 3) break;
+    const r = rectOf(el);
+    if (!r) continue;
+    const absTop = r.top + (window.scrollY || 0);
+    let inFoot = absTop > sigDocH * 0.85;
+    try { if (!inFoot && el.closest('footer')) inFoot = true; } catch { /* ignore */ }
+    if (!inFoot) continue;
+    let s; try { s = getComputedStyle(el); } catch { continue; }
+    const size = parseFloat(s.fontSize) || 0;
+    if (size < Math.max(48, vw * 0.05) || r.width < vw * 0.35) continue;
+    const fam = s.fontFamily.split(',')[0].replace(/["']/g, '').trim();
+    const elsewhere = (sigFamNodes[fam] || 0) - 1;
+    if (elsewhere < 100) sigOrphanMarks.push({ text: textOf(el).slice(0, 24), size: Math.round(size), family: fam, nodesElsewhere: elsewhere });
+  }
+  if (sigOrphanMarks.length) sigStock.push({ part: 'a full-width footer wordmark in a face used almost nowhere else', detail: `"${sigOrphanMarks[0].text}" at ${sigOrphanMarks[0].size}px in ${sigOrphanMarks[0].family}, which carries ${sigOrphanMarks[0].nodesElsewhere} other text nodes on the page` });
+
+  const sigChips = [];
+  for (const el of all) {
+    if (sigChips.length >= 3) break;
+    const r = rectOf(el);
+    if (!r) continue;
+    if (r.top < vh * 0.4 || r.top > vh || r.left + r.width / 2 < vw * 0.45) continue;
+    if (r.width < 44 || r.width > vw * 0.45 || r.height < 18 || r.height > vh * 0.3) continue;
+    const tag = el.tagName;
+    if (tag === 'A' || tag === 'BUTTON') continue;              /* a CTA is not a chip */
+    let s; try { s = getComputedStyle(el); } catch { continue; }
+    const bw = ['Top', 'Right', 'Bottom', 'Left'].map((k) => parseFloat(s[`border${k}Width`]) || 0);
+    if (!bw.some((w) => w > 0 && w <= 4)) continue;
+    const t = String(el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (t.length < 2 || t.length > 70) continue;
+    let mono = false;
+    try {
+      for (const c of el.querySelectorAll('*')) {
+        const cs = getComputedStyle(c);
+        const csz = parseFloat(cs.fontSize) || 0;
+        if (/mono|courier|consol|menlo|geist ?mono/i.test(cs.fontFamily) || (csz > 0 && parseFloat(cs.letterSpacing) >= csz * 0.05 && cs.textTransform === 'uppercase')) { mono = true; break; }
+      }
+    } catch { mono = false; }
+    if (!mono) continue;
+    sigChips.push({ el: describeShort(el), text: t.slice(0, 40), box: [Math.round(r.width), Math.round(r.height)] });
+  }
+  if (sigChips.length) sigStock.push({ part: 'a bordered mono chip in the hero’s lower-right quadrant', detail: `${sigChips[0].el} "${sigChips[0].text}"` });
+
+  if (sigStock.length >= 3)
+    add('craft', 'stock-resolution',
+      `${sigStock.length} of the four stock resolution components ship together: ${sigStock.map((s) => s.part).join('; ')}. Every one of these is on a steal-list and any one of them is a choice — plomberie-5-etoiles ships the accordion and is rated S-cost for it. Three together is not a choice, it is a parts bin: the page resolves the way the last four pages built from this skill resolved. Pick the one this brief actually needs and cut the rest, or resolve on something the corpus does instead — Blind Barber ends on 450px of black, Amrit on a saffron panel and a phone number.`,
+      { components: sigStock, detailsRows: sigDetails, kvTables: sigKvTables, footerWordmarks: sigOrphanMarks, heroChips: sigChips });
+
+  /* --- S5. section-metronome: padding that nobody chose
+     108/108, 84/84, 63/63, 108/108 — symmetric on every band, in all four
+     builds. No corpus study does this. A band that opens hard and closes long,
+     or the reverse, is where a page gets its breathing; equal padding top and
+     bottom is the token doing the composing. Header and footer are excluded:
+     they are chrome, not movements. */
+  const sigBands = [];
+  const sigSeen = new Set();
+  let sigBandNodes = [];
+  try { sigBandNodes = Array.from(document.querySelectorAll('section, article, main > div, main > *, [data-section]')); } catch { sigBandNodes = []; }
+  for (const el of sigBandNodes) {
+    if (sigSeen.has(el)) continue;
+    sigSeen.add(el);
+    if (!visible(el)) continue;
+    const tag = el.tagName;
+    if (tag === 'HEADER' || tag === 'FOOTER' || tag === 'NAV') continue;
+    try { if (el.closest('header, footer, nav')) continue; } catch { /* ignore */ }
+    const r = rectOf(el);
+    if (!r || r.height < 240 || r.width < vw * 0.5) continue;
+    let s; try { s = getComputedStyle(el); } catch { continue; }
+    const pt = parseFloat(s.paddingBlockStart || s.paddingTop) || 0;
+    const pb = parseFloat(s.paddingBlockEnd || s.paddingBottom) || 0;
+    if (pt < 24 && pb < 24) continue;
+    sigBands.push({ el: describeShort(el), top: Math.round(pt), bottom: Math.round(pb), symmetric: Math.abs(pt - pb) <= Math.max(4, Math.max(pt, pb) * 0.06) });
+  }
+  const sigSym = sigBands.filter((b) => b.symmetric).length;
+  const sigSymPct = sigBands.length ? sigSym / sigBands.length : 0;
+  if (sigBands.length >= 2 && sigSymPct > 0.7)
+    add('sparse', 'section-metronome',
+      `${sigSym} of ${sigBands.length} bands have identical padding above and below (${sigBands.filter((b) => b.symmetric).slice(0, 3).map((b) => `${b.top}/${b.bottom}`).join(', ')}). That is a metronome, not a rhythm — the token is composing the page and every movement gets the same silence around it. The corpus spends its silence where it means something and takes it back everywhere else: Blind Barber gives one chapter 450px of black and lets the next one start hard against the last. Pick the two or three bands that have earned the air and cut the rest.`,
+      { bands: sigBands.slice(0, 12), symmetric: sigSym, total: sigBands.length, share: +sigSymPct.toFixed(2) });
+
+  /* --- S6. nav-too-loud: the nav is not the page
+     Amrit runs its top bar at 10.4–11.5px and Blind Barber at 11.25px against
+     display type in the hundreds. A nav set at 19px under a 138px headline is
+     eight times too close to it, and the first screen reads as an app chrome
+     with a picture behind it. Desktop only, and only on a page that HAS display
+     type — a first screen whose largest word is 42px has a different problem,
+     and `hero-type-small` above already says so. */
+  if (!onPhone && biggest && biggest.size >= Math.max(60, vw * 0.045)) {
+    const sigBarSizes = [];
+    const sigBars = new Set();
+    try {
+      for (const el of document.querySelectorAll('nav, header, [role="navigation"]')) sigBars.add(el);
+      for (const el of all) {
+        let s; try { s = getComputedStyle(el); } catch { continue; }
+        if (s.position !== 'fixed' && s.position !== 'sticky') continue;
+        const r = rectOf(el);
+        if (!r || r.top > vh * 0.2 || r.width < vw * 0.5 || r.height > vh * 0.25) continue;
+        if (el.querySelectorAll('a').length >= 2) sigBars.add(el);
+      }
+    } catch { /* ignore */ }
+    for (const bar of sigBars) {
+      if (!visible(bar)) continue;
+      const br = rectOf(bar);
+      if (!br || br.top > vh * 0.3 || br.height > vh * 0.35 || br.width < vw * 0.4) continue;
+      try {
+        for (const a of bar.querySelectorAll('a, button')) {
+          if (!visible(a)) continue;
+          const ar = rectOf(a);
+          if (!ar || ar.top > vh) continue;
+          const t = String(a.textContent || '').replace(/\s+/g, ' ').trim();
+          if (t.length < 2 || t.length > 32) continue;
+          sigBarSizes.push({ text: t.slice(0, 22), size: +(parseFloat(getComputedStyle(a).fontSize) || 0).toFixed(2) });
+        }
+      } catch { /* ignore */ }
+    }
+    if (sigBarSizes.length >= 3) {
+      const loudest = sigBarSizes.slice().sort((a, b) => b.size - a.size)[0];
+      const ratio = loudest.size > 0 ? biggest.size / loudest.size : Infinity;
+      if (ratio < 8)
+        add('sparse', 'nav-too-loud',
+          `Display type on the first screen is ${Math.round(biggest.size)}px and the loudest thing in the top bar is ${loudest.size}px ("${loudest.text}") — a ratio of ${ratio.toFixed(1)}:1. Amrit Palace runs its nav at 10.4px and Blind Barber at 11.25px against display type in the same range yours is in, which is 12:1 and 80:1. Under 8:1 the chrome starts competing with the page: the reader's eye lands on the menu instead of the sentence the page exists to say. Take the nav down, not the headline up.`,
+          { displayPx: Math.round(biggest.size), navLoudestPx: loudest.size, navLoudestText: loudest.text, ratio: +ratio.toFixed(2), threshold: 8, corpus: { amritPalace: 10.368, blindBarber: 11.25 }, navSample: sigBarSizes.slice(0, 8) });
+    }
+  }
+
+  /* --- S7. hero-not-painted: measured by the driver, reported here
+     The driver loads the page twice more — once normally, once with every
+     third-party origin refused — and asks one question at each: is the largest
+     type on the first screen actually on the screen? Non-zero box, inside the
+     viewport, opacity above zero, and not translated out of its own
+     overflow-hidden mask. */
+  const heroPaint = (opts && opts.heroPaint && typeof opts.heroPaint === 'object') ? opts.heroPaint : null;
+  if (heroPaint && Array.isArray(heroPaint.passes)) {
+    const dead = heroPaint.passes.filter((p) => p && p.measured && !p.ok);
+    if (dead.length) {
+      const worst = dead[0];
+      const gate = [];
+      if (worst.rootClass) gate.push(`the root element carries \`${worst.rootClass}\``);
+      if (worst.clip && worst.clip.cover < 0.15) gate.push(`the text is at \`${worst.transform}\` inside \`${worst.clip.anc}\`, which is \`overflow: hidden\` — ${Math.round(worst.clip.cover * 100)}% of the glyph box is inside the mask`);
+      if (worst.effectiveOpacity <= 0.05) gate.push(`effective opacity is ${worst.effectiveOpacity} once every ancestor is multiplied in`);
+      if (worst.inViewport < 0.15) gate.push(`only ${Math.round(worst.inViewport * 100)}% of its box is inside the viewport`);
+      if (worst.gatesOnLoad) gate.push('the page sets its reveal state inside a `window.addEventListener(\'load\')` handler, so it waits on every image, font and script the document references');
+      if (worst.blockedOrigins && worst.blockedOrigins.length) gate.push(`this pass refused ${worst.blockedOrigins.join(', ')}`);
+      add('fail', 'hero-not-painted',
+        `The largest type on the first screen — "${worst.text}" at ${worst.size}px — is not painted ${dead.length === heroPaint.passes.filter((p) => p && p.measured).length ? 'on any pass' : `on the ${worst.pass} pass`}, ${worst.waitedMs}ms after DOMContentLoaded. ${gate.length ? `What was holding it: ${gate.join('; ')}.` : ''} Two mechanisms produce this and both are invisible in review. One: the reveal is released by a class set in a \`load\` handler, which never fires while a third-party origin hangs — so the page is correct on your machine and headless on a slow network. Two: the releasing rule is written \`.js .is-loaded .line span\` when both classes sit on \`<html>\`, which is a descendant selector that can never match; the loader rule beside it uses a real descendant and clears on cue, so the page looks finished and only the headline is missing.`,
+        heroPaint);
+    }
+  }
+
   /* ======================================================================
    * kind=demo — SPARSE and CRAFT are statements about a finished page.
    * demos/*.html are deliberately single-pattern fragments and SKILL.md sends
@@ -1459,8 +1891,14 @@ const audit = (opts = {}) => {
   const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;
   if (demoMode) {
     const droppedCodes = [];
+    /* `motion-tokens-verbatim` is a WARN and rides along with SPARSE and CRAFT
+       here, alone among the WARNs. A pattern reference in demos/ exists to show
+       one technique in the fewest lines that will hold it, and the illustrative
+       constants are what those lines are made of. Telling a demo it moves like
+       every page built from this skill is telling it to stop being a demo. */
     for (let i = findings.length - 1; i >= 0; i--) {
-      if (findings[i].level === 'sparse' || findings[i].level === 'craft') { droppedCodes.unshift(`${findings[i].level}:${findings[i].code}`); findings.splice(i, 1); }
+      const f = findings[i];
+      if (f.level === 'sparse' || f.level === 'craft' || f.code === 'motion-tokens-verbatim') { droppedCodes.unshift(`${f.level}:${f.code}`); findings.splice(i, 1); }
     }
     /* Name what was suppressed, every time. The disqualifiers above cannot
        catch every deliverable that bolts `kind=demo` on — so the exemption is
@@ -1469,7 +1907,7 @@ const audit = (opts = {}) => {
        skipped)`, and a page using this to go quiet produces output that names
        its own dodge in full. */
     add('note', 'demo-scope',
-      `Declared \`kind=demo\`: ${droppedCodes.length} SPARSE/CRAFT finding${droppedCodes.length === 1 ? '' : 's'} suppressed${droppedCodes.length ? ` — ${droppedCodes.join(', ')}` : ''}. A pattern reference is not a finished page: it has no loader, no conversion block and no density budget, and it is not supposed to. FAIL and WARN ran in full. If this is a deliverable, that list is your punch list and the declaration is wrong.`,
+      `Declared \`kind=demo\`: ${droppedCodes.length} SPARSE/CRAFT finding${droppedCodes.length === 1 ? '' : 's'} (plus \`motion-tokens-verbatim\`, the one WARN scoped to finished pages) suppressed${droppedCodes.length ? ` — ${droppedCodes.join(', ')}` : ''}. A pattern reference is not a finished page: it has no loader, no conversion block and no density budget, and it is not supposed to. FAIL and WARN ran in full. If this is a deliverable, that list is your punch list and the declaration is wrong.`,
       { dropped: droppedCodes.length, codes: droppedCodes, screens: +screensNow.toFixed(1) });
   } else if (declaredKind === 'demo') {
     add('craft', 'demo-claim-rejected',
@@ -2618,6 +3056,150 @@ const craftProbe = async (ctx, target) => {
   return out;
 };
 
+/** Is the largest type on the first screen actually on the screen?
+ *
+ *  Every check in this file until now ran against ONE load, at `waitUntil:
+ *  'load'`, on a fast local network. A build shipped from this skill hid its
+ *  `<h1>` at `translateY(150%)` inside an `overflow: hidden` mask and released
+ *  it from a class set in a `window.load` handler; the page blocked `load` on
+ *  two third-party origins, and the headline never arrived. Every check passed.
+ *
+ *  So: load the page twice more. Once normally, once with every third-party
+ *  origin refused, both at `waitUntil: 'domcontentloaded'` — because that is
+ *  the event a reader's first paint is actually racing. Poll until the hero
+ *  paints or the budget runs out, so a page with a legitimate 4-second loader
+ *  (blindbarber) is not called broken for being slow.
+ *
+ *  The candidate is the largest first-screen text at or above hero scale. If
+ *  it is unpainted but another element within 10% of its size IS painted, the
+ *  page passes: split-text runtimes leave the original hidden and paint clones,
+ *  and tripletta parks a 270px decorative wordmark at opacity 0 behind a 259px
+ *  one that is doing the work. What cannot pass is a first screen where the
+ *  hero-scale type, and everything near it, is invisible.
+ */
+const heroPaintRead = () => {
+  const own = (el) => { let t = ''; for (const n of el.childNodes) if (n.nodeType === 3) t += n.nodeValue; return t.trim(); };
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const FLOOR = Math.max(48, vw * 0.04);
+  const paintOf = (el) => {
+    const s = getComputedStyle(el);
+    const r = el.getBoundingClientRect();
+    let eff = 1, hidden = false, worst = null;
+    for (let n = el; n && n !== document.documentElement; n = n.parentElement) {
+      let cs; try { cs = getComputedStyle(n); } catch { break; }
+      eff *= parseFloat(cs.opacity) || 0;
+      if (cs.visibility === 'hidden' || cs.display === 'none') hidden = true;
+      if (n !== el && /hidden|clip/.test(cs.overflow + cs.overflowX + cs.overflowY)) {
+        const nr = n.getBoundingClientRect();
+        const ix = Math.max(0, Math.min(r.right, nr.right) - Math.max(r.left, nr.left));
+        const iy = Math.max(0, Math.min(r.bottom, nr.bottom) - Math.max(r.top, nr.top));
+        const cover = (r.width * r.height) > 0 ? (ix * iy) / (r.width * r.height) : 0;
+        if (!worst || cover < worst.cover)
+          worst = { anc: `${n.tagName.toLowerCase()}${(typeof n.className === 'string' && n.className) ? `.${n.className.trim().split(/\s+/)[0]}` : ''}`, cover: +cover.toFixed(3) };
+      }
+    }
+    const vx = Math.max(0, Math.min(r.right, vw) - Math.max(r.left, 0));
+    const vy = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
+    const inVp = (r.width * r.height) > 0 ? (vx * vy) / (r.width * r.height) : 0;
+    return {
+      effectiveOpacity: +eff.toFixed(3), hidden, inViewport: +inVp.toFixed(2), clip: worst,
+      transform: s.transform, rect: [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)],
+      ok: !hidden && eff > 0.05 && r.width >= 2 && r.height >= 2 && inVp >= 0.15 && (!worst || worst.cover >= 0.15),
+    };
+  };
+  const cands = [];
+  for (const el of document.querySelectorAll('body *')) {
+    const t = own(el);
+    if (t.length < 2) continue;
+    let s; try { s = getComputedStyle(el); } catch { continue; }
+    if (s.display === 'none') continue;
+    const size = parseFloat(s.fontSize) || 0;
+    if (size < FLOOR) continue;
+    const r = el.getBoundingClientRect();
+    let ar = r;
+    if ((r.width < 2 || r.height < 2) && el.parentElement) ar = el.parentElement.getBoundingClientRect();
+    if (Math.min(ar.top, r.top) > vh * 1.2) continue;
+    if (Math.max(ar.bottom, r.bottom) < -vh * 0.2) continue;
+    /* Two shapes are giant type that is not a headline, and both are in the
+       corpus. A box wider than 1.6 viewports is a marquee or a bleed wordmark —
+       tripletta's `<h1>` is 1261px of "tripletta" in a 390px phone, parked at
+       opacity 0 behind the real hero, and it is supposed to be. And a box with
+       no horizontal overlap with the viewport at all is off-canvas track, not
+       something a reader was ever going to see on this screen. */
+    if (Math.max(r.width, ar.width) > vw * 1.6) continue;
+    if (Math.max(r.right, ar.right) <= 0 || Math.min(r.left, ar.left) >= vw) continue;
+    cands.push({ el, size, text: t.slice(0, 44) });
+  }
+  if (!cands.length) return { measured: false, reason: `no text at or above ${Math.round(FLOOR)}px on the first screen`, ok: true };
+  cands.sort((a, b) => b.size - a.size);
+  const top = cands[0];
+  const tp = paintOf(top.el);
+  /* Only a near-twin rescues it. A 96px sub-line under a dead 158px headline is
+     not the headline, and letting it stand in for one is how a page whose h1
+     was parked 209px outside its mask passed six audits. */
+  const twins = cands.slice(1).filter((c) => c.size >= top.size * 0.9).map((c) => ({ size: Math.round(c.size), text: c.text, ok: paintOf(c.el).ok }));
+  return {
+    measured: true, text: top.text, size: Math.round(top.size), ...tp,
+    ok: tp.ok || twins.some((t) => t.ok),
+    twinsPainted: twins.filter((t) => t.ok).length, twins: twins.slice(0, 3),
+    rootClass: document.documentElement.className.slice(0, 90),
+    gatesOnLoad: (() => {
+      try {
+        for (const sc of document.querySelectorAll('script:not([src])')) {
+          const t = String(sc.textContent || '');
+          if (/addEventListener\s*\(\s*['"]load['"]/.test(t) || /window\.onload\s*=/.test(t)) return true;
+        }
+      } catch { /* ignore */ }
+      return false;
+    })(),
+  };
+};
+
+const heroPaintPass = async (ctx, target, blockThirdParty, budgetMs) => {
+  const out = { pass: blockThirdParty ? 'third-parties blocked' : 'normal', measured: false, ok: true, waitedMs: 0, blockedOrigins: [], errors: [] };
+  let page = null;
+  try {
+    page = await ctx.newPage();
+    page.on('pageerror', () => { /* the audited page's errors are reported elsewhere */ });
+    if (blockThirdParty) {
+      let origin = null;
+      try { origin = new URL(target).origin; } catch { origin = null; }
+      const seen = new Set();
+      await page.route('**/*', (route) => {
+        let u;
+        try { u = new URL(route.request().url()); } catch { return route.continue(); }
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') return route.continue();
+        if (origin && u.origin === origin) return route.continue();
+        if (seen.size < 8) seen.add(u.origin);
+        out.blockedOrigins = [...seen];
+        return route.abort();
+      });
+    }
+    const t0 = Date.now();
+    await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch((e) => out.errors.push(`goto: ${String(e).slice(0, 80)}`));
+    let last = null;
+    while (Date.now() - t0 < budgetMs) {
+      await page.waitForTimeout(500);
+      last = await page.evaluate(heroPaintRead).catch(() => null);
+      if (last && last.ok) break;
+    }
+    out.waitedMs = Date.now() - t0;
+    if (last) Object.assign(out, last);
+  } catch (e) {
+    out.errors.push(String(e).slice(0, 120));
+  } finally {
+    try { if (page) await page.close(); } catch { /* ignore */ }
+  }
+  return out;
+};
+
+const heroPaintProbe = async (ctx, target) => {
+  const passes = [];
+  passes.push(await heroPaintPass(ctx, target, false, 9000));
+  passes.push(await heroPaintPass(ctx, target, true, 9000));
+  return { passes };
+};
+
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'chromium' });
 const report = { url, capturedAt: new Date().toISOString(), desktop: null, mobile: null, console: [], capability: [] };
 /* A capability gate that can silently downgrade the experience has now cost
@@ -2641,7 +3223,9 @@ try {
   report.desktopShots = await shootScroll(page, 'desktop', Number(process.env.STEPS || 6));
   const desktopGround = await groundFor(ctx, url, 12);
   const desktopCraft = await craftProbe(ctx, url);
-  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft, capabilityNotes: report.capability });
+  const desktopHero = await heroPaintProbe(ctx, url);
+  report.desktopHero = desktopHero;
+  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft, heroPaint: desktopHero, capabilityNotes: report.capability });
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -2651,10 +3235,12 @@ try {
   report.mobileShots = await shootScroll(mpage, 'mobile', 4);
   const mobileGround = await groundFor(mctx, url, 12);
   const mobileCraft = await craftProbe(mctx, url);
+  const mobileHero = await heroPaintProbe(mctx, url);
+  report.mobileHero = mobileHero;
   /* The phone pass cannot see the desktop DOM, and the whole question for a
      `mobile=` declaration is what replaced the desktop scene. Carry the
      reference across. */
-  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround, craft: mobileCraft, desktopScene: (desktopCraft && desktopCraft.sceneSection) || null, capabilityNotes: report.capability });
+  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround, craft: mobileCraft, heroPaint: mobileHero, desktopScene: (desktopCraft && desktopCraft.sceneSection) || null, capabilityNotes: report.capability });
   await mctx.close();
 
   const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
@@ -2706,6 +3292,14 @@ const fmt = (label, a) => {
 
 console.log(fmt('DESKTOP', report.desktop));
 console.log(fmt('MOBILE', report.mobile));
+/* Say the hero probe ran, and what it found, even when it found nothing wrong.
+   A silent pass on the one check that catches an invisible headline reads as a
+   check that was never wired up. */
+const heroLine = (label, h) => {
+  if (!h || !Array.isArray(h.passes)) return `${label}: not measured`;
+  return `${label}: ${h.passes.map((p) => `${p.pass} → ${p.measured ? `"${p.text}" ${p.size}px ${p.ok ? 'painted' : 'NOT PAINTED'} after ${p.waitedMs}ms${p.blockedOrigins && p.blockedOrigins.length ? ` (refused ${p.blockedOrigins.length} origin${p.blockedOrigins.length === 1 ? '' : 's'})` : ''}` : `no hero-scale type (${p.reason})`}`).join(' · ')}`;
+};
+console.log(`\nhero paint\n  ${heroLine('desktop', report.desktopHero)}\n  ${heroLine('mobile', report.mobileHero)}`);
 if (report.console.length) console.log(`\nconsole errors: ${report.console.length}\n  ${report.console.slice(0, 5).join('\n  ')}`);
 if (report.capability.length) console.log(`\ncapability notes the page logged: ${report.capability.length}\n  ${report.capability.slice(0, 6).join('\n  ')}`);
 if (report.error) console.log(`\nERROR: ${report.error}`);
