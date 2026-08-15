@@ -1,12 +1,38 @@
 #!/usr/bin/env bash
-# jmr-image.sh — Unified Unsplash + pngimg image fetcher.
-# Favours Unsplash (commercial-safe); falls back to pngimg (non-commercial transparent cutouts).
+# jmr-image.sh — Unified Unsplash + Pexels + pngimg image fetcher.
+# Favours Unsplash then Pexels (commercial-safe); pngimg for non-commercial cutouts.
 # No dependencies beyond bash + curl + jq.
 
 set -euo pipefail
 
+# Agent shells are not login shells, so keys in ~/.zshrc are not inherited.
+hydrate_key_from_zshrc() {
+  local name="$1"
+  if [[ -n "${!name:-}" ]]; then
+    return 0
+  fi
+  local file="$HOME/.zshrc"
+  [[ -f "$file" ]] || return 0
+  local line val
+  line=$(grep -E "^[[:space:]]*(export[[:space:]]+)?${name}=" "$file" 2>/dev/null | tail -1) || true
+  [[ -z "$line" ]] && return 0
+  val="${line#*=}"
+  val="${val#\"}"
+  val="${val%\"}"
+  val="${val#\'}"
+  val="${val%\'}"
+  export "${name}=${val}"
+}
+
+hydrate_key_from_zshrc UNSPLASH_ACCESS_KEY
+hydrate_key_from_zshrc UNSPLASH_APPLICATION_ID
+hydrate_key_from_zshrc UNSPLASH_SECRET_KEY
+hydrate_key_from_zshrc PEXELS_API_KEY
+
 UNSPLASH_API="https://api.unsplash.com"
+PEXELS_API="https://api.pexels.com/v1"
 UNSPLASH_KEY="${UNSPLASH_ACCESS_KEY:-${UNSPLASH_APPLICATION_ID:-${UNSPLASH_SECRET_KEY:-}}}"
+PEXELS_KEY="${PEXELS_API_KEY:-}"
 OUT_DIR="${JMR_IMAGE_OUT:-.}"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
@@ -14,6 +40,7 @@ RED=$'\033[0;31m'
 GRN=$'\033[0;32m'
 YLW=$'\033[0;33m'
 CYN=$'\033[0;36m'
+MAG=$'\033[0;35m'
 BOLD=$'\033[1m'
 RESET=$'\033[0m'
 
@@ -33,9 +60,9 @@ Commands
   get <url>                  Download a known URL directly
 
 Search options
-  --source unsplash|pngimg|auto   Source to search (default: auto)
-  --limit <n>                     Max results per source (default: 10)
-  --page <n>                      Page number (default: 1)
+  --source unsplash|pexels|pngimg|auto   Source to search (default: auto)
+  --limit <n>                            Max results per source (default: 10)
+  --page <n>                             Page number (default: 1)
 
 Download options
   --index <n>                     Result index to download (required for download command)
@@ -44,12 +71,15 @@ Download options
 
 Sources
   unsplash   https://unsplash.com — photos, commercial-safe (Unsplash License)
+  pexels     https://pexels.com   — photos, commercial-safe (Pexels License)
   pngimg     https://pngimg.com   — transparent cutouts, non-commercial only (CC BY-NC 4.0)
 
 Examples
   jmr-image.sh search "mountain sunrise"
+  jmr-image.sh search "office desk" --source pexels
   jmr-image.sh search "batman logo" --source pngimg
   jmr-image.sh download unsplash --index 2 --out public/images
+  jmr-image.sh download pexels --index 4 --out public/images
   jmr-image.sh get https://pngimg.com/uploads/cat/cat_PNG50483.png --out public/images
 EOF
 }
@@ -127,6 +157,36 @@ unsplash_resolve() {
     | jq -r '.url' 2>/dev/null || echo ""
 }
 
+# ── Pexels ─────────────────────────────────────────────────────────────────────
+pexels_search() {
+  local query="$1"
+  local limit="$2"
+  local page="$3"
+
+  if [[ -z "$PEXELS_KEY" ]]; then
+    return 1
+  fi
+
+  curl -fsSL \
+    -H "Authorization: $PEXELS_KEY" \
+    --max-time 15 \
+    "${PEXELS_API}/search?query=$(jq -rn --arg q "$query" '$q|@uri')&per_page=${limit}&page=${page}" \
+    | jq -c '.photos[]?' 2>/dev/null || return 1
+}
+
+pexels_resolve() {
+  local photo_id="$1"
+  if [[ -z "$PEXELS_KEY" ]]; then
+    echo ""
+    return 1
+  fi
+  curl -fsSL \
+    -H "Authorization: $PEXELS_KEY" \
+    --max-time 15 \
+    "${PEXELS_API}/photos/${photo_id}" \
+    | jq -r '.src.original // .src.large2x // empty' 2>/dev/null || echo ""
+}
+
 # ── pngimg ─────────────────────────────────────────────────────────────────────
 pngimg_search() {
   local query="$1"
@@ -183,6 +243,7 @@ cmd_search() {
 
   local result_counter=0
   local unsplash_count=0
+  local pexels_count=0
 
   # ── Unsplash ───────────────────────────────────────────────────────────────
   if [[ "$source" == "auto" ]] || [[ "$source" == "unsplash" ]]; then
@@ -191,19 +252,11 @@ cmd_search() {
       while IFS= read -r photo_json; do
         [[ -z "$photo_json" ]] && continue
         result_counter=$((result_counter + 1))
-        local id title author url download_url html_url width height
-        id=$(echo "$photo_json" | jq -r '.id')
+        local title
         title=$(echo "$photo_json" | jq -r '.description // .alt_description // "Untitled"')
-        author=$(echo "$photo_json" | jq -r '.user.name')
-        url=$(echo "$photo_json" | jq -r '.urls.regular')
-        download_url=$(echo "$photo_json" | jq -r '.links.download')
-        html_url=$(echo "$photo_json" | jq -r '.links.html')
-        width=$(echo "$photo_json" | jq -r '.width')
-        height=$(echo "$photo_json" | jq -r '.height')
 
-        # Store as JSON line with source prefix
         printf '%s|%s\n' "$result_counter" "unsplash" >> "$cache_file"
-        echo "$photo_json" >> "${cache_file}.unsplash.${result_counter}"
+        echo "$photo_json" > "${cache_file}.unsplash.${result_counter}"
 
         printf "  %3d  ${GRN}%-10s${RESET}  %s\n" "$result_counter" "unsplash" "$title"
       done < <(unsplash_search "$query" "$limit" "$page")
@@ -213,17 +266,41 @@ cmd_search() {
     fi
   fi
 
+  # ── Pexels ─────────────────────────────────────────────────────────────────
+  if [[ "$source" == "auto" ]] || [[ "$source" == "pexels" ]]; then
+    if [[ -n "$PEXELS_KEY" ]]; then
+      info "Searching Pexels..."
+      local pexels_start=$result_counter
+      while IFS= read -r photo_json; do
+        [[ -z "$photo_json" ]] && continue
+        result_counter=$((result_counter + 1))
+        local title author
+        title=$(echo "$photo_json" | jq -r '.alt // "Untitled"')
+        author=$(echo "$photo_json" | jq -r '.photographer // ""')
+        [[ -n "$author" && "$author" != "null" ]] && title="${title} / ${author}"
+
+        printf '%s|%s\n' "$result_counter" "pexels" >> "$cache_file"
+        echo "$photo_json" > "${cache_file}.pexels.${result_counter}"
+
+        printf "  %3d  ${MAG}%-10s${RESET}  %s\n" "$result_counter" "pexels" "$title"
+      done < <(pexels_search "$query" "$limit" "$page")
+      pexels_count=$((result_counter - pexels_start))
+    else
+      warn "PEXELS_API_KEY not set — skipping Pexels"
+    fi
+  fi
+
   # ── pngimg ─────────────────────────────────────────────────────────────────
   local pngimg_count=0
   if [[ "$source" == "auto" ]] || [[ "$source" == "pngimg" ]]; then
     info "Searching pngimg..."
+    local pngimg_start=$result_counter
     while IFS= read -r img_url; do
       [[ -z "$img_url" ]] && continue
       result_counter=$((result_counter + 1))
       local img_id
       img_id=$(echo "$img_url" | sed 's/.*\///' | sed 's/\.png$//' | head -c 60)
 
-      # Store URL in a temp file keyed by result number
       echo "$img_url" > "${cache_file}.pngimg.${result_counter}"
       printf '%s|%s\n' "$result_counter" "pngimg" >> "$cache_file"
 
@@ -231,22 +308,22 @@ cmd_search() {
       title=$(echo "$img_id" | sed 's/_/ /g' | sed 's/-/ /g')
       printf "  %3d  ${YLW}%-10s${RESET}  %s\n" "$result_counter" "pngimg" "$title"
     done < <(pngimg_search "$query" "$limit" "$page")
-    pngimg_count=$((result_counter - unsplash_count))
+    pngimg_count=$((result_counter - pngimg_start))
   fi
 
   echo ""
   if [[ "$result_counter" == "0" ]]; then
     warn "No results for \"$query\""
     echo "  Try 2-3 nouns (e.g. 'mountain sunrise', not 'a beautiful mountain at sunrise')."
-    rm -f "$cache_file" "${cache_file}.unsplash."* "${cache_file}.pngimg."*
+    rm -f "$cache_file" "${cache_file}.unsplash."* "${cache_file}.pexels."* "${cache_file}.pngimg."*
     return 1
   fi
 
   echo "───────────────────────────────────────────────────────"
-  echo "  $result_counter result(s) — $unsplash_count unsplash, $pngimg_count pngimg"
+  echo "  $result_counter result(s) — $unsplash_count unsplash, $pexels_count pexels, $pngimg_count pngimg"
   echo ""
   echo "  Download: jmr-image.sh download <source> --index <n> --out <dir>"
-  printf "  %sunsplash%s=commercial-safe  %spngimg%s=non-commercial only (CC BY-NC 4.0)\n" "$GRN" "$RESET" "$YLW" "$RESET"
+  printf "  %sunsplash%s/%spexels%s=commercial-safe  %spngimg%s=non-commercial only (CC BY-NC 4.0)\n" "$GRN" "$RESET" "$MAG" "$RESET" "$YLW" "$RESET"
   echo "───────────────────────────────────────────────────────"
   echo ""
   info "Results cached in $cache_file"
@@ -270,8 +347,8 @@ cmd_download() {
 
   require_cmd "$source"
 
-  if [[ "$source" != "unsplash" ]] && [[ "$source" != "pngimg" ]]; then
-    warn "Source must be 'unsplash' or 'pngimg' — got '$source'"
+  if [[ "$source" != "unsplash" ]] && [[ "$source" != "pexels" ]] && [[ "$source" != "pngimg" ]]; then
+    warn "Source must be 'unsplash', 'pexels', or 'pngimg' — got '$source'"
     exit 1
   fi
 
@@ -343,8 +420,37 @@ cmd_download() {
         downloaded=$((downloaded + 1))
       fi
 
+    elif [[ "$source" == "pexels" ]]; then
+      local photo_json
+      photo_json=$(cat "${cache_file}.pexels.${idx}" 2>/dev/null || echo "")
+      if [[ -z "$photo_json" ]]; then
+        warn "Missing data for Pexels index $idx"
+        continue
+      fi
+
+      local id title download_url
+      id=$(echo "$photo_json" | jq -r '.id')
+      title=$(echo "$photo_json" | jq -r '.alt // "Untitled"')
+      label "pexels"
+      echo "ID: $id  Title: $title"
+      echo "URL: $(echo "$photo_json" | jq -r '.url')"
+
+      download_url=$(echo "$photo_json" | jq -r '.src.original // .src.large2x // empty')
+      if [[ -z "$download_url" ]]; then
+        info "Resolving download URL..."
+        download_url=$(pexels_resolve "$id")
+      fi
+
+      if [[ -z "$download_url" ]]; then
+        warn "No download URL for Pexels index $idx"
+        continue
+      fi
+
+      if save_image "$download_url" "$out" "pexels-${id}"; then
+        downloaded=$((downloaded + 1))
+      fi
+
     else
-      # pngimg
       local img_url
       img_url=$(cat "${cache_file}.pngimg.${idx}" 2>/dev/null || echo "")
       if [[ -z "$img_url" ]]; then
@@ -393,6 +499,19 @@ cmd_get() {
 
   if echo "$url" | grep -q "pngimg.com"; then
     source="pngimg"
+  elif echo "$url" | grep -qE "pexels.com"; then
+    source="pexels"
+    if echo "$url" | grep -qE "images.pexels.com"; then
+      resolved_url="$url"
+    else
+      local photo_id
+      photo_id=$(echo "$url" | grep -oE '[0-9]+/?$' | tr -d '/')
+      if [[ -n "$photo_id" ]] && [[ -n "$PEXELS_KEY" ]]; then
+        info "Resolving Pexels download URL..."
+        resolved_url=$(pexels_resolve "$photo_id")
+        [[ -z "$resolved_url" ]] && resolved_url="$url"
+      fi
+    fi
   elif echo "$url" | grep -q "unsplash.com/photos/"; then
     source="unsplash"
     local photo_id

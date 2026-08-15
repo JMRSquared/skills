@@ -18,30 +18,34 @@ Two routes. They do different jobs and the choice is not a preference.
 SCRIPT=skills/jmr-image/scripts/jmr-image.sh
 "$SCRIPT" search "swimmers lido morning light" --limit 10
 "$SCRIPT" download unsplash --index 3 --out public/images
+"$SCRIPT" download pexels --index 4 --out public/images
 ```
 
 bash and curl only, no browser, so it works when Step 0 reported BLIND. Use it
 when you already know the frame you want, or when the build has no Playwright.
 
-**Check the key before you trust the results.** With no `UNSPLASH_ACCESS_KEY`
-in the environment the script prints one warning line, skips Unsplash entirely,
-searches only pngimg, and still **exits 0**. pngimg is CC BY-NC 4.0. Almost
-every site built with this skill is commercial, so a silent fallback ships a
-licence violation into a client build and nothing fails to tell you.
+**Check the keys before you trust the results.** With no `UNSPLASH_ACCESS_KEY`
+and no `PEXELS_API_KEY` in the environment the script prints a warning line
+per source, skips both, searches only pngimg, and still **exits 0**. pngimg is
+CC BY-NC 4.0. Almost every site built with this skill is commercial, so a
+silent fallback ships a licence violation into a client build and nothing
+fails to tell you.
 
 ```bash
 # agent shells are not login shells, so a key set in ~/.zshrc is not inherited
 set -a; source ~/.zshrc; set +a
-[ -n "$UNSPLASH_ACCESS_KEY" ] || echo "no key: jmr-image is pngimg-only, CC BY-NC"
+[ -n "$UNSPLASH_ACCESS_KEY" ] || echo "no Unsplash key"
+[ -n "$PEXELS_API_KEY" ] || echo "no Pexels key"
 ```
 
-No key and a commercial brief means: set the key, or use `find-photos.mjs`
-below, which needs none. Never resolve it by shipping the pngimg result.
+No commercial-safe key and a commercial brief means: set a key, or use
+`find-photos.mjs` below, which needs none. Never resolve it by shipping the
+pngimg result.
 
-| Destination | Unsplash | pngimg |
-|---|---|---|
-| Client site, product, anything monetised | yes, credit it | **no** |
-| Internal mockup, deck, throwaway demo | yes | yes, credit it |
+| Destination | Unsplash | Pexels | pngimg |
+|---|---|---|---|
+| Client site, product, anything monetised | yes, credit it | yes, credit it | **no** |
+| Internal mockup, deck, throwaway demo | yes | yes | yes, credit it |
 
 ### `scripts/find-photos.mjs` — the choose-by-eye route
 
@@ -186,7 +190,7 @@ system: scrub it, mask it, parallax it, depth-layer it.
 ## Licensing
 
 Unsplash and Pexels are free for commercial use with no attribution required;
-credit anyway. `/jmr-image` reaches both Unsplash and pngimg; pngimg and
+credit anyway. `/jmr-image` reaches Unsplash, Pexels, and pngimg; pngimg and
 `/pngimg-assets` cutouts are CC BY-NC, so mockups and non-commercial work only.
 Poly Haven is CC0. Confirm the current licence before a commercial
 launch, and never ship a client site on an asset whose licence you did not check.

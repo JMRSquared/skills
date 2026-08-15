@@ -31,7 +31,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `npm-local-publish` — Dia + TTY local npm publish when CI OIDC / Trusted Publishing fails; `/npm-local-publish`.
 - `pngimg-assets` — pngimg.com transparent PNG search/download with CC BY-NC gate; `/pngimg-assets`.
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
-- `jmr-image` — Unsplash + pngimg photography search/download; `/jmr-image`.
+- `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
 
 **Companion:**
 
@@ -42,7 +42,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
 - `pngimg-assets` — `/pngimg-assets` — search + download CC BY-NC PNG cutouts.
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.
-- `jmr-image` — `/jmr-image` — Unsplash-first photography search + download.
+- `jmr-image` — `/jmr-image` — Unsplash then Pexels photography search + download.
 
 **Slash commands (Claude Code):**
 
@@ -54,6 +54,6 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
-- `/jmr-image` — search and download photography (Unsplash needs a key; pngimg fallback is CC BY-NC).
+- `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

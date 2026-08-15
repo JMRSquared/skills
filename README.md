@@ -56,7 +56,7 @@ Two tiers.
 | `npm-local-publish` | Local npm release when CI OIDC fails or user asks to publish with 2FA (Dia + TTY expect) |
 | `pngimg-assets` | Searching or downloading transparent PNG assets from pngimg.com (CC BY-NC gate) |
 | `gltf-assets` | Searching or downloading glTF/GLB (Sketchfab + Poly Haven) and HDRIs for R3F / `/premium-web-design` |
-| `jmr-image` | Searching or downloading photography — Unsplash first (commercial-safe), pngimg fallback for cutouts |
+| `jmr-image` | Searching or downloading photography — Unsplash then Pexels (commercial-safe), pngimg fallback for cutouts |
 
 **Companion:**
 
@@ -70,7 +70,7 @@ Two tiers.
 | `npm-local-publish` | `/npm-local-publish` — Dia + TTY local npm publish when Trusted Publishing is unavailable |
 | `pngimg-assets` | `/pngimg-assets` — search + download transparent PNG cutouts (CC BY-NC gate) |
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
-| `jmr-image` | `/jmr-image` — search + download photography from Unsplash and pngimg |
+| `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
 
 ---
 
@@ -218,7 +218,7 @@ In any Claude Code session once installed:
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
-- `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; without it the script falls back to pngimg, which is CC BY-NC.
+- `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; without either the script falls back to pngimg, which is CC BY-NC.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
 
