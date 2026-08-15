@@ -37,6 +37,19 @@ PW_DIR=<dir containing node_modules/playwright> \
 It writes `./.audit/desktop-*.jpg`, `mobile-*.jpg`, `reduced-motion.jpg`, and
 `audit.json`, prints every finding, and exits non-zero while any FAIL stands.
 
+**Tier C cannot be audited over `file://`.** GLTFLoader fetches, and `file://`
+blocks fetch, so the model never arrives, the page takes its own WebGL-missing
+fallback path, and the auditor reports a still where you built a scene — with no
+console error to explain it. Serve the directory and audit the URL:
+
+```bash
+(cd <site-dir> && python3 -m http.server 8899 &)
+PW_DIR=<…> node $SKILL/scripts/audit-page.mjs http://localhost:8899/index.html ./.audit
+```
+
+Anything loading a model, a texture, a worker or a module over fetch has the same
+problem. `file://` is fine for Tier A and Tier B pages that ship no such assets.
+
 Then, every pass, both of these:
 
 1. **Read the frames.** Use the Read tool on the desktop and mobile JPEGs. Look
@@ -94,6 +107,39 @@ studies longer than five screens:
 | `no-bleed` | Nothing crosses the viewport edge (while the page does not scroll horizontally). | Run a photo row, a marquee or a wordmark past the edge so the frame reads as a window onto something larger, not as a box with margins. |
 | `ground-flips` | Fewer than 3 ground-colour changes on a page over 6 screens, sampled at 12 scroll positions. | Blind Barber flips paper `#F1F1F1` to ink `#141414` every ~2 chapters and deletes every divider. Amrit runs sand, dark photo, saffron panel, sand. One ground for a whole page makes the scroll feel like one long section. |
 | `motion-vocabulary` | Fewer than 4 *distinct* transition/animation declarations (unique property + duration + easing) on a page over 6 screens, with no JS motion runtime present. | One easing curve repeated everywhere is a default, not a vocabulary. Want four registers: a state change, an enter, a scroll-linked move, one slow ambient one. See `references/motion.md`. |
+
+## CRAFT — the ambition you claimed
+
+`SPARSE` asks what the composition never attempted. `CRAFT` asks whether the
+**tier** was built. Every check above it can be satisfied by a well-set static
+document, which is how two pages shipped from this skill with zero pins, zero
+scrubs, zero transitions and zero canvas while passing everything. **CRAFT never
+changes the exit code either** — but a CRAFT finding is work that was promised
+and not done, not a matter of taste.
+
+Declare the tier in the page, at the top of `<head>`, so the claim can be
+checked against what shipped:
+
+```html
+<!-- premium-web-design: tier=B -->
+<!-- premium-web-design: tier=C mobile=B -->   <!-- phone build is deliberately a tier lower -->
+```
+
+`mobile=` is the Tier C phone-fallback requirement written down. It is not a
+let-off: on the phone pass the auditor resolves the section that carries the
+canvas on desktop and checks that something real is painted there instead.
+
+| Code | What it means | The fix |
+|---|---|---|
+| `tier-undeclared` | No `premium-web-design: tier=…` in the source. The page is measured against Tier B, the documented default. | Declare it. If it is Tier A, say so and meet the entry clause. |
+| `tier-unmet` | The declared tier's evidence is not on the page. Tier B wants a scroll-driven pin, a scrubbed transform/canvas/video, a split or masked type reveal, or a page transition. Tier C wants a `<canvas>` holding a WebGL context, or three/R3F. | Build the tier, or drop the declaration to the tier you built. Both are honest; the label without the work is not. |
+| `tier-floor` | `tier=A` on a page over 6 viewport heights. | `ambition-tiers.md` puts the Tier A ceiling at 6 screens. Cut the page or move to Tier B. |
+| `tier-fallback-missing` | `mobile=` declares a step down, and the section holding the desktop scene paints nothing in its place on the phone. | Art-direct a still into the same section. A scene switched off is a hole, not a fallback. |
+| `motion-techniques` | Fewer than 3 distinct weight-carrying techniques on a page over 6 screens, out of: scroll-pinned section, scrubbed sequence, split/masked type reveal at display scale, cursor-driven preview, horizontal chapter, loader into hero, page transition, magnetic element, canvas/3D scene. | Pick the two or three the brief actually wants and build them completely. Scroll-reveal fades and hover states are the floor, not techniques. |
+| `no-loader` | Nothing runs before or into the first paint on a page over 6 screens. | `demos/loader-to-hero.html` builds one that resolves into the hero, skips on any input, and has a watchdog. |
+| `img-not-responsive` | An `<img>` with no `srcset` and no `<picture>` decoding at over 2.5× its rendered CSS width. | `imagery.md` asks for 2× display width. 2.5× is the flag so a correct retina asset never trips it; a 6× payload always does. |
+| `conversion-incomplete` | A page with a `tel:` link missing any of: a bottom-pinned mobile action bar, what-happens-next copy within 200 characters after a CTA, an FAQ/objection block, a named person who is not a reviewer. | All four are S-cost components from the Plomberie and Amrit steal lists with a direct line to booked work. |
+| `rating-unsourced` | A 3.0–5.0 rating near the word review/star/rating with no link in or beside it. | `content-and-copy.md` bans star ratings with no source. Link it to the Google or Trustpilot listing. |
 
 ## Reading your own frames
 

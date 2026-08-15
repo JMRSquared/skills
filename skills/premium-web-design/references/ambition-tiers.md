@@ -84,6 +84,61 @@ Before you write the first line, answer in one sentence each:
 
 If you cannot answer 3, drop a tier.
 
+## Sourcing a Tier C asset
+
+Everything here was learned by shipping one, and every item cost a rebuild.
+
+**Render a four-angle turnaround before you commit to a model.** Front, 90, 180,
+270, in the lighting you intend to use. A model can be excellent from the front
+and an unresolved flat slab from the back, and a scroll that turns it through a
+full revolution will parade that slab as a beat. Constrain the rotation to the
+arc that holds up rather than showing the whole object because you can:
+
+```js
+// sweep front to three-quarter and back, never through the rear panel
+group.rotation.y = -0.62 + Math.sin(progress * Math.PI) * 1.24;
+```
+
+**Check the model for the author's branding.** Downloaded glTF frequently carries
+the maker's name baked into a shared texture, not as a separate mesh you can
+hide. One model shipped a different company's wordmark across the front of the
+machine, and it was only visible once rendered. There is no way to remove it
+without editing the texture, so the check belongs before the download decision.
+
+**The asset must match what the copy claims.** A model of a two-group enamelled
+machine under copy describing a single-group billet-machined one is worse than
+no 3D at all: every sentence argues with the picture. Either find an asset that
+matches the brief, or let the asset drive the brief and rewrite the copy to
+describe the object you actually have. Rewriting the copy is usually faster and
+always more honest.
+
+**Metal without an environment map is grey plastic.** Lights alone will not do
+it. Pull a CC0 studio HDRI through `/gltf-assets` and run it through
+`PMREMGenerator`:
+
+```js
+new RGBELoader().load('models/studio_small_09_1k.hdr', (hdr) => {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromEquirectangular(hdr).texture;
+  hdr.dispose(); pmrem.dispose();
+});
+```
+
+**Copy over a lit 3D scene needs a near-opaque ground.** A 0.72 alpha scrim that
+works over a photograph fails over a bright moving object. 0.94 plus a small
+backdrop blur is the floor, and non-active chapter cards must go to `opacity: 0`
+rather than a low alpha, or the previous card's label reads through the live
+one's headline.
+
+**Tier C cannot be audited over `file://`.** `GLTFLoader` uses fetch, which
+`file://` blocks, so the model fails, the page silently takes its own fallback
+path, and nothing appears in the console. Serve the directory and audit the URL:
+
+```bash
+cd <site dir> && python3 -m http.server 8899 &
+node scripts/audit-page.mjs "http://localhost:8899/index.html" ./.audit
+```
+
 ## Overreach failure modes
 
 These are what actually goes wrong when an agent reaches past its tier. Check

@@ -12,6 +12,13 @@
  * edge bleed, ground flips, motion vocabulary. SPARSE never changes the exit
  * code — it describes what is absent, and absence is a design note, not a bug.
  *
+ * A third class, level `craft`, measures whether the AMBITION TIER the page
+ * claims was actually built: a declared tier, a scroll-driven pin, a scrub, a
+ * split reveal, a loader, responsive image payloads, the conversion parts the
+ * corpus wins on, a sourced rating. Everything above this line can be satisfied
+ * by a well-set static document; CRAFT is what cannot. CRAFT never changes the
+ * exit code either.
+ *
  * Self-scoring is worthless without a rendered artifact. This produces one.
  *
  * Usage:
@@ -550,6 +557,419 @@ const audit = (opts = {}) => {
       `${motionVocab.size} distinct motion declaration${motionVocab.size === 1 ? '' : 's'} (unique property + duration + easing) across ${screensNow.toFixed(1)} screens, and no JS motion runtime on the page. One easing curve repeated everywhere is a default, not a vocabulary — a page this long wants at least 4: a state change, an enter, a scroll-linked move, and a slow ambient one.`,
       { distinct: motionVocab.size, sample: [...motionVocab].slice(0, 8), jsMotion });
 
+
+  /* ======================================================================
+   * CRAFT (level `craft`) — FAIL/WARN measure restraint. SPARSE measures what
+   * is absent from the composition. Neither one can tell whether the AMBITION
+   * the skill sells was actually built, because every check above them can be
+   * satisfied by a well-set static document. Two sites shipped from this skill
+   * with zero pins, zero scrubs, zero transitions and zero canvas and passed
+   * everything.
+   * references/ambition-tiers.md makes Tier B the default and says it plainly:
+   * "a page over 6 screens is at Tier B unless you can defend Tier A". Nothing
+   * measured that claim. This does.
+   * CRAFT never changes the exit code. Like SPARSE it is a design note — but it
+   * is a note about work that was promised and not done, not about taste.
+   * The dynamic evidence (pins, scrubs, loaders, cursors) is measured by the
+   * driver on its own throwaway page and handed in as opts.craft; everything
+   * here is guarded so a page that cannot be probed reports "not measured".
+   * ==================================================================== */
+  const craftIn = (opts && opts.craft && typeof opts.craft === 'object') ? opts.craft : null;
+  const craftOk = !!(craftIn && craftIn.ok);
+  const techniques = (craftOk && craftIn.techniques && typeof craftIn.techniques === 'object') ? craftIn.techniques : {};
+  const techPresent = (craftOk && Array.isArray(craftIn.present)) ? craftIn.present : [];
+  const TECHNIQUE_NAMES = [
+    'scroll-pinned section', 'scrubbed sequence', 'split/masked type reveal',
+    'cursor-driven preview', 'horizontal chapter', 'loader into hero',
+    'page transition', 'magnetic element', 'canvas/3D scene',
+  ];
+  const LONG_PAGE_SCREENS = 6;   /* ambition-tiers.md, Tier A entry clause */
+  const longPage = screensNow > LONG_PAGE_SCREENS;
+
+  /* --- C1. tier-undeclared: the tier has to be a claim someone can check --- */
+  /* `premium-web-design: tier=C mobile=B` — the optional `mobile=` is not a
+     let-off, it is the Tier C requirement written down. ambition-tiers.md asks
+     for "a defined fallback for phones" and says never ship a 4MB model to one,
+     so a page that renders on desktop and art-directs a still on the phone is
+     obeying the skill. Declaring that is how it gets read as obedience rather
+     than as a tier that was never built. tier-fallback-missing below is what
+     stops the clause becoming the new loophole. */
+  const parseDecl = (hay) => {
+    if (!hay) return null;
+    const anchor = /premium-web-design\b[^\n\r]{0,140}/i.exec(String(hay));
+    if (!anchor) return null;
+    const t = /\btier\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
+    if (!t) return null;
+    const mob = /\bmobile\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
+    return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null };
+  };
+  const tierDecl = (() => {
+    try {
+      const w = document.createTreeWalker(document, NodeFilter.SHOW_COMMENT, null);
+      let n, guard = 0;
+      while ((n = w.nextNode()) && ++guard < 800) {
+        const d = parseDecl(n.nodeValue);
+        if (d) return { ...d, via: 'html comment' };
+      }
+    } catch { /* unreadable comment tree */ }
+    try {
+      for (const meta of document.querySelectorAll('meta')) {
+        const name = (meta.getAttribute('name') || meta.getAttribute('property') || '').trim();
+        const content = meta.getAttribute('content') || '';
+        const d = parseDecl(`${name} ${content}`);
+        if (d) return { ...d, via: 'meta' };
+        if (/^premium-web-design$/i.test(name)) {
+          const t = /\btier\s*[:=]?\s*([abc])\b/i.exec(content);
+          if (t) {
+            const mob = /\bmobile\s*[:=]?\s*([abc])\b/i.exec(content);
+            return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null, via: 'meta' };
+          }
+        }
+      }
+    } catch { /* ignore */ }
+    try {
+      const src = document.documentElement.outerHTML;
+      if (src && src.length < 4000000) {
+        const d = parseDecl(src);
+        if (d) return { ...d, via: 'page source' };
+      }
+    } catch { /* ignore */ }
+    return null;
+  })();
+  const declaredTier = tierDecl ? tierDecl.tier : null;
+  const declaredMobileTier = tierDecl ? tierDecl.mobile : null;
+  const onPhone = !!opts.expectWidth;
+  /* The phone pass answers to `mobile=` when the author set one; with no
+     `mobile=` the declared tier stands at both widths, because a page that
+     claims C everywhere and delivers nothing on phones still has to hear it. */
+  const viewportTier = (onPhone && declaredMobileTier) ? declaredMobileTier : declaredTier;
+  /* No declaration means the default applies, not that the question goes away. */
+  const measuredAgainst = viewportTier || 'B';
+  if (!tierDecl)
+    add('craft', 'tier-undeclared',
+      `No ambition tier declared on the page. Emit \`<!-- premium-web-design: tier=B -->\` (or \`<meta name="premium-web-design" content="tier=B">\`; add \`mobile=A\` when the phone build is deliberately a tier lower) so the tier is a claim that can be checked against what shipped. Measuring this page against Tier B, the documented default for anything over ${LONG_PAGE_SCREENS} screens.`,
+      { found: null, measuredAgainst: 'B', screens: +screensNow.toFixed(1) });
+
+  /* --- C2. tier-unmet / tier-floor: what the page SHIPS vs what it claims --- */
+  const B_EVIDENCE = ['scroll-pinned section', 'scrubbed sequence', 'split/masked type reveal', 'page transition'];
+  const evidenceB = B_EVIDENCE.filter((k) => techniques[k]);
+  const evidenceC = [];
+  if (craftOk) {
+    if (craftIn.webgl) evidenceC.push('webgl canvas');
+    if (craftIn.three) evidenceC.push('three/R3F');
+  }
+  const tierEvidence = {
+    declared: declaredTier, declaredMobile: declaredMobileTier, viewport: onPhone ? 'mobile' : 'desktop', measuredAgainst,
+    tierB: evidenceB, tierC: evidenceC,
+    detected: techPresent, screens: +screensNow.toFixed(1),
+    probe: craftOk ? (craftIn.mode || 'ok') : 'not measured',
+  };
+  /* An undeclared page is measured against the default, but the default itself
+     only bites over 6 screens — Tier A is a legitimate answer for a short page,
+     and firing on one would punish the demos for their own mobile fallbacks. A
+     tier the author DECLARED is checked at any length: they named it. */
+  const tierApplies = craftOk && (viewportTier ? true : longPage);
+  if (tierApplies) {
+    if (measuredAgainst === 'C' && evidenceC.length === 0)
+      add('craft', 'tier-unmet',
+        `Tier C ${onPhone && declaredMobileTier ? 'declared for the phone' : 'declared'} and nothing rendered: no <canvas> holds a WebGL/WebGL2 context and no three/R3F runtime is on the page. Tier C is "a real-time 3D object the scroll drives" — ${evidenceB.length ? `the page ships ${evidenceB.join(' + ')}, which is Tier B` : 'and the page does not even reach Tier B'}.${onPhone && !declaredMobileTier ? ' If the phone build drops to a still on purpose, say so: `premium-web-design: tier=C mobile=B`.' : ' Drop the declaration to the tier you built, or build the tier you declared.'}`,
+        tierEvidence);
+    else if (measuredAgainst === 'B' && evidenceB.length === 0 && evidenceC.length === 0)
+      add('craft', 'tier-unmet',
+        `${viewportTier ? `Tier B declared${onPhone && declaredMobileTier ? ' for the phone' : ''}` : `No tier declared, so Tier B applies (${screensNow.toFixed(1)} screens)`} and none of its evidence is on the page: no scroll-driven pin, no scrubbed transform or canvas draw, no split/masked type reveal, no page transition. Tier B is "a real timeline library driving scroll" — a page with scroll-reveal fades and hover states is Tier A wearing a Tier B label.`,
+        tierEvidence);
+  }
+
+  /* --- C2b. tier-fallback-missing: a declared step down has to land somewhere.
+     `mobile=B` under `tier=C` is a promise that the scene was REPLACED, not
+     switched off. The driver records where the canvas lives on desktop; this
+     resolves the same host at 390px and asks what is painted there now. An
+     empty sticky section is the exact failure this whole class of check exists
+     to catch, and it must not become the cheap way to pass. */
+  let fallback = null;
+  if (onPhone && declaredMobileTier && declaredTier && declaredMobileTier !== declaredTier && opts.desktopScene) {
+    const ref = opts.desktopScene;
+    const host = (() => {
+      try {
+        if (ref.canvasId) {
+          const c = document.getElementById(ref.canvasId);
+          if (c) return c.closest('section,[data-section],article,header,figure') || c.parentElement;
+        }
+        if (ref.id) { const h = document.getElementById(ref.id); if (h) return h; }
+        if (ref.cls) {
+          const h = document.querySelector(`${ref.tag || '*'}.${CSS.escape(ref.cls)}`);
+          if (h) return h;
+        }
+        if (ref.sectionIndex >= 0) {
+          const list = document.querySelectorAll('section');
+          if (list[ref.sectionIndex]) return list[ref.sectionIndex];
+        }
+        if (ref.path) return document.querySelector(ref.path);
+      } catch { /* fall through */ }
+      return null;
+    })();
+    if (host) {
+      const inside = media.filter((m) => { try { return host.contains(m.el) || m.el === host; } catch { return false; } });
+      const biggest = inside.reduce((acc, m) => Math.max(acc, m.r.width * m.r.height), 0);
+      const need = vw * vh * 0.15;
+      fallback = { host: describe(host), mediaInside: inside.length, biggestAreaPct: +((biggest / (vw * vh)) * 100).toFixed(1), needAreaPct: 15, resolvedFrom: ref };
+      if (biggest < need)
+        add('craft', 'tier-fallback-missing',
+          `Tier ${declaredTier} declares \`mobile=${declaredMobileTier}\`, but the section that carries the 3D on desktop paints nothing in its place on the phone: ${inside.length} media element${inside.length === 1 ? '' : 's'} inside it, largest covering ${fallback.biggestAreaPct}% of the viewport (needs 15%). ambition-tiers.md asks for "a defined fallback", and "the still composition must be complete on its own" — a scene switched off is not a fallback, it is a hole.`,
+          fallback);
+    } else {
+      fallback = { host: null, note: 'desktop scene host did not resolve at this width', resolvedFrom: ref };
+    }
+  }
+  /* The Tier A entry clause is the loophole: "it is a static site" satisfied it
+     on every brief forever. Length is the one clause that cannot be argued. */
+  if (viewportTier === 'A' && longPage)
+    add('craft', 'tier-floor',
+      `Tier A declared on a ${screensNow.toFixed(1)}-screen page. Tier A requires the page to be UNDER ${LONG_PAGE_SCREENS} viewport heights — "a long page held at Tier A becomes a scroll with nothing in it". Either cut the page under ${LONG_PAGE_SCREENS} screens or move to Tier B.`,
+      { declared: 'A', viewport: onPhone ? 'mobile' : 'desktop', screens: +screensNow.toFixed(1), ceiling: LONG_PAGE_SCREENS, detected: techPresent });
+
+  /* --- C3. motion-techniques: how many weight-carrying moments ship --- */
+  if (craftOk && longPage && techPresent.length < 3)
+    add('craft', 'motion-techniques',
+      `${techPresent.length} of 9 weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least 3 from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
+      { detected: techPresent, count: techPresent.length, wanted: 3, catalogue: TECHNIQUE_NAMES, evidence: techniques, screens: +screensNow.toFixed(1) });
+
+  /* --- C4. no-loader: something has to run into the first paint --- */
+  const loaderEvidence = craftOk ? (craftIn.loader || null) : null;
+  if (craftOk && longPage && !loaderEvidence)
+    add('craft', 'no-loader',
+      `Nothing runs before or into the first paint: no overlay present at load and gone by 2500ms, no loading class dropped off the root, no \`data-loader\` hook. motion.md names the loader as a weight-carrying moment and demos/loader-to-hero.html builds one that resolves into the hero. A ${screensNow.toFixed(1)}-screen page that simply appears has thrown away its first second.`,
+      { loader: null, probedAt: craftOk ? (craftIn.loaderProbe || null) : null, screens: +screensNow.toFixed(1) });
+
+  /* --- C5. img-not-responsive: oversized payloads with no srcset --- */
+  /* imagery.md asks for 2x the CSS display width. The flag sits at 2.5x — 25%
+     of headroom over the contract — so a correct retina asset never trips it
+     and a 4x/6x payload always does. Flagging at the literal 2x would fail the
+     documented target itself, which would make the check unusable. */
+  const RESP_RATIO = 2.5;
+  const fatImgs = [];
+  for (const im of imgs) {
+    try {
+      if (im.srcset && im.srcset.trim()) continue;
+      if (im.closest && im.closest('picture')) continue;
+      const src = im.currentSrc || im.src || '';
+      if (/\.svg(\?|#|$)/i.test(src)) continue;
+      const nw = im.naturalWidth || 0;
+      const rw = im.getBoundingClientRect().width;
+      if (!nw || rw < 24) continue;
+      const ratio = nw / rw;
+      if (ratio > RESP_RATIO)
+        fatImgs.push({ src: src.slice(-70), naturalWidth: nw, renderedWidth: Math.round(rw), ratio: +ratio.toFixed(1), wastedPx: Math.round(nw - rw * 2) });
+    } catch { /* skip this image */ }
+  }
+  fatImgs.sort((a, b) => b.ratio - a.ratio);
+  if (fatImgs.length) {
+    const w = fatImgs[0];
+    add('craft', 'img-not-responsive',
+      `${fatImgs.length} image${fatImgs.length === 1 ? '' : 's'} ship${fatImgs.length === 1 ? 's' : ''} no \`srcset\` and no \`<picture>\` and decode${fatImgs.length === 1 ? 's' : ''} at over ${RESP_RATIO}x the width ${fatImgs.length === 1 ? 'it renders' : 'they render'} at. Worst: ${w.naturalWidth}px natural into ${w.renderedWidth}px rendered (${w.ratio}x). imagery.md asks for 2x display width — this is a payload the phone pays for and never sees.`,
+      { count: fatImgs.length, threshold: RESP_RATIO, worst: w, offenders: fatImgs.slice(0, 8) });
+  }
+
+  /* --- C6. conversion-incomplete (local business only) --- */
+  const telLinks = Array.from(document.querySelectorAll('a[href^="tel:"]'));
+  let conversion = null;
+  if (telLinks.length) {
+    /* One flat text stream in document order, so "what happens next" can be read
+       as the 200 characters that FOLLOW a CTA rather than as a DOM guess. */
+    const stream = (() => {
+      const out = { buf: '', map: new WeakMap() };
+      try {
+        if (!document.body) return out;
+        const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+        let n, guard = 0;
+        while ((n = w.nextNode()) && ++guard < 40000) {
+          const v = String(n.nodeValue || '').replace(/\s+/g, ' ');
+          if (!v.trim()) continue;
+          out.map.set(n, out.buf.length);
+          out.buf += v + ' ';
+        }
+      } catch { /* partial stream is still useful */ }
+      return out;
+    })();
+    const endOffset = (el) => {
+      try {
+        const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null);
+        let n, last = -1, guard = 0;
+        while ((n = w.nextNode()) && ++guard < 4000) {
+          const o = stream.map.get(n);
+          if (o != null) last = o + String(n.nodeValue || '').replace(/\s+/g, ' ').length;
+        }
+        return last;
+      } catch { return -1; }
+    };
+
+    /* (a) fixed bottom action bar — mobile only. Measured live here AND across
+       the driver's scroll samples, because plenty of bars only appear on scroll. */
+    const bottomBarHere = (() => {
+      if (!opts.expectWidth) return null;   /* n/a on desktop */
+      try {
+        for (const el of all) {
+          const s = getComputedStyle(el);
+          if (s.position !== 'fixed') continue;
+          const r = el.getBoundingClientRect();
+          if (r.width < vw * 0.5 || r.height < 28) continue;
+          if (r.top < vh * 0.4) continue;                 /* a full-height overlay is not a bar */
+          if (vh - r.bottom > 120) continue;              /* must be anchored to the bottom */
+          if (!el.querySelector('a[href], button')) continue;
+          return { width: Math.round(r.width), height: Math.round(r.height), bottomGap: Math.round(vh - r.bottom), el: describe(el) };
+        }
+      } catch { /* ignore */ }
+      return null;
+    })();
+    const bottomBar = bottomBarHere || (craftOk && craftIn.bottomBar ? craftIn.bottomBar : null);
+
+    /* (b) what happens next, within 200 characters after a primary CTA */
+    const CTA_RE = /\b(book|booking|reserve|enquire|enquiry|inquiry|get in touch|contact us|call us|call now|request|arrange|register|apply|quote|appointment|make a booking|talk to)\b/i;
+    const NEXT_RE = /\b(confirm(s|ed|ation)?|repl(y|ies|ied)|call (you )?back|we'?ll (call|ring|email|text|be in touch)|hear (back )?from|get back to you|respond|response|within (a|an|one|two|three|24|48|\d)|same day|by (return|email)|no obligation)\b/i;
+    const ctas = [];
+    try {
+      for (const el of Array.from(document.querySelectorAll('a[href], button')).filter(visible)) {
+        const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+        const href = el.getAttribute('href') || '';
+        if (!CTA_RE.test(t) && !/^tel:|^mailto:/i.test(href)) continue;
+        if (t.length > 60) continue;
+        ctas.push({ el, text: t.slice(0, 40) });
+        if (ctas.length >= 40) break;
+      }
+    } catch { /* ignore */ }
+    let whatNext = null;
+    for (const c of ctas) {
+      const off = endOffset(c.el);
+      if (off < 0) continue;
+      const after = stream.buf.slice(off, off + 200);
+      if (NEXT_RE.test(after)) { whatNext = { cta: c.text, follows: after.trim().slice(0, 120) }; break; }
+    }
+
+    /* (c) an FAQ / objection block */
+    const faq = (() => {
+      try {
+        const d = document.querySelector('details');
+        if (d) return { kind: 'details', count: document.querySelectorAll('details').length };
+        for (const h of document.querySelectorAll('h1,h2,h3,h4,h5,h6,summary,dt,[role="heading"]')) {
+          const t = (h.textContent || '').replace(/\s+/g, ' ').trim();
+          if (t.length > 120) continue;
+          if (/question|faq|what if|do you|frequently asked/i.test(t)) return { kind: 'heading', text: t.slice(0, 60) };
+        }
+      } catch { /* ignore */ }
+      return null;
+    })();
+
+    /* (d) a named person who is not a reviewer */
+    const ROLE_RE = /\b(manager|director|nurse|coach|surgeon|founder|head|owner|chef|principal|instructor|dentist|veterinar\w*|vet|physio\w*|therapist|proprietor)\b/i;
+    const NAME_RE = /\b[A-Z][a-zà-öø-ÿ'’-]{1,}\s+[A-Z][A-Za-zà-öø-ÿ'’-]{1,}\b/;
+    const namedPerson = (() => {
+      try {
+        for (const el of all) {
+          const t = (el.textContent || '').replace(/\s+/g, ' ').trim();
+          if (t.length < 4 || t.length > 140) continue;
+          if (!ROLE_RE.test(t)) continue;
+          if (el.querySelector('*') && el.children.length > 6) continue;
+          let reviewish = false;
+          try { reviewish = !!el.closest('blockquote, q, [class*="review" i], [class*="testimonial" i], [id*="review" i], [id*="testimonial" i]'); } catch { reviewish = false; }
+          if (reviewish) continue;
+          const near = [t];
+          if (el.previousElementSibling) near.push((el.previousElementSibling.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80));
+          if (el.parentElement) {
+            const h = el.parentElement.querySelector('h1,h2,h3,h4,h5,h6,dt,strong,b');
+            if (h) near.push((h.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 80));
+          }
+          for (const hay of near) {
+            const m = NAME_RE.exec(hay);
+            if (!m) continue;
+            if (ROLE_RE.test(m[0])) continue;          /* "Head Coach" is the role, not a name */
+            return { name: m[0], context: t.slice(0, 80) };
+          }
+        }
+      } catch { /* ignore */ }
+      return null;
+    })();
+
+    const missing = [];
+    if (opts.expectWidth && !bottomBar) missing.push('fixed bottom action bar (mobile)');
+    if (!whatNext) missing.push('what happens next after the CTA');
+    if (!faq) missing.push('FAQ / objection block');
+    if (!namedPerson) missing.push('a named person who is not a reviewer');
+    conversion = {
+      telLinks: telLinks.length,
+      bottomBar: opts.expectWidth ? bottomBar : 'n/a (desktop)',
+      whatNext, faq, namedPerson, missing,
+    };
+    if (missing.length)
+      add('craft', 'conversion-incomplete',
+        `Local-business page (${telLinks.length} \`tel:\` link${telLinks.length === 1 ? '' : 's'}) missing ${missing.length} of the ${opts.expectWidth ? 4 : 3} conversion parts the corpus wins on: ${missing.join('; ')}. Plomberie ships a bottom-pinned mobile action bar and a 4-row objection FAQ; Amrit names the people. These are S-cost components with a direct line to booked work.`,
+        conversion);
+  }
+
+  /* --- C7. rating-unsourced: a number that asks to be believed --- */
+  const RATING_CTX_RE = /\b(review|reviews|rating|rated|star|stars|out of 5|google|trustpilot|tripadvisor)\b/i;
+  const unsourcedRatings = [];
+  for (const el of textEls) {
+    try {
+      const own = textOf(el).replace(/\s+/g, ' ').trim();
+      if (!own || own.length > 14) continue;
+      const m = /^([3-5](?:[.,]\d)?)(?:\s*(?:\/|out of)\s*5)?$/i.exec(own);
+      if (!m) continue;
+      const val = parseFloat(m[1].replace(',', '.'));
+      if (!(val >= 3 && val <= 5)) continue;
+      /* Climb only until the claim is legible — the tightest container that
+         carries both the number and the word "review" is the one to quote. */
+      let ctx = el, ctxText = '';
+      for (let k = 0; k < 4; k++) {
+        const t = String(ctx.textContent || '').replace(/\s+/g, ' ').trim();
+        if (t.length <= 320 && RATING_CTX_RE.test(t)) { ctxText = t; break; }
+        if (!ctx.parentElement || ctx.parentElement === document.body) break;
+        ctx = ctx.parentElement;
+      }
+      if (!ctxText) continue;
+      let sourced = false;
+      if (el.closest('a[href]')) sourced = true;
+      else if (ctx.querySelector('a[href]')) sourced = true;
+      else {
+        for (const sib of [el.previousElementSibling, el.nextElementSibling, ctx.previousElementSibling, ctx.nextElementSibling]) {
+          if (!sib) continue;
+          if (sib.tagName === 'A' || sib.querySelector('a[href]')) { sourced = true; break; }
+        }
+      }
+      if (!sourced) unsourcedRatings.push({ rating: val, text: own, context: ctxText.slice(0, 100) });
+      if (unsourcedRatings.length >= 6) break;
+    } catch { /* skip */ }
+  }
+  if (unsourcedRatings.length)
+    add('craft', 'rating-unsourced',
+      `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link to the source (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. Link it to the Google/Trustpilot listing.`,
+      unsourcedRatings);
+
+  const craftReport = {
+    probed: craftOk,
+    probeMode: craftOk ? (craftIn.mode || null) : null,
+    probeSamples: craftOk ? (craftIn.samples || 0) : 0,
+    probeErrors: craftIn ? (craftIn.errors || []) : [],
+    tierDeclared: declaredTier,
+    tierDeclaredMobile: declaredMobileTier,
+    tierDeclaredVia: tierDecl ? tierDecl.via : null,
+    tierMeasuredAgainst: measuredAgainst,
+    mobileFallback: fallback,
+    tierBEvidence: evidenceB,
+    tierCEvidence: evidenceC,
+    techniques: techPresent,
+    techniqueCount: techPresent.length,
+    techniqueEvidence: techniques,
+    loader: loaderEvidence,
+    webgl: craftOk ? !!craftIn.webgl : null,
+    three: craftOk ? !!craftIn.three : null,
+    scrollTrigger: craftOk ? !!craftIn.scrollTrigger : null,
+    pinSpacer: craftOk ? !!craftIn.pinSpacer : null,
+    oversizedImages: fatImgs.length,
+    oversizedWorst: fatImgs[0] || null,
+    conversion,
+    unsourcedRatings,
+  };
+
   return {
     viewport: { w: window.innerWidth, h: window.innerHeight },
     scrollHeight: document.documentElement.scrollHeight,
@@ -579,6 +999,7 @@ const audit = (opts = {}) => {
       motionVocabularySample: [...motionVocab].slice(0, 10),
       jsMotion,
     },
+    craft: craftReport,
     findings,
   };
 };
@@ -791,6 +1212,691 @@ const groundFor = async (ctx, target, steps = 12) => {
   }
 };
 
+/* ======================================================================
+ * CRAFT probe — evidence that cannot be read from one still frame.
+ *
+ * A pin, a scrub, a loader and a cursor follower are all TIME. None of them
+ * exist in the DOM snapshot the audit reads, which is exactly why two pages
+ * shipped from this skill with none of them and passed every check.
+ *
+ * Runs on its own throwaway page for the same reason ground sampling does:
+ * it navigates early to catch the loader, scrolls the whole page, moves the
+ * mouse and hovers buttons. Doing any of that to the audit page would corrupt
+ * every measurement taken after it.
+ *
+ * Never throws. Every stage is independently guarded; a stage that fails
+ * records an error string and leaves its evidence null, and null is reported
+ * as "not detected", never as "absent".
+ * ==================================================================== */
+
+/** Longest strictly-monotonic run in a series. Scrubs saturate — a tween that
+ *  runs across four samples and then holds is still a scrub, so scoring the
+ *  whole series for monotonicity finds nothing. Score the best run instead. */
+const longestRun = (vals, eps) => {
+  let best = { len: 0, start: 0, end: 0, dir: 0 };
+  let i = 0;
+  while (i < vals.length - 1) {
+    const d0 = vals[i + 1] - vals[i];
+    if (Math.abs(d0) <= eps) { i++; continue; }
+    const dir = d0 > 0 ? 1 : -1;
+    let j = i + 1;
+    while (j < vals.length - 1) {
+      const d = vals[j + 1] - vals[j];
+      if (Math.abs(d) <= eps || (d > 0 ? 1 : -1) !== dir) break;
+      j++;
+    }
+    if (j - i > best.len) best = { len: j - i, start: i, end: j, dir };
+    i = Math.max(j, i + 1);
+  }
+  return best;
+};
+
+/* --- in-page probes. Kept as top-level consts so they serialise cleanly. --- */
+
+/** Overlay/class/hook census, run four times across the first 2.5 seconds. */
+const loaderScan = () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  const res = { rootClass: '', overlays: [], hook: false };
+  const shown = (s, r) => {
+    if (s.display === 'none' || s.visibility === 'hidden') return false;
+    if (!(parseFloat(s.opacity) > 0.05)) return false;
+    const clip = String(s.clipPath || 'none');
+    if (/inset\([^)]*100%/.test(clip)) return false;
+    if (/circle\(\s*0(px|%)?[\s)]/.test(clip)) return false;
+    if (r.width * r.height < W * H * 0.25) return false;
+    if (r.bottom <= 4 || r.top >= H - 4 || r.right <= 4 || r.left >= W - 4) return false;
+    return true;
+  };
+  try {
+    res.rootClass = `${document.documentElement.className || ''} ${document.body ? String(document.body.className || '') : ''}`.trim().slice(0, 240);
+    res.hook = !!document.querySelector('[data-loader],[data-preloader],[data-loading]');
+  } catch { /* ignore */ }
+  try {
+    if (!document.body) return res;
+    const already = document.querySelectorAll('[data-pwd-ov]');
+    let n = already.length;
+    const seen = new Set(already);
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 4000 || n >= 12) break;
+      if (seen.has(el)) continue;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if (s.position !== 'fixed' && s.position !== 'absolute') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < W * 0.6 || r.height < H * 0.6) continue;
+      if (!shown(s, r)) continue;
+      el.setAttribute('data-pwd-ov', String(n++));
+    }
+    for (const el of document.querySelectorAll('[data-pwd-ov]')) {
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      const r = el.getBoundingClientRect();
+      res.overlays.push({
+        id: el.getAttribute('data-pwd-ov'),
+        shown: shown(s, r),
+        tag: el.tagName.toLowerCase(),
+        cls: String(el.className || '').slice(0, 48),
+      });
+    }
+  } catch { /* ignore */ }
+  return res;
+};
+
+/** Adopt new candidates, then read geometry + transform for every candidate. */
+const craftRead = () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  const mat = (v) => {
+    if (!v || v === 'none') return null;
+    let m = /matrix3d\(([^)]+)\)/.exec(v);
+    if (m) { const p = m[1].split(',').map(Number); return { tx: p[12], ty: p[13], sc: p[0] }; }
+    m = /matrix\(([^)]+)\)/.exec(v);
+    if (m) { const p = m[1].split(',').map(Number); return { tx: p[4], ty: p[5], sc: p[0] }; }
+    return null;
+  };
+  /* A 6x6 redraw is enough to tell "this canvas is painting different frames"
+     from "this canvas is a still". WebGL without preserveDrawingBuffer and any
+     cross-origin taint both throw — both are caught and reported as no hash. */
+  const canvasHash = (c) => {
+    try {
+      const o = document.createElement('canvas');
+      o.width = 6; o.height = 6;
+      const g = o.getContext('2d');
+      if (!g) return null;
+      g.drawImage(c, 0, 0, 6, 6);
+      const d = g.getImageData(0, 0, 6, 6).data;
+      let h = 0;
+      for (let i = 0; i < d.length; i += 4) h = (h * 31 + d[i] + d[i + 1] * 3 + d[i + 2] * 7) % 1000003;
+      return h;
+    } catch { return null; }
+  };
+  const out = { sy: 0, els: [], bottomBar: null, pinSpacer: false };
+  try { out.sy = window.scrollY || document.documentElement.scrollTop || 0; } catch { /* ignore */ }
+  try { out.pinSpacer = !!document.querySelector('.pin-spacer,[class*="pin-spacer"]'); } catch { /* ignore */ }
+  try {
+    let n = document.querySelectorAll('[data-pwd-cx]').length;
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 6000 || n >= 320) break;
+      if (el.hasAttribute('data-pwd-cx')) continue;
+      const tag = el.tagName;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      const r = el.getBoundingClientRect();
+      const area = r.width * r.height;
+      let want = false;
+      if (tag === 'CANVAS' || tag === 'VIDEO') want = true;
+      else if (s.transform && s.transform !== 'none') want = true;
+      else if ((s.position === 'sticky' || s.position === 'fixed') && area >= W * H * 0.1) want = true;
+      else if (/pin-spacer/.test(String(el.className || ''))) want = true;
+      else if (area >= W * H * 0.25 && r.width >= W * 0.4) want = true;
+      if (want) el.setAttribute('data-pwd-cx', String(n++));
+    }
+  } catch { /* ignore */ }
+  try {
+    for (const el of document.querySelectorAll('[data-pwd-cx]')) {
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      const r = el.getBoundingClientRect();
+      const m = mat(s.transform);
+      const rec = {
+        id: el.getAttribute('data-pwd-cx'),
+        tag: el.tagName,
+        cls: String(el.className || '').slice(0, 40),
+        top: Math.round(r.top), h: Math.round(r.height), w: Math.round(r.width),
+        pos: s.position,
+        anim: !!(s.animationName && s.animationName !== 'none'),
+        tx: m ? +m.tx.toFixed(1) : 0,
+        ty: m ? +m.ty.toFixed(1) : 0,
+        sc: m ? +m.sc.toFixed(4) : 1,
+      };
+      if (el.tagName === 'VIDEO') { try { rec.ct = +(el.currentTime || 0).toFixed(2); } catch { /* ignore */ } }
+      if (el.tagName === 'CANVAS') rec.hash = canvasHash(el);
+      out.els.push(rec);
+    }
+  } catch { /* ignore */ }
+  /* Bottom action bars are a phone component; scanning for one at 1440px is
+     wasted work on every sample of every desktop page. */
+  if (W < 600) {
+    try {
+      let i = 0;
+      for (const el of document.body.querySelectorAll('*')) {
+        if (++i > 3000) break;
+        let s; try { s = getComputedStyle(el); } catch { continue; }
+        if (s.position !== 'fixed') continue;
+        const r = el.getBoundingClientRect();
+        if (r.width < W * 0.5 || r.height < 28 || r.height > H * 0.45) continue;
+        if (r.top < H * 0.4 || H - r.bottom > 120) continue;
+        if (s.display === 'none' || s.visibility === 'hidden' || !(parseFloat(s.opacity) > 0.05)) continue;
+        if (!el.querySelector('a[href], button')) continue;
+        out.bottomBar = { width: Math.round(r.width), height: Math.round(r.height), bottomGap: Math.round(H - r.bottom), cls: String(el.className || '').slice(0, 40) };
+        break;
+      }
+    } catch { /* ignore */ }
+  }
+  return out;
+};
+
+/** Positions of every small absolutely-placed element, read between mouse moves. */
+const cursorRead = () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  const out = [];
+  try {
+    let n = document.querySelectorAll('[data-pwd-cu]').length;
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 4000 || n >= 80) break;
+      if (el.hasAttribute('data-pwd-cu')) continue;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if (s.position !== 'fixed' && s.position !== 'absolute') continue;
+      const r = el.getBoundingClientRect();
+      const a = r.width * r.height;
+      if (a < 400 || a > W * H * 0.5) continue;
+      el.setAttribute('data-pwd-cu', String(n++));
+    }
+    for (const el of document.querySelectorAll('[data-pwd-cu]')) {
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      const r = el.getBoundingClientRect();
+      out.push({
+        id: el.getAttribute('data-pwd-cu'),
+        cx: Math.round(r.left + r.width / 2),
+        cy: Math.round(r.top + r.height / 2),
+        vis: s.visibility !== 'hidden' && s.display !== 'none' && parseFloat(s.opacity) > 0.05,
+        tag: el.tagName.toLowerCase(),
+        cls: String(el.className || '').slice(0, 40),
+      });
+    }
+  } catch { /* ignore */ }
+  return out;
+};
+
+/** Everything readable from the settled DOM once: runtimes, WebGL, split type,
+ *  view transitions, a native sticky stage, a native horizontal rail. */
+const craftFinalScan = () => {
+  const W = window.innerWidth, H = window.innerHeight;
+  const res = {
+    gsap: false, scrollTrigger: false, three: false, webgl: false,
+    canvasCount: 0, canvasBig: false,
+    split: null, splitHits: 0, splitMarkers: 0,
+    transition: null, rail: null, railRejected: null, stickyStage: null, sceneSection: null,
+  };
+  try {
+    res.gsap = !!(window.gsap || window.TweenMax || window.TweenLite);
+    res.scrollTrigger = !!(window.ScrollTrigger || (window.gsap && window.gsap.plugins && window.gsap.plugins.scrollTrigger));
+    res.three = !!(window.THREE || window.__THREE__ || window.__THREE_DEVTOOLS__);
+  } catch { /* ignore */ }
+  try {
+    for (const c of document.querySelectorAll('canvas')) {
+      res.canvasCount++;
+      const r = c.getBoundingClientRect();
+      if (r.width * r.height >= W * H * 0.25) res.canvasBig = true;
+      if (c.getAttribute('data-engine')) res.three = true;   /* R3F stamps this */
+      /* Ask for 2d FIRST: on a canvas that already holds a WebGL context this
+         returns null, and on a canvas with no context at all it claims the 2d
+         slot so the WebGL probe below cannot invent a false positive. */
+      let two = null;
+      try { two = c.getContext('2d'); } catch { two = null; }
+      if (two) continue;
+      try { if (c.getContext('webgl2') || c.getContext('webgl') || c.getContext('experimental-webgl')) res.webgl = true; } catch { /* ignore */ }
+    }
+  } catch { /* ignore */ }
+  /* split / masked type reveal at display scale */
+  try {
+    const MIN = W < 600 ? 24 : 30;
+    const hits = [];
+    res.splitMarkers = document.querySelectorAll('[data-split-lines],[data-splitting],[data-split],.splitting,.split-line,.split-word,.split-char').length;
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 6000 || hits.length >= 4) break;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if ((parseFloat(s.fontSize) || 0) < MIN) continue;
+      const kids = el.children;
+      if (kids.length < 2 || kids.length > 400) continue;
+      const whole = String(el.textContent || '').trim();
+      if (whole.length < 6) continue;
+      /* An overflow-hidden wrapper on its own proves nothing — plenty of
+         headings clip for other reasons. The wrapper has to hold something
+         that MOVES: a live transform/animation, or a declared transition on
+         transform/clip-path waiting for its trigger. Otherwise a mask with a
+         static word in it would read as a reveal. */
+      const willMove = (st) => {
+        if (!st) return false;
+        if (st.transform && st.transform !== 'none') return true;
+        if (st.animationName && st.animationName !== 'none') return true;
+        if (st.clipPath && st.clipPath !== 'none') return true;
+        return parseFloat(st.transitionDuration) > 0 && /transform|clip-path|all|translate/.test(String(st.transitionProperty || ''));
+      };
+      let parts = 0, masked = 0, moved = 0, revealing = 0;
+      for (const k of kids) {
+        if (!String(k.textContent || '').trim()) continue;
+        parts++;
+        let ks; try { ks = getComputedStyle(k); } catch { continue; }
+        const clipped = ks.overflow === 'hidden' || ks.overflowY === 'hidden' || (ks.clipPath && ks.clipPath !== 'none');
+        if (clipped) masked++;
+        if ((ks.transform && ks.transform !== 'none') || (ks.animationName && ks.animationName !== 'none')) moved++;
+        if (willMove(ks)) revealing++;
+        else if (k.children.length) {
+          let gs; try { gs = getComputedStyle(k.children[0]); } catch { gs = null; }
+          if (willMove(gs)) revealing++;
+          if (gs && ((gs.transform && gs.transform !== 'none') || (gs.animationName && gs.animationName !== 'none'))) moved++;
+        }
+      }
+      if (parts >= 2 && parts >= kids.length * 0.6 && ((masked >= 2 && revealing >= 1) || moved >= 2))
+        hits.push({ fontSize: Math.round(parseFloat(s.fontSize)), parts, masked, moved, revealing, text: whole.slice(0, 40) });
+    }
+    res.splitHits = hits.length;
+    if (hits.length) res.split = hits[0];
+  } catch { /* ignore */ }
+  /* page / view transition */
+  try {
+    const lib = !!(window.barba || window.Barba || window.Swup || window.swup || window.Highway || window.Taxi || window.taxi);
+    const attr = !!document.querySelector('[data-barba],[data-swup],#swup,[data-taxi],[data-router-view],[data-transition-name],meta[name="view-transition"]');
+    let vtCss = false;
+    try {
+      for (const sh of document.styleSheets) {
+        let rules = null;
+        try { rules = sh.cssRules; } catch { continue; }
+        if (!rules) continue;
+        for (const r of rules) if (/@view-transition|view-transition-name/.test(String(r.cssText || ''))) { vtCss = true; break; }
+        if (vtCss) break;
+      }
+    } catch { /* ignore */ }
+    let vtName = false;
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 2500) break;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if (s.viewTransitionName && s.viewTransitionName !== 'none') { vtName = true; break; }
+    }
+    const called = !!(window.__pwdCraft && window.__pwdCraft.vt > 0);
+    if (lib || attr || vtCss || vtName || called) res.transition = { lib, attr, vtCss, vtName, called };
+  } catch { /* ignore */ }
+  /* Native horizontal chapter — NOT a card rail. A bleeding review rail with
+     `overflow-x: auto` satisfies every loose test for "content wider than its
+     box" and is a different device entirely: the reader swipes it, nothing
+     drives it. A chapter takes the whole viewport and pans as a movement, so
+     gate on full-viewport width AND near-full height. The scroll-DRIVEN case
+     (vertical scroll translating a track) is caught separately as `track`. */
+  try {
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 6000) break;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if (s.overflowX !== 'auto' && s.overflowX !== 'scroll') continue;
+      if (el.clientWidth < W * 0.9) continue;
+      if (el.scrollWidth <= el.clientWidth * 1.8) continue;
+      const rh = el.getBoundingClientRect().height;
+      if (rh < H * 0.7) { res.railRejected = { reason: 'too short for a chapter', heightPx: Math.round(rh), needPx: Math.round(H * 0.7), cls: String(el.className || '').slice(0, 40) }; continue; }
+      res.rail = { via: 'full-viewport overflow chapter', scrollWidth: el.scrollWidth, clientWidth: el.clientWidth, heightPx: Math.round(rh), snap: String(s.scrollSnapType || 'none'), cls: String(el.className || '').slice(0, 40) };
+      break;
+    }
+  } catch { /* ignore */ }
+  /* native sticky stage — a pin built without a library is still a pin */
+  try {
+    let i = 0;
+    for (const el of document.body.querySelectorAll('*')) {
+      if (++i > 6000) break;
+      let s; try { s = getComputedStyle(el); } catch { continue; }
+      if (s.position !== 'sticky') continue;
+      if (s.top === 'auto' && s.bottom === 'auto') continue;
+      const r = el.getBoundingClientRect();
+      if (r.height < H * 0.6 || r.width < W * 0.5) continue;
+      const p = el.parentElement;
+      if (!p) continue;
+      const pr = p.getBoundingClientRect();
+      if (pr.height < r.height * 1.8) continue;
+      res.stickyStage = { via: 'css sticky stage', height: Math.round(r.height), parentHeight: Math.round(pr.height), cls: String(el.className || '').slice(0, 40) };
+      break;
+    }
+  } catch { /* ignore */ }
+  /* Where the scene lives, so the mobile pass can ask whether the documented
+     Tier C phone fallback actually rendered something in its place. Recorded
+     four ways because a rebuilt DOM at 390px will not match on all of them. */
+  try {
+    let cv = null;
+    for (const c of document.querySelectorAll('canvas')) {
+      const r = c.getBoundingClientRect();
+      if (r.width * r.height < W * H * 0.2) continue;
+      cv = c; break;
+    }
+    if (cv) {
+      const host = cv.closest('section,[data-section],article,header,figure') || cv.parentElement;
+      if (host) {
+        const chain = [];
+        for (let n = host; n && n !== document.body && n.parentElement && chain.length < 12; n = n.parentElement)
+          chain.unshift(`${n.tagName.toLowerCase()}:nth-child(${Array.prototype.indexOf.call(n.parentElement.children, n) + 1})`);
+        res.sceneSection = {
+          canvasId: cv.id || null,
+          id: host.id || null,
+          cls: (String(host.className || '').trim().split(/\s+/)[0] || null),
+          tag: host.tagName.toLowerCase(),
+          sectionIndex: Array.prototype.indexOf.call(document.querySelectorAll('section'), host),
+          path: chain.length ? `body > ${chain.join(' > ')}` : null,
+          canvasAreaPct: +((cv.getBoundingClientRect().width * cv.getBoundingClientRect().height) / (W * H)).toFixed(2),
+        };
+      }
+    }
+  } catch { /* ignore */ }
+  return res;
+};
+
+const craftProbe = async (ctx, target) => {
+  const out = {
+    ok: false, mode: null, samples: 0, screens: null, errors: [],
+    techniques: {}, present: [],
+    loader: null, loaderProbe: null, bottomBar: null, sceneSection: null, railRejected: null,
+    webgl: false, three: false, gsap: false, scrollTrigger: false, pinSpacer: false,
+  };
+  let page = null;
+  try {
+    page = await ctx.newPage();
+    page.on('pageerror', () => { /* the audited page's errors are reported elsewhere */ });
+    await page.addInitScript(() => {
+      try {
+        window.__pwdCraft = { vt: 0 };
+        const orig = document.startViewTransition;
+        if (typeof orig === 'function')
+          document.startViewTransition = function (...a) { try { window.__pwdCraft.vt++; } catch { /* ignore */ } return orig.apply(this, a); };
+      } catch { /* ignore */ }
+    });
+
+    /* ---- stage 1: the first 2.5 seconds ---- */
+    await page.goto(target, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    const AT = [120, 500, 1100, 2500];
+    const t0 = Date.now();
+    const scans = [];
+    for (const at of AT) {
+      const wait = at - (Date.now() - t0);
+      if (wait > 0) await page.waitForTimeout(wait);
+      scans.push(await page.evaluate(loaderScan).catch(() => null));
+    }
+    const good = scans.filter(Boolean);
+    out.loaderProbe = { sampledAtMs: AT, captured: good.length, rootClassFirst: good[0] ? good[0].rootClass : null, rootClassLast: good.length ? good[good.length - 1].rootClass : null, overlaysSeen: good[0] ? good[0].overlays.length : 0 };
+    if (good.length >= 2) {
+      const first = good[0];
+      for (const o of first.overlays) {
+        if (!o.shown || out.loader) continue;
+        for (let k = 1; k < good.length; k++) {
+          const later = good[k].overlays.find((x) => x.id === o.id);
+          if (!later || !later.shown) { out.loader = { via: 'overlay', el: `${o.tag}${o.cls ? `.${o.cls.split(/\s+/)[0]}` : ''}`, presentAtMs: AT[0], goneByMs: AT[k] }; break; }
+        }
+      }
+      if (!out.loader) {
+        /* A loader that lives in a root class is still a loader — loader-to-hero
+           swaps `is-loading` for `is-done` and never removes an element. */
+        const m = /\b[\w-]*(?:loading|preload|preloader|is-load|intro|splash|loader)[\w-]*\b/i.exec(first.rootClass || '');
+        const last = good[good.length - 1].rootClass || '';
+        if (m && !last.includes(m[0])) out.loader = { via: 'root class', token: m[0], presentAtMs: AT[0], goneByMs: AT[AT.length - 1] };
+      }
+      if (!out.loader && good.some((g) => g.hook)) out.loader = { via: 'data-loader hook' };
+    }
+
+    /* ---- stage 2: scroll sampling ---- */
+    await page.waitForLoadState('load', { timeout: 30000 }).catch(() => { /* keep going */ });
+    await page.waitForTimeout(1500);
+    const geom = await page.evaluate(() => ({
+      vw: window.innerWidth, vh: window.innerHeight,
+      docH: document.documentElement.scrollHeight,
+    }));
+    /* Scan once BEFORE scrolling: every below-fold split reveal is still in its
+       from-state here, and after a full scroll pass they have all played and
+       their transforms are back to none. Scan again after, because a sticky
+       stage and a WebGL context can both arrive late. Merge, preferring
+       whichever pass actually saw the thing. */
+    const finPre = await page.evaluate(craftFinalScan).catch(() => null);
+    const usable = Math.max(geom.docH - geom.vh, 0);
+    const screens = geom.vh > 0 ? geom.docH / geom.vh : 1;
+    out.screens = +screens.toFixed(1);
+    /* The spec floor is 8 offsets. Eight is not enough on a long page: a pin
+       that holds for one screen out of twelve falls between two probes and the
+       page reads as unpinned. Two samples per screen, floored at 10, capped at
+       26 so a 160-screen site does not take an hour. */
+    const N = Math.min(26, Math.max(10, Math.ceil(screens * 2)));
+    out.samples = N;
+
+    let native = true;
+    if (usable > 0) {
+      const probeY = Math.max(400, Math.round(usable / N));
+      await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'auto' }), probeY);
+      await page.waitForTimeout(400);
+      const got = await page.evaluate(() => window.scrollY || document.documentElement.scrollTop || 0).catch(() => 0);
+      native = Math.abs(got - probeY) < Math.max(24, probeY * 0.3);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'auto' })).catch(() => { /* ignore */ });
+      await page.waitForTimeout(400);
+    }
+    out.mode = native ? 'scroll' : 'wheel';
+    const ticks = Math.min(30, Math.max(6, Math.ceil(usable / Math.max(N, 1) / 500)));
+
+    const series = [];
+    let cursorHit = null;
+    for (let i = 0; i < N; i++) {
+      if (native) {
+        const y = N === 1 ? 0 : Math.round((usable * i) / (N - 1));
+        await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'auto' }), y).catch(() => { /* ignore */ });
+        await page.waitForTimeout(560);
+      } else if (i > 0) {
+        for (let t = 0; t < ticks; t++) { await page.mouse.wheel(0, 500); await page.waitForTimeout(40); }
+        await page.waitForTimeout(400);
+      }
+      const s = await page.evaluate(craftRead).catch(() => null);
+      if (s) {
+        s.prog = native ? s.sy : i * ticks * 500;
+        series.push(s);
+        if (s.pinSpacer) out.pinSpacer = true;
+        if (s.bottomBar && !out.bottomBar) out.bottomBar = s.bottomBar;
+      }
+      /* Cursor-driven previews live at a scroll position, so probe as we go and
+         stop the moment one answers. Hover is meaningless under touch emulation. */
+      if (!cursorHit && geom.vw >= 600 && i < 9) {
+        try {
+          const ax = Math.round(geom.vw * 0.28), ay = Math.round(geom.vh * 0.34);
+          const bx = Math.round(geom.vw * 0.72), by = Math.round(geom.vh * 0.68);
+          await page.mouse.move(ax, ay);
+          await page.waitForTimeout(190);
+          const A = await page.evaluate(cursorRead).catch(() => []);
+          await page.mouse.move(bx, by);
+          await page.waitForTimeout(210);
+          const B = await page.evaluate(cursorRead).catch(() => []);
+          const mapA = new Map(A.map((e) => [e.id, e]));
+          for (const b of B) {
+            if (!b.vis) continue;
+            const a = mapA.get(b.id);
+            if (!a) continue;
+            const dx = b.cx - a.cx, dy = b.cy - a.cy;
+            if (dx >= (bx - ax) * 0.4 && dy >= (by - ay) * 0.3) {
+              cursorHit = { el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, movedX: dx, movedY: dy, mouseDx: bx - ax, mouseDy: by - ay, atSample: i };
+              break;
+            }
+          }
+        } catch (e) { out.errors.push(`cursor: ${String(e).slice(0, 80)}`); }
+      }
+    }
+
+    /* ---- stage 3: magnetic hover, two scroll positions ---- */
+    let magnetic = null;
+    if (native && geom.vw >= 600) {
+      for (const frac of [0, 0.35]) {
+        if (magnetic) break;
+        try {
+          await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'auto' }), Math.round(usable * frac));
+          await page.waitForTimeout(500);
+          const cands = await page.evaluate(() => {
+            const W = window.innerWidth, H = window.innerHeight;
+            for (const e of document.querySelectorAll('[data-pwd-mg]')) e.removeAttribute('data-pwd-mg');
+            const list = [];
+            let n = 0;
+            for (const el of document.querySelectorAll('a[href], button')) {
+              const r = el.getBoundingClientRect();
+              if (r.top < 40 || r.bottom > H - 20) continue;
+              if (r.width < 90 || r.height < 32 || r.width > W * 0.7) continue;
+              let s; try { s = getComputedStyle(el); } catch { continue; }
+              if (s.visibility === 'hidden' || s.display === 'none' || !(parseFloat(s.opacity) > 0.2)) continue;
+              el.setAttribute('data-pwd-mg', String(n));
+              list.push({ id: String(n), cx: Math.round(r.left + r.width / 2), cy: Math.round(r.top + r.height / 2), w: Math.round(r.width), text: String(el.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 24) });
+              if (++n >= 3) break;
+            }
+            return list;
+          }).catch(() => []);
+          const tx = (id) => page.evaluate((i2) => {
+            const el = document.querySelector(`[data-pwd-mg="${i2}"]`);
+            if (!el) return null;
+            const v = getComputedStyle(el).transform;
+            let m = /matrix3d\(([^)]+)\)/.exec(v);
+            if (m) return +m[1].split(',').map(Number)[12];
+            m = /matrix\(([^)]+)\)/.exec(v);
+            if (m) return +m[1].split(',').map(Number)[4];
+            return 0;
+          }, id).catch(() => null);
+          for (const c of cands) {
+            const off = Math.max(12, Math.round(c.w * 0.32));
+            await page.mouse.move(c.cx - off, c.cy);
+            await page.waitForTimeout(250);
+            const L = await tx(c.id);
+            await page.mouse.move(c.cx + off, c.cy);
+            await page.waitForTimeout(250);
+            const R = await tx(c.id);
+            /* A hover lift moves the same way whichever side you approach from.
+               Magnetism reverses with the cursor — that is the whole test. */
+            if (L != null && R != null && R - L >= 4) { magnetic = { el: c.text, dxLeft: +L.toFixed(1), dxRight: +R.toFixed(1), width: c.w }; break; }
+          }
+        } catch (e) { out.errors.push(`magnetic: ${String(e).slice(0, 80)}`); }
+      }
+    }
+
+    /* ---- stage 4: settled-DOM scan ---- */
+    const finPost = await page.evaluate(craftFinalScan).catch(() => null);
+    const fin = (finPre || finPost) ? {
+      gsap: !!((finPre && finPre.gsap) || (finPost && finPost.gsap)),
+      scrollTrigger: !!((finPre && finPre.scrollTrigger) || (finPost && finPost.scrollTrigger)),
+      three: !!((finPre && finPre.three) || (finPost && finPost.three)),
+      webgl: !!((finPre && finPre.webgl) || (finPost && finPost.webgl)),
+      canvasCount: Math.max(finPre ? finPre.canvasCount : 0, finPost ? finPost.canvasCount : 0),
+      canvasBig: !!((finPre && finPre.canvasBig) || (finPost && finPost.canvasBig)),
+      split: (finPre && finPre.split) || (finPost && finPost.split) || null,
+      splitHits: Math.max(finPre ? finPre.splitHits : 0, finPost ? finPost.splitHits : 0),
+      splitMarkers: Math.max(finPre ? finPre.splitMarkers : 0, finPost ? finPost.splitMarkers : 0),
+      transition: (finPre && finPre.transition) || (finPost && finPost.transition) || null,
+      rail: (finPre && finPre.rail) || (finPost && finPost.rail) || null,
+      railRejected: (finPost && finPost.railRejected) || (finPre && finPre.railRejected) || null,
+      sceneSection: (finPre && finPre.sceneSection) || (finPost && finPost.sceneSection) || null,
+      stickyStage: (finPre && finPre.stickyStage) || (finPost && finPost.stickyStage) || null,
+    } : null;
+    if (fin) {
+      out.webgl = !!fin.webgl;
+      out.three = !!fin.three;
+      out.gsap = !!fin.gsap;
+      out.scrollTrigger = !!fin.scrollTrigger;
+      out.sceneSection = fin.sceneSection || null;
+      out.railRejected = fin.railRejected || null;
+    }
+
+    /* ---- analysis ---- */
+    const byId = new Map();
+    for (let i = 0; i < series.length; i++) {
+      for (const e of (series[i].els || [])) {
+        if (!byId.has(e.id)) byId.set(e.id, []);
+        byId.get(e.id).push({ ...e, i, prog: series[i].prog });
+      }
+    }
+    const vw = geom.vw, vh = geom.vh;
+    const GAP_MIN = Math.max(80, vh * 0.3);
+    let pin = null, scrub = null, track = null;
+    for (const [id, rec] of byId) {
+      if (rec.length < 3) continue;
+      if (!pin) {
+        const big = rec.some((r) => r.h >= vh * 0.45 && r.w >= vw * 0.45);
+        const stickyish = rec.some((r) => r.pos === 'fixed' || r.pos === 'sticky');
+        if (big && stickyish) {
+          let held = 0, gaps = 0;
+          for (let k = 1; k < rec.length; k++) {
+            if (rec[k].i !== rec[k - 1].i + 1) continue;
+            if (Math.abs(rec[k].prog - rec[k - 1].prog) < GAP_MIN) continue;
+            gaps++;
+            if (Math.abs(rec[k].top - rec[k - 1].top) <= 8) held++;
+          }
+          /* held >= 1 says it stopped moving while the page moved.
+             held <= gaps - 1 says it let go again — a permanently fixed
+             background is not a pinned section. */
+          if (gaps >= 2 && held >= 1 && held <= gaps - 1)
+            pin = { via: 'measured hold', el: `${rec[0].tag.toLowerCase()}${rec[0].cls ? `.${rec[0].cls.split(/\s+/)[0]}` : ''}`, heldGaps: held, totalGaps: gaps, position: rec.find((r) => r.pos === 'fixed' || r.pos === 'sticky').pos, heightPx: rec[0].h };
+        }
+      }
+      const still = rec.filter((r) => !r.anim);
+      if (still.length >= 5) {
+        for (const ch of ['tx', 'ty', 'sc']) {
+          const vals = still.map((r) => r[ch]);
+          const eps = ch === 'sc' ? 0.004 : 1.5;
+          const need = ch === 'sc' ? 0.12 : 60;
+          const run = longestRun(vals, eps);
+          if (run.len < 3) continue;
+          const moved = Math.abs(vals[run.end] - vals[run.start]);
+          if (moved < need) continue;
+          const hit = { via: `${ch} monotonic across ${run.len + 1} scroll offsets`, el: `${still[0].tag.toLowerCase()}${still[0].cls ? `.${still[0].cls.split(/\s+/)[0]}` : ''}`, channel: ch, from: vals[run.start], to: vals[run.end], moved: +moved.toFixed(1) };
+          if (!scrub) scrub = hit;
+          if (!track && ch === 'tx' && still[0].w >= vw * 1.2 && moved >= vw * 0.4)
+            track = { via: 'pinned horizontal track', widthPx: still[0].w, movedPx: +moved.toFixed(0) };
+          break;
+        }
+      }
+      /* a canvas that repaints across the scroll is a scrubbed sequence */
+      if (!scrub && rec[0].tag === 'CANVAS') {
+        const hashes = rec.map((r) => r.hash).filter((h) => h != null);
+        const distinct = new Set(hashes).size;
+        if (hashes.length >= 4 && distinct >= 3)
+          scrub = { via: 'canvas repaint across scroll', el: 'canvas', distinctFrames: distinct, sampled: hashes.length };
+      }
+      if (!scrub && rec[0].tag === 'VIDEO') {
+        const t = rec.map((r) => r.ct).filter((v) => v != null);
+        if (t.length >= 5) {
+          const run = longestRun(t, 0.05);
+          if (run.len >= 3 && Math.abs(t[run.end] - t[run.start]) >= 0.3)
+            scrub = { via: 'video currentTime tracks scroll', el: 'video', fromSec: t[run.start], toSec: t[run.end] };
+        }
+      }
+    }
+    /* A pin-spacer in the DOM only exists because ScrollTrigger built a pin. */
+    if (!pin && out.pinSpacer && (out.scrollTrigger || out.gsap)) pin = { via: 'gsap pin-spacer in the DOM', pinSpacer: true, scrollTrigger: out.scrollTrigger };
+    if (!pin && fin && fin.stickyStage) pin = fin.stickyStage;
+
+    const techniques = {
+      'scroll-pinned section': pin,
+      'scrubbed sequence': scrub,
+      'split/masked type reveal': fin ? fin.split : null,
+      'cursor-driven preview': cursorHit,
+      'horizontal chapter': track || (fin ? fin.rail : null),
+      'loader into hero': out.loader,
+      'page transition': fin ? fin.transition : null,
+      'magnetic element': magnetic,
+      'canvas/3D scene': (fin && (fin.webgl || fin.three || fin.canvasBig)) ? { webgl: fin.webgl, three: fin.three, bigCanvas: fin.canvasBig, canvases: fin.canvasCount } : null,
+    };
+    out.techniques = techniques;
+    out.present = Object.keys(techniques).filter((k) => techniques[k]);
+    out.ok = series.length >= 3;
+    if (!out.ok) out.errors.push(`only ${series.length} scroll samples returned`);
+  } catch (e) {
+    out.errors.push(String(e).slice(0, 200));
+  } finally {
+    try { if (page) await page.close(); } catch { /* ignore */ }
+  }
+  return out;
+};
+
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'chromium' });
 const report = { url, capturedAt: new Date().toISOString(), desktop: null, mobile: null, console: [] };
 
@@ -803,7 +1909,8 @@ try {
   await page.waitForTimeout(2500);
   report.desktopShots = await shootScroll(page, 'desktop', Number(process.env.STEPS || 6));
   const desktopGround = await groundFor(ctx, url, 12);
-  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround });
+  const desktopCraft = await craftProbe(ctx, url);
+  report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft });
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
@@ -812,7 +1919,11 @@ try {
   await mpage.waitForTimeout(2500);
   report.mobileShots = await shootScroll(mpage, 'mobile', 4);
   const mobileGround = await groundFor(mctx, url, 12);
-  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround });
+  const mobileCraft = await craftProbe(mctx, url);
+  /* The phone pass cannot see the desktop DOM, and the whole question for a
+     `mobile=` declaration is what replaced the desktop scene. Carry the
+     reference across. */
+  report.mobile = await mpage.evaluate(audit, { expectWidth: 390, ground: mobileGround, craft: mobileCraft, desktopScene: (desktopCraft && desktopCraft.sceneSection) || null });
   await mctx.close();
 
   const rctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
@@ -835,7 +1946,9 @@ const fmt = (label, a) => {
   const fails = a.findings.filter((f) => f.level === 'fail');
   const warns = a.findings.filter((f) => f.level === 'warn');
   const sparse = a.findings.filter((f) => f.level === 'sparse');
+  const craftF = a.findings.filter((f) => f.level === 'craft');
   const amb = a.ambition || {};
+  const cr = a.craft || {};
   const lines = [
     `\n── ${label} (${a.viewport.w}×${a.viewport.h}, ${a.screens} screens) ──`,
     `display: ${a.display ? `${Math.round(a.display.size)}px ${a.display.fam} ${a.display.weight}` : 'none'}`,
@@ -843,12 +1956,17 @@ const fmt = (label, a) => {
     `palette: ${a.palette.map((p) => `${p.color} ${p.areaPct}%`).join(' | ')}`,
     `counts: ${JSON.stringify(a.counts)}`,
     `ambition: media ${amb.renderedMedia ?? '?'} · hero ${amb.heroSize ?? '?'}px vs ${amb.largestBelowFold ?? '?'}px below · overlaps ${amb.overlapPairs ?? '?'} · bleeds ${amb.bleeders ?? '?'} · ground flips ${amb.groundFlips ?? 'n/a'} · motion ${amb.motionVocabulary ?? '?'} · tint marks ${amb.tintMarks ?? 0}`,
-    `FAIL ${fails.length} · WARN ${warns.length} · SPARSE ${sparse.length}`,
+    `craft: tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/9${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
+    `FAIL ${fails.length} · WARN ${warns.length} · SPARSE ${sparse.length} · CRAFT ${craftF.length}`,
   ];
   for (const f of [...fails, ...warns]) lines.push(`  [${f.level.toUpperCase()}] ${f.code} — ${f.msg}`);
   if (sparse.length) {
     lines.push('  ┄ ambition — SPARSE: absence, not error. Does not affect exit code. ┄');
     for (const f of sparse) lines.push(`  [SPARSE] ${f.code} — ${f.msg}`);
+  }
+  if (craftF.length) {
+    lines.push('  ┄ craft — CRAFT: ambition declared vs ambition built. Does not affect exit code. ┄');
+    for (const f of craftF) lines.push(`  [CRAFT] ${f.code} — ${f.msg}`);
   }
   return lines.join('\n');
 };

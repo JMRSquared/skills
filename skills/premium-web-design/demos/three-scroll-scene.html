@@ -1,0 +1,1033 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fieldmark 01 · a camera, turned by scroll</title>
+
+<!-- premium-web-design: tier=C mobile=B -->
+
+<!--
+=============================================================================
+  PATTERN
+    Tier C, the reference implementation. One real glTF object, three scroll
+    beats, native document scroll, and a CSS `position: sticky` stage. No
+    scroll library, no GSAP, no pin plugin. Scroll position is read once per
+    frame, damped, and turned into a camera and a pose.
+
+  DERIVES FROM
+    apple.com/uk/iphone-17-pro/, measured 2026-08-15 at 1440x900. That page is
+    35.65 viewport-heights of NATIVE scroll (scrollHeight 32,082 / 900). It
+    holds 13 `position: sticky` elements and ZERO GSAP pin-spacers. The scrubbed
+    product beat is exactly this construction:
+
+        .scroll-container { height: 1800px }        /* 2.00 viewport heights */
+        .sticky-container { position: sticky; top: 0; height: 900px }
+
+    Its `product-viewer-canvas` reports a 3456x1824 backing store at 1728x912
+    CSS on a devicePixelRatio-2 display: a hard cap at exactly 2.0. The canvas
+    is absent from the DOM at scrollY 0 and mounted by scrollY ~1400, so the
+    first screen never pays for it.
+    See references/scroll-storytelling.md for the rest of that measurement,
+    and references/site-studies/apple-iphone14.md for the older build.
+
+  WHY NOT GSAP HERE
+    demos/horizontal-chapter.html is the ScrollTrigger reference and carries
+    the pin guards. This file is the other half of the same reference: the
+    same beat, built on sticky, which cannot desynchronise from the scrollbar
+    because it never leaves the layout.
+
+  FAILURE MODE AVOIDED
+    Every entry in the "React Three Fiber" list in references/ambition-tiers.md
+    applies to vanilla three.js unchanged. Each is a numbered GUARD below and
+    says what breaks without it. The two that cost the most:
+      GUARD 6  DPR uncapped on retina -> 4x the pixels, ~20fps.
+      GUARD 12 no teardown -> the WebGL context, its textures and its buffers
+               survive the navigation, and the next page starts down a GPU
+               context. Chrome only keeps 16.
+
+  THE FALLBACK IS NOT AN APOLOGY
+    Under any of: no WebGL2, a viewport under 860px, or prefers-reduced-motion,
+    the renderer is never constructed and a three-frame image sequence runs
+    instead - the same three beats, the same copy, crossfaded on the same
+    scroll maths. ambition-tiers.md calls for exactly this: "a scrubbed 3D
+    sequence becomes a scrubbed image sequence". The stills are renders of
+    this scene at the centre of each beat, so the two paths agree.
+
+  THE MODEL
+    Camera 01, Poly Haven, CC0, https://polyhaven.com/a/Camera_01 - 26,987
+    triangles, 4 PBR materials. Sourced with /gltf-assets. It ships in
+    assets/model/camera-01.gltf.js as a gzipped base64 string because a page
+    opened over file:// cannot fetch() a sibling file; that file's header
+    explains the packing and says what to do instead in production.
+
+  HOW TO ADAPT
+    BEATS is the whole narrative. Add a fourth entry, add a fourth <li> to the
+    caption list, and lengthen --track-h by 150vh. Nothing else changes: the
+    beat length is derived from the track height and the beat count, both read
+    from the DOM.
+
+  PALETTE     "Night studio", references/color-and-light.md, verbatim
+              --ground #0B0B0D --ground-2 #141417 --edge #24242A
+              --ink #F4F3F1    --ink-muted #A2A2AC --accent #E8FF4A
+  TYPE        Pairing 12, references/typography.md, verbatim:
+              Familjen Grotesk (display) + Sentient (body).
+  MOTION      Durations and curves from references/motion.md only.
+  LIBRARY     three.js r169 ESM from jsDelivr. Module, loader and environment
+              URLs each verified 200 on 2026-08-15.
+=============================================================================
+-->
+
+<script>
+/* The loader is a root class, set before the first byte of CSS is parsed.
+   Doing it here rather than in the stylesheet means the page never paints
+   once un-loaded and then again loaded, which is the flash the loader
+   exists to prevent. If this script is the thing that fails, the class is
+   never added and the page is simply already-loaded. */
+document.documentElement.className += ' is-loading';
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=sentient@400,500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ---- palette: "Night studio", color-and-light.md ---- */
+  --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
+  --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
+
+  /* ---- scale: typography.md ---- */
+  --step-hero: clamp(3.25rem, 11vw, 11rem);
+  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* ---- motion: motion.md ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-state:  240ms;
+  --d-enter:  700ms;
+
+  /* ---- grid ---- */
+  --gutter: clamp(1.5rem, 4vw, 5rem);
+  --section-y: clamp(5rem, 9vw, 9rem);
+
+  /* =====================================================================
+     THE BEAT SHEET, AS A NUMBER.
+     3 beats x 150vh of scrub + 100vh for the stage itself = 550vh.
+     150vh per beat is deliberate: fizzi.app runs 1.5-2.0 viewport-heights
+     per beat and nothing shorter, and a beat under ~1.2 screens reads as a
+     twitch rather than a movement. The JavaScript never hardcodes 550 or 3;
+     it measures the track and counts the captions.
+     ===================================================================== */
+  --track-h: 550vh;
+  --stage-h: 100svh;
+}
+@supports not (height: 100svh){ :root{ --stage-h:100vh; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Sentient", Georgia, serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{ display:block; max-width:100%; height:auto; }
+.wrap{ width:min(100% - var(--gutter)*2, 84rem); margin-inline:auto; }
+.wrap > *{ min-width:0; }
+
+/* ---------- type roles ---------- */
+.display{
+  font-family:"Familjen Grotesk", "Helvetica Neue", sans-serif; font-weight:700;
+  line-height:0.92; letter-spacing:-0.035em; text-wrap:balance; margin:0;
+}
+h1.display{ font-size:var(--step-hero); }
+h2.display{ font-size:var(--step-h1); line-height:0.94; letter-spacing:-0.03em; }
+h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
+.label{
+  font-family:"Familjen Grotesk", "Helvetica Neue", sans-serif;
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.16em;
+  font-weight:500; margin:0; color:var(--accent);
+}
+.label--quiet{ color:var(--ink-muted); }
+.lead{ font-size:var(--step-lead); line-height:1.4; max-width:34ch; margin:0; }
+.note{ max-width:46ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.tabular{ font-variant-numeric:tabular-nums; }
+
+/* ---------- hero ---------- */
+.hero{ padding:clamp(5rem, 11vw, 10rem) 0 var(--section-y); }
+.hero__grid{ display:grid; grid-template-columns:8fr 4fr; gap:2rem var(--gutter); align-items:end; }
+.hero__grid > *{ min-width:0; }
+.hero h1{ margin:1.5rem 0 0; }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:0.75rem 2.5rem; margin:2.5rem 0 0; padding:0; list-style:none; }
+.hero__meta li{ font-size:var(--step-small); color:var(--ink-muted); }
+.hero__meta b{ color:var(--ink); font-weight:500; }
+
+/* =====================================================================
+   GUARD 1: NOTHING BETWEEN <body> AND .stage MAY CLIP OR TRANSFORM.
+   `position: sticky` resolves against the nearest scrollport. An ancestor
+   with `overflow: hidden`, `overflow: auto`, `contain: paint` or a
+   `transform` becomes that scrollport, and the stage then sticks inside a
+   box that is already scrolled past - which looks exactly like "the pin
+   released early". This is the same trap as GUARD 1/2 in
+   horizontal-chapter.html; sticky is not immune to it, it just fails
+   silently instead of loudly. The runtime check below reports it.
+   ===================================================================== */
+.scene-track{ position:relative; height:var(--track-h); overflow-x:clip; }
+.stage{
+  position:sticky; top:0; height:var(--stage-h);
+  display:grid; grid-template-columns:minmax(0,26rem) minmax(0,1fr);
+  align-items:center; gap:clamp(1.5rem, 4vw, 3rem);
+  /* The copy column lines up with .wrap; the figure column runs off the
+     right edge of the viewport. A canvas has to crop its subject somewhere,
+     and cropping it against the edge of the SCREEN reads as framing, while
+     cropping it against an interior rectangle reads as a clipping bug. That
+     is the whole reason for the bleed - it was diagnosed off a captured
+     frame, where the strap was cut mid-air by an invisible box. */
+  width:100%; padding-left:max(var(--gutter), calc((100% - 84rem)/2));
+}
+
+/* =====================================================================
+   GUARD 2: THE CANVAS BOX HAS AN EXPLICIT ASPECT AND AN EXPLICIT WIDTH.
+   A <canvas> with no CSS size is 300x150 and stretches. Sizing the FRAME
+   in CSS and the DRAWING BUFFER in JS from that frame's measured box is
+   the only arrangement where the two cannot disagree. `aspect-ratio` also
+   means the fallback stills and the live canvas occupy the identical
+   rectangle, so switching between them does not reflow the page.
+   ===================================================================== */
+.figure{
+  position:relative; width:100%; aspect-ratio:4/3; max-height:78svh;
+  /* the studio sweep. --ground-2 lifted to a highlight at the object's eye
+     line and falling to --ground at the corners, so the near-black body has
+     a value to sit against instead of dissolving into the page. */
+  background:
+    radial-gradient(58% 66% at 50% 38%, #2A2A33 0%, #171719 44%, #0D0D10 74%, #0B0B0D 100%);
+  border-radius:2px; overflow:hidden;
+}
+.figure canvas{ display:block; width:100%; height:100%; }
+
+/* the fallback sequence: three stacked stills, crossfaded on the same maths */
+.seq{ position:absolute; inset:0; margin:0; }
+.seq img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  opacity:0; transition:opacity var(--d-state) linear;
+}
+.seq img:first-child{ opacity:1; }
+
+/* ---------- the copy column ---------- */
+/* =====================================================================
+   GUARD 3: THE COPY DOES NOT SIT ON THE OBJECT, IT SITS BESIDE IT.
+   Measured on fizzi.app: copy in one column, product in the other two,
+   the product cropped by the frame edge so it can never drift under the
+   text. On apple.com/iphone-14 the opposite choice - 90px headlines run
+   straight through a mid-value phone with no scrim - is the one legibility
+   failure recorded in this skill's study corpus.
+   The plate below is the second belt: at 34% of an 84rem grid the copy is
+   already off the object, and the plate only earns its keep under 860px
+   where the columns collapse and the stills sit behind the words.
+   ===================================================================== */
+/* GUARD 3b: the plate is pushed 3rem INTO the figure column. The overlap
+   is the point - a plate that stops politely at the gutter reads as two
+   panels side by side, and the object never feels like it is behind the
+   page. The blur and the 72% ground are what keep the copy readable where
+   they cross. */
+.beats{ position:relative; z-index:2; margin-right:-3rem; }
+.beats__plate{
+  background:rgba(11,11,13,0.72);
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  padding:clamp(1.25rem, 3vw, 2rem);
+  border-left:2px solid var(--accent);
+}
+.beats__list{ list-style:none; margin:0; padding:0; display:grid; }
+.beats__item{
+  grid-area:1 / 1; opacity:0;
+  transition:opacity var(--d-state) var(--ease-out);
+}
+.beats__item[data-on="1"]{ opacity:1; }
+.beats__no{ display:block; margin:0 0 0.75rem; }
+.beats__item h3{ margin:0 0 0.75rem; }
+.beats__item p{ margin:0; color:var(--ink-muted); max-width:34ch; }
+
+.rail{ display:flex; gap:8px; margin:2rem 0 0; padding:0; list-style:none; }
+.rail li{ height:2px; flex:1; background:var(--edge); overflow:hidden; }
+.rail i{ display:block; height:100%; background:var(--accent); transform:scaleX(0); transform-origin:0 50%; }
+
+.readout{
+  margin:1.5rem 0 0; font-family:"Familjen Grotesk", "Helvetica Neue", sans-serif;
+  font-size:var(--step-small); color:var(--ink-muted); letter-spacing:0.04em;
+}
+.readout b{ color:var(--ink); font-weight:500; }
+
+/* ---------- specs ---------- */
+/* The ground flips once, here. color-and-light.md ships --ground-2 for
+   exactly this: a second surface so a long scroll reads as chapters rather
+   than one continuous field. */
+.specs-band{ background:var(--ground-2); overflow-x:clip; }
+.specs{ padding:var(--section-y) 0; }
+/* The second type event. A page whose largest type is in the first screen
+   and never returns is a brochure; this wordmark runs past the right edge
+   at display scale so the frame reads as a window, not a box. */
+.wordmark{
+  font-size:clamp(3.5rem, 13vw, 13rem); line-height:0.86; margin:0 0 3rem;
+  white-space:nowrap; width:max-content;
+}
+.specs__grid{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:var(--gutter); margin-top:3rem; }
+.specs__grid > div{ border-top:1px solid var(--edge); padding-top:1rem; }
+.specs__grid dt{ font-size:var(--step-small); color:var(--ink-muted); margin:0 0 0.5rem; }
+.specs__grid dd{ margin:0; font-size:var(--step-h2); font-family:"Familjen Grotesk", "Helvetica Neue", sans-serif; letter-spacing:-0.02em; }
+
+/* Scroll reveal. motion.md: author the VISIBLE state as the default and let
+   JavaScript opt into the hidden one, so a dead script leaves a readable
+   page instead of an empty one. */
+.js .rv{ opacity:0; transform:translateY(16px); }
+.js .rv.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+
+footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); color:var(--ink-muted); }
+footer a{
+  color:var(--ink); text-decoration:none; border-bottom:1px solid var(--edge);
+  /* 44px of touch target without 44px of visual weight: the padding is on an
+     inline-block, so the underline still sits on the baseline. */
+  display:inline-block; padding-block:0.75rem;
+  transition:border-color var(--d-state) var(--ease-out);
+}
+footer a:hover{ border-color:var(--accent); }
+footer ul{ list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:0.5rem; font-size:var(--step-small); }
+
+/* ---------- the load sequence ---------- */
+/* It resolves INTO beat 1 rather than sitting on top of it: the figure is
+   held at 0.001 opacity and a hairline rule runs the width of the frame
+   while the 785 KB model inflates and parses. When the object is in the
+   scene graph the rule retracts and the frame fades up over 700ms. On a
+   warm cache that whole sequence is under 100ms and the reader sees a
+   frame that arrives rather than a spinner that leaves. */
+/* The bar is a CHILD of the figure, so the hold has to be on the figure's
+   contents, not on the figure itself - fading the whole frame would fade
+   the loader with it. */
+.is-loading .figure > canvas, .is-loading .figure .seq{ opacity:0; }
+.figure > canvas, .figure .seq{ transition:opacity var(--d-enter) var(--ease-out); }
+.loadbar{
+  position:absolute; left:0; right:0; bottom:0; height:2px;
+  background:var(--edge); overflow:hidden;
+}
+.loadbar i{
+  display:block; height:100%; width:100%; background:var(--accent);
+  transform:scaleX(0.08); transform-origin:0 50%;
+  animation:loadbar 1600ms cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+html:not(.is-loading) .loadbar{ display:none; }
+@keyframes loadbar{ 0%{ transform:scaleX(0.05); } 55%{ transform:scaleX(1); } 100%{ transform:scaleX(1); opacity:0; } }
+
+.warn{
+  margin:2rem auto; padding:1rem; max-width:52rem;
+  border:1px solid var(--accent); color:var(--ink); font-size:var(--step-small);
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 859px){
+  .hero__grid{ grid-template-columns:1fr; }
+  .specs__grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+  /* =================================================================
+     GUARD 4: THE PHONE GETS A DIFFERENT BUILD, NOT A SMALLER ONE.
+     The stage becomes one column: the still fills the frame, the copy
+     plate sits over its lower third with an opaque-enough ground to
+     read against, and the WebGL path is never constructed at all
+     (see PHONE_Q in the script). Same three beats, same words, same
+     scroll maths, ~1/9th of the work.
+     The stage height is 100svh, not 100vh: on iOS `vh` is the
+     address-bar-expanded height, so a 100vh sticky stage is taller
+     than the visible area and its bottom edge is unreachable.
+     ================================================================= */
+  .stage{ grid-template-columns:1fr; align-content:center; gap:1.5rem; }
+  .beats{ margin-right:var(--gutter); }   /* no overlap where there is one column */
+  .figure{ aspect-ratio:4/3; }
+  /* contain, not cover: the stills are rendered at 3:2 for the desktop frame,
+     and cropping them to a portrait box would cut the lens off. */
+  .seq img{ object-fit:contain; }
+  .beats__plate{ background:rgba(11,11,13,0.88); }
+  .rail{ margin-top:1.25rem; }
+}
+
+/* =====================================================================
+   GUARD 5: REDUCED MOTION RELEASES THE SCROLL, IT DOES NOT FREEZE IT.
+   A 550vh track whose scene has stopped updating is 450vh of scrolling
+   that changes nothing - worse than no animation at all. Here the track
+   collapses to one viewport, the sticky stage stops being sticky, and the
+   three beats become a plain stacked list that is complete on its own.
+   ambition-tiers.md, "Reduced motion".
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce){
+  :root{ --track-h:auto; }
+  .stage{ position:static; height:auto; padding:var(--section-y) 0; align-items:start; }
+  .beats__list{ display:grid; gap:2.5rem; }
+  .beats__item{ grid-area:auto; opacity:1; }
+  .rail{ display:none; }
+  *,*::before,*::after{
+    animation-duration:0.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important; scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <section class="hero wrap">
+    <div class="hero__grid">
+      <div>
+        <p class="label">Field instruments &middot; 002</p>
+        <h1 class="display">Fieldmark 01</h1>
+      </div>
+      <div>
+        <p class="lead">A 35mm body built for one job: to be carried somewhere difficult and still work when it gets there.</p>
+      </div>
+    </div>
+    <ul class="hero__meta">
+      <li><b>26,987</b> triangles</li>
+      <li><b>4</b> PBR materials</li>
+      <li><b>3</b> scroll beats</li>
+      <li><b>1.5</b> viewport-heights each</li>
+    </ul>
+  </section>
+
+  <div class="scene-track" id="track">
+    <div class="stage" id="stage">
+
+      <!-- The copy column is authored FIRST in the source so a screen reader
+           and a no-CSS render both get the three beats as prose before the
+           picture. On desktop `order` is not needed: the grid places the
+           figure in column 2 by source order anyway. -->
+      <div class="beats">
+        <div class="beats__plate">
+          <ol class="beats__list" id="beats">
+            <li class="beats__item" data-on="1">
+              <span class="label beats__no tabular">Beat 01 / 03</span>
+              <h3 class="display">Arrival</h3>
+              <p>The body enters side-on, a stop under, and settles level. The lens sits proud of the shell. Nothing is explained yet.</p>
+            </li>
+            <li class="beats__item">
+              <span class="label beats__no tabular">Beat 02 / 03</span>
+              <h3 class="display">The turn</h3>
+              <p>A half revolution brings the glass round to face you. Six elements in four groups, every one coated in-house.</p>
+            </li>
+            <li class="beats__item">
+              <span class="label beats__no tabular">Beat 03 / 03</span>
+              <h3 class="display">The back</h3>
+              <p>It tips over its own shoulder. Film reminder, wind lever, and a top plate cut from one billet of brass.</p>
+            </li>
+          </ol>
+          <ul class="rail" id="rail" aria-hidden="true">
+            <li><i></i></li><li><i></i></li><li><i></i></li>
+          </ul>
+          <p class="readout" id="readout">Renderer <b>waiting</b></p>
+        </div>
+      </div>
+
+      <div class="figure" id="figure">
+        <!-- GUARD 8 (markup half): the fallback is the DEFAULT state, present
+             in the HTML, loading with the page. If the module script never
+             runs - CDN blocked, an old browser, a syntax error - the reader
+             still gets three renders of the object rather than an empty box.
+             The script REMOVES this element when it takes over, so the live
+             path never pays to decode three JPEGs it will not show. -->
+        <figure class="seq" id="seq">
+          <img src="assets/model/beat-0.jpg"
+               srcset="assets/model/beat-0-760.jpg 760w, assets/model/beat-0.jpg 1848w"
+               sizes="(max-width: 859px) calc(100vw - 3rem), 64vw"
+               width="1848" height="1388" alt="The camera body seen side-on, level, lit from the upper left, its strap running off both edges of the frame.">
+          <img src="assets/model/beat-1.jpg"
+               srcset="assets/model/beat-1-760.jpg 760w, assets/model/beat-1.jpg 1848w"
+               sizes="(max-width: 859px) calc(100vw - 3rem), 64vw"
+               width="1848" height="1388" alt="The same body turned a half revolution to face the reader, lens forward, brass top plate catching the key light.">
+          <img src="assets/model/beat-2.jpg"
+               srcset="assets/model/beat-2-760.jpg 760w, assets/model/beat-2.jpg 1848w"
+               sizes="(max-width: 859px) calc(100vw - 3rem), 64vw"
+               width="1848" height="1388" alt="The camera tipped over its shoulder, showing the film back, the reminder dial and the machined top plate.">
+        </figure>
+        <div class="loadbar" id="loadbar" aria-hidden="true"><i></i></div>
+      </div>
+
+    </div>
+  </div>
+
+  <p class="warn" id="pin-warning" hidden>
+    An ancestor of the stage clips or transforms, so <code>position: sticky</code>
+    has resolved against that element instead of the page. The stage will scroll
+    away mid-beat. Remove the <code>overflow</code>, <code>transform</code> or
+    <code>contain</code> on the wrapper.
+  </p>
+
+  <div class="specs-band">
+    <section class="specs wrap">
+      <h2 class="display wordmark rv">Fieldmark 01</h2>
+      <p class="note rv">Four numbers, and the reason each one is what it is. Everything else about this camera is a decision you make in the field.</p>
+      <dl class="specs__grid">
+        <div class="rv"><dt>Shutter</dt><dd>1/4000</dd></div>
+        <div class="rv"><dt>Weight</dt><dd>612 g</dd></div>
+        <div class="rv"><dt>Sealing</dt><dd>IP54</dd></div>
+        <div class="rv"><dt>Rated to</dt><dd>&minus;20 &deg;C</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <footer class="wrap">
+    <p class="label label--quiet">Credits and provenance</p>
+    <ul>
+      <li>Model: <a href="https://polyhaven.com/a/Camera_01">Camera 01</a>, Poly Haven, CC0. Rajil Jose Macatangay.</li>
+      <li>Renderer: three.js r169, ESM from jsDelivr. Environment light from <code>RoomEnvironment</code>, no HDRI file.</li>
+      <li>Scroll construction measured on apple.com/uk/iphone-17-pro, 2026-08-15.</li>
+      <li>Fieldmark 01 is an invented product. The copy is a writing sample, not a spec sheet.</li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+/* =====================================================================
+   PART 1 - the parts that do not need three.js.
+   Beat maths, the sticky sanity check, and the fallback sequence all run
+   whether or not WebGL is available, so the two paths cannot drift.
+   ===================================================================== */
+(function () {
+  var track   = document.getElementById('track');
+  var stage   = document.getElementById('stage');
+  var figure  = document.getElementById('figure');
+  var items   = document.querySelectorAll('#beats .beats__item');
+  var segs    = document.querySelectorAll('#rail li i');
+  var readout = document.getElementById('readout');
+  var seq     = document.getElementById('seq');
+  var BEATS   = items.length;                       /* counted, never typed */
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var phoneQ  = window.matchMedia('(max-width: 859px)');
+
+  /* -------------------------------------------------------------------
+     THE LOAD SEQUENCE, AND ITS DEADLINE.
+     `is-loading` is released by whichever path finishes first, and by a
+     6-second timer regardless. A loader with no deadline is the single
+     worst failure mode in this whole file: one 404 and the reader is
+     looking at a permanently blank frame with a bar animating under it.
+     ------------------------------------------------------------------- */
+  /* MIN_LOADER_MS is not padding for its own sake. On a warm cache this
+     scene is ready in about 50ms, and a bar that appears and vanishes
+     inside 50ms is not read as loading - it is read as a flicker, or as
+     something breaking. Below roughly 400ms the eye cannot resolve it as a
+     state at all. Holding to 550ms turns it into a beat: the frame is
+     empty, the rule runs, the object arrives. Anything slower than 550ms
+     releases the instant it is ready and never waits. */
+  var MIN_LOADER_MS = 550;
+  var loadT0 = performance.now();
+  var loadReleased = false;
+  function releaseLoad() {
+    if (loadReleased) return;
+    loadReleased = true;
+    var wait = Math.max(0, MIN_LOADER_MS - (performance.now() - loadT0));
+    setTimeout(function () { document.documentElement.classList.remove('is-loading'); }, wait);
+  }
+  /* The deadline. A loader with no upper bound is the worst failure in this
+     file: one 404 and the reader watches an empty frame for ever. */
+  setTimeout(releaseLoad, 6000);
+  window.__RELEASE_LOAD = releaseLoad;
+
+  /* Scroll reveals for the flat sections below the scene. The hidden state
+     is only authored once `.js` is on the root, and the sweep catches
+     anything the observer misses when the reader lands mid-page from a
+     reload or a hash - motion.md, "The observer is not enough on its own". */
+  if (!reduced.matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    var pending = [];
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); pending.push(el); });
+    var sweep = function () {
+      var h = window.innerHeight;
+      pending = pending.filter(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < h * 0.95 || r.bottom < 0) { el.classList.add('is-in'); return false; }
+        return true;
+      });
+    };
+    addEventListener('scroll', function () { requestAnimationFrame(sweep); }, { passive: true });
+    addEventListener('load', sweep);
+    sweep();
+  }
+
+  /* GUARD 1, enforced at runtime. Same failure as a GSAP pin inside a
+     transformed wrapper, and just as invisible in code review. */
+  (function assertStickyCanWork() {
+    for (var el = stage.parentElement; el && el !== document.documentElement; el = el.parentElement) {
+      var s = getComputedStyle(el);
+      if (s.transform !== 'none' || s.filter !== 'none' || s.perspective !== 'none' ||
+          /paint|strict|content/.test(s.contain) ||
+          (s.overflowY !== 'visible' && s.overflowY !== 'clip')) {
+        document.getElementById('pin-warning').hidden = false;
+        return;
+      }
+    }
+  })();
+
+  /* -------------------------------------------------------------------
+     SCROLL -> PROGRESS.
+     Read the track's rect, not window.scrollY. A rect is correct on the
+     first frame, after a reload that restores scroll position, after a
+     hash jump, and inside any scroller. scrollY needs an offsetTop that
+     is wrong the moment a font swaps in above the track.
+     ------------------------------------------------------------------- */
+  function rawProgress() {
+    var r = track.getBoundingClientRect();
+    var travel = r.height - window.innerHeight;      /* the scrubbable part */
+    if (travel <= 0) return 0;
+    return Math.min(1, Math.max(0, -r.top / travel));
+  }
+
+  /* -------------------------------------------------------------------
+     GUARD 9 - DAMPING THAT DOES NOT DEPEND ON FRAME RATE.
+     `cur += (target - cur) * 0.1` is the lerp everyone writes. It moves
+     twice as fast at 120Hz as at 60Hz, so the same page feels different
+     on two machines and the damping disappears entirely on a dropped
+     frame. The exponential form below converges at the same rate per
+     SECOND regardless of how many frames that took.
+       LAMBDA 6 -> ~63% of the remaining distance per 1/6 s.
+     This is the numeric equivalent of GSAP's `scrub: 0.6-1.2`, which
+     motion.md requires instead of `scrub: true`.
+     ------------------------------------------------------------------- */
+  var LAMBDA = 6;
+  var target = rawProgress();
+  var cur = target;
+
+  /* -------------------------------------------------------------------
+     GLOBAL PROGRESS -> BEAT INDEX + LOCAL PROGRESS.
+     One line, and it is the whole beat sheet:
+       b     = p * BEATS          position on a 0..BEATS number line
+       index = floor(b)           which beat, clamped off the last edge
+       local = b - index          0..1 inside that beat
+     Everything animated is a function of (index, local). Nothing keeps
+     its own state, so scrolling backwards, jumping, or resizing cannot
+     desynchronise one channel from another.
+     ------------------------------------------------------------------- */
+  function beatOf(p) {
+    var b = p * BEATS;
+    var i = Math.min(BEATS - 1, Math.floor(b));
+    return { i: i, local: Math.min(1, Math.max(0, b - i)) };
+  }
+
+  /* Smoothstep, for anything that should ease INSIDE a beat rather than
+     run linearly across it. Camera moves want this; a rotation being
+     scrubbed by the reader's own hand does not - it should track the
+     hand exactly, or it feels like lag. */
+  function smooth(t) { return t * t * (3 - 2 * t); }
+  function mix(a, b, t) { return a + (b - a) * t; }
+
+  /* ---- the DOM half of a beat: captions, rail, readout ---- */
+  var lastIndex = -1;
+  function paintDom(p) {
+    var b = beatOf(p);
+    if (b.i !== lastIndex) {
+      for (var k = 0; k < items.length; k++) items[k].setAttribute('data-on', k === b.i ? '1' : '0');
+      lastIndex = b.i;
+    }
+    for (var s = 0; s < segs.length; s++) {
+      segs[s].style.transform = 'scaleX(' + Math.min(1, Math.max(0, p * BEATS - s)) + ')';
+    }
+  }
+
+  /* ---- the fallback half: crossfade three stills on the same maths ----
+     GUARD 8 (script half). This is a real second implementation, not a
+     poster. Each still is this scene rendered at the centre of its own
+     beat, so a reader on the fallback path sees the same three attitudes
+     the WebGL reader sees, in the same order, at the same scroll offsets.
+     The crossfade window is the last 25% of each beat, which is long
+     enough to hide the cut and short enough that two frames are rarely
+     both on screen. */
+  var seqImgs = seq ? seq.querySelectorAll('img') : [];
+  function paintSeq(p) {
+    var b = beatOf(p);
+    var fade = b.local > 0.75 && b.i < BEATS - 1 ? (b.local - 0.75) / 0.25 : 0;
+    for (var k = 0; k < seqImgs.length; k++) {
+      var o = k === b.i ? 1 - fade : (k === b.i + 1 ? fade : 0);
+      seqImgs[k].style.opacity = o;
+    }
+  }
+
+  /* -------------------------------------------------------------------
+     ONE rAF LOOP FOR THE WHOLE PAGE.
+     The scroll listener does nothing but store a number. Everything that
+     reads layout or writes style happens once per frame, in this order:
+     read -> damp -> write. Doing any of it inside the scroll event is
+     what produces the jank that no amount of `will-change` will fix,
+     because a scroll event can fire several times per frame.
+     ------------------------------------------------------------------- */
+  var rafId = 0, last = 0, sceneTick = null, alive = true;
+  function frame(now) {
+    rafId = requestAnimationFrame(frame);
+    var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;   /* clamp: a
+        backgrounded tab returns a dt of several seconds and the damping
+        would snap in one frame, which is the "it jumps when I come back"
+        report. */
+    last = now;
+    target = rawProgress();
+    cur += (target - cur) * (1 - Math.exp(-LAMBDA * dt));
+    if (Math.abs(target - cur) < 0.00005) cur = target;
+    paintDom(cur);
+    if (sceneTick) sceneTick(cur); else paintSeq(cur);
+  }
+
+  function start() {
+    if (!rafId) { last = 0; rafId = requestAnimationFrame(frame); }
+  }
+  function stop() {
+    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+  }
+
+  /* Reduced motion: the track is `height: auto` in CSS, every caption is
+     already visible, and there is nothing to drive. Paint once so the
+     rail is not left half-empty, and never start a loop. */
+  if (reduced.matches) {
+    paintDom(0);
+    readout.innerHTML = 'Renderer <b>off</b> &middot; reduced motion, three stills';
+  } else {
+    start();
+    /* GUARD 10: stop the loop when the tab is hidden. A rAF loop is
+       already throttled in a background tab, but a WebGL renderer that
+       keeps drawing on an inactive tab is a measurable battery cost and
+       the reason "the fan spins up on your site" reports exist. */
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stop(); else start();
+    });
+  }
+
+  /* -------------------------------------------------------------------
+     PART 2 - the WebGL path.
+     Constructed only when all three of these hold. Each is a real
+     product decision, not a capability check dressed up as one.
+     ------------------------------------------------------------------- */
+  function webgl2Available() {
+    try {
+      var c = document.createElement('canvas');
+      var gl = c.getContext('webgl2');
+      if (!gl) return false;
+      /* A software rasteriser reports WebGL2 and then renders 26,987
+         triangles at 4fps. SwiftShader is the common one. */
+      var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      var name = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
+      gl.getExtension('WEBGL_lose_context') && gl.getExtension('WEBGL_lose_context').loseContext();
+      return !/swiftshader|llvmpipe|software/i.test(name);
+    } catch (e) { return false; }
+  }
+
+  window.__SCENE = {
+    ok: !reduced.matches && !phoneQ.matches && webgl2Available(),
+    figure: figure, readout: readout, seq: seq,
+    beatOf: beatOf, smooth: smooth, mix: mix,
+    setTick: function (fn) { sceneTick = fn; },
+    isAlive: function () { return alive; },
+    kill: function () { alive = false; stop(); }
+  };
+
+  if (!window.__SCENE.ok) {
+    readout.innerHTML = phoneQ.matches
+      ? 'Renderer <b>off</b> &middot; phone build, three stills'
+      : 'Renderer <b>off</b> &middot; no WebGL2, three stills';
+    /* The fallback has its own load sequence: hold the frame until the FIRST
+       still has decoded, not until all three. Waiting for the whole sequence
+       would keep the frame blank for the two images the reader cannot see
+       yet, which is the same mistake as preloading a 24-frame scrub. */
+    var first = seqImgs[0];
+    if (!first) releaseLoad();
+    else if (first.complete && first.naturalWidth) releaseLoad();
+    else {
+      first.addEventListener('load', releaseLoad, { once: true });
+      first.addEventListener('error', releaseLoad, { once: true });
+    }
+    for (var q = 1; q < seqImgs.length; q++) seqImgs[q].loading = 'lazy';
+  }
+})();
+</script>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+const S = window.__SCENE;
+if (S && S.ok) {
+  const THREE = await import('three');
+  const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+  const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
+
+  /* ---- the model, inflated from the sibling script ---- */
+  async function loadModelJson() {
+    const b64 = window.__MODEL_GZ_B64;
+    if (!b64) throw new Error('model script did not load');
+    const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    if (!('DecompressionStream' in window)) throw new Error('no DecompressionStream');
+    const stream = new Blob([bin]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).text();
+  }
+
+  const figure = S.figure;
+  const scene = new THREE.Scene();
+
+  /* =====================================================================
+     GUARD 6 - DEVICE PIXEL RATIO IS CAPPED, AND THE CAP IS A MEASUREMENT.
+     Measured 2026-08-15 at devicePixelRatio 2, backing store / CSS box:
+       apple.com/iphone-17-pro   3456x1824 / 1728x912   = 2.00
+       activetheory.net          2880x1800 / 1440x900   = 2.00
+       fizzi.app (r3f)           2160x1350 / 1440x900   = 1.50
+       lusion.co                 2160x1350 / 1440x900   = 1.50
+     Nobody ships uncapped. 1.5 is the sane default for a full-frame scene
+     with a normal map on it; 2.0 is for small canvases and flat shading.
+     Uncapped on a 3x phone is 9x the fragments and about 20fps.
+     ===================================================================== */
+  const DPR_CAP = 1.5;
+
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    alpha: true,          /* the CSS radial gradient behind the canvas is the
+                             backdrop; the renderer paints the object only */
+    powerPreference: 'high-performance',
+    /* preserveDrawingBuffer stays false. Turning it on to make screenshots
+       work forces the driver to keep a second copy of every frame. */
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_CAP));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  figure.appendChild(renderer.domElement);
+
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 60);
+
+  /* =====================================================================
+     GUARD 7 - LIGHTING, WITHOUT AN HDRI FILE.
+     "Lighting left at defaults -> a grey plastic object" is the single
+     most common tell of an unfinished three.js build. The fix in every
+     tutorial is an .hdr file, which is 1-4 MB and a second network
+     dependency. RoomEnvironment is a procedural studio box that ships
+     inside three.js: PMREMGenerator prefilters it into the same kind of
+     mip chain an .hdr would produce, so metal and roughness respond
+     correctly and every surface has something to reflect.
+       fizzi.app does load real files - lobby.hdr and field.hdr - which is
+       the right call when the product colour must be exact. This is the
+       zero-byte version of the same idea.
+     The two lights on top of it are doing specific jobs: the key throws
+     the shadow terminator that gives the body its shape, and the rim is
+     tinted with --accent so the silhouette separates from a near-black
+     ground instead of dissolving into it.
+     ===================================================================== */
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  pmrem.compileEquirectangularShader();
+  const envRT = pmrem.fromScene(new RoomEnvironment(), 0.04);
+  scene.environment = envRT.texture;
+
+  const key = new THREE.DirectionalLight(0xFFF6E8, 2.6);
+  key.position.set(-3.2, 4.0, 2.6);
+  scene.add(key);
+  const rim = new THREE.DirectionalLight(0xE8FF4A, 1.4);
+  rim.position.set(2.8, 0.6, -3.4);
+  scene.add(rim);
+  const fill = new THREE.AmbientLight(0x8A8FA0, 0.35);
+  scene.add(fill);
+
+  /* the object hangs on a pivot so scroll drives the PIVOT, never the
+     imported node. Rewriting an imported node's transform is how you lose
+     the model's own orientation the first time you swap the asset. */
+  const pivot = new THREE.Group();
+  scene.add(pivot);
+
+  let model = null;
+  const disposables = [];
+
+  function frameObject(obj) {
+    /* =================================================================
+       GUARD 14 - FRAME ON THE SUBJECT, NOT ON THE BOUNDING BOX.
+       The obvious normalisation - centre on the whole object's Box3 and
+       scale its longest axis to 1 - put this camera at about 10% of the
+       frame width and pushed it off centre. The reason is in the asset:
+       Camera_01 ships with a leather strap laid out in a loop roughly
+       three times the size of the body, so the box is mostly strap and
+       the product is a speck inside it. That is not specific to this
+       model; accessory geometry (cables, stands, bases, packaging) beats
+       the hero shape in most real scans.
+       Frame on the densest mesh instead - vertex count is a good proxy
+       for "the thing the model is of" - and let the accessory run off
+       the edge of the frame. Cropping it is the same move fizzi.app
+       makes with its cans: the object is allowed to leave the frame, so
+       it never has to shrink to fit it.
+       ================================================================= */
+    let subject = null, best = -1;
+    obj.traverse((o) => {
+      if (!o.isMesh || !o.geometry || !o.geometry.attributes.position) return;
+      const n = o.geometry.attributes.position.count;
+      if (n > best) { best = n; subject = o; }
+    });
+    const box = new THREE.Box3().setFromObject(subject || obj);
+    const size = box.getSize(new THREE.Vector3());
+    const centre = box.getCenter(new THREE.Vector3());
+    const s = 1 / Math.max(size.x, size.y, size.z);
+    obj.position.sub(centre);
+    obj.scale.setScalar(s);
+    obj.position.multiplyScalar(s);
+  }
+
+  /* ---- resize: measure the FRAME, size the buffer from it ---- */
+  function resize() {
+    const r = figure.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return;
+    camera.aspect = r.width / r.height;
+    camera.updateProjectionMatrix();
+    /* `false` = do not let three write width/height into the element's
+       inline style. CSS owns the box; JS owns the buffer. Passing true
+       here is what makes a canvas ignore its own aspect-ratio rule. */
+    renderer.setSize(r.width, r.height, false);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, DPR_CAP));
+    dirty = true;
+  }
+  const ro = new ResizeObserver(resize);
+  ro.observe(figure);
+
+  /* =====================================================================
+     THE BEAT TABLE. Scroll progress in, camera and pose out.
+     Three beats, each a pure function of `local` (0..1 inside the beat):
+       0 ARRIVAL   yaw -2.30 -> -0.95 rad, the body rises into frame
+                   side-on, camera pulls from z 3.05 to 2.45
+       1 THE TURN  yaw -0.95 -> +1.60 rad (a hair over a half revolution)
+                   ending lens-forward, pitch 0.02 -> -0.12, camera holds
+       2 THE BACK  yaw +1.60 -> +2.55, pitch -0.12 -> +0.50 so the reader
+                   looks down onto the top plate, camera dollies to z 1.62
+     Yaw runs LINEAR against `local` - the reader is turning it by hand and
+     any easing there reads as lag. Camera moves and the vertical rise use
+     smoothstep, because a camera has mass and should not start instantly.
+     ===================================================================== */
+  const BEAT_TABLE = [
+    { yaw: [-2.30, -0.95], pitch: [0.02,  0.02], camZ: [3.05, 2.45], camY: [0.06, 0.08], lift: [-0.30, 0.00] },
+    { yaw: [-0.95,  1.60], pitch: [0.02, -0.12], camZ: [2.45, 2.35], camY: [0.08, 0.16], lift: [ 0.00, 0.00] },
+    { yaw: [ 1.60,  2.55], pitch: [-0.12, 0.50], camZ: [2.35, 1.62], camY: [0.16, 0.58], lift: [ 0.00, 0.03] }
+  ];
+
+  let dirty = true;
+  function pose(p) {
+    const b = S.beatOf(p);
+    const t = BEAT_TABLE[b.i];
+    const e = S.smooth(b.local);
+    pivot.rotation.y = S.mix(t.yaw[0],   t.yaw[1],   b.local);
+    pivot.rotation.x = S.mix(t.pitch[0], t.pitch[1], e);
+    pivot.position.y = S.mix(t.lift[0],  t.lift[1],  e);
+    camera.position.set(0, S.mix(t.camY[0], t.camY[1], e), S.mix(t.camZ[0], t.camZ[1], e));
+    camera.lookAt(0, 0, 0);
+  }
+
+  /* =====================================================================
+     GUARD 11 - RENDER ONLY WHEN SOMETHING CHANGED.
+     The damped progress converges and then stops changing. Re-rendering
+     26,987 triangles 60 times a second to produce an identical frame is
+     pure heat. This scene draws while the reader scrolls and goes quiet
+     within about 300ms of them stopping.
+     ===================================================================== */
+  let lastP = -1;
+  S.setTick(function (p) {
+    if (!model) return;
+    if (p !== lastP) { lastP = p; dirty = true; }
+    if (!dirty) return;
+    dirty = false;
+    pose(p);
+    renderer.render(scene, camera);
+  });
+
+  /* ---- load ---- */
+  const t0 = performance.now();
+  try {
+    const json = await loadModelJson();
+    const loader = new GLTFLoader();
+    /* parse(), not load(): the glTF and every one of its buffers and
+       images is already in the string as a data URI, so there is no
+       resource path to resolve. */
+    const gltf = await new Promise((res, rej) => loader.parse(json, '', res, rej));
+    model = gltf.scene;
+    frameObject(model);
+    model.traverse((o) => {
+      if (!o.isMesh) return;
+      disposables.push(o.geometry);
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      for (const m of mats) {
+        disposables.push(m);
+        for (const k of ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'aoMap', 'emissiveMap']) {
+          if (m[k]) { m[k].anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy()); disposables.push(m[k]); }
+        }
+      }
+    });
+    pivot.add(model);
+    resize();
+    dirty = true;
+    figure.setAttribute('data-live', '1');
+    /* GUARD 8 again: the stills are only removed once the object is
+       actually in the scene graph. Removing them at module start would
+       leave an empty frame for the whole load. */
+    if (S.seq) S.seq.remove();
+    window.__RELEASE_LOAD();
+    const ms = Math.round(performance.now() - t0);
+    S.readout.innerHTML = 'Renderer <b>three.js r' + THREE.REVISION + '</b> &middot; DPR ' +
+      renderer.getPixelRatio().toFixed(2) + ' &middot; ready in ' + ms + ' ms';
+  } catch (err) {
+    /* GUARD 13: any failure in here leaves the page on the fallback path,
+       which is still sitting in the DOM because it was never removed.
+       There is no state to unwind. */
+    window.__RELEASE_LOAD();
+    S.readout.innerHTML = 'Renderer <b>off</b> &middot; ' + String(err.message).slice(0, 60) + ', three stills';
+    renderer.dispose();
+    if (renderer.domElement.parentNode) renderer.domElement.remove();
+  }
+
+  /* =====================================================================
+     GUARD 12 - FULL TEARDOWN.
+     Chrome allows about 16 live WebGL contexts per process. A single-page
+     app that mounts one of these per route and never disposes will lose
+     the oldest context - which is usually the one the reader is looking
+     at - after a dozen navigations. `pagehide` fires where `unload` does
+     not (bfcache, iOS), so it is the correct hook.
+     Order matters: geometries and materials first, then the textures they
+     reference, then the PMREM render target, then the renderer, and only
+     then force the context loss.
+     ===================================================================== */
+  function teardown() {
+    if (!S.isAlive()) return;
+    S.kill();
+    S.setTick(null);
+    ro.disconnect();
+    for (const d of disposables) { try { d.dispose(); } catch (e) {} }
+    disposables.length = 0;
+    scene.traverse((o) => { if (o.isMesh) { o.geometry = null; o.material = null; } });
+    scene.clear();
+    scene.environment = null;
+    envRT.texture.dispose();
+    pmrem.dispose();
+    renderer.dispose();
+    renderer.forceContextLoss();
+    if (renderer.domElement.parentNode) renderer.domElement.remove();
+  }
+  window.addEventListener('pagehide', teardown, { once: true });
+}
+</script>
+
+<!-- Loaded last, and as a CLASSIC script on purpose: a module script is
+     fetched with CORS and fails outright on file://, while a classic one
+     still loads from the same directory. This is 785 KB and it is the
+     reason this demo can be opened by double-clicking it. -->
+<script src="assets/model/camera-01.gltf.js"></script>
+</body>
+</html>

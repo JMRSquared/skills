@@ -148,6 +148,20 @@ await page.route('**://images.pexels.com/**',   r => r.abort());
 Record the credits in `CREDITS.md` as you go. Both licences are commercial-safe
 and both ask for attribution.
 
+## `sizes` must describe the phone, not just the desktop
+
+`srcset` alone does nothing if `sizes` lies. A wall of thumbnails set to
+`sizes="15vw"` for a desktop collage that becomes a three-column grid at 34vw on
+a phone makes the browser pick the 480px source for a slot that needs 960, and
+every image on the page renders upscaled at 2x. Write the breakpoint in:
+
+```html
+sizes="(max-width: 720px) 34vw, 15vw"
+```
+
+The auditor reports this as `image-upscaled`, and it reported seventeen of them
+on a page whose `srcset` markup was otherwise correct.
+
 ## Cropping
 
 - Crop hard. A tight crop on hands, a face at the edge of frame, or a detail at
