@@ -10,12 +10,12 @@ UNSPLASH_KEY="${UNSPLASH_ACCESS_KEY:-${UNSPLASH_APPLICATION_ID:-${UNSPLASH_SECRE
 OUT_DIR="${JMR_IMAGE_OUT:-.}"
 
 # ── Colours ───────────────────────────────────────────────────────────────────
-RED='\033[0;31m'
-GRN='\033[0;32m'
-YLW='\033[0;33m'
-CYN='\033[0;36m'
-BOLD='\033[1m'
-RESET='\033[0m'
+RED=$'\033[0;31m'
+GRN=$'\033[0;32m'
+YLW=$'\033[0;33m'
+CYN=$'\033[0;36m'
+BOLD=$'\033[1m'
+RESET=$'\033[0m'
 
 warn()  { printf "${RED}! %s${RESET}\n" "$*" >&2; }
 info()  { printf "${CYN}→ %s${RESET}\n" "$*"; }
@@ -109,7 +109,7 @@ unsplash_search() {
   curl -fsSL \
     -H "Authorization: Client-ID $UNSPLASH_KEY" \
     --max-time 15 \
-    "${UNSPLASH_API}/search/photos?query=$(echo "$query" | jq -rn '@uri')&per_page=${limit}&page=${page}" \
+    "${UNSPLASH_API}/search/photos?query=$(jq -rn --arg q "$query" '$q|@uri')&per_page=${limit}&page=${page}" \
     | jq -c '.results[]?' 2>/dev/null || return 1
 }
 
@@ -246,7 +246,7 @@ cmd_search() {
   echo "  $result_counter result(s) — $unsplash_count unsplash, $pngimg_count pngimg"
   echo ""
   echo "  Download: jmr-image.sh download <source> --index <n> --out <dir>"
-  echo "  ${GRN}unsplash${RESET}=commercial-safe  ${YLW}pngimg${RESET}=non-commercial only (CC BY-NC 4.0)"
+  printf "  %sunsplash%s=commercial-safe  %spngimg%s=non-commercial only (CC BY-NC 4.0)\n" "$GRN" "$RESET" "$YLW" "$RESET"
   echo "───────────────────────────────────────────────────────"
   echo ""
   info "Results cached in $cache_file"

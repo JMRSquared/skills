@@ -30,6 +30,8 @@ every site built with this skill is commercial, so a silent fallback ships a
 licence violation into a client build and nothing fails to tell you.
 
 ```bash
+# agent shells are not login shells, so a key set in ~/.zshrc is not inherited
+set -a; source ~/.zshrc; set +a
 [ -n "$UNSPLASH_ACCESS_KEY" ] || echo "no key: jmr-image is pngimg-only, CC BY-NC"
 ```
 
