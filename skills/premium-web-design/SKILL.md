@@ -71,6 +71,12 @@ work under tighter constraints: Tier A only (see Step 4), no scroll-scrubbed or
 pinned sections, no WebGL. You cannot verify what you cannot see, so do not ship
 techniques whose failure modes are invisible in source.
 
+BLIND also caps the **length**, and this is the part that used to contradict
+itself. Step 1 says a page runs 5–12 viewport heights; Tier A's entry clause says
+under 6. Held together with "Tier A only", an 8-screen BLIND page was obeying two
+rules and breaking a third. So: **BLIND means under 6 screens.** Cut pages, not
+craft.
+
 ---
 
 ## Step 1 — Direction lock
@@ -110,7 +116,11 @@ Composition variety is mechanical, not a matter of taste:
 - **Max 1 eyebrow label per 3 sections**
 - Hero headline lands in **2–3 lines at 1440, 768, and 390** — widen the
   container before shrinking the type
-- The page runs **5–12 viewport heights**. Three screens is a brochure.
+- The page runs **5–12 viewport heights of content**. Three screens is a brochure.
+  **Count content, not scroll.** A pinned chapter costs 1.5–2.5 viewport heights
+  that carry no new material, so two pinned ranges on a ten-section page land it
+  near 13 screens without a word of padding. That is correct and the auditor
+  does not check the ceiling. Do not shave section spacing to chase the number.
 - Don't reuse the display face or the vibe from your last build
 
 ---
@@ -217,7 +227,9 @@ wins. Values and rationale: `references/typography.md`, `references/color-and-li
 /* space — 4px base */
 --section-y:  clamp(5rem, 12vh, 12rem);   /* 96–200px between movements */
 --gutter:     clamp(1.25rem, 4vw, 5rem);
---radius-sm:  __px;  --radius-lg: __px;   /* exactly 2 radii, or 0 everywhere */
+--radius-sm:  __px;  --radius-lg: __px;   /* exactly 2 radii, or 0 everywhere.
+                                            0 is the usual answer once the card
+                                            grid is gone. Delete both if unused. */
 
 /* motion */
 --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -230,6 +242,15 @@ Measured anchors from the corpus, for calibration: Tripletta runs its display at
 **weight 300**, tracking −0.04em, with body copy at 14.4px and nav at 10.4px. The
 drama lives in the display, and the scale contrast is what reads as art
 direction.
+
+That last number argues with the contract above it, and the contradiction is
+worth reading rather than resolving. `--text-size: 17px` and "14px body is the AI
+tell" are the default to beat; Amrit sets 14.4px, holds a 8:1 scale ratio against
+its display, and won Site of the Day. **What makes 14px a tell is 14px with no
+scale contrast** — 36px headings over 14px grey body. Ship 17px unless you are
+buying something specific with the smaller size, and know which one you are
+doing. Nothing measures this: there is no `body-type-small` check, because a
+check set at 16px would fail the corpus.
 
 ---
 
@@ -251,7 +272,17 @@ check the claim against what you built:
 <!-- premium-web-design: tier=B -->
 <!-- premium-web-design: tier=C mobile=B -->    phone build is a tier lower, on purpose
 <!-- premium-web-design: tier=A kind=demo -->   a pattern reference, not a page
+<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->
 ```
+
+**`tier=A` needs `because=`.** Three clauses gate Tier A and only the length one
+can be measured, so a page could clear every craft gate by declaring A and
+stopping at 5.9 screens — under the ceiling, under the long-page floor, and
+holding SKILL.md's own "5–12 viewport heights" rule while doing it. The
+declaration now carries the other two clauses: name the award-winning page you
+are matching and say why yours needs less motion than that one. Without it the
+auditor reports `tier-a-undefended`. A reviewer reads that string, so "the stack
+is plain HTML" is not one of the answers.
 
 `mobile=` is the Tier C phone-fallback requirement written down. Declaring it
 is how you honour "never ship a heavy model to a phone" without being told you
@@ -299,14 +330,24 @@ Overlaps:  <which elements cross which boundaries>
 Bleeds:    <what runs past the viewport edge>
 ```
 
-| Floor | Value | Why |
-|---|---|---|
-| Media per screen | ≥2.0 | corpus median 2.5 |
-| Largest type | **not** in the hero | true of 5 of 6 image-led studies |
-| Overlaps | ≥3 | layering is what separates a design from a stack of rows |
-| Edge bleeds | ≥2 | a fully contained page reads as a document |
-| Ground flips | 1 per 2–3 screens | Tripletta 1.2, Hagi's 1.6, Amrit 2.8 |
-| Device repeats | ≥4, changing each time | Amrit's review card, Blind Barber's year rail |
+Two numbers per row, because they are not the same number and pretending they
+were is how a page landed at a quarter of the design floor and still reported
+SPARSE 0. **Design floor** is what the corpus does and what you are aiming at.
+**Auditor floor** is where the machine starts speaking — set at the corpus
+*worst case*, not its median, so it never argues with a real award site.
+
+| Floor | Design floor | Auditor floor | Why |
+|---|---|---|---|
+| Media per screen | ≥2.0 raw placements | ≥8 *rendered* over 8000px², page over 5 screens | Raw tag counts lie: Amrit ships 69 `<img>` and renders 10 photographs. Median rendered across the corpus is 11 |
+| Distinct photographs | ≥6, each cropped ≥2 ways | ≥5 distinct sources once 6+ placements ship | Eight placements of one frame is one picture |
+| Largest type | **not** in the hero | second event ≥80% of hero, and its box has to fit the glyphs | true of 5 of 6 image-led studies |
+| Overlaps | ≥3, of three different kinds | ≥1, and one of the pair must cover 1.2% of the viewport | Amrit ships exactly 1 on both viewports |
+| Edge bleeds | ≥2 | ≥1, carrying text, media, or 2% of the viewport | a fully contained page reads as a document |
+| Ground flips | 1 per 2–3 screens | ≥3 on a page over 6 screens | Tripletta 1.2, Hagi's 1.6, Amrit 2.8 |
+| Device repeats | ≥4, changing each time | **not measured** — nothing can tell a repeating branded object from a repeated shape | Amrit's review card, Blind Barber's year rail |
+
+The gap between those two columns is yours. Clearing the right-hand column is
+the floor of the floor; it is not the brief.
 
 **The signature device is the thing people remember.** Amrit's saffron menu
 panel. Blind Barber's pinned year rail and 902px numerals. Tripletta's die-cut
@@ -332,17 +373,31 @@ Three gates that the corpus meets and restraint rules never produce. All three
 are measured; see the `CRAFT` block in the auditor output.
 
 **Three weight-carrying motion techniques, minimum, on any page over 6 screens.**
-Not three fade-ups. From `references/motion.md`: a scroll-pinned chapter stage,
-a scrubbed sequence tied to a real object, a masked or split type reveal at
-display scale, a cursor-driven preview on an index list, a horizontal chapter,
-a load sequence that resolves into the hero, a page transition, a magnetic
-element, a canvas or 3D scene. Runnable implementations of every one of these
-are in `demos/`. Open the nearest and copy it rather than inventing it.
+Two on a desktop page over 4 screens that is not a defended Tier A. Not three
+fade-ups. From `references/motion.md`: a scroll-pinned chapter stage, a scrubbed
+sequence tied to a real object, a masked or split type reveal at display scale, a
+cursor-driven preview on an index list, a horizontal chapter, a load sequence
+that resolves into the hero, a page transition, a magnetic element, a canvas or
+3D scene. Runnable implementations of every one of these are in `demos/`. Open
+the nearest and copy it rather than inventing it.
 
-**Images ship responsively.** `srcset` with real widths, or `<picture>` with
-WebP or AVIF and a JPEG fallback. A source more than 1.8× its rendered CSS
-width is reported. A 2400px hero sent whole to a 390px phone is the single
-laziest thing a premium page can do.
+**A technique is a thing that happens, not a thing that is declared.** Four of
+these nine could be claimed for nothing until an adversarial page claimed all
+four at once, so the auditor now reads the result instead of the markup:
+
+| Claim | What used to satisfy it | What satisfies it now |
+|---|---|---|
+| canvas / 3D scene | any `<canvas>` over a quarter of the viewport | WebGL or three/R3F, **or** a canvas whose pixels are not uniform — something was drawn |
+| loader into hero | `<div data-loader></div>`, empty, anywhere in the page | an overlay painting over ≥25% of the viewport at 120ms and gone by 2500ms, a loading class dropped off the root, or a hooked element that behaves that way |
+| page transition | one element carrying `view-transition-name` | a transition library, a `[data-barba]`/`[data-swup]`/`[data-taxi]` marker, an `@view-transition` at-rule, `startViewTransition()` actually called, or ≥3 named elements |
+| scroll-pinned section | an empty 70vh sticky div in a 220vh parent | the same geometry **holding something** — 12+ characters of text, a media child over 5% of the viewport, or a background image |
+
+**Images ship responsively.** `srcset` with **two or more candidates carrying
+real `w`/`x` descriptors**, or `<picture>` with at least one `<source>` — WebP or
+AVIF and a JPEG fallback. `srcset="hero.jpg"` is one payload wearing the
+attribute, and it used to skip the check entirely. A source more than 2.5× its
+rendered CSS width with no real source set is reported. A 2400px hero sent whole
+to a 390px phone is the single laziest thing a premium page can do.
 
 **Local business pages close the loop.** These four come straight from the
 corpus steal lists and every one of them was missing from a page that otherwise
@@ -355,8 +410,30 @@ scored perfectly:
 | An FAQ or objection block | Answers the question that stops the booking | `plomberie-5-etoiles` |
 | A named human who is not a reviewer | Trust attaches to people, not companies | `plomberie-5-etoiles` |
 
-A rating with no link to its source is reported as `rating-unsourced`. Publishing
-`4.9` with nothing behind it is the same class of claim as a fabricated review.
+**The conversion checks only run when the page says it is a local business.**
+A `tel:` link alone is not enough, deliberately, or every product page with a
+support number gets told it is missing a plumber's FAQ. The switch is a second
+machine-readable signal: an `<address>` element, `LocalBusiness` JSON-LD, an
+embedded map, or opening-hours copy. Ship one, or these four checks stay silent
+and report nothing, which looks identical to passing.
+
+Both of the last two are checked on their content, not their shape. An
+`<details>` counts once **two** of them carry 40+ characters of answer past the
+summary; a heading reading "FAQ" counts once 120+ characters of answer follow it.
+An empty accordion is furniture. And a placeholder name is not a person —
+"Jane Doe, Owner" is rejected here and reported as `copy-placeholder` above.
+
+A rating with no link to its source is reported as `rating-unsourced`. The link
+has to go somewhere: `<a href="#">4.9</a>` is the claim with a link painted on
+it. Publishing `4.9` with nothing behind it is the same class of claim as a
+fabricated review.
+
+**Announce every capability downgrade with `console.info`.** If WebGL is
+missing, a model fails to fetch, or the phone build takes the still, log the
+failed condition — a silent fallback has now cost three investigations on this
+skill, and in every one the console was clean while the page rendered something
+other than what it claimed. The auditor collects and prints anything logged that
+mentions a fallback, and `tier-unmet` says so when nothing was.
 
 ---
 
@@ -420,6 +497,20 @@ finding means and how to fix it: `references/build-loop.md`.
 
 ---
 
+## Build to the intent, not to the check
+
+Every threshold in this skill is a proxy for a judgement, and every proxy can be
+satisfied without meeting the judgement. An agent that reads `audit-page.mjs`
+and builds to its numbers will pass and still ship something weak: three token
+gestures satisfy the motion count, one photograph repeated satisfies density, a
+rating linked to a search URL satisfies the source check.
+
+The checks exist because those failures are common, not because passing them is
+the goal. **If you find yourself asking what the minimum is that clears a
+finding, you have started building the wrong thing.** The corpus is the standard;
+the auditor only catches the ways pages fall short of it that are cheap to
+measure.
+
 ## Instant fails
 
 Each row has a named replacement — a ban with no successor just sends you to the
@@ -460,6 +551,11 @@ linter is holding the line, and ships the thing.
 
 Every box needs an artifact, not a claim.
 
+**Exit 0 is not this list.** The exit code tracks FAILs only; SPARSE and CRAFT
+never touch it, by design, and the auditor now says so on the last line when
+either stands. A page that exits 0 with six ambition findings has passed the
+linter and not the bar.
+
 - [ ] Direction lock posted before code — vibe, hero, section system, 3 moments
 - [ ] ≥3 studies read, their frames viewed, and the take-list posted with sources
 - [ ] Art Direction Contract posted before component code, with literal values
@@ -477,8 +573,11 @@ Every box needs an artifact, not a claim.
 - [ ] `audit-page.mjs` reports zero SPARSE findings
 - [ ] `audit-page.mjs` reports zero CRAFT findings
 - [ ] Tier declared in the markup, and the page actually contains that tier's evidence
-- [ ] Three or more weight-carrying motion techniques, named
-- [ ] Every image has `srcset` or a `<picture>` source set
+- [ ] `tier=A` carries `because=` naming the award page it matches
+- [ ] Three or more weight-carrying motion techniques, named — each one a thing that happens, not an attribute that declares it
+- [ ] Every image has a real `srcset` (2+ candidates with `w`/`x`) or a `<picture>` with a `<source>`
+- [ ] ≥5 distinct photographs, not one frame placed eight times
+- [ ] Every capability downgrade announced with `console.info`
 - [ ] Local business: bottom action bar, what-happens-next line, FAQ, a named human
 - [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
 
