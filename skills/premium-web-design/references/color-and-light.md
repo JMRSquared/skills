@@ -63,6 +63,52 @@ Copy one whole. Do not mix rows.
 --ink: #EDEFF2;     --ink-muted: #8B929C;  --accent: #4AA8FF;
 ```
 
+### Every palette needs its inverse, and it is already in the row
+
+`density-and-devices.md` asks for a ground flip every two to three screens. The
+auditor counts a flip when the painted ground changes by a summed per-channel
+delta over 36. Measured across these six palettes, `--ground` to `--ground-2` is:
+
+| Palette | ground → ground-2 | Flip? |
+|---|---|---|
+| Night studio | 28 | no |
+| Paper warm | 37 | barely |
+| Clinic calm | 28 | no |
+| Ink & sand | 31 | no |
+| Bright signal | 48 | yes |
+| Cold steel | 27 | no |
+
+**Four of six cannot flip using their own two grounds.** `--ground-2` is a
+surface shift, not a chapter break, and it was never meant to be one. So the
+flip is not ground to ground-2. It is **ground to inverse**, the way Blind
+Barber runs paper to ink every couple of chapters.
+
+The inverse is not a new colour and it does not break "copy one whole": it is
+the palette's own `--ink` used as a surface, with `--ground` becoming the text.
+That pairing is already the one whose contrast the table below measures.
+
+```css
+/* add to whichever row you copied. Values are that row's own ink and ground. */
+--inverse:        var(--ink);      /* the chapter-break surface */
+--ink-on-inverse: var(--ground);
+```
+
+| Palette | `--inverse` | delta from ground | text on it | muted on it |
+|---|---|---|---|---|
+| Night studio | `#F4F3F1` | 693 | 17.73 | `#6D6C6D` (4.72) |
+| Paper warm | `#1A1713` | 654 | 15.99 | `#84807A` (4.55) |
+| Clinic calm | `#14201A` | 670 | 16.08 | `#838984` (4.70) |
+| Ink & sand | `#F2EFE9` | 649 | 15.94 | `#6C6C6D` (4.57) |
+| Bright signal | `#17130C` | 703 | 18.21 | `#827F79` (4.64) |
+| Cold steel | `#EDEFF2` | 691 | 17.30 | `#686A6B` (4.72) |
+
+Every muted value above was solved for AA on its own inverse ground, so you do
+not have to derive one. `--edge` on the inverse is the muted value at low alpha,
+or simply `--ground` at 18%.
+
+Use `--ground-2` for what it is good at: a panel, a card ground, a band that
+needs to sit slightly off the page without announcing a new chapter.
+
 ### Measured contrast (checked 2026-08-14)
 
 | Palette | ink / ground | ink-muted / ground | ink-muted / ground-2 | accent / ground |
