@@ -275,6 +275,12 @@ Full detail, entry requirements, and the failure modes to guard:
 | **B — Choreographed** (default) | GSAP/ScrollTrigger or Motion scroll: pins, scrubs, split reveals, transitions | The story has beats |
 | **C — Rendered** | WebGL/R3F on top of B | The object *is* the story, and a credible model exists |
 
+Tier C's default stack is React + Vite + R3F + drei + Lenis, and its architecture
+is in `references/scroll-direction.md`: one timeline, keyframe tracks, a
+director, scroll state outside React. **The stack is a default, not a
+requirement.** The architecture is what matters, and a rotating object on a
+sticky canvas is not it.
+
 **Declare the tier in the page**, first line of `<head>`, so the auditor can
 check the claim against what you built:
 

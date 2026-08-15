@@ -81,6 +81,22 @@ Everything in B, plus WebGL/3D.
 Ships: a real-time 3D object the scroll drives, shader backgrounds, particle
 systems, physics.
 
+### The stack this tier assumes
+
+**React + Vite + `@react-three/fiber` + `drei` + `lenis`**, with `motion` or GSAP
+for DOM choreography. That is the default because it is what the architecture in
+`references/scroll-direction.md` was built for and what the demo in
+`demos/act-director/` ships.
+
+**It is a default, not a gate.** Plain three.js, Svelte, Next, GSAP instead of
+Motion, Locomotive instead of Lenis: all fine. Nothing in the auditor checks
+which libraries a page loads, and nothing here should be read as forbidding a
+stack. What does not change is the architecture: one timeline, keyframe tracks,
+a director, scroll state outside the render loop. Ship that in whatever you like.
+
+A single self-contained HTML file is a legitimate delivery format for a demo or
+a one-page piece. For anything with a real act structure, take the build step.
+
 Requires **all** of these, verified before you start:
 - The product genuinely is an object worth rendering (a can, a device, a
   keyboard, a space) — not a service, not a clinic, not a shop.

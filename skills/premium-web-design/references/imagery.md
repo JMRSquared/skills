@@ -88,13 +88,19 @@ Reject anything with these, no matter how well it matches the brief:
 - Visible stock watermarks, or the same face you have already used
 - A subject centred with even lighting and no depth
 - Obvious AI generation: warped hands, melted text, impossible reflections
-- **Another business's name, logo or signage anywhere in frame.** This is the
-  one that makes a photograph unusable rather than merely weak, and it is
-  invisible in a contact sheet. Three downloads on one build carried a `healthy
-  Shotz` wall logo, an estate agent's board reading `LET AGREED`, and a shop
-  fascia reading `WILLOW & WOLF`. A page claiming to be one business cannot
-  show another's mark. Check every shortlisted frame at full resolution before
-  you place it, not at thumbnail size.
+- **An unrelated business's name, logo or signage in frame.** This is the one
+  that makes a photograph unusable rather than merely weak, and it is invisible
+  in a contact sheet. Three downloads on one build carried a `healthy Shotz`
+  wall logo, an estate agent's board reading `LET AGREED`, and a shop fascia
+  reading `WILLOW & WOLF`. A page for one business cannot show a different
+  one's mark. Check every shortlisted frame at full resolution, not at thumbnail
+  size.
+
+  **The brand the page is for is not "another business".** Building a page about
+  a real product means showing that product, with its badges, its model name and
+  its own marks, in photography and in 3D. That is the subject, not an
+  infringement. The rule above is about a *stranger's* sign turning up in your
+  frame.
 
 Prefer: one light source with direction, real depth of field, a subject caught
 mid-action, hands doing work, an environment with texture. A photograph where
