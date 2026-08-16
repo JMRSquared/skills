@@ -40,6 +40,83 @@ const { chromium } = pwDir
   : await import('playwright');
 const fs = await import('node:fs/promises');
 const path = await import('node:path');
+const zlib = await import('node:zlib');
+
+/* --- minimal PNG reader -------------------------------------------------
+   Used by the nav-legibility probe. Working out what is painted behind a
+   fixed bar by walking the DOM does not work: transparent wrappers, absolutely
+   positioned art and background images on distant ancestors all mean the walk
+   either stops on the wrong element or falls through to <body>. Amrit Palace's
+   nav is cream over a dark hero photograph and a DOM walk reports cream on
+   cream, 1:1, because the photograph is not in the hit-test stack at that
+   point. Pixels are the only ground truth, so read them. */
+const decodePNG = (buf) => {
+  if (buf.length < 8 || buf.readUInt32BE(0) !== 0x89504e47) return null;
+  let off = 8, w = 0, h = 0, depth = 0, colour = 0, interlace = 0;
+  const idat = [];
+  while (off + 8 <= buf.length) {
+    const len = buf.readUInt32BE(off);
+    const type = buf.toString('ascii', off + 4, off + 8);
+    const body = buf.subarray(off + 8, off + 8 + len);
+    if (type === 'IHDR') {
+      w = body.readUInt32BE(0); h = body.readUInt32BE(4);
+      depth = body[8]; colour = body[9]; interlace = body[12];
+    } else if (type === 'IDAT') idat.push(body);
+    else if (type === 'IEND') break;
+    off += 12 + len;
+  }
+  if (!w || !h || depth !== 8 || interlace !== 0) return null;
+  const channels = colour === 6 ? 4 : colour === 2 ? 3 : colour === 4 ? 2 : colour === 0 ? 1 : 0;
+  if (!channels) return null;
+  let raw;
+  try { raw = zlib.inflateSync(Buffer.concat(idat)); } catch { return null; }
+  const stride = w * channels;
+  const out = Buffer.alloc(h * stride);
+  let pos = 0;
+  for (let y = 0; y < h; y++) {
+    const filter = raw[pos++];
+    const line = raw.subarray(pos, pos + stride); pos += stride;
+    const cur = out.subarray(y * stride, (y + 1) * stride);
+    const prev = y > 0 ? out.subarray((y - 1) * stride, y * stride) : null;
+    for (let i = 0; i < stride; i++) {
+      const a = i >= channels ? cur[i - channels] : 0;
+      const b = prev ? prev[i] : 0;
+      const c = prev && i >= channels ? prev[i - channels] : 0;
+      let v = line[i];
+      if (filter === 1) v += a;
+      else if (filter === 2) v += b;
+      else if (filter === 3) v += (a + b) >> 1;
+      else if (filter === 4) {
+        const pp = a + b - c, pa = Math.abs(pp - a), pb = Math.abs(pp - b), pc = Math.abs(pp - c);
+        v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? b : c);
+      }
+      cur[i] = v & 0xff;
+    }
+  }
+  return { w, h, channels, data: out };
+};
+
+/* Median colour of a region. Median, not mean: a mean turns light text on a
+   dark ground into a mid grey that matches neither, and the question here is
+   what the GROUND is. */
+const regionColour = (img, x0, y0, x1, y1) => {
+  if (!img) return null;
+  const xs = Math.max(0, Math.floor(x0)), xe = Math.min(img.w, Math.ceil(x1));
+  const ys = Math.max(0, Math.floor(y0)), ye = Math.min(img.h, Math.ceil(y1));
+  if (xe <= xs || ye <= ys) return null;
+  const R = [], G = [], B = [];
+  const step = Math.max(1, Math.floor((xe - xs) / 60));
+  for (let y = ys; y < ye; y += Math.max(1, Math.floor((ye - ys) / 20))) {
+    for (let x = xs; x < xe; x += step) {
+      const i = y * img.w * img.channels + x * img.channels;
+      if (img.channels >= 3) { R.push(img.data[i]); G.push(img.data[i + 1]); B.push(img.data[i + 2]); }
+      else { R.push(img.data[i]); G.push(img.data[i]); B.push(img.data[i]); }
+    }
+  }
+  if (!R.length) return null;
+  const mid = (arr) => { arr.sort((a, b) => a - b); return arr[arr.length >> 1]; };
+  return { r: mid(R), g: mid(G), b: mid(B), a: 1 };
+};
 
 await fs.mkdir(outDir, { recursive: true });
 
@@ -118,6 +195,42 @@ const audit = (opts = {}) => {
   };
 
   /** Effective background behind an element: walk up until an opaque paint. */
+  /* SVG paints with `fill`; it never sets `background-color`. A badge built as
+     an inline <svg> with a filled <rect> behind its text therefore reads as
+     transparent all the way up to the page ground, and black-on-acid-yellow
+     gets reported as 1:1. Unlike the photograph case, which is a WARN, that one
+     BLOCKS the build, so it is the most expensive false positive here.
+     Resolve the nearest filled shape that actually covers the text instead. */
+  let svgShapeCache = null;
+  const svgFillBehind = (el) => {
+    if (svgShapeCache === null) {
+      svgShapeCache = [];
+      for (const sh of document.querySelectorAll('svg rect, svg circle, svg ellipse, svg path, svg polygon')) {
+        const fs = getComputedStyle(sh);
+        if (fs.display === 'none' || fs.visibility === 'hidden') continue;
+        if (parseFloat(fs.opacity || '1') < 0.9) continue;
+        const c = parseRGB(fs.fill);
+        if (!c || c.a < 0.9) continue;
+        const r = sh.getBoundingClientRect();
+        if (r.width < 2 || r.height < 2) continue;
+        svgShapeCache.push({ r, color: c, area: r.width * r.height });
+      }
+    }
+    if (!svgShapeCache.length) return null;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return null;
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    let best = null;
+    for (const sh of svgShapeCache) {
+      /* Cover the text, do not merely clip a corner of it. */
+      if (cx < sh.r.left || cx > sh.r.right || cy < sh.r.top || cy > sh.r.bottom) continue;
+      if (sh.r.width < r.width * 0.9 || sh.r.height < r.height * 0.9) continue;
+      if (!best || sh.area < best.area) best = sh;
+    }
+    return best ? best.color : null;
+  };
+
   const effectiveBg = (el) => {
     let node = el;
     let overMedia = false;
@@ -257,7 +370,11 @@ const audit = (opts = {}) => {
         continue;
       }
     }
-    const { color: bg, overMedia } = effectiveBg(el);
+    let { color: bg, overMedia } = effectiveBg(el);
+    /* Only when CSS produced no opaque ground of its own: a real
+       `background-color` on the text's own chain still wins. */
+    const svgBg = svgFillBehind(el);
+    if (svgBg) bg = svgBg;
     const size = parseFloat(s.fontSize);
     const bold = parseInt(s.fontWeight, 10) >= 700;
     const large = size >= 24 || (size >= 18.66 && bold);
@@ -1815,6 +1932,20 @@ const audit = (opts = {}) => {
     }
   }
 
+  /* --- S6b. nav-illegible-over-content: measured by the driver, reported here
+     A fixed bar sits over the whole document, so every ground the page flips to
+     flips under the nav as well. Two builds shipped this: one nav went dark ink
+     over a dark photograph, the other white-on-white over a paper section. Both
+     passed every other check, because at scroll position 0 the nav is fine and
+     a DOM snapshot only ever sees scroll position 0. */
+  if (craftOk && craftIn.navLegibility && craftIn.navLegibility.bar && Array.isArray(craftIn.navLegibility.hits) && craftIn.navLegibility.hits.length) {
+    const nav = craftIn.navLegibility;
+    const w = nav.hits[0];
+    add('fail', 'nav-illegible-over-content',
+      `The nav goes unreadable over what scrolls beneath it. Sampling ${nav.stops} scroll positions and reading the ground from PIXELS with the bar hidden, ${nav.total} link/position pair${nav.total === 1 ? '' : 's'} fell below the readable threshold — worst ${w.ratio}:1 against a needed ${w.need}:1 ("${w.text}" at ${w.y}px, ${w.ink} on ${w.over}${w.shadow ? ', text-shadow present' : ''}). A fixed bar keeps its ink while the page changes ground underneath it, so a nav that reads perfectly over the hero disappears over the section that flips. Give the bar an opaque plate once it leaves the hero, or swap its ink with the ground it is over. This is only visible while scrolling, which is why nothing else catches it.`,
+      { stops: nav.stops, links: nav.links, total: nav.total, worst: nav.hits.slice(0, 6) });
+  }
+
   /* --- S7. hero-not-painted: measured by the driver, reported here
      The driver loads the page twice more — once normally, once with every
      third-party origin refused — and asks one question at each: is the largest
@@ -2706,6 +2837,7 @@ const craftProbe = async (ctx, target) => {
     techniques: {}, present: [],
     loader: null, loaderProbe: null, loaderHookRejected: null, cursorRejected: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
     webgl: false, three: false, canvasPainted: false, gsap: false, scrollTrigger: false, pinSpacer: false,
+    navLegibility: null,
   };
   let page = null;
   try {
@@ -2874,6 +3006,149 @@ const craftProbe = async (ctx, target) => {
         } catch (e) { out.errors.push(`cursor: ${String(e).slice(0, 80)}`); }
       }
     }
+
+    /* ---- stage 2b: does the nav stay readable over what scrolls under it? ----
+       A fixed bar sits over the whole document, so every ground the page flips
+       to flips under the nav as well. One build shipped a nav that went
+       white-on-white over a paper section; at scroll position 0 it was fine,
+       and a DOM snapshot only ever sees scroll position 0.
+       The ground is read from PIXELS, with the bar hidden for the shot. Walking
+       the DOM for it does not work: Amrit Palace's nav is cream over a dark
+       hero photograph, and the walk reports cream on cream because the
+       photograph is not in the hit-test stack under the links. */
+    try {
+      const navMeta = await page.evaluate(() => {
+        const pick = () => {
+          for (const el of document.querySelectorAll('nav, header, [role="navigation"], body *')) {
+            let st; try { st = getComputedStyle(el); } catch { continue; }
+            if (st.position !== 'fixed' && st.position !== 'sticky') continue;
+            const r = el.getBoundingClientRect();
+            if (r.top > window.innerHeight * 0.2 || r.width < window.innerWidth * 0.5) continue;
+            if (r.height > window.innerHeight * 0.25 || r.height < 8) continue;
+            if (el.querySelectorAll('a, button').length < 2) continue;
+            return el;
+          }
+          return null;
+        };
+        const bar = pick();
+        if (!bar) return { bar: false };
+        bar.setAttribute('data-pwd-nav', '1');
+        return { bar: true };
+      }).catch(() => null);
+
+      if (navMeta && navMeta.bar) {
+        const stops = 7;
+        const hits = [];
+        let links = 0;
+        for (let i = 0; i < stops; i++) {
+          const y = Math.round((usable * i) / (stops - 1));
+          await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'auto' }), y).catch(() => { /* ignore */ });
+          await page.waitForTimeout(320);
+          const shot = await page.evaluate(() => {
+            const bar = document.querySelector('[data-pwd-nav]');
+            if (!bar) return null;
+            const rgb = (v) => {
+              const m = /rgba?\(([^)]+)\)/.exec(v || '');
+              if (!m) return null;
+              const q = m[1].split(',').map((x) => parseFloat(x));
+              return { r: q[0], g: q[1], b: q[2], a: q.length > 3 ? q[3] : 1 };
+            };
+            /* An opaque plate, or a plate inside the bar that covers it, means
+               the ground never reaches the ink. Re-checked every stop, because
+               the usual fix is a plate that only appears past the hero. */
+            const br = bar.getBoundingClientRect();
+            const paints = (el) => {
+              let st; try { st = getComputedStyle(el); } catch { return false; }
+              const c = rgb(st.backgroundColor);
+              if (c && c.a >= 0.85) return true;
+              if (st.backdropFilter && st.backdropFilter !== 'none' && c && c.a >= 0.4) return true;
+              return false;
+            };
+            let plated = paints(bar);
+            if (!plated) {
+              for (const d of bar.querySelectorAll('*')) {
+                if (!paints(d)) continue;
+                const r = d.getBoundingClientRect();
+                if (r.width >= br.width * 0.9 && r.height >= br.height * 0.9) { plated = true; break; }
+              }
+            }
+            const out = { plated, rect: { x: br.left, y: br.top, w: br.width, h: br.height }, links: [] };
+            for (const a of bar.querySelectorAll('a, button')) {
+              const t = String(a.textContent || '').replace(/\s+/g, ' ').trim();
+              if (t.length < 2 || t.length > 32) continue;
+              const r = a.getBoundingClientRect();
+              if (r.width < 4 || r.height < 4) continue;
+              let st; try { st = getComputedStyle(a); } catch { continue; }
+              const fg = rgb(st.color);
+              if (!fg) continue;
+              /* `mix-blend-mode: difference` (or exclusion) inverts the ink
+                 against whatever is under it, so the link adapts by
+                 construction and its computed colour is not what renders.
+                 Blind Barber's nav computes as white and paints black over a
+                 light ground. Measuring the computed colour against the real
+                 ground gets this exactly backwards. */
+              let blended = false;
+              for (let n = a; n && bar.contains(n); n = n.parentElement) {
+                let ns; try { ns = getComputedStyle(n); } catch { break; }
+                if (ns.mixBlendMode && ns.mixBlendMode !== 'normal') { blended = true; break; }
+              }
+              if (blended) continue;
+              const size = parseFloat(st.fontSize) || 12;
+              const bold = parseInt(st.fontWeight, 10) >= 700;
+              out.links.push({
+                text: t.slice(0, 22), ink: st.color, fg,
+                need: size >= 24 || (size >= 18.66 && bold) ? 3 : 4.5,
+                shadow: st.textShadow !== 'none',
+                x: r.left, y: r.top, w: r.width, h: r.height,
+              });
+              if (out.links.length >= 6) break;
+            }
+            return out;
+          }).catch(() => null);
+          if (!shot || shot.plated || !shot.links.length) continue;
+          links = Math.max(links, shot.links.length);
+          /* Hide the bar so the shot captures the GROUND, not the nav itself. */
+          await page.evaluate(() => {
+            const b = document.querySelector('[data-pwd-nav]');
+            if (b) { b.setAttribute('data-pwd-vis', b.style.visibility || ''); b.style.visibility = 'hidden'; }
+          }).catch(() => { /* ignore */ });
+          let png = null;
+          try {
+            png = await page.screenshot({
+              clip: { x: Math.max(0, shot.rect.x), y: Math.max(0, shot.rect.y), width: Math.max(1, Math.min(geom.vw, shot.rect.w)), height: Math.max(1, Math.min(geom.vh, shot.rect.h)) },
+            });
+          } catch { png = null; }
+          await page.evaluate(() => {
+            const b = document.querySelector('[data-pwd-nav]');
+            if (b) { b.style.visibility = b.getAttribute('data-pwd-vis') || ''; b.removeAttribute('data-pwd-vis'); }
+          }).catch(() => { /* ignore */ });
+          const img = png ? decodePNG(png) : null;
+          if (!img) continue;
+          const scale = img.w / Math.max(1, Math.min(geom.vw, shot.rect.w));
+          for (const L of shot.links) {
+            const gx0 = (L.x - shot.rect.x) * scale, gy0 = (L.y - shot.rect.y) * scale;
+            const ground = regionColour(img, gx0, gy0, gx0 + L.w * scale, gy0 + L.h * scale);
+            if (!ground) continue;
+            const lum = (c) => {
+              const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+              return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
+            };
+            const A = lum(L.fg), B = lum(ground);
+            const cr = (Math.max(A, B) + 0.05) / (Math.min(A, B) + 0.05);
+            /* A text-shadow buys back roughly one stop against a busy ground,
+               and it is the documented protection, so it lowers the bar rather
+               than exempting the link outright. */
+            const need = L.shadow ? L.need - 1.5 : L.need;
+            if (cr < need)
+              hits.push({ y, text: L.text, ink: L.ink, over: `rgb(${ground.r}, ${ground.g}, ${ground.b})`, ratio: +cr.toFixed(2), need: +need.toFixed(1), shadow: L.shadow });
+          }
+        }
+        await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'auto' })).catch(() => { /* ignore */ });
+        hits.sort((a, b) => a.ratio - b.ratio);
+        out.navLegibility = { bar: true, links, stops, hits: hits.slice(0, 8), total: hits.length };
+      } else if (navMeta) out.navLegibility = { bar: false };
+      if (process.env.PWD_DEBUG_NAV) console.error('[nav probe]', JSON.stringify(out.navLegibility));
+    } catch (e) { if (process.env.PWD_DEBUG_NAV) console.error('[nav probe threw]', String(e).slice(0, 300)); }
 
     /* ---- stage 3: magnetic hover, two scroll positions ---- */
     let magnetic = null;
