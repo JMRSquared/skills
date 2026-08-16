@@ -117,6 +117,12 @@ skill that shipped one ran their postal address through it. A marquee is the
 largest type on the page moving under its own clock. It is the loudest thing you
 own, and an address is what a footer is for.
 
+Mark the **duplicate** track `aria-hidden="true"` and leave the first one
+readable, so a screen reader hears the line once. Hiding the whole marquee and
+naming the section with `aria-label` also works and the auditor accepts it, but
+hiding both tracks and giving the section no accessible name at all means the
+loudest string on the page reaches nobody using assistive tech.
+
 What the corpus runs through one:
 
 - Hagi's: `SELF-CARE AS IDENTITY. RITUAL AS EXPRESSION.` at 150px cream on

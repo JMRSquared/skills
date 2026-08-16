@@ -345,6 +345,18 @@ const audit = (opts = {}) => {
     const n = normText(textOf(el));
     if (n) readableCorpus.push(n);
   }
+  /* An `aria-label` is a readable instance. A marquee is the case that forces
+     this: its duplicated track has to be `aria-hidden`, and a build that hides
+     the whole track and names the section with `aria-label` has NOT hidden the
+     information — a screen reader still reads it. Requiring a second visible
+     copy of a string the page is already shouting at 200px is asking for the
+     one thing a marquee exists to avoid. */
+  try {
+    for (const el of document.querySelectorAll('[aria-label]')) {
+      const n = normText(el.getAttribute('aria-label') || '');
+      if (n) readableCorpus.push(n);
+    }
+  } catch { /* ignore */ }
   const tintMarks = [];
   const tintRejected = [];
   const badContrast = [];
