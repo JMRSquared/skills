@@ -222,6 +222,12 @@ asks for. A hairline rule counts as a participant — so does an `<svg>` over
 its layering. What does not count is two small labels nudged into each other:
 one of the pair has to cover 1.2% of the viewport.
 
+**Whichever block must stay readable gets the higher z-index**, and decide that
+before you write the negative margin. Pulling a footer wordmark up over the
+block above it is the recipe, and one build used it to cover the CC BY
+attribution its model licence requires. Attribution, licence text, prices and
+anything legally load-bearing is never the layer underneath.
+
 ## 5. Edge bleed
 
 Clipped in the corpus: Amrit's testimonial rail cuts cards mid-word at both edges

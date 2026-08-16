@@ -61,7 +61,10 @@ Then, every pass, both of these:
    or one line saying why the design intends it.
 
 Repeat until the frames look like something you would show a client and the
-auditor is silent. Three passes is normal. One pass means you did not look.
+auditor is silent. **Six to eight passes is normal** on a Tier C build, three or
+four on a short Tier A one. Every build from this skill that reached a clean
+audit took at least six. Budget for that up front rather than treating pass four
+as a sign something has gone wrong. One pass means you did not look.
 
 ## What each finding actually means
 
@@ -118,6 +121,7 @@ studies longer than five screens:
 | `ground-flips` | Fewer than 3 ground-colour changes on a page over 6 screens, sampled at 12 scroll positions. | Blind Barber flips paper `#F1F1F1` to ink `#141414` every ~2 chapters and deletes every divider. Amrit runs sand, dark photo, saffron panel, sand. One ground for a whole page makes the scroll feel like one long section. |
 | `motion-vocabulary` | Fewer than 4 *distinct* transition/animation declarations (unique property + duration + easing) on a page over 6 screens, with no JS motion runtime present. "A JS motion runtime present" now means a library global, a library data-attribute, or six elements carrying an **inline** transform a runtime wrote — `will-change` typed into a stylesheet used to be enough to switch this check off on a page with no script at all. | One easing curve repeated everywhere is a default, not a vocabulary. Want four registers: a state change, an enter, a scroll-linked move, one slow ambient one. See `references/motion.md`. |
 | `motion-uniform` | Counted from **distinct recipes** (property + duration + easing), not from element count. It reads the rule's own declarations first and falls back to the computed style of a matching element, which matters more than it sounds: a `transition` shorthand containing `var()` is a pending-substitution value, so the CSSOM serialises the shorthand *and every longhand it covers* as the empty string, and `cssText` prints them back as `transition-property: ;`. Written the way this skill's own demos write it — `transition: transform var(--t-panel) var(--e-settle)` beside a `transition-delay` longhand — the declaration is unrecoverable from the stylesheet, and the check used to see nothing at all. One build added two new recipes, watched the finding refuse to move, and only found out by reading the auditor's source. | Give entrances more than one register. If the finding will not move, check that the recipes really differ in property, duration or curve rather than only in delay. |
+| `stock-resolution` | **Three of four** components ship together: a `<details>` FAQ accordion (3+ rows), a key/value hairline table, a full-width footer wordmark in a face used almost nowhere else, and a bordered mono chip in the hero's lower-right. **Any one of them alone is fine and never fires this.** `<details>` is the documented way to satisfy `conversion-incomplete` and it stays that way; one build read this row as a ban and rebuilt a working FAQ into open editorial rows for nothing. What is being measured is the parts bin, not the part. | Keep the one the brief needs, cut the others, or resolve on something the corpus does instead — Blind Barber ends on 450px of black, Amrit on a saffron panel and a phone number. |
 | `image-repetition` | Six or more media placements resolving to fewer than 5 distinct sources. | density-and-devices.md counts placements rather than files on purpose — but it also asks for six distinct photographs, each cropped two or more ways. Eight placements of one frame is one picture. |
 
 ## CRAFT — the ambition you claimed
