@@ -174,6 +174,7 @@ screenshotted at desktop and phone, and measured. The results are on disk:
 | `tripletta` | SOTD, pizza | high-energy pacing, infinite scroll, transitions |
 | `planetono` | SOTD, custom three.js | toon shaders, Rive micro-interactions |
 | `banzai-nudols` | SOTD + Developer Award | character-driven SKU storytelling |
+| `side-8-group` | Hand-built reference, mining/construction contractor | Tier C with nothing photogenic: particle morph, drawn technical diagrams, 3 photos in 25 screens |
 
 **The headings say where a site came from, not who may study it.** A veterinary
 brief should mine the restaurant menu-as-scroll, the barber's pinned timeline,
