@@ -169,9 +169,14 @@ new RGBELoader().load('models/studio_small_09_1k.hdr', (hdr) => {
 });
 ```
 
-**Copy over a lit 3D scene needs a near-opaque ground.** A 0.72 alpha scrim that
-works over a photograph fails over a bright moving object. 0.94 plus a small
-backdrop blur is the floor, and non-active chapter cards must go to `opacity: 0`
+**Copy over a lit 3D scene needs a near-opaque ground — on the copy, not across
+the frame.** A 0.72 alpha scrim that works over a photograph fails over a bright
+moving object. The distinction that matters, because `scroll-direction.md` §8
+looks like it says the opposite: a **card or plate carrying the copy** goes to
+0.94 plus a small backdrop blur, while a scrim spread across **the whole frame**
+should be a reading gradient angled from the copy column and clear over the
+subject. Flatten a scrim over the entire render and you have paid a 3D budget to
+look at a grey rectangle. Non-active chapter cards must go to `opacity: 0`
 rather than a low alpha, or the previous card's label reads through the live
 one's headline.
 
@@ -179,9 +184,20 @@ one's headline.
 `file://` blocks, so the model fails, the page silently takes its own fallback
 path, and nothing appears in the console. Serve the directory and audit the URL:
 
+Pick a free port and **confirm what is answering on it before you trust the
+audit**. `python3 -m http.server` fails to bind silently when the port is taken,
+and earlier builds leave servers running: one build audited a completely
+different site for a full clean pass, `lang="en-GB"` and `tier=B`, a page its
+author had never seen.
+
 ```bash
-cd <site dir> && python3 -m http.server 8899 &
-node scripts/audit-page.mjs "http://localhost:8899/index.html" ./.audit
+# A port nobody is on, then prove the page answering is yours.
+PORT=$(python3 -c "import socket;s=socket.socket();s.bind(('',0));print(s.getsockname()[1]);s.close()")
+(cd <site dir> && python3 -m http.server $PORT >/dev/null 2>&1 &)
+sleep 1
+curl -fsS "http://localhost:$PORT/index.html" | grep -q 'premium-web-design: tier=' \
+  || { echo "NOT MY PAGE on $PORT — do not audit this"; exit 1; }
+node scripts/audit-page.mjs "http://localhost:$PORT/index.html" ./.audit
 ```
 
 ## Overreach failure modes

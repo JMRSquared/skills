@@ -67,6 +67,16 @@ node -e "import('playwright').then(()=>console.log('SIGHTED')).catch(()=>console
 # To install: mkdir -p ~/.pw && cd ~/.pw && npm i playwright && npx playwright install chromium
 ```
 
+`PW_DIR=… node …` is a command PREFIX, not a separate line: exported on its own
+it prints `Cannot find package 'undefined'` rather than `BLIND`. And in any
+`.mjs` you write yourself, import playwright by **absolute path**. `NODE_PATH`
+does not apply to ES modules, so `import { chromium } from 'playwright'` fails
+from a scratch script no matter what you set:
+
+```js
+const { chromium } = await import('/abs/path/to/node_modules/playwright/index.mjs');
+```
+
 **SIGHTED** — Step 6 is mandatory and the audit must exit 0 before you claim done.
 
 **BLIND** — say so to the user in one line, offer the install command, and then

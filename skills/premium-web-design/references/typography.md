@@ -129,9 +129,21 @@ Clip the padding box instead, and raise the hidden travel so the glyph still
 starts fully outside it:
 
 ```css
-.line{display:block;overflow:hidden;padding-block:.18em;margin-block:-.18em}
+.line{display:block;width:max-content;overflow:hidden;padding-block:16px;margin-block:-16px}
 .js .line span{transform:translateY(160%)}   /* not 102% — the box is taller now */
 ```
+
+`width: max-content` is doing as much work as the padding. `overflow: hidden`
+clips **both** axes, so the moment one word runs wider than the clip box the
+line loses its last letters: "HUNDRED" shipped as "HUNDRE". It looks exactly
+like a broken webfont, it survives every check, and it is invisible until a
+headline gets long enough or a viewport gets narrow enough.
+
+The padding is a fixed `16px` and not `.18em` for a reason this skill measures
+itself: an em-relative value resolves to a different fractional pixel at every
+display size, so two display sizes produce four repeated off-grid values and
+`spacing-off-grid` fires above three. A fixed pixel value does the same job and
+costs nothing.
 
 Two things that bite in the same place: split the text **after**
 `document.fonts.ready`, or the measured line breaks belong to the fallback face

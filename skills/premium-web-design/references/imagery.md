@@ -236,6 +236,13 @@ sizes="(max-width: 720px) 34vw, 15vw"
 The auditor reports this as `image-upscaled`, and it reported seventeen of them
 on a page whose `srcset` markup was otherwise correct.
 
+**The rule underneath: name the widest case the element ever renders at.** One
+component reused at 22vw, 30vw and 38vw across three breakpoints must claim
+38vw. `sizes` is a promise the browser keeps you to before it has laid anything
+out, and it cannot be conditional on which instance is on screen. Claiming the
+common case and letting the widest one upscale is the same defect as claiming
+the desktop case and letting the phone upscale.
+
 ## Cropping
 
 - Crop hard. A tight crop on hands, a face at the edge of frame, or a detail at
