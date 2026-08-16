@@ -278,6 +278,66 @@ the desktop case and letting the phone upscale.
   `<picture>` carrying at least one `<source>`. Anything less is not measured as
   responsive because it is not responsive.
 
+## Drawing beats sourcing, when the subject is technical
+
+Some briefs have nothing photogenic in them. A contractor, a fabricator, a
+logistics operator, a consultancy: the stock library for those is men in hard
+hats pointing at clipboards, and every one of them reads as filler. The way out
+is to stop looking for a photograph and **draw the thing the business actually
+knows**.
+
+Side 8 Group carries six services on six technical section drawings rather than
+six photographs. The opencast one is a hatched pit cross-section annotated
+`PIT DEPTH 32 M`, `BENCH 8 M`, `HAUL RAMP 1:10`, `SECTION A-A`, with the topsoil
+and overburden stockpiles drawn where they actually sit. It is the only image on
+that page that could not have been used by a competitor, and it reads as
+competence in a way no photograph of an excavator does.
+
+**Normalise the stroke lengths and the draw-on becomes trivial.** `pathLength: 1`
+rescales any path to a length of 1, so one progress number drives every stroke
+at the same rate no matter how long each one really is:
+
+```tsx
+export const drawn = { pathLength: 1 } as const;   // spread onto every stroked element
+
+<path d={…} {...drawn} strokeDasharray={1} strokeDashoffset={1 - p} />
+```
+
+Without it, a 40px leader line finishes while a 900px section outline is a
+tenth drawn, and the group never resolves together.
+
+**Give the drawing at least three reveal windows, in the order a person draws.**
+Structure first, then datums, then annotation, each on its own slice of the same
+progress number:
+
+```ts
+export const revealAt = (p, start, span = 0.2) => clamp01((p - start) / span);
+
+const datums = revealAt(p, 0.15, 0.5);
+const labels = revealAt(p, 0.5, 0.4);
+```
+
+Dashed datum lines are the exception that catches people: their dash pattern is
+in user units and carries meaning, so they must NOT get `pathLength`. Fade them
+instead.
+
+**The grid is a sheet, not a background.** A blueprint grid gets no `viewBox`,
+so the pattern tiles at a fixed pixel pitch whatever size the container is,
+which is what a real drawing sheet does. Give it `patternUnits="userSpaceOnUse"`,
+a minor pitch nested inside a major one, and `stroke="currentColor"` so it
+inherits the section's ink.
+
+**Annotate like a drawing, not like a UI.** One mono face, ~9px, tracked wide,
+around 0.55 opacity, and the labels say measurable things: depths, gradients,
+tolerances, section markers. `EXTRACTION` and `SECTION A-A` are drawing
+furniture; `Learn more` is not. Invent nothing you cannot defend — a wrong
+gradient on a haul road is a lie a client will catch.
+
+Every one of these is an inline `<svg>`, so it costs no request, scales, inherits
+colour, and animates from the same scroll number as everything else. It also
+counts as a media placement for `image-density` when it clears 8000px², which
+means a drawn page is not punished for having no photographs.
+
 ## 3D, when it applies
 
 Modelled 3D belongs where the product *is* an object worth rendering — a can, a

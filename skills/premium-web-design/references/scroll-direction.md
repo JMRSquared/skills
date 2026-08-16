@@ -196,6 +196,11 @@ window.addEventListener("scroll", onNativeScroll, { passive: true });
 Both paths write the same field, so the later one wins and they cannot drift; the
 Lenis handler only adds velocity.
 
+A third answer avoids the question. Framer Motion's `useScroll` and `useVelocity`
+track the real document scroll rather than the smoother's own events, so a build
+that reads position and velocity from them never has the gap in the first place.
+Take it if Framer Motion is already in the bundle; do not add it for this alone.
+
 The GSAP build reaches the same place without a class: a `sceneBus` module with
 `get` / `set` / `subscribe`, patched rather than replaced, notifying only on a
 real change. Either shape passes the test: a store that imports a framework is in
@@ -313,6 +318,62 @@ audit still passes. One build authored a whole act around a front wheel and
 rendered the tailgate. Look at the frame.
 If the subject has a front, keep every camera azimuth on the same side of it and
 the spin slow enough that the two never combine into a shot of the back.
+
+## 7b. When there is no object to film
+
+The act table assumes a subject. Plenty of briefs have none: a contractor, a
+fabricator, a consultancy, a logistics operator. Buying a glTF of a generic
+excavator is worse than having nothing, because it is visibly not theirs.
+
+**Morph one particle buffer through one shape per act.** Side 8 Group runs a
+single cloud that resolves into a terrain, a survey traverse, a pit section, a
+structural frame, a network, and finally the brand mark itself. The shapes are
+named `surface, survey, extract, structure, network, resolve` — the same six
+names as the chapters and the same six labels on the fixed rail, so the scene
+and the navigation are one piece of data rather than two that must be kept in
+step.
+
+```ts
+// One deterministic cloud, one target buffer per act, built off the main thread.
+const BUILDERS = [buildSurface, buildSurvey, buildExtract, buildStructure, buildNetwork, buildResolve];
+export const buildShapes = (count) => BUILDERS.map((b) => b(count));
+```
+
+Three things make it work:
+
+- **Seed the randomness.** A `mulberry32(seed)` PRNG rather than `Math.random`
+  means the cloud is byte-identical on every load, so a poster render matches the
+  live scene and a reload does not reshuffle the composition.
+- **Build the targets in a worker and transfer them.** Six Float32Arrays at tens
+  of thousands of points is a visible main-thread stall during the loader.
+  `postMessage(buffers, [...buffers.map(b => b.buffer)])` hands them over
+  without copying.
+- **Damp a float toward the act index and piecewise-lerp everything from it.**
+  `chapter = damp(chapter, snapshot.chapter, 7.5, delta)`, then sample positions,
+  density, camera eye, camera target and palette between `floor(chapter)` and
+  `ceil(chapter)`. This is the director of §4 with the act index itself as the
+  timeline, and it ports to any renderer.
+
+**Key the palette, not just the geometry.** Give each act a `{ low, high, accent }`
+triple and lerp between them on the same number. The scene changes ground with
+the story, which is a ground flip the CSS never has to make, and it stops a dark
+3D page from being one colour for nine screens.
+
+**Spend the scroll velocity.** Pass it into the shader and let it scatter:
+
+```glsl
+float turbulence = 0.06 + uVelocity * 0.5 + burst * 0.22;
+gl_PointSize = clamp(size * (1.0 + uVelocity * 0.55), 0.55, 15.0 * uPixelRatio);
+```
+
+The cloud breaks up under a fast flick and settles when the reader stops. It
+costs two uniforms and it is the difference between a scene that plays and a
+scene that answers.
+
+**Name the progress readout in the client's language.** That build counts
+`000` to `082` down the right edge as metres of depth, against a rail reading
+SURFACE / SURVEY / EXTRACT / STRUCTURE / NETWORK / RESOLVE. A percentage would
+have carried the same number and meant nothing.
 
 ## 8. Keeping the DOM in step
 

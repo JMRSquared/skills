@@ -2329,7 +2329,22 @@ const sampleGround = async (page, steps = 12, force = null) => {
         }
         await page.waitForTimeout(400);
       }
-      const sample = await page.evaluate(groundKeyAt);
+      let sample = await page.evaluate(groundKeyAt);
+      /* A page whose ground is painted by a full-viewport canvas has no CSS
+         colour to read, and the DOM walk falls through to <body>. Side 8 Group
+         lerps a three-colour palette per chapter inside its particle shader, so
+         the page visibly changes ground six times and this reported zero flips
+         across 25 screens. When the ground IS the media, read the pixels. */
+      if (sample.media || sample.colour === 'none') {
+        try {
+          const strip = await page.screenshot({
+            clip: { x: 0, y: Math.round(vh * 0.28), width: vw, height: Math.max(8, Math.round(vh * 0.44)) },
+          });
+          const img = decodePNG(strip);
+          const c = img && regionColour(img, 0, 0, img.w, img.h);
+          if (c) sample = { ...sample, colour: `${c.r},${c.g},${c.b}` };
+        } catch { /* keep the DOM answer */ }
+      }
       keys.push(sample.colour);
       media.push(sample.media ? 1 : 0);
     }
@@ -3128,12 +3143,24 @@ const craftProbe = async (ctx, target) => {
                 if (r.width >= br.width * 0.9 && r.height >= br.height * 0.9) { plated = true; break; }
               }
             }
-            const out = { plated, rect: { x: br.left, y: br.top, w: br.width, h: br.height }, links: [] };
+            /* An auto-hiding header is translated out of view on scroll down.
+               Its rect is still measurable, its links still have colours, and
+               measuring them means photographing a clip region that gets
+               clamped back to y >= 0 — unrelated pixels, reported as a nav that
+               cannot be read. Nothing is wrong with a nav nobody is looking at. */
+            const offscreen = br.bottom <= 1 || br.top >= window.innerHeight - 1
+              || br.height < 4 || getComputedStyle(bar).visibility === 'hidden'
+              || parseFloat(getComputedStyle(bar).opacity || '1') < 0.15;
+            const out = { plated: plated || offscreen, rect: { x: br.left, y: br.top, w: br.width, h: br.height }, links: [] };
+            if (offscreen) return out;
             for (const a of bar.querySelectorAll('a, button')) {
               const t = String(a.textContent || '').replace(/\s+/g, ' ').trim();
               if (t.length < 2 || t.length > 32) continue;
               const r = a.getBoundingClientRect();
               if (r.width < 4 || r.height < 4) continue;
+              /* Fully inside the viewport, or the clip below reads pixels that
+                 are not behind this link. */
+              if (r.top < 0 || r.left < 0 || r.bottom > window.innerHeight || r.right > window.innerWidth) continue;
               let st; try { st = getComputedStyle(a); } catch { continue; }
               const fg = rgb(st.color);
               if (!fg) continue;
