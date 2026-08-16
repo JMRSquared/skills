@@ -1696,7 +1696,44 @@ const audit = (opts = {}) => {
         ease: (/(cubic-bezier\([^)]*\)|steps\([^)]*\)|linear|ease-in-out|ease-in|ease-out|ease)/.exec(s) || [])[1] || '',
       }));
       else {
-        const tp = sigVar(r.style.transitionProperty || '');
+        let tp = sigVar(r.style.transitionProperty || '');
+        if (!tp) {
+          /* A `transition` shorthand whose value contains `var()` is a
+             pending-substitution value. The CSSOM serialises the shorthand AND
+             every longhand it covers as the empty string, and `cssText` prints
+             them back as `transition-property: ;` — the declaration is simply
+             not recoverable from the rule. An author who writes
+             `transition: transform var(--t-panel) var(--e-settle)` beside a
+             `transition-delay` longhand, which is how this skill's own demos
+             are written, therefore contributes nothing here and cannot move the
+             finding no matter how many recipes they add.
+             The computed style of a matching element still has all of it, so
+             resolve the recipe from the element that actually animates. */
+          let el = null;
+          try {
+            const bare = String(r.selectorText || '')
+              .split(',')[0]
+              .replace(/::?[a-zA-Z-]+(\([^)]*\))?/g, '')
+              .trim();
+            if (bare) el = document.querySelector(bare);
+          } catch { el = null; }
+          if (el) {
+            let cs = null;
+            try { cs = getComputedStyle(el); } catch { cs = null; }
+            if (cs && cs.transitionProperty) {
+              const props = sigSplitTop(cs.transitionProperty);
+              const durs = sigSplitTop(cs.transitionDuration);
+              const eases = sigSplitTop(cs.transitionTimingFunction);
+              const out2 = props.map((pn, i) => ({
+                prop: pn.trim(),
+                dur: (durs[i % Math.max(durs.length, 1)] || '').trim(),
+                ease: (eases[i % Math.max(eases.length, 1)] || '').trim(),
+              }));
+              const kept = out2.filter((x) => x.prop && SIG_MOVE.has(x.prop) && parseFloat(x.dur) > 0);
+              if (kept.length) return kept;
+            }
+          }
+        }
         if (!tp) return [];
         const dl = sigSplitTop(sigVar(r.style.transitionDuration || ''));
         const el = sigSplitTop(sigVar(r.style.transitionTimingFunction || ''));
