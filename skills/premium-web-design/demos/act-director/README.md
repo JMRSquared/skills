@@ -59,9 +59,20 @@ Everything below is content, not architecture:
    track per thing that moves. Delete `TAPE_LIFT` and `TAPE_SPIN`; they are
    specific to this model.
 3. **`src/three/Product.tsx`**. Your model. Measure its bounding box before you
-   write a single number: this file's `BASE_LIFT` exists because the Poly Haven
-   nodes carry a 90 degree rotation and the object's base sits below its origin.
-   Guessing that puts the product in the ground.
+   write a single number, with `scripts/measure-model.mjs`:
+
+   ```sh
+   PW_DIR=<dir with node_modules/playwright> \
+     node scripts/measure-model.mjs public/models/thing.glb --scale=6
+   ```
+
+   It runs in headless Chromium because `GLTFLoader` needs `self` and
+   `URL.createObjectURL`; importing it in a plain node script fails in a way
+   that looks like a broken install. Pass `--scale=N` to match the group scale
+   the model is mounted under, since the act table is in scene units and a raw
+   file measurement is not. This file's `BASE_LIFT` exists because the Poly
+   Haven nodes carry a 90 degree rotation and the object's base sits below its
+   origin. Guessing that puts the product in the ground.
 4. **`src/index.css`**. The whole visual system. Swap it for Tailwind, CSS
    modules, anything. No other file reads a class name from it.
 5. **`src/three/poster.jpg`**. The still. Re-render it from your own scene with
@@ -85,10 +96,14 @@ Built and checked in headless Chromium at 1440x900 and 390x844:
 - `document.querySelectorAll('canvas').length === 1`, context type `webgl2`
 - `document.documentElement.dataset.scenePath === 'webgl'`
 - document height 8,370px at 1440x900, which is 9.3 screens across four acts
+- the timeline reaches `t = 4`, and the camera keeps moving through the final
+  act: camX 1.9 to 2.6, camY 1.0 to 1.15, camZ 4.0 to 4.3, spin 1.05 to 1.5
+- the load plate in `index.html` is painted at 120ms, before the stage chunk
+  lands, and is hidden once the scene mounts
 - reduced motion: 0 canvases, `scenePath === 'static'`, document collapses to
-  2,179px, copy at `opacity: 1`
-- phone: backing store 487x1055 for a 390x844 box at `devicePixelRatio` 3, so
-  the DPR cap held at 1.25; no horizontal overflow
+  2,719px, the stage back in flow, copy at `opacity: 1`
+- phone: `devicePixelRatio` 3 against the `low` tier's 1.25 cap. Desktop runs
+  the `high` tier at 1.6; the two caps are per tier, not one number
 - no console errors at any scroll position
 
 ## Licence

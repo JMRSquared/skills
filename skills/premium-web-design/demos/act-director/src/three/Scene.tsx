@@ -98,6 +98,12 @@ export function Scene({ quality }: SceneProps) {
  * is what makes the same numbers frame correctly on a 21:9 monitor and on a
  * phone held upright.
  */
+/**
+ * The share of frame HEIGHT below which a subject stops reading as the subject.
+ * The camera will crop a wide object's width rather than retreat past this.
+ */
+const MIN_HEIGHT_SHARE = 0.28;
+
 function Rig() {
   const target = useRef(new THREE.Vector3(0, 0.72, 0));
   const aim = useRef(new THREE.Vector3());
@@ -122,8 +128,16 @@ function Rig() {
     // Distance that makes the subject fill its share of the frame on both axes.
     const fov = camera instanceof THREE.PerspectiveCamera ? camera.fov : 38;
     const perUnit = 2 * Math.tan((fov * Math.PI) / 360);
+    const fromHeight = storyState.subjectH / fillH / perUnit;
+    const fromWidth = storyState.subjectW / fillW / (perUnit * aspect);
+    // Height decides whether an object reads; width can be cropped. Standing
+    // back far enough to fit a WIDE subject across a narrow screen is what
+    // turns a car into a 16%-of-frame smudge on a phone, so the retreat is
+    // capped at the distance where the subject still fills MIN_HEIGHT_SHARE of
+    // the frame vertically. Past that point the frame crops the width instead.
+    const fromMinHeight = storyState.subjectH / MIN_HEIGHT_SHARE / perUnit;
     const distance =
-      Math.max(storyState.subjectH / fillH / perUnit, storyState.subjectW / fillW / (perUnit * aspect)) +
+      Math.max(fromHeight, Math.min(fromWidth, fromMinHeight)) +
       // A fast scroll pushes the camera back a touch. Cheap sense of speed.
       storyState.speed * 0.25;
 
@@ -139,7 +153,10 @@ function Rig() {
     // Drop the subject into the lower band on a tall screen so the copy above
     // it has clear air, using only frame the subject is not already occupying.
     const spare = Math.max(0, visibleH - storyState.subjectH);
-    const lift = (1 - storyState.stagingScale) * spare * 0.62;
+    // Dropping the look-at moves the subject DOWN by the same amount, so the
+    // lift can never exceed the room actually below it. The bare 0.62 was tuned
+    // against one tall subject and pushed a wide one's roofline off the bottom.
+    const lift = Math.min((1 - storyState.stagingScale) * spare * 0.62, Math.max(0, spare / 2 - 0.12));
     const wantedTargetX = THREE.MathUtils.clamp(
       storyState.targetX * storyState.stagingScale,
       -headroom,
@@ -148,13 +165,15 @@ function Rig() {
 
     target.current.x = damp(target.current.x, wantedTargetX, 6, delta);
     target.current.y = damp(target.current.y, storyState.targetY + lift, 6, delta);
+    target.current.z = damp(target.current.z, storyState.targetZ, 6, delta);
 
+    // CAM_X/Y/Z is a DIRECTION measured from the look-at, not a world position.
+    // Its length is thrown away: the solver above owns the distance. Keeping it
+    // relative is what stops the authored angle from drifting every time the
+    // look-at moves, which is what happens if you subtract the target from a
+    // world position and then normalise.
     aim.current
-      .set(
-        storyState.camX * storyState.stagingScale - storyState.targetX,
-        storyState.camY - storyState.targetY,
-        storyState.camZ,
-      )
+      .set(storyState.camX * storyState.stagingScale, storyState.camY, storyState.camZ)
       .normalize()
       .multiplyScalar(distance);
 

@@ -22,6 +22,12 @@ export function Stage() {
     document.documentElement.dataset.scenePath = quality === "off" ? "static" : "webgl";
   }, [quality]);
 
+  // Hand the static plate in index.html over to the React loader. Doing this on
+  // mount rather than on first paint of the canvas means the two never overlap.
+  useEffect(() => {
+    document.documentElement.classList.remove("is-booting");
+  }, []);
+
   if (quality === "off") return <StaticStage />;
 
   return (
@@ -29,8 +35,10 @@ export function Stage() {
       <Canvas
         shadows
         // A retina display at 2x is four times the fill for a scene that is
-        // mostly soft gradients. 1.6 is the honest ceiling; AdaptiveDpr walks
-        // it down further if frames start dropping.
+        // mostly soft gradients. 1.6 is the honest ceiling on a desktop GPU.
+        // Phones and low-core machines land in `low` and are capped at 1.25,
+        // which is the number the README quotes. AdaptiveDpr walks either down
+        // further if frames start dropping.
         dpr={quality === "high" ? [1, 1.6] : [1, 1.25]}
         gl={{
           antialias: quality === "high",

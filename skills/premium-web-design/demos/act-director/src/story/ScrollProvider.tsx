@@ -43,9 +43,20 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
       lenis.resize();
     };
 
+    // Lenis only emits for scrolls IT drives. Anchor jumps, scrollbar drags,
+    // find-in-page, keyboard paging, and every `window.scrollTo` a headless
+    // browser makes move the document without ever reaching the handler above,
+    // and the story silently stays on whatever frame it was left at. This
+    // listener is the one that keeps the store honest; the Lenis handler only
+    // adds velocity. Both write the same field, so the later one wins and they
+    // cannot disagree.
+    const onNativeScroll = () => scrollStore.update(window.scrollY, 0);
+    window.addEventListener("scroll", onNativeScroll, { passive: true });
+
     window.addEventListener("resize", remeasure);
     // iOS resizes the visual viewport after `resize` fires on rotate.
-    window.addEventListener("orientationchange", () => window.setTimeout(remeasure, 300));
+    const onOrientation = () => window.setTimeout(remeasure, 300);
+    window.addEventListener("orientationchange", onOrientation);
     document.fonts?.ready.then(remeasure).catch(() => undefined);
 
     // Sections change height as images, fonts and the canvas settle in.
@@ -54,7 +65,9 @@ export function ScrollProvider({ children }: ScrollProviderProps) {
 
     return () => {
       cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onNativeScroll);
       window.removeEventListener("resize", remeasure);
+      window.removeEventListener("orientationchange", onOrientation);
       observer.disconnect();
       lenis.destroy();
     };

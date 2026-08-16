@@ -16,6 +16,19 @@ import { ACT_ORDER, damp, scrollStore, smoothstep } from "../story/scrollStore";
 
 type Key = readonly [t: number, value: number];
 
+/**
+ * The end of the timeline. `t` runs 0..ACTS.length, so a four-act film ends at
+ * 4, not at 3.
+ *
+ * THE RULE: every track's last key sits at `END`. `sample` clamps past its last
+ * key, so a track authored one-key-per-act — last key at index 3 — holds that
+ * value for the entire final act and the film simply stops moving while the
+ * reader is still scrolling. It looks like a hang, not like an ending. There is
+ * no warning: the scene renders, the camera is where you put it, and nothing
+ * throws.
+ */
+const END = ACTS.length;
+
 /** Sample with clamped ends and smoothstep between keys. Keys sorted by t. */
 function sample(keys: readonly Key[], t: number): number {
   const first = keys[0]!;
@@ -47,18 +60,21 @@ const CAM_X: Key[] = [
   [1, 2.4],
   [2, 1.9],
   [3, 1.9],
+  [END, 2.6],
 ];
 const CAM_Y: Key[] = [
   [0, 1.1],
   [1, 1.9],
   [2, 2.4],
   [3, 1.0],
+  [END, 1.15],
 ];
 const CAM_Z: Key[] = [
   [0, 4.2],
   [1, 4.6],
   [2, 2.8],
   [3, 4.0],
+  [END, 4.3],
 ];
 
 const TARGET_X: Key[] = [
@@ -66,12 +82,28 @@ const TARGET_X: Key[] = [
   [1, -0.1],
   [2, 0.12],
   [3, 0],
+  [END, 0],
 ];
 const TARGET_Y: Key[] = [
   [0, 0.72],
   [1, 0.86],
   [2, 1.02],
   [3, 0.7],
+  [END, 0.74],
+];
+
+/**
+ * Depth of the look-at. Flat at zero for a subject centred on the origin, and
+ * the whole reason the rig can frame one END of a long object: a car is four
+ * metres deep, so framing its front wheel means moving the look-at in Z, not
+ * just pointing at the middle from further round.
+ */
+const TARGET_Z: Key[] = [
+  [0, 0],
+  [1, 0],
+  [2, 0.18],
+  [3, 0],
+  [END, 0],
 ];
 
 /**
@@ -87,7 +119,9 @@ function holdThenHandOver(pick: (index: number) => number): Key[] {
   ACTS.forEach((_, index) => {
     const value = pick(index);
     keys.push([index, value]);
-    if (index < ACTS.length - 1) keys.push([index + 0.8, value]);
+    // The last act has nobody to hand over to, so it holds all the way to END
+    // rather than stopping at its own index.
+    keys.push([index === ACTS.length - 1 ? END : index + 0.8, value]);
   });
   return keys;
 }
@@ -109,6 +143,7 @@ const BODY_X: Key[] = [
   [2.15, 0.65],
   [2.8, 0.65],
   [3, 0.15],
+  [END, 0.9],
 ];
 
 const BODY_Y: Key[] = [
@@ -116,6 +151,7 @@ const BODY_Y: Key[] = [
   [1, 0.12],
   [2, 0.06],
   [3, 0],
+  [END, 0],
 ];
 
 /** Continuous, never reversing. A reversing spin reads as a bug. */
@@ -125,6 +161,11 @@ const SPIN: Key[] = [
   [2, 0.85],
   [2.6, 0.96],
   [3, 1.05],
+  // One full revolution back to the opening angle: 0.35 + 2*PI. Landing on
+  // 0.35 itself would mean winding backwards, and a reversing spin reads as a
+  // bug. The last act is where "it lands where it started" has to be true of
+  // the picture and not only of the copy.
+  [END, 0.35 + Math.PI * 2],
 ];
 
 const TILT: Key[] = [
@@ -133,6 +174,7 @@ const TILT: Key[] = [
   [2, 0.18],
   [2.8, 0.18],
   [3, 0.06],
+  [END, 0.08],
 ];
 
 /** 0 seated in the deck, 1 lifted clear. The whole point of act two. */
@@ -143,6 +185,7 @@ const TAPE_LIFT: Key[] = [
   [2.5, 1],
   [2.9, 0.06],
   [3, 0],
+  [END, 0],
 ];
 
 /** The cartridge turns to face the reader once it is clear of the deck. */
@@ -152,6 +195,7 @@ const TAPE_SPIN: Key[] = [
   [1.6, 0],
   [2, 2.4],
   [3, 5.6],
+  [END, 6.4],
 ];
 
 /** Accent light under the deck. Off until the object is worth pointing at. */
@@ -161,12 +205,27 @@ const GLOW: Key[] = [
   [1.3, 1],
   [2.8, 1],
   [3, 0.35],
+  [END, 0.14],
 ];
 
-/** Presence. Fading in place beats moving an object out of frame. */
+/**
+ * Presence: how much of the stage is painted at all.
+ *
+ * One fixed canvas with opaque sections scrolling over it has a seam problem.
+ * The top edge of an opaque band arrives as a hard horizontal line straight
+ * across the subject, and a line across a rendered object reads as a rendering
+ * fault rather than as an edit. Fading the stage out under the band and back in
+ * after it turns that seam into a cut. Fading in place also beats moving an
+ * object out of frame.
+ *
+ * Author one dip per opaque band, not one per act. This demo runs its four acts
+ * back to back with nothing opaque between them, so the track is flat: a dip
+ * here would fade the product out over an act that is still being read. A real
+ * page needs the bands (`scroll-direction.md` §1) and therefore needs the dips.
+ */
 const SHOW: Key[] = [
   [0, 1],
-  [4, 1],
+  [END, 1],
 ];
 
 /** How far the cartridge has lifted at a given timeline position. */
@@ -182,6 +241,7 @@ export type StoryState = {
   camZ: number;
   targetX: number;
   targetY: number;
+  targetZ: number;
   bodyX: number;
   bodyY: number;
   spin: number;
@@ -212,6 +272,7 @@ export const storyState: StoryState = {
   camZ: 4.2,
   targetX: 0,
   targetY: 0.72,
+  targetZ: 0,
   bodyX: 1.05,
   bodyY: 0,
   spin: 0.35,
@@ -255,7 +316,22 @@ export function readTimeline(): number {
  * Advances the whole film by one frame. Called once per frame from the root of
  * the canvas, before any component reads `storyState`.
  */
+declare global {
+  interface Window {
+    /**
+     * The live story state, for tests and for the browser console.
+     *
+     * A scroll story fails silently: the scene renders, the console is clean,
+     * and the camera is simply not where the author thinks it is. Exposing the
+     * state is what lets a script assert that the timeline actually moves
+     * instead of asserting that a canvas exists.
+     */
+    __story?: StoryState;
+  }
+}
+
 export function updateStoryState(delta: number) {
+  if (typeof window !== "undefined" && !window.__story) window.__story = storyState;
   // Clamp the step. A backgrounded tab returns with a multi-second delta and
   // an unclamped damp snaps the whole scene in one frame.
   const step = Math.min(delta, 1 / 20);
@@ -271,6 +347,7 @@ export function updateStoryState(delta: number) {
   storyState.camZ = sample(CAM_Z, t);
   storyState.targetX = sample(TARGET_X, t);
   storyState.targetY = sample(TARGET_Y, t);
+  storyState.targetZ = sample(TARGET_Z, t);
 
   storyState.bodyX = sample(BODY_X, t);
   storyState.bodyY = sample(BODY_Y, t);

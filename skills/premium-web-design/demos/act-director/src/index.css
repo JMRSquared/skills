@@ -483,6 +483,16 @@ main {
   .act {
     min-height: 0 !important;
   }
+
+  /* Releasing the pin collapses the document, and a stage left at
+     `position: fixed; inset: 0` then covers the whole viewport behind a page
+     that is now only a few screens long. Put it back in flow so the reader gets
+     a still at the top of a short document instead of a fixed backdrop behind
+     everything. */
+  .stage {
+    position: relative !important;
+    height: 60svh;
+  }
   .act__pin {
     position: static;
     height: auto;

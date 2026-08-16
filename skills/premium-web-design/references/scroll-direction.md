@@ -36,6 +36,24 @@ above 0.7 the copy has nowhere to sit on any viewport; `subject` measured, never
 guessed (§7). Declare the ids once, in an `ACT_ORDER` array, so a reordered story
 cannot leave the scene playing the old sequence.
 
+**A pin is a ratio, not a height.** A sticky stage only reads as a pin if its
+parent is at least **1.8x** the stage's own height, and that is what the audit
+measures. A 100 svh stage inside a 150 vh act is a ratio of 1.5: it holds, it
+looks pinned to you, and it does not count. Either the act grows past 180 vh or
+the stage shrinks below the viewport with `top`. This is the single most common
+reason a build that plainly has a working pin is told it has no pinned section.
+
+**Acts alone will not carry the page.** Five acts at 190 to 300 vh is nine to
+fifteen screens, and an act by design holds one headline, one subject and no
+photographs. Run the numbers against the density floor in `density-and-devices.md`
+and the story fails it every time: the acts are the sparse part of the page.
+Cut bands between them that are not acts at all, and let those carry the density
+a page of headlines cannot. Budget roughly **one band per act** and give each a
+different job: a figures table, a horizontal rail of frames, a photographic
+collage, a marquee, a specification list, a deliberate silence. They also solve
+the pacing problem, because five uninterrupted pinned acts read as one long
+effect rather than as five beats.
+
 ## 2. One number, not a set of observers
 
 Every animated property is a pure function of one continuous timeline value:
@@ -77,9 +95,19 @@ function sample(keys: readonly Key[], t: number): number {
   return last[1];
 }
 
-const CAM_X: Key[] = [[0, 2.6], [1, 2.4], [2, 1.9], [3, 1.9]];
-const TAPE_LIFT: Key[] = [[0, 0], [1.05, 0], [1.7, 1], [2.5, 1], [2.9, 0.06], [3, 0]];
+const END = ACTS.length;  // four acts end at 4, not at 3
+
+const CAM_X: Key[] = [[0, 2.6], [1, 2.4], [2, 1.9], [3, 1.9], [END, 2.6]];
+const TAPE_LIFT: Key[] = [[0, 0], [1.05, 0], [1.7, 1], [2.5, 1], [2.9, 0.06], [END, 0]];
 ```
+
+**Every track's last key sits at `END`.** `t` runs `0..ACTS.length`, so a
+four-act film ends at 4 while the fourth act's index is 3. Author one key per act
+and the last one lands at 3, `sample` clamps everything past it, and the final
+act does not move: the reader scrolls a whole section while the picture holds
+still. It reads as a hang. Nothing catches it. The scene renders, the console
+stays clean, the camera is exactly where you put it, and the audit still finds a
+canvas and a pinned section. Write the end key first, before the middle ones.
 
 Clamped ends let an act hold a value from `t = 0` and a track end early with no
 special cases. `smoothstep` between keys means one key per act has no corners at
@@ -151,6 +179,23 @@ useSyncExternalStore((l) => scrollStore.subscribe(l), scrollStore.getActiveAct, 
 iOS resizes the visual viewport after the resize event fires. Cache
 `window.innerHeight` there so the frame loop never reads layout.
 
+**The provider owns a plain `scroll` listener, and the store never registers
+one.** One owner, named here so the two files cannot disagree. The listener is
+not optional and it is not a fallback: Lenis emits only for scrolls it drives, so
+anchor jumps, scrollbar drags, find-in-page, keyboard paging and every
+`window.scrollTo` move the document while the story sits on whatever frame it was
+left at. Headless browsers scroll exactly that way, which means a build missing
+this listener screenshots and audits as a page whose 3D never moves, on a machine
+where it moves fine by hand.
+
+```ts
+const onNativeScroll = () => scrollStore.update(window.scrollY, 0);
+window.addEventListener("scroll", onNativeScroll, { passive: true });
+```
+
+Both paths write the same field, so the later one wins and they cannot drift; the
+Lenis handler only adds velocity.
+
 The GSAP build reaches the same place without a class: a `sceneBus` module with
 `get` / `set` / `subscribe`, patched rather than replaced, notifying only on a
 real change. Either shape passes the test: a store that imports a framework is in
@@ -189,12 +234,17 @@ a **direction** to shoot from; the rig normalises that vector and computes the
 
 ```ts
 const perUnit = 2 * Math.tan((camera.fov * Math.PI) / 360);   // visible height per unit of distance
-const distance = Math.max(
-  subjectH / fillH / perUnit,
-  subjectW / fillW / (perUnit * aspect),
-) + speed * 0.25;
 
-aim.set(camX - targetX, camY - targetY, camZ).normalize().multiplyScalar(distance);
+const fromHeight = subjectH / fillH / perUnit;
+const fromWidth  = subjectW / fillW / (perUnit * aspect);
+// Standing back far enough to fit the WIDTH must never shrink the subject past
+// the share of frame HEIGHT at which it stops reading as the subject.
+const fromMinHeight = subjectH / MIN_HEIGHT_SHARE / perUnit;   // 0.28
+const distance = Math.max(fromHeight, Math.min(fromWidth, fromMinHeight)) + speed * 0.25;
+
+// camX/camY/camZ is a DIRECTION FROM THE LOOK-AT, not a world position. Its
+// length is discarded; the solver above owns the distance.
+aim.set(camX * stagingScale, camY, camZ).normalize().multiplyScalar(distance);
 camera.position.x = damp(camera.position.x, target.x + aim.x + parallaxX, 6, delta);
 // y and z the same, then camera.lookAt(target)
 
@@ -202,23 +252,65 @@ const visibleW = perUnit * distance * aspect;
 storyState.maxOffsetX = Math.max(0, visibleW / 2 - subjectW / 2 - 0.15);
 ```
 
-Taking the max of the two axes is what makes it work on a 21:9 monitor and a
-phone: whichever axis is scarcer sets the distance. `maxOffsetX` is the frame
-budget published back, and every object that moves laterally clamps to it. The
-solver owns how much frame there is; authored staging asks for an offset and gets
-whatever still fits. Without it, an object staged at `x = 2.15` for 16:9 walks
-off an ultrawide and half off a phone, and looks correct on the machine it was
-authored on.
+`maxOffsetX` is the frame budget published back, and every object that moves
+laterally clamps to it. The solver owns how much frame there is; authored staging
+asks for an offset and gets whatever still fits. Without it, an object staged at
+`x = 2.15` for 16:9 walks off an ultrawide and half off a phone, and looks
+correct on the machine it was authored on.
+
+**The camera keys are relative to the look-at.** Write them as a direction and
+nothing else. The tempting version subtracts the target from a world position and
+normalises the result, and it silently re-aims the shot every time the look-at
+moves: the author changes what the camera points AT and the angle it shoots
+FROM changes too, for no reason they can see.
+
+**Height is a requirement, width is a preference.** Taking a plain `max` of the
+two axes works right up until the subject is wider than it is tall, and then it
+fails badly. A 3.9 x 1.46 car at 390x844 asks the rig to fit 3.9 units across a
+frame 0.46 as wide as it is high; the solver obeys, retreats to 13 units, and
+renders the car at **16% of frame height** — technically correct framing of an
+object nobody can see. Cap the retreat at `MIN_HEIGHT_SHARE` (0.28 works) and let
+the frame crop the width instead. The car lands at 28% of height and 62% of its
+own length, which is what a car on a phone should look like. On a tall subject
+this branch never binds, so it changes nothing:
+
+| subject | viewport | distance | height of frame |
+|---|---|---|---|
+| 0.9 x 1.55 | 1440x900 | 4.17 → 4.17 | 0.540 → 0.540 |
+| 0.9 x 1.55 | 390x844 | 7.17 → 7.17 | 0.314 → 0.314 |
+| 3.9 x 1.46 | 1440x900 | 6.10 → 6.10 | 0.347 → 0.347 |
+| 3.9 x 1.46 | 390x844 | 13.32 → **7.57** | 0.159 → **0.280** |
+
+**Give the look-at a Z track.** An aim vector written `(camX - targetX, camY -
+targetY, camZ)` has no `targetZ` term in it, and a subject only a metre deep
+never exposes the omission. A car is 4.4 metres deep. Framing its front wheel
+means moving the look-at *along* the object, not orbiting further round the
+middle of it, and without `TARGET_Z` that shot cannot be authored at all.
 
 **Subject tracks hold, then hand over in the last fifth**, built as
-`[i, v], [i + 0.8, v]` per act. Interpolating straight from one act to the next
+`[i, v], [i + 0.8, v]` per act, and the last act holds to `END` because it has
+nobody to hand over to. Interpolating straight from one act to the next
 means that halfway through act two the rig is already framing for act three, and
 the object loses its head off the top of the screen.
 
-**Measure the model before writing a number.** A Poly Haven glTF node can carry a
-90 degree X rotation, so the file's Z is the scene's Y and the base can sit below
-the origin: in the demo that is a `BASE_LIFT` of 0.666 units, without which the
-product stands in the ground. Frame on the densest mesh, not the whole `Box3`.
+**Measure the model before writing a number**, with
+`demos/act-director/scripts/measure-model.mjs`. It runs in headless Chromium and
+not by choice: `GLTFLoader` reaches for `self` and `URL.createObjectURL`, so
+importing it in a plain node script fails in a way that looks like a broken
+install. Pass `--scale=N` if the model is mounted under a group scale, because
+the act table is in scene units and a raw file measurement is not.
+
+A Poly Haven glTF node can carry a 90 degree X rotation, so the file's Z is the
+scene's Y and the base can sit below the origin: in the demo that is a
+`BASE_LIFT` of 0.666 units, without which the product stands in the ground. Frame
+on the densest mesh, not the whole `Box3`.
+
+**Confirm which way the model faces by rendering it.** A manifest that says the
+nose points at -Z and a model whose nose points at +Z are indistinguishable to
+every automated check there is: the scene path is still `webgl`, the mesh count
+is still right, the camera still moves through four distinct attitudes, and the
+audit still passes. One build authored a whole act around a front wheel and
+rendered the tailgate. Look at the frame.
 If the subject has a front, keep every camera azimuth on the same side of it and
 the spin slow enough that the two never combine into a shot of the back.
 
@@ -287,11 +379,28 @@ Authoring one `fill` per act and splitting it here is what stops a phone becomin
 a full-bleed object with the headline lying across it. In the demo `fill: 0.60`
 becomes `fillW 0.92 / fillH 0.36` at 390x844.
 
+This split alone is not enough, and on a wide subject it points the wrong way:
+`fillW` grows on the axis a phone has least of. What saves it is the
+`MIN_HEIGHT_SHARE` cap in §7, which stops the rig retreating to fit a width it
+should be cropping. Read the two together. Every constant on this page was tuned
+against a subject 0.9 wide and 1.55 tall; check yours against a wide one before
+trusting any of them.
+
 **The staging pulls back to centre and drops.** A `stagingScale` of
 `clamp(aspect / 1.6, 0.16, 1)` multiplies every lateral offset, so a hero staged
 hard right on a monitor centres on a phone. Then bias the look-at downward using
-only frame the subject is not occupying:
-`(1 - stagingScale) * Math.max(0, visibleH - subjectH) * 0.62`.
+only frame the subject is not occupying, and clamp that bias to the room actually
+below it:
+
+```ts
+const spare = Math.max(0, visibleH - subjectH);
+const lift = Math.min((1 - stagingScale) * spare * 0.62, Math.max(0, spare / 2 - 0.12));
+```
+
+Dropping the look-at moves the subject down by the same amount, so an unclamped
+lift walks it off the bottom of the frame. The bare `0.62` happens to fit a tall
+subject with almost nothing to spare, which is why it survives until the day
+someone points it at something short and wide.
 
 DPR caps, image sequences instead of live WebGL, `svh` over `vh` and `srcset` on
 stills are in `scroll-storytelling.md` §7 and `density-and-devices.md`.
@@ -305,11 +414,15 @@ is viewport-heights of scroll that do nothing, which is worse than the animation
 @media (prefers-reduced-motion: reduce) {
   .act { min-height: 0 !important; }
   .act__pin { position: static; height: auto; padding-block: clamp(5rem, 14vh, 9rem); }
+  /* Put the stage back in flow. Releasing the pin collapses the document, and a
+     stage left at `position: fixed; inset: 0` then covers the full viewport
+     behind a page only a few screens long. */
+  .stage { position: relative !important; height: 60svh; }
 }
 ```
 
-In the demo this collapses an 8,370px document to 2,179px and turns four acts
-into four ordinary sections.
+In the demo this collapses an 8,370px document to 2,719px, turns four acts into
+four ordinary sections, and reports `scenePath = "static"` with zero canvases.
 
 - **A CSS `transition-duration: 0.001ms` blanket does not touch Framer Motion or
   GSAP.** Both write inline styles frame by frame. One source build ships 69
@@ -329,6 +442,21 @@ into four ordinary sections.
 `pointer-events: none`, `aria-hidden`, never unmounted between acts, so there is
 no context to lose and nothing to re-upload. Sections scroll over it at
 `z-index: 10` and paint their own ground. Never one canvas per section.
+
+**Fade the stage where an opaque band crosses it.** The top edge of an opaque
+section arrives as a hard horizontal line straight across the subject, and a line
+across a rendered object reads as a rendering fault rather than as an edit.
+Nobody reports it as a design decision; they report it as a bug. Give the
+director a presence track and dip it under each band:
+
+```ts
+const SHOW: Key[] = [[0, 1], [0.92, 1], [1.06, 0.12], [1.3, 0.12], [1.44, 1], /* ... */ [END, 1]];
+```
+
+One dip per opaque band, not one per act. This is also the cheapest way to give
+the bands somewhere to live: the stage stops competing with them for the same
+pixels.
+
 **Lazy-load it**: `lazy(() => import("./three/StageMount"))` keeps three.js, drei
 and the effect chain out of the initial chunk, 1.11 MB raw and 307 KB gzipped in
 the demo that first paint does not wait for. Preload the model from `<head>` at
@@ -347,6 +475,19 @@ one flag that drops the mirrored floor and the effect chain.
 **The loader needs a floor and a ceiling.** A minimum around 520ms so a warm
 cache does not flash a bar for 40ms, and a hard deadline around 8s so one 404
 does not strand the reader on an empty frame.
+
+**The load plate is static markup in `index.html`.** This follows directly from
+lazy-loading the stage: a loader written as a component inside the lazy chunk
+does not exist until that chunk lands, so the reader gets an empty page for the
+whole download and an auditor sampling first paint finds no loader at all. Put
+the plate and its styles inline in the HTML, and have the React tree drop a class
+off `<html>` on mount to dismiss it.
+
+Watch the selector when you do. `.boot` is inside `<body>`, so
+`html:not(.is-booting) .boot` is correct. Two classes on the same `<html>`
+element need `.a.b`, not `.a .b`, and that mistake is survivable in a way that
+hides it: the descendant version still matches anything genuinely nested, so part
+of the page behaves and the one element you cared about never appears.
 
 `color-and-light.md` owns lighting; four things about the set belong to scroll.
 **The key light swings with the timeline**, so each act is lit from a new angle
@@ -391,6 +532,15 @@ Each of these shipped once. Grep for all of them.
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| Final act does not move at all | Last key at the last act's INDEX, not at `END` | A key at `t = ACTS.length` on every track |
+| Hard horizontal line across the subject | An opaque band's top edge crossing a fixed canvas | A presence track that dips under each band |
+| Subject 16% of frame height on a phone | Rig retreating to fit a wide subject's WIDTH | Cap the retreat at `MIN_HEIGHT_SHARE` |
+| Roofline below the bottom of a phone | Staging lift tuned against one tall subject | Clamp the lift to `spare / 2` |
+| Authored camera angle changes when the look-at moves | Aim vector built from a world position, then normalised | Author the keys as a direction from the target |
+| An act frames the wrong end of a long object | No `targetZ` in the aim vector | Give the look-at a Z track |
+| Wrong end of the model on screen, everything green | The manifest's forward axis disagrees with the file | Render it and look |
+| Empty page until the bundle lands | Load plate inside the lazy chunk | Static markup in `index.html` |
+| Fixed canvas covering a short page under reduced motion | Pin released, stage left `position: fixed` | Put the stage back in flow |
 | Scene snaps in one frame after a tab restore | Unclamped delta into `damp` | `Math.min(delta, 1/20)` |
 | Sections stuck pre-reveal after an anchor jump | Lenis emits only for scrolls it drives | A plain `window` listener alongside |
 | Object walks off an ultrawide | Lateral offset authored for one aspect | Clamp everything to `maxOffsetX` |

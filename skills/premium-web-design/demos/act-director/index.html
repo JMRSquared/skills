@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="is-booting">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -19,6 +19,73 @@
     />
   </head>
   <body>
+    <!--
+      The load plate is STATIC MARKUP, deliberately.
+
+      The scene lives behind a dynamic import, so a loader written as a React
+      component inside that chunk does not exist until the chunk lands. An
+      auditor sampling the first paint, and a reader on a slow connection, both
+      see an empty page for as long as the download takes. Anything that must be
+      on screen before the bundle arrives has to be in the HTML.
+
+      Its styles are inlined for the same reason: a stylesheet is one more
+      round trip before the first pixel.
+    -->
+    <div class="boot" id="boot" role="status" aria-live="polite">
+      <span class="boot__label">Act Director</span>
+      <span class="boot__hint">Loading the scene</span>
+      <div class="boot__rail"><div class="boot__bar"></div></div>
+    </div>
+    <style>
+      .boot {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 0.75rem;
+        background: #07090c;
+        color: #f4f1ec;
+        font: 500 0.82rem/1.2 ui-sans-serif, system-ui, sans-serif;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        transition: opacity 420ms ease, visibility 0s linear 420ms;
+      }
+      .boot__hint {
+        opacity: 0.5;
+        letter-spacing: 0.08em;
+      }
+      .boot__rail {
+        width: min(220px, 46vw);
+        height: 2px;
+        background: rgb(244 241 236 / 0.16);
+        overflow: hidden;
+      }
+      .boot__bar {
+        height: 100%;
+        width: 40%;
+        background: #ff7a45;
+        animation: boot-slide 1.1s ease-in-out infinite;
+      }
+      @keyframes boot-slide {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(350%); }
+      }
+      /* `.boot` is a real descendant of <html>, so the descendant combinator is
+         correct here. Class-on-html plus descendant is the trap: `.a .b` needs
+         `.b` to be INSIDE `.a`, and two classes on the same <html> element need
+         `.a.b`. */
+      html:not(.is-booting) .boot {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot { transition: none; }
+        .boot__bar { animation: none; width: 100%; }
+      }
+    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
