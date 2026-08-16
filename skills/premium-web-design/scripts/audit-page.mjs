@@ -793,10 +793,19 @@ const audit = (opts = {}) => {
      used to switch this whole check off. The craft probe reads the pixels. */
   const craftEarly = (opts && opts.craft && opts.craft.ok) ? opts.craft : null;
   const sceneIsLive = !!(craftEarly && (craftEarly.webgl || craftEarly.three || craftEarly.canvasPainted));
+  /* A video only earns the exemption if it is actually carrying the page — a
+     scrubbed sequence, which is the apple-iphone14 case. A decorative full-bleed
+     hero video is not a stage, and letting one switch off the whole-page density
+     floor meant a long page could ship one clip plus six photographs and pass a
+     bar written for 25 placements. Worse, this skill points builds at Blind
+     Barber's 26 videos while handing them the device that stops the counting. */
+  const scrubbedSeq = !!(craftEarly && Array.isArray(craftEarly.present)
+    && craftEarly.present.some((t) => /scrub/i.test(String(t))));
   let liveScene = null;
   for (const m of media) {
     if (m.kind !== 'canvas' && m.kind !== 'video') continue;
     if (m.kind === 'canvas' && !sceneIsLive) continue;
+    if (m.kind === 'video' && !scrubbedSeq) continue;
     if (m.r.width * m.r.height >= vw * vh * 0.5) { liveScene = m.kind; break; }
   }
   /* Eight placements of one photograph is one photograph. density-and-devices.md
@@ -1697,43 +1706,6 @@ const audit = (opts = {}) => {
       }));
       else {
         let tp = sigVar(r.style.transitionProperty || '');
-        if (!tp) {
-          /* A `transition` shorthand whose value contains `var()` is a
-             pending-substitution value. The CSSOM serialises the shorthand AND
-             every longhand it covers as the empty string, and `cssText` prints
-             them back as `transition-property: ;` — the declaration is simply
-             not recoverable from the rule. An author who writes
-             `transition: transform var(--t-panel) var(--e-settle)` beside a
-             `transition-delay` longhand, which is how this skill's own demos
-             are written, therefore contributes nothing here and cannot move the
-             finding no matter how many recipes they add.
-             The computed style of a matching element still has all of it, so
-             resolve the recipe from the element that actually animates. */
-          let el = null;
-          try {
-            const bare = String(r.selectorText || '')
-              .split(',')[0]
-              .replace(/::?[a-zA-Z-]+(\([^)]*\))?/g, '')
-              .trim();
-            if (bare) el = document.querySelector(bare);
-          } catch { el = null; }
-          if (el) {
-            let cs = null;
-            try { cs = getComputedStyle(el); } catch { cs = null; }
-            if (cs && cs.transitionProperty) {
-              const props = sigSplitTop(cs.transitionProperty);
-              const durs = sigSplitTop(cs.transitionDuration);
-              const eases = sigSplitTop(cs.transitionTimingFunction);
-              const out2 = props.map((pn, i) => ({
-                prop: pn.trim(),
-                dur: (durs[i % Math.max(durs.length, 1)] || '').trim(),
-                ease: (eases[i % Math.max(eases.length, 1)] || '').trim(),
-              }));
-              const kept = out2.filter((x) => x.prop && SIG_MOVE.has(x.prop) && parseFloat(x.dur) > 0);
-              if (kept.length) return kept;
-            }
-          }
-        }
         if (!tp) return [];
         const dl = sigSplitTop(sigVar(r.style.transitionDuration || ''));
         const el = sigSplitTop(sigVar(r.style.transitionTimingFunction || ''));
@@ -1794,6 +1766,41 @@ const audit = (opts = {}) => {
       }
     }
   }
+  /* A `transition` shorthand containing `var()` is a pending-substitution
+     value: the CSSOM serialises the shorthand AND every longhand it covers as
+     the empty string, and `cssText` prints them back as `transition-property: ;`.
+     The declaration is simply not recoverable from the stylesheet, which is how
+     motion written the way this skill's own demos write it became invisible
+     here — one build added two real recipes and could not make the finding move.
+     Resolving each rule against one matching element does NOT fix it: the first
+     match's computed style reflects every other rule too, so distinct rules
+     collapse onto one signature and the count comes out too LOW. Blind Barber
+     measured 2 recipes that way against a true 5. So read the signatures off
+     the elements that actually animate, and let them widen the recipe set
+     without touching the element tallies the dominance figure is built from. */
+  try {
+    const sigSeen = new Set([...sigRecipes.keys()].map((k) => NORMCSS(k)));
+    for (const el of all.slice(0, 2500)) {
+      let cs; try { cs = getComputedStyle(el); } catch { continue; }
+      const props = String(cs.transitionProperty || '').split(',');
+      const durs = String(cs.transitionDuration || '').split(',');
+      const eases = sigSplitTop(String(cs.transitionTimingFunction || ''));
+      for (let i = 0; i < props.length; i++) {
+        const pn = props[i].trim();
+        if (!SIG_MOVE.has(pn)) continue;
+        const d = (durs[i % Math.max(durs.length, 1)] || '').trim();
+        const ms = parseFloat(d) * (/ms\s*$/.test(d) ? 1 : 1000);
+        if (!(ms > 0)) continue;
+        const ez = (eases[i % Math.max(eases.length, 1)] || '').trim();
+        const key = `${pn} · ${Math.round(ms)}ms · ${ez}`;
+        const norm = NORMCSS(key);
+        if (sigSeen.has(norm)) continue;
+        sigSeen.add(norm);
+        sigRecipes.set(key, { recipe: key, elements: 0, ease: ez, selectors: ['(computed)'] });
+      }
+    }
+  } catch { /* ignore */ }
+
   const sigRecipeList = [...sigRecipes.values()].sort((a, b) => b.elements - a.elements);
   const sigRevealEls = sigRecipeList.reduce((a, b) => a + b.elements, 0);
   const sigEasings = new Set(sigRecipeList.map((r) => NORMCSS(r.ease)).filter(Boolean));
@@ -3137,11 +3144,19 @@ const craftProbe = async (ctx, target) => {
                  light ground. Measuring the computed colour against the real
                  ground gets this exactly backwards. */
               let blended = false;
+              let ownPlate = false;
               for (let n = a; n && bar.contains(n); n = n.parentElement) {
                 let ns; try { ns = getComputedStyle(n); } catch { break; }
                 if (ns.mixBlendMode && ns.mixBlendMode !== 'normal') { blended = true; break; }
+                /* The link carries its own opaque ground — a pill button, a
+                   tab, a chip. Its ink never meets the page behind the bar, and
+                   hiding the whole bar to photograph the ground hides that
+                   plate too: one build's black-on-yellow Tickets button
+                   measured as black on the dark red video behind it. */
+                const oc = rgb(ns.backgroundColor);
+                if (oc && oc.a >= 0.85) { ownPlate = true; break; }
               }
-              if (blended) continue;
+              if (blended || ownPlate) continue;
               const size = parseFloat(st.fontSize) || 12;
               const bold = parseInt(st.fontWeight, 10) >= 700;
               out.links.push({
