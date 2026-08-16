@@ -200,6 +200,14 @@ if (!gl) { console.info('[capability] no WebGL context — falling back to the i
 unavailable or unsupported condition and prints it under the frames, and
 `tier-unmet` says plainly when nothing was logged.
 
+Both passes listen. The console hook used to be attached to the desktop page
+only, so a build that correctly logged `[capability] phone — WebGL downgraded to
+the scrubbed image sequence` had that message dropped, and could not satisfy
+this contract on the one axis it exists for. If you are testing the phone path
+by hand, remember a page with no `<meta name="viewport">` reports
+`window.innerWidth` as 980 even at 390px, so a width-gated log takes the desktop
+branch.
+
 ## Reading your own frames
 
 Ask these in order, out loud, per frame:

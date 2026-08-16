@@ -3569,6 +3569,18 @@ try {
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
   const mpage = await mctx.newPage();
+  /* The phone is where downgrades actually happen, and this listener was only
+     ever attached to the desktop page — so a build that correctly announced
+     "phone: WebGL downgraded to the scrubbed image sequence" had that message
+     dropped on the floor, and could not satisfy the announcement contract on
+     the one axis the contract exists for. */
+  mpage.on('console', (m) => {
+    const t = m.text();
+    if (m.type() === 'error') report.console.push(`mobile: ${t.slice(0, 190)}`);
+    else if ((m.type() === 'info' || m.type() === 'warning' || m.type() === 'log') && CAPABILITY_RE.test(t) && report.capability.length < 12)
+      report.capability.push(t.slice(0, 200));
+  });
+  mpage.on('pageerror', (e) => report.console.push(`mobile pageerror: ${String(e).slice(0, 190)}`));
   await mpage.goto(url, { waitUntil: 'load', timeout: 45000 });
   await mpage.waitForTimeout(2500);
   report.mobileShots = await shootScroll(mpage, 'mobile', 4);
