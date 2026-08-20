@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- premium-web-design: tier=B kind=demo -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grindale Malt · four rooms</title>
+
+<!--
+=============================================================================
+  PATTERN
+    Layout archetype D, horizontal chapter. Vertical scroll drives a
+    horizontal pan across four chapters while the stage is pinned. Below
+    860px, and under prefers-reduced-motion at any width, the same four
+    chapters are a vertical stack. The pin is never created, so there is no
+    dead scroll region to fall into.
+
+  DERIVES FROM
+    Pizzato (pizzato.it). See references/site-studies/pizzato.md, where a
+    section wordmark scrubs horizontally inside `overflow: clip` while the
+    page scrolls vertically. Same mechanism, applied to four photographic
+    chapters instead of one word.
+
+  FAILURE MODE AVOIDED
+    Every entry in the "ScrollTrigger pinning" list in ambition-tiers.md.
+    Each guard below is numbered and says what breaks without it. The one
+    that costs the most is GUARD 5: a reduced-motion user given a pinned
+    section with its tween switched off gets four viewport-heights of scroll
+    that do nothing at all. Releasing the pin is the fix; disabling the tween
+    is not.
+
+  HOW TO ADAPT
+    Chapters are markup. Add a fifth <article class="panel"> and nothing in
+    the JavaScript changes: the pan distance is read from the DOM inside a
+    function, and `invalidateOnRefresh` re-reads it on every resize. Change
+    --panel-w to change how much of the next chapter peeks in.
+
+  PALETTE     "Ink & sand", references/color-and-light.md, verbatim
+              --ground #12151A --ground-2 #1B1F26 --edge #2C323C
+              --ink #F2EFE9    --ink-muted #9AA1AC --accent #C89B4A
+  TYPE        Pairing 9, references/typography.md, verbatim:
+              Libre Caslon Display (display) + Karla (body).
+  MOTION      Durations and curves from references/motion.md only.
+              scrub: 0.8, inside the 0.6-1.2 band that reference specifies.
+  LIBRARY     GSAP 3.12.5 + ScrollTrigger, cdnjs, both verified 200.
+  PHOTOGRAPHY Unsplash, 1600px sources, free licence. Credits in the footer.
+=============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ---- palette: "Ink & sand", color-and-light.md ---- */
+  --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
+  --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
+
+  /* ---- scale: typography.md ---- */
+  --step-hero: clamp(3.25rem, 11vw, 11rem);
+  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* ---- motion: motion.md ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-state:  240ms;
+  --d-enter:  700ms;
+
+  /* ---- grid: layout-archetypes.md ---- */
+  --gutter: clamp(1.5rem, 4vw, 5rem);
+  --section-y: clamp(5rem, 9vw, 9rem);
+  --panel-w: 72vw;   /* < 100vw so the next chapter always peeks in */
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Karla", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+/* height:auto stops the width/height attributes landing as a presentational
+   `height`, which would make every aspect-ratio below a no-op. */
+img{ display:block; max-width:100%; height:auto; }
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+.wrap > *{ min-width:0; }
+
+/* ---------- type roles ---------- */
+.display{
+  font-family:"Libre Caslon Display", Georgia, serif; font-weight:400;
+  line-height:0.94; letter-spacing:-0.03em; text-wrap:balance; margin:0;
+}
+h1.display{ font-size:var(--step-hero); }
+h2.display{ font-size:var(--step-h1); line-height:0.96; letter-spacing:-0.025em; }
+h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
+  font-weight:500; margin:0; color:var(--accent);
+}
+.label--quiet{ color:var(--ink-muted); }
+.lead{ font-size:var(--step-lead); line-height:1.42; max-width:32ch; margin:0; }
+.note{ max-width:44ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.tabular{ font-variant-numeric:tabular-nums; }
+
+/* ---------- hero ---------- */
+.hero{ padding:clamp(6rem, 12vw, 11rem) 0 var(--section-y); }
+.hero__grid{ display:grid; grid-template-columns:7fr 5fr; gap:3rem var(--gutter); align-items:end; }
+.hero__grid > *{ min-width:0; }
+.hero h1{ margin:1.5rem 0 2rem; }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:0.75rem 2.5rem; margin:2.5rem 0 0; padding:0; list-style:none; }
+.hero__meta li{ font-size:var(--step-small); color:var(--ink-muted); }
+.hero__meta b{ color:var(--ink); font-weight:500; }
+.hero__meta a{
+  color:var(--accent); text-decoration:none; border-bottom:1px solid var(--edge);
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:border-color var(--d-state) var(--ease-out);
+}
+.hero__meta a:hover{ border-color:var(--accent); }
+.hero__fig img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 44%; }
+.hero__fig figcaption{ margin-top:1rem; font-size:var(--step-small); color:var(--ink-muted); }
+
+/* =====================================================================
+   GUARD 1: the clip lives here, on a wrapper, and it is `clip` not
+   `hidden`. `overflow-x: hidden` forces the other axis to `auto`, which
+   turns this element into a scroll container; ScrollTrigger then measures
+   start/end against the wrong scroller and the pin releases early.
+   `overflow-x: clip` clips without creating a scroll container.
+   Without any clip at all the 4-panel track sticks out of the document and
+   the whole page scrolls sideways.
+   ===================================================================== */
+.chapters-wrap{ overflow-x:clip; }
+
+/* =====================================================================
+   GUARD 2: nothing between <body> and .stage may carry `transform`,
+   `filter`, `perspective`, `will-change: transform` or `contain: paint`.
+   Any of those makes that ancestor the containing block for
+   `position: fixed`, so the pin stops being fixed to the viewport and the
+   stage drifts up and away halfway through the pan. There is a runtime
+   assertion for this at the bottom of the file.
+   ===================================================================== */
+.stage{ position:relative; background:var(--ground); }
+
+/* Default composition, and the one a phone or a reduced-motion user gets:
+   four chapters stacked vertically. No pin, no track, no transform. */
+.track{ display:grid; gap:var(--section-y); padding:var(--section-y) 0; }
+.panel{
+  position:relative; isolation:isolate; overflow:hidden;
+  width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto;
+  aspect-ratio:4/5;
+}
+.panel__img{
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:50% 50%;
+  /* five frames from five shoots pulled toward one warm tungsten light,
+     per references/imagery.md. Light enough that nothing looks filtered. */
+  filter:saturate(1.06) sepia(.10) contrast(1.04);
+}
+/* The copy is a direct child of the element that paints the gradient, so
+   legibility never depends on which photograph happens to be behind it. */
+.panel__scrim{
+  position:relative; z-index:1; height:100%;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding:clamp(1.5rem, 3vw, 3rem);
+  background-image:linear-gradient(to top,
+    rgb(8 9 11 / .88) 0%, rgb(8 9 11 / .42) 44%, rgb(8 9 11 / .10) 74%);
+}
+.panel__scrim > .label{ margin-bottom:1rem; }
+.panel__scrim > h2{ margin-bottom:1.25rem; }
+.panel__scrim > .note{ color:var(--ink); }
+.panel__scrim > .spec{
+  margin:1.5rem 0 0; font-size:var(--step-small); color:var(--accent);
+  letter-spacing:0.06em; text-transform:uppercase;
+}
+
+/* ---------- the horizontal composition, added by JS only ---------- */
+/* GUARD 3: the pinned element clips its own track. Clipping on the pinned
+   element itself is safe; clipping on an ancestor is the thing GUARD 1 is
+   careful about. */
+.stage.is-horizontal{ height:100vh; overflow:hidden; }
+.stage.is-horizontal .track{
+  display:flex; align-items:stretch; gap:2vw;
+  width:max-content; height:100%;
+  padding:0 var(--gutter); grid-gap:0;
+  will-change:transform;   /* on the moving element only, never globally */
+}
+.stage.is-horizontal .panel{
+  flex:0 0 var(--panel-w); width:var(--panel-w); height:100%;
+  aspect-ratio:auto; margin-inline:0;
+}
+.stage.is-horizontal .rail{ display:flex; }
+/* the rail owns the bottom of the stage, so the copy stops above it */
+.stage.is-horizontal .panel__scrim{ padding-bottom:clamp(6rem, 11vh, 8.5rem); }
+
+/* ---------- chapter rail ---------- */
+.rail{
+  display:none; position:absolute; z-index:2;
+  left:var(--gutter); right:var(--gutter); bottom:clamp(1rem, 2vh, 2rem);
+  gap:1rem; align-items:center;
+}
+.rail__seg{ flex:1 1 0; min-width:0; }
+.rail__line{ height:2px; background:var(--edge); position:relative; overflow:hidden; }
+.rail__line i{
+  position:absolute; inset:0; background:var(--accent);
+  transform:scaleX(0); transform-origin:0 50%;
+  transition:transform var(--d-state) var(--ease-move);
+}
+.rail__name{
+  display:block; margin-top:0.75rem; font-size:var(--step-label);
+  text-transform:uppercase; letter-spacing:0.14em; font-weight:500;
+  color:var(--ink-muted); transition:color var(--d-state) var(--ease-out);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.rail__seg[data-on="1"] .rail__name{ color:var(--ink); }
+
+/* ---------- closing bands ---------- */
+.band{ padding:var(--section-y) 0; border-top:1px solid var(--edge); }
+.visit{ display:grid; grid-template-columns:5fr 7fr; gap:2.5rem var(--gutter); }
+.visit > *{ min-width:0; }
+.facts{ margin:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:2rem var(--gutter); }
+.facts dt{ font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em; font-weight:500; color:var(--ink-muted); }
+.facts dd{ margin:0.5rem 0 0; font-size:var(--step-lead); line-height:1.3; }
+.facts a{
+  color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent);
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--d-state) var(--ease-out);
+}
+.facts a:hover{ color:var(--accent); }
+
+footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
+.credits{ display:flex; flex-wrap:wrap; gap:0.5rem 2rem; margin:1.5rem 0 0; padding:0; list-style:none; }
+.credits a{
+  color:var(--ink-muted); font-size:var(--step-small); text-decoration:none;
+  border-bottom:1px solid var(--edge);
+  display:inline-flex; align-items:center; min-height:44px;
+  transition:color var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
+}
+.credits a:hover{ color:var(--accent); border-color:var(--accent); }
+
+.pin-warning{
+  margin:0; padding:1rem var(--gutter); background:var(--accent); color:#12151A;
+  font-size:var(--step-small); font-weight:500;
+}
+
+/* ---------- scroll reveal: visible state is the default ---------- */
+.js .rv{ opacity:0; transform:translateY(16px); }
+.js .rv.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
+
+@media (max-width: 860px){
+  .hero__grid{ grid-template-columns:1fr; align-items:start; }
+  .visit{ grid-template-columns:1fr; }
+  .facts{ grid-template-columns:1fr; }
+  .panel{ aspect-ratio:3/4; }
+}
+</style>
+</head>
+<body>
+
+<p class="pin-warning" id="pin-warning" hidden>
+  A transformed ancestor is above the pinned stage. The pin will not hold.
+</p>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero__grid">
+      <div>
+        <p class="label">Grindale, North Yorkshire &middot; since 1968</p>
+        <h1 class="display">Four rooms, one spirit</h1>
+        <p class="lead">The whole distillery is four rooms in a row. Walk them the way the barley does, left to right.</p>
+        <ul class="hero__meta">
+          <li><b>Tours</b> Thursday to Sunday</li>
+          <li><b>&pound;18</b> refunded against a bottle</li>
+          <li><a href="tel:+441262774318">01262 774 318</a></li>
+        </ul>
+      </div>
+      <figure class="hero__fig">
+        <img alt="A long warm-lit distillery hall with two figures walking away"
+             src="https://images.unsplash.com/photo-1674301927403-870c370ef75f?w=1600&q=80&auto=format"
+             width="1600" height="1067" fetchpriority="high" decoding="async">
+        <figcaption>The long hall, 6.40am. The only frame all year with nobody working in it.</figcaption>
+      </figure>
+    </div>
+  </div>
+</header>
+
+<div class="chapters-wrap">
+  <section class="stage" id="chapters" aria-label="Four rooms of the distillery">
+    <div class="track" id="track">
+
+      <article class="panel">
+        <img class="panel__img" alt="Copper mash tun in a brick-walled mash house"
+             src="https://images.unsplash.com/photo-1542835497-a6813df96ed9?w=1600&q=80&auto=format"
+             width="1600" height="1067" decoding="async">
+        <div class="panel__scrim">
+          <p class="label">Chapter 01</p>
+          <h2 class="display">Mash house</h2>
+          <p class="note">Ten tonnes of Yorkshire barley a week, mashed at 64&deg;C in a cast-iron tun that has not moved since 1968. Three waters, and the third one starts the next batch.</p>
+          <p class="spec tabular">64&deg;C &middot; 10 t / week</p>
+        </div>
+      </article>
+
+      <article class="panel">
+        <img class="panel__img" alt="Close view of a warm copper still neck"
+             src="https://images.unsplash.com/photo-1445140463371-d8036feedc2f?w=1600&q=80&auto=format"
+             width="1600" height="1065" decoding="async">
+        <div class="panel__scrim">
+          <p class="label">Chapter 02</p>
+          <h2 class="display">Still room</h2>
+          <p class="note">Two stills, 4,500 and 2,700 litres. The wash still runs eight hours. The spirit still is watched by one person for the whole of it, because nobody has found a meter that beats a nose.</p>
+          <p class="spec tabular">4,500 L &middot; 8 hours</p>
+        </div>
+      </article>
+
+      <article class="panel">
+        <img class="panel__img" alt="Empty oak casks and wicker baskets in a dark filling store"
+             src="https://images.unsplash.com/photo-1577768731352-653895d00fe8?w=1600&q=80&auto=format"
+             width="1600" height="1067" decoding="async">
+        <div class="panel__scrim">
+          <p class="label">Chapter 03</p>
+          <h2 class="display">Filling store</h2>
+          <p class="note">Casks arrive by the lorry-load and leave one at a time. First-fill bourbon for the ten year old, refill sherry for the rest. Every one is weighed empty and weighed again full.</p>
+          <p class="spec tabular">200 L &middot; first fill</p>
+        </div>
+      </article>
+
+      <article class="panel">
+        <img class="panel__img" alt="Oak casks stacked three high in a dark dunnage warehouse"
+             src="https://images.unsplash.com/photo-1758558531900-8e4e756be374?w=1600&q=80&auto=format"
+             width="1600" height="1067" decoding="async">
+        <div class="panel__scrim">
+          <p class="label">Chapter 04</p>
+          <h2 class="display">Warehouse No.&nbsp;3</h2>
+          <p class="note">Dunnage floor, casks three high, no heating and no racking. It gives 2.1% a year back to the roof. That loss is not waste, it is the reason the ninth year tastes different from the third.</p>
+          <p class="spec tabular">2.1% / year &middot; 1,140 casks</p>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="rail" id="rail" aria-hidden="true">
+      <div class="rail__seg" data-on="1"><div class="rail__line"><i></i></div><span class="rail__name">Mash house</span></div>
+      <div class="rail__seg"><div class="rail__line"><i></i></div><span class="rail__name">Still room</span></div>
+      <div class="rail__seg"><div class="rail__line"><i></i></div><span class="rail__name">Filling store</span></div>
+      <div class="rail__seg"><div class="rail__line"><i></i></div><span class="rail__name">Warehouse No. 3</span></div>
+    </div>
+  </section>
+</div>
+
+<section class="band">
+  <div class="wrap">
+    <div class="visit">
+      <div>
+        <p class="label">Visiting</p>
+        <h3 class="display rv" style="margin-top:1rem">Twelve people at a time, no more</h3>
+      </div>
+      <dl class="facts rv">
+        <div><dt>Times</dt><dd>Thursday to Sunday, 11am and 2pm</dd></div>
+        <div><dt>Price</dt><dd class="tabular">&pound;18, refunded against a bottle</dd></div>
+        <div><dt>Where</dt><dd>Grindale Lane, Bridlington YO16 4XN</dd></div>
+        <div><dt>Book</dt><dd><a href="tel:+441262774318" class="tabular">01262 774 318</a></dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="label label--quiet">Frames</p>
+    <p class="note rv" style="margin-top:1rem">Five photographs, one warm tungsten light, all Unsplash under the free licence and credited anyway.</p>
+    <ul class="credits">
+      <li><a href="https://unsplash.com/photos/1674301927403-870c370ef75f">The long hall</a></li>
+      <li><a href="https://unsplash.com/photos/1542835497-a6813df96ed9">Mash tun</a></li>
+      <li><a href="https://unsplash.com/photos/1577768731352-653895d00fe8">Filling store</a></li>
+      <li><a href="https://unsplash.com/photos/1445140463371-d8036feedc2f">Still neck</a></li>
+      <li><a href="https://unsplash.com/photos/1758558531900-8e4e756be374">Dunnage warehouse</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  var stage = document.getElementById('chapters');
+  var track = document.getElementById('track');
+  var rail  = document.getElementById('rail');
+  var segs  = rail ? rail.querySelectorAll('.rail__seg') : [];
+  var PANELS = track.children.length;
+
+  /* -----------------------------------------------------------------
+     Scroll reveals for the flat bands. Hidden state is only authored
+     once JS is alive, so a CDN failure leaves a readable page rather
+     than an empty one.
+     ----------------------------------------------------------------- */
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (!reduced.matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); });
+  }
+
+  /* GUARD 2, enforced at runtime. A `transform` on any ancestor of the pinned
+     element makes that ancestor the containing block for position:fixed, and
+     the pin silently stops holding the stage to the viewport. This check is
+     here so that whoever adds `transform: translateZ(0)` to a wrapper six
+     months from now sees the consequence instead of shipping it. */
+  (function assertNoTransformedAncestor() {
+    for (var el = stage.parentElement; el && el !== document.documentElement; el = el.parentElement) {
+      var s = getComputedStyle(el);
+      if (s.transform !== 'none' || s.filter !== 'none' ||
+          s.perspective !== 'none' || /transform/.test(s.willChange) ||
+          /paint|strict|content/.test(s.contain)) {
+        document.getElementById('pin-warning').hidden = false;
+        return;
+      }
+    }
+  })();
+
+  if (!window.gsap || !window.ScrollTrigger) return;   /* vertical stack stands */
+  gsap.registerPlugin(ScrollTrigger);
+
+  var setRail = function (p) {
+    for (var i = 0; i < segs.length; i++) {
+      var local = Math.min(1, Math.max(0, p * PANELS - i));
+      segs[i].querySelector('i').style.transform = 'scaleX(' + local + ')';
+      segs[i].setAttribute('data-on', local > 0 && local < 1 ? '1' : (i === 0 && p === 0 ? '1' : '0'));
+    }
+  };
+
+  var desktop = window.matchMedia('(min-width: 860px)');
+  var ctx = null;
+
+  function build() {
+    if (ctx) return;
+
+    /* GUARD 4: everything is created inside gsap.context(). One revert()
+       kills the tween, the ScrollTrigger, the pin spacer element and every
+       inline style GSAP wrote, in the right order. Without it, switching to
+       the vertical layout leaves a stray pin-spacer holding 3,000px of empty
+       scroll and a transform frozen on the track. */
+    ctx = gsap.context(function () {
+      stage.classList.add('is-horizontal');
+
+      /* Distance is read from the DOM inside a function, never captured once.
+         With invalidateOnRefresh, a resize or a font swap re-runs it. */
+      var distance = function () {
+        return Math.max(0, track.scrollWidth - stage.clientWidth);
+      };
+
+      gsap.to(track, {
+        x: function () { return -distance(); },
+        ease: 'none',                       /* scrub owns the timing */
+        scrollTrigger: {
+          trigger: stage,
+          pin: stage,
+          /* GUARD 6: pinSpacing left on (the default). Turn it off and the
+             section after this one climbs over the pinned stage, which is
+             the "content jumps at the pin boundary" report. */
+          pinSpacing: true,
+          anticipatePin: 1,
+          start: 'top top',
+          end: function () { return '+=' + distance(); },
+          /* GUARD 7: scrub is a number, not `true`. `scrub: true` maps the
+             tween 1:1 to a trackpad's raw deltas and jitters; 0.6-1.2 adds
+             the catch-up that reads as weight. */
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+          onUpdate: function (self) { setRail(self.progress); },
+          onRefresh: function (self) { setRail(self.progress); }
+        }
+      });
+    }, stage);
+  }
+
+  function teardown() {
+    if (!ctx) return;
+    ctx.revert();
+    ctx = null;
+    stage.classList.remove('is-horizontal');
+    gsap.set(track, { clearProps: 'transform' });
+    setRail(0);
+  }
+
+  /* GUARD 5: under prefers-reduced-motion the pin is RELEASED, not just
+     slowed down. A pinned section whose tween is disabled is four screens of
+     scrolling that produce no change on screen, which is worse than no
+     animation at all. Here the horizontal layout is simply never built, and
+     the CSS default (a vertical stack of the same four chapters, same copy,
+     same photographs) is what the reader gets. */
+  function sync() {
+    if (desktop.matches && !reduced.matches) build(); else teardown();
+    if (window.ScrollTrigger) ScrollTrigger.refresh();
+  }
+
+  desktop.addEventListener('change', sync);
+  reduced.addEventListener('change', sync);
+  sync();
+
+  /* GUARD 8: refresh after the two things that change measurement: web
+     fonts swapping in (every panel's copy reflows) and images decoding
+     (the panels get their real height). Build the triggers before either
+     settles and every start/end offset is measured against the wrong
+     layout, which is what "the pin starts halfway down the section" means. */
+  var settled = [];
+  if (document.fonts && document.fonts.ready) settled.push(document.fonts.ready);
+  Array.prototype.forEach.call(document.images, function (img) {
+    if (img.decode) settled.push(img.decode().catch(function () {}));
+    else if (!img.complete) settled.push(new Promise(function (r) {
+      img.addEventListener('load', r, { once: true });
+      img.addEventListener('error', r, { once: true });
+    }));
+  });
+  Promise.all(settled).then(function () { ScrollTrigger.refresh(); });
+
+  /* And once more on orientation change, where iOS resizes the viewport
+     after the resize event has already fired. */
+  window.addEventListener('orientationchange', function () {
+    setTimeout(function () { ScrollTrigger.refresh(); }, 300);
+  });
+})();
+</script>
+</body>
+</html>

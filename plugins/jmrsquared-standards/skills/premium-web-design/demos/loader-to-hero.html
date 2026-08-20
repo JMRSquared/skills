@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- premium-web-design: tier=B kind=demo -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halflight — listening bar and kitchen, Rotterdam</title>
+
+<!--
+  PATTERN — A load sequence that RESOLVES INTO the hero.
+  The brand mark is never duplicated: there is one <a class="mark"> and it lives
+  in the nav. On load the script measures where that mark already sits, then
+  transforms it to the centre of the viewport at display scale (a FLIP). When the
+  progress bar fills, the transform is removed with a transition, so the mark
+  travels back to the exact position it was always going to occupy while the
+  overlay wipes up, the hero photograph settles from scale(1.08), and the
+  headline lines wipe in. Total sequence: 2.05s.
+
+  DERIVES FROM — references/site-studies/nimbus-keyboards.md (an on-brand loader
+  made of the product itself, before a single pixel of the page), pizzato.md
+  (`001 Home Loading` — the loader speaks the same counter language as the
+  sections) and planetono.md (a gate that turns dead load time into an invitation
+  rather than a spinner). motion.md lists this under signature moments:
+  "a load sequence that resolves into the hero".
+
+  FAILURE MODES IT AVOIDS
+    · A loader that fades out OVER the page. Two brand marks, one dissolving into
+      the other, never register at the same size and the seam always shows. One
+      element, measured, is seamless by construction.
+    · A loader under prefers-reduced-motion. A "fast loader" is still a loader:
+      it still hides content and still animates. Here the class that creates it is
+      never applied, `body` never locks, and the page is simply present.
+    · A loader with no exit. Any pointerdown, keydown or wheel finishes the
+      sequence at once. Nobody is held hostage by your brand moment.
+    · A loader that outlives its assets. `finish()` is idempotent and also fires
+      from a 2.6s watchdog, so a stalled image cannot leave the page black.
+    · Stranded content. The overlay is `display:none` until JS adds `.is-loading`,
+      and every reveal is gated on `html.js`. No script → complete page.
+
+  ADAPT
+    · Sequence timing lives in one object (`T`) at the top of the script. Keep the
+      total under ~2.2s; motion.md bans anything over 1200ms the user did not ask
+      for, and a load sequence only earns its length because it replaces a wait.
+    · `markTarget()` in the script decides how large the centred mark gets. The
+      FLIP maths needs no other change.
+    · If your hero is a video, start it paused and call `play()` inside `finish()`
+      — never during the overlay, or the first frame is wasted behind it.
+    · Every duration/easing token below is copied from references/motion.md.
+
+  PALETTE  Night studio   (color-and-light.md, palette 1)
+  TYPE     Melodrama + Cabinet Grotesk   (typography.md, pairing 11)
+-->
+
+<link href="https://api.fontshare.com/v2/css?f[]=melodrama@400,500&f[]=cabinet-grotesk@400,500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* Night studio — color-and-light.md palette 1, verbatim */
+  --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
+  --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
+
+  /* motion.md — do not invent curves */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
+  --d-travel:900ms;            /* page-transition band: 500–900ms, --ease-move */
+
+  /* typography.md scale */
+  --step-hero: clamp(3.25rem, 13vw, 9rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --section-y:96px;
+}
+@media (min-width:900px){ :root{ --section-y:152px; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Cabinet Grotesk", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* height:auto is load-bearing: the width/height attributes are presentational
+   hints, and without this the attribute height wins over `aspect-ratio`. */
+img{ display:block; max-width:100%; height:auto; }
+a{ color:inherit; text-decoration:none; }
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted); margin:0;
+}
+p{ text-wrap:pretty; }
+
+/* one atmospheric glow, one grain — color-and-light.md allows both as a single
+   choice each; nothing else decorates the ground */
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:1;
+  background-image:radial-gradient(60% 45% at 50% 0%, rgb(232 255 74 / .07), transparent 70%);
+}
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:2;
+  opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── masthead ─────────────────────────────────────────────── */
+.masthead{
+  position:absolute; top:0; left:0; right:0; z-index:50;
+  padding-top:24px; padding-bottom:24px;
+}
+.masthead .wrap{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
+.mark{
+  font-family:"Melodrama",serif; font-weight:400;
+  font-size:1.5rem; line-height:1; letter-spacing:-.02em;
+  transform-origin:50% 50%; will-change:transform;
+  display:inline-flex; align-items:center; min-height:44px;
+}
+.nav{ display:flex; gap:8px; }
+.nav a{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted);
+  padding:12px; min-height:44px; display:inline-flex; align-items:center;
+  transition:color var(--d-state) var(--ease-out);
+}
+.nav a:hover,.nav a:focus-visible{ color:var(--ink); }
+@media (max-width:719px){ .nav a:not(.nav-key){ display:none; } }
+
+/* ── loader ───────────────────────────────────────────────── */
+.loader{ display:none; }
+.js.is-loading .loader,
+.js.is-done .loader{
+  display:block; position:fixed; inset:0; z-index:40; background:var(--ground);
+  clip-path:inset(0 0 0 0);
+}
+.js.is-loading{ overflow:hidden; }
+.js.is-loading body{ overflow:hidden; }
+.loader-foot{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:0 var(--gutter) 32px;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:24px;
+  transition:opacity var(--d-state) var(--ease-in);
+}
+.bar{ flex:1; height:1px; background:var(--edge); position:relative; }
+.bar-fill{
+  position:absolute; inset:0 auto 0 0; width:0%; background:var(--accent);
+  transition:width 1000ms var(--ease-out);
+}
+.count{
+  margin:0; font-size:var(--step-label); letter-spacing:.14em; font-weight:500;
+  color:var(--ink-muted); font-variant-numeric:tabular-nums;
+}
+.js.is-done .loader{ clip-path:inset(0 0 100% 0); transition:clip-path var(--d-travel) var(--ease-move); }
+.js.is-done .loader-foot{ opacity:0; }
+.js.is-loading .mark{ position:relative; z-index:60; }
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{ position:relative; min-height:100svh; display:flex; align-items:flex-end; overflow:hidden; }
+.hero-media{ position:absolute; inset:0; overflow:hidden; }
+.hero-media img{
+  width:100%; height:100%; object-fit:cover; transform-origin:50% 55%;
+  /* dark composition: drop image brightness ~8–18% so white type sits INSIDE the
+     photograph's range instead of punching a hole in it (color-and-light.md) */
+  filter:brightness(.82) saturate(.92);
+}
+/* the scrim is a sibling of the copy, never its ancestor — text sits on a real
+   gradient, not on hope that today's photograph happens to be dark enough.
+   Two directions: the vertical one carries the standfirst row, the horizontal one
+   carries the left-axis headline and label past the brightest lamps. */
+.hero-scrim{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(to top, rgb(11 11 13 / .96) 0%, rgb(11 11 13 / .88) 24%, rgb(11 11 13 / .62) 48%, rgb(11 11 13 / .22) 74%, transparent 100%),
+    linear-gradient(to right, rgb(11 11 13 / .62) 0%, rgb(11 11 13 / .22) 42%, transparent 68%);
+}
+@media (min-width:900px){
+  .hero-scrim{
+    background-image:
+      linear-gradient(to top, rgb(11 11 13 / .94) 0%, rgb(11 11 13 / .76) 24%, rgb(11 11 13 / .40) 54%, rgb(11 11 13 / .10) 80%, transparent 100%),
+      linear-gradient(to right, rgb(11 11 13 / .52) 0%, rgb(11 11 13 / .16) 46%, transparent 72%);
+  }
+}
+.hero-copy{ position:relative; z-index:3; padding-top:132px; padding-bottom:48px; }
+.h-1{
+  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-hero);
+  line-height:.94; letter-spacing:-.035em; margin:24px 0 40px;
+  /* measure in em, not ch: it scales with the clamp, so the headline breaks in
+     the same place at 1440 and at 390 instead of stranding one word */
+  max-width:5.8em;
+}
+.hero-foot{ display:grid; gap:28px; padding-top:28px; border-top:1px solid var(--edge); }
+@media (min-width:900px){ .hero-foot{ grid-template-columns:1fr 1fr 1fr auto; gap:40px; align-items:end; } }
+.hero-foot p{ margin:0; font-size:var(--step-small); color:var(--ink-muted); }
+.hero-foot p strong{ display:block; color:var(--ink); font-weight:500; margin-bottom:4px; }
+.cta{
+  background:var(--accent); color:var(--ground);
+  font-size:var(--step-small); font-weight:500; letter-spacing:.02em;
+  padding:16px 28px; display:inline-flex; align-items:center; justify-content:center;
+  min-height:48px; justify-self:start;
+  transition:transform var(--d-state) var(--ease-out), background-color var(--d-state) var(--ease-out);
+}
+.cta:hover{ transform:translateY(-3px); }
+.cta:active{ transform:scale(.97); }
+
+/* ── sessions index ───────────────────────────────────────── */
+.sessions{ padding-top:var(--section-y); position:relative; z-index:3; }
+.sec-head{ display:grid; gap:16px; margin-bottom:48px; }
+@media (min-width:900px){ .sec-head{ grid-template-columns:1fr 1fr; align-items:end; gap:40px; } }
+.sec-head h2{
+  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-h2);
+  line-height:1; letter-spacing:-.03em; margin:12px 0 0;
+}
+.sec-head p{ margin:0; color:var(--ink-muted); max-width:46ch; }
+.row{
+  display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:baseline;
+  padding-top:24px; padding-bottom:24px; border-top:1px solid var(--edge);
+  transition:background-color var(--d-state) var(--ease-out);
+}
+.row:last-of-type{ border-bottom:1px solid var(--edge); }
+.row .day{ font-size:var(--step-label); letter-spacing:.14em; color:var(--ink-muted); font-weight:500; }
+.row .who{ font-family:"Melodrama",serif; font-size:clamp(1.375rem,2.6vw,2.125rem); font-weight:400; letter-spacing:-.02em; }
+.row .who small{ display:block; font-family:"Cabinet Grotesk",sans-serif; font-size:var(--step-small); color:var(--ink-muted); letter-spacing:0; margin-top:4px; }
+.row .fee{ font-size:var(--step-body); font-variant-numeric:tabular-nums; color:var(--ink-muted); }
+
+/* ── plate ────────────────────────────────────────────────── */
+.plate{ padding-top:var(--section-y); position:relative; z-index:3; }
+.plate .grid{ display:grid; gap:32px; align-items:center; }
+@media (min-width:900px){ .plate .grid{ grid-template-columns:7fr 5fr; gap:64px; } }
+.plate figure{ margin:0; overflow:hidden; }
+.plate img{ width:100%; aspect-ratio:5/4; object-fit:cover; }
+.plate h3{
+  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-h2);
+  line-height:1.02; letter-spacing:-.03em; margin:12px 0 20px; max-width:6.9em;
+}
+.plate p{ margin:0; color:var(--ink-muted); max-width:42ch; }
+
+/* ── kitchen ──────────────────────────────────────────────── */
+.kitchen{ padding-top:var(--section-y); position:relative; z-index:3; }
+.kitchen .lines{ margin-top:40px; }
+.kline{
+  display:flex; justify-content:space-between; gap:24px; align-items:baseline;
+  padding-top:20px; padding-bottom:20px; border-top:1px solid var(--edge);
+}
+.kline:last-child{ border-bottom:1px solid var(--edge); }
+.kline span:first-child{ font-size:var(--step-lead); }
+.kline span:last-child{ font-variant-numeric:tabular-nums; color:var(--ink-muted); }
+
+/* ── footer ───────────────────────────────────────────────── */
+.foot{ margin-top:var(--section-y); padding-top:56px; padding-bottom:48px; background:var(--ground-2); position:relative; z-index:3; }
+.foot .wrap{ display:grid; gap:32px; }
+@media (min-width:900px){ .foot .wrap{ grid-template-columns:repeat(3,1fr); gap:48px; } }
+.foot p{ margin:8px 0 0; font-size:var(--step-small); color:var(--ink-muted); }
+.foot a.line{ color:var(--ink); border-bottom:1px solid var(--edge); display:inline-flex; align-items:center; min-height:44px; transition:border-color var(--d-state) var(--ease-out); }
+.foot a.line:hover{ border-color:var(--accent); }
+.foot .stamp{
+  font-family:"Melodrama",serif; font-size:clamp(2.5rem,9vw,7rem); font-weight:400;
+  letter-spacing:-.04em; line-height:1; color:var(--ink); margin:56px 0 0;
+}
+
+/* ══ MOTION ═══════════════════════════════════════════════════ */
+.is-split{ display:grid; }
+.ln{ display:block; overflow:hidden; padding-block:.18em; margin-block:-.18em; }
+.ln-i{ display:block; }
+
+.js .reveal-lines .ln-i{ transform:translateY(160%); }
+.js .reveal-lines.is-in .ln-i{
+  transform:none;
+  transition:transform var(--d-enter) var(--ease-out);
+  transition-delay:calc(var(--i) * 70ms);
+}
+.js .reveal-fade{ opacity:0; transform:translateY(14px); }
+.js .reveal-fade.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+.js .reveal-image img{ transform:scale(1.06); }
+.js .reveal-image.is-in img{ transform:none; transition:transform 900ms var(--ease-out); }
+
+/* the hero photograph settles as the overlay leaves — a different gesture from
+   the headline's wipe, which is the point (motion.md: one gesture per meaning) */
+.js.is-loading .hero-media img{ transform:scale(1.08); }
+.js .hero-media img{ transition:transform var(--d-travel) var(--ease-out); }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  .js .reveal-lines .ln-i,
+  .js .reveal-image img,
+  .js .hero-media img{ transform:none !important; }
+  .js .reveal-fade{ opacity:1 !important; transform:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="mark" href="#" id="mark">Halflight</a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#sessions">Sessions</a>
+      <a href="#kitchen">Kitchen</a>
+      <a class="nav-key" href="#visit">Visit</a>
+    </nav>
+  </div>
+</header>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-foot" id="loaderFoot">
+    <p class="count" id="count">00</p>
+    <div class="bar"><span class="bar-fill" id="barFill"></span></div>
+    <p class="count">Halflight — Rotterdam</p>
+  </div>
+</div>
+
+<main>
+  <section class="hero">
+    <div class="hero-media">
+      <img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=2000&q=80&auto=format"
+           alt="The bar at Halflight after dark, lit by hanging brass lamps" width="2000" height="1333">
+    </div>
+    <div class="hero-scrim"></div>
+
+    <div class="wrap hero-copy">
+      <p class="label reveal-fade">Listening bar &amp; kitchen · Rotterdam</p>
+      <h1 class="h-1 reveal-lines" data-split-lines>A small room, loud after ten.</h1>
+
+      <div class="hero-foot">
+        <p class="reveal-fade"><strong>Hoogstraat 41</strong>3011 PG Rotterdam</p>
+        <p class="reveal-fade"><strong>Kitchen 18:00 – 23:00</strong>Bar until 02:00, Thursday to Saturday</p>
+        <p class="reveal-fade"><strong>Records from 21:00</strong>No cover before nine, ever</p>
+        <a class="cta reveal-fade" href="#visit">Book a table</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sessions" id="sessions">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="label reveal-fade">This week</p>
+          <h2 class="reveal-lines" data-split-lines>Four nights, one turntable</h2>
+        </div>
+        <p class="reveal-fade">Two decks, a 1974 Thorens, and a wall of records that belongs to whoever is playing. Nothing is announced more than a week ahead because nothing is booked more than a week ahead.</p>
+      </div>
+
+      <div class="row reveal-fade">
+        <span class="day">Thu</span>
+        <span class="who">Nadia Struiksma<small>21:00 — dub, minimal, and a great deal of reverb</small></span>
+        <span class="fee">Free</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="day">Fri</span>
+        <span class="who">Bas Vermeer<small>22:00 — Brazilian jazz into house, three hours, no breaks</small></span>
+        <span class="fee">€8</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="day">Sat</span>
+        <span class="who">Marisol Okonkwo<small>22:00 — highlife, Afrobeat, and whatever arrives on Friday</small></span>
+        <span class="fee">€10</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="day">Sun</span>
+        <span class="who">Alice Coltrane, in full<small>19:00 — Journey in Satchidananda, start to finish, lights down, no talking at the bar</small></span>
+        <span class="fee">Free</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="plate">
+    <div class="wrap">
+      <div class="grid">
+        <figure class="reveal-image">
+          <img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=1600&q=80&auto=format"
+               alt="A measure poured over a single clear block of ice at the bar" width="1600" height="1280">
+        </figure>
+        <div>
+          <p class="label reveal-fade">Behind the bar</p>
+          <h3 class="reveal-lines" data-split-lines>Six whiskies, chosen by Joost</h3>
+          <p class="reveal-fade">The cocktail list is twelve deep and changes when the fruit changes. Wine is mostly Loire and Jura, mostly under €50 a bottle. The whisky shelf is short on purpose, and Joost will talk you through all six if you let him.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="kitchen" id="kitchen">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <p class="label reveal-fade">Kitchen</p>
+          <h2 class="reveal-lines" data-split-lines>Six plates, written on Tuesday</h2>
+        </div>
+        <p class="reveal-fade">Sofie cooks alone on a two-burner induction and a plancha. The menu is whatever the Wednesday market gave her, which is why it is written by hand and why it runs out.</p>
+      </div>
+
+      <div class="lines">
+        <div class="kline reveal-fade"><span>Small plates</span><span>from €9</span></div>
+        <div class="kline reveal-fade"><span>Set menu, Wednesday to Saturday</span><span>€54</span></div>
+        <div class="kline reveal-fade"><span>Wine pairing, four glasses</span><span>€36</span></div>
+        <div class="kline reveal-fade"><span>Corkage, one bottle per table</span><span>€15</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" id="visit">
+  <div class="wrap">
+    <div>
+      <p class="label">Find us</p>
+      <p>Hoogstraat 41<br>3011 PG Rotterdam</p>
+    </div>
+    <div>
+      <p class="label">Open</p>
+      <p>Wednesday to Sunday<br>18:00 until late</p>
+    </div>
+    <div>
+      <p class="label">Book</p>
+      <p><a class="line" href="tel:+31103334417">+31 10 333 4417</a></p>
+    </div>
+  </div>
+  <div class="wrap"><p class="stamp">Halflight</p></div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── line splitting (self-contained, resize-safe) ─────────── */
+  function source(el) {
+    if (!el.dataset.text) el.dataset.text = el.textContent.replace(/\s+/g, ' ').trim();
+    return el.dataset.text;
+  }
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function splitLines(el) {
+    var text = source(el);
+    el.classList.remove('is-split');           // measure in plain block flow
+    el.innerHTML = text.split(' ').map(function (w) {
+      return '<span class="w">' + esc(w) + '</span>';
+    }).join(' ');
+
+    var lines = [], top = null;
+    Array.prototype.forEach.call(el.querySelectorAll('.w'), function (w) {
+      var t = Math.round(w.getBoundingClientRect().top);
+      if (top === null || Math.abs(t - top) > 3) { lines.push([]); top = t; }
+      lines[lines.length - 1].push(w.textContent);
+    });
+
+    el.innerHTML = lines.map(function (l, i) {
+      return '<span class="ln"><span class="ln-i" style="--i:' + i + '">' + esc(l.join(' ')) + '</span></span>';
+    }).join('');
+    el.classList.add('is-split');
+  }
+
+  var lineTargets = Array.prototype.slice.call(document.querySelectorAll('[data-split-lines]'));
+  lineTargets.forEach(splitLines);
+
+  /* Line breaks measured against a fallback face are the wrong line breaks: when
+     the webfont swaps in, a "line" can re-wrap inside its own clip box. Re-split
+     once the real metrics exist. */
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () {
+      lineTargets.forEach(function (el) {
+        var wasIn = el.classList.contains('is-in');
+        el.classList.remove('is-in');
+        splitLines(el);
+        if (wasIn) { void el.offsetWidth; el.classList.add('is-in'); }
+      });
+    });
+  }
+
+  /* ── scroll reveals ───────────────────────────────────────── */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+
+  Array.prototype.slice
+    .call(document.querySelectorAll('.sessions .reveal-fade, .sessions .reveal-lines, .plate .reveal-fade, .plate .reveal-lines, .plate .reveal-image, .kitchen .reveal-fade, .kitchen .reveal-lines'))
+    .forEach(function (el) { io.observe(el); });
+
+  function revealHero() {
+    document.querySelectorAll('.hero .reveal-lines, .hero .reveal-fade')
+      .forEach(function (el) { el.classList.add('is-in'); });
+  }
+
+  /* ══ THE SEQUENCE ═══════════════════════════════════════════
+     Reduced motion gets none of it: no overlay, no lock, no travel. */
+  if (reduce) {
+    revealHero();
+    return;
+  }
+
+  var T = { fill: 1000, footOut: 1080, travel: 1150, headline: 1250, watchdog: 2600 };
+
+  function markTarget() { return Math.min(window.innerWidth * 0.16, 140); }
+
+  var loader   = document.getElementById('loader');
+  var barFill  = document.getElementById('barFill');
+  var countEl  = document.getElementById('count');
+  var mark     = document.getElementById('mark');
+
+  root.classList.add('is-loading');
+
+  /* FLIP: measure the mark where it already lives, then send it to the centre. */
+  function centreMark() {
+    mark.style.transition = 'none';
+    mark.style.transform = 'none';
+    var r = mark.getBoundingClientRect();
+    var scale = markTarget() / parseFloat(getComputedStyle(mark).fontSize);
+    var dx = window.innerWidth / 2 - (r.left + r.width / 2);
+    var dy = window.innerHeight / 2 - (r.top + r.height / 2);
+    mark.style.transform = 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(' + scale.toFixed(3) + ')';
+  }
+  centreMark();
+
+  /* progress: one CSS transition for the bar, one rAF loop for the readout */
+  requestAnimationFrame(function () { barFill.style.width = '100%'; });
+  var t0 = performance.now();
+  var counting = true;
+  (function tick(now) {
+    if (!counting) return;
+    var p = Math.min((now - t0) / T.fill, 1);
+    countEl.textContent = (p === 1 ? 100 : Math.floor(p * 100 + 0.5) < 10 ? '0' + Math.floor(p * 100) : Math.floor(p * 100));
+    if (p < 1) requestAnimationFrame(tick);
+  })(t0);
+
+  var finished = false;
+  function finish(immediate) {
+    if (finished) return;
+    finished = true;
+    counting = false;
+    countEl.textContent = '100';
+    barFill.style.transitionDuration = immediate ? '120ms' : '';
+    barFill.style.width = '100%';
+
+    var lag = immediate ? 0 : T.travel - T.footOut;
+    document.getElementById('loaderFoot').style.opacity = '0';
+
+    setTimeout(function () {
+      root.classList.add('is-done');                 /* overlay wipes up */
+      mark.style.transition = 'transform var(--d-travel) var(--ease-move)';
+      mark.style.transform = 'none';                 /* travels home */
+      root.classList.remove('is-loading');           /* hero image settles from 1.08 */
+      setTimeout(revealHero, immediate ? 60 : T.headline - T.travel);
+    }, lag);
+
+    setTimeout(function () {
+      loader.style.display = 'none';
+      mark.style.transition = '';
+      mark.style.willChange = 'auto';
+    }, immediate ? 700 : 1400);
+  }
+
+  setTimeout(function () { finish(false); }, T.footOut);
+  setTimeout(function () { finish(true); }, T.watchdog);   /* nothing outlives this */
+
+  /* skippable — any deliberate input ends it now */
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(function (ev) {
+    window.addEventListener(ev, function () { finish(true); }, { once: true, passive: true });
+  });
+
+  /* ── survive resize ───────────────────────────────────────── */
+  var w = window.innerWidth, t;
+  window.addEventListener('resize', function () {
+    if (window.innerWidth === w) return;      // ignore mobile URL-bar height changes
+    w = window.innerWidth;
+    if (!finished) centreMark();              // keep the mark centred mid-sequence
+    clearTimeout(t);
+    t = setTimeout(function () {
+      lineTargets.forEach(function (el) {
+        var wasIn = el.classList.contains('is-in');
+        el.classList.remove('is-in');
+        splitLines(el);
+        if (wasIn) { void el.offsetWidth; el.classList.add('is-in'); }
+      });
+    }, 160);
+  });
+})();
+</script>
+</body>
+</html>

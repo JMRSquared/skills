@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!-- premium-web-design: tier=B kind=demo -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bristow &amp; Daughter — Bakehouse &amp; Mill, Margate</title>
+
+<!--
+  PATTERN — Masked type reveal at display scale.
+  Two gestures, one vocabulary:
+    1. Hero headline splits into LINES, each line wipes up from behind its own
+       overflow-hidden clip. Fires once, on load.
+    2. A single word splits into CHARACTERS that rise on scroll entry.
+  Line and character splitting are written here in ~40 lines of JS. No GSAP, no
+  SplitText, no dependency of any kind.
+
+  DERIVES FROM — references/site-studies/amrit-palace.md (display serif at 115px,
+  line-height 0.80, tracking −4% of size, set on a warm sand ground with two
+  10px eyebrow labels converting a centred headline into a masthead) and
+  hagis-barbershop.md (Splitting/SplitText per-line entrance, 5.9:1 contrast
+  between headline and 11px nav).
+
+  FAILURE MODES IT AVOIDS
+    · Stranded content. The visible state is the default; the hidden state only
+      exists under `html.js`. Kill the script and the page reads complete.
+    · Split-on-load-only. Line breaks are a function of viewport width, so a
+      one-shot split leaves mid-line clips after a resize. `splitLines` re-runs
+      on a debounced resize from the preserved source string in `data-text`, and
+      restores the revealed state so nothing re-animates under the reader.
+    · Descender clipping. The clip box is `overflow: hidden`, which eats the tail
+      of a `y` or a comma. `.ln` carries `padding-bottom: .16em` with a matching
+      negative margin so the clip sits below the descender line.
+    · Reveal-too-late. IntersectionObserver fires at 15% with a −12% bottom
+      margin, not at 50% — content that animates in after you have started
+      reading it feels broken.
+
+  ADAPT
+    · Swap the palette block and the two <link> font URLs. Values are verbatim
+      from references/color-and-light.md (Paper warm) and typography.md (row 7).
+    · `--step-hero` controls the whole composition. The `max-width: 7ch` on .h-1
+      is what forces one word per line; widen it for a two-word measure.
+    · Stagger is `--i * 70ms`, inside the 50–80ms band in motion.md. Cap any
+      chain at 6 items — a 9-character word is at the top of that budget, which
+      is why only ONE word gets the character treatment.
+    · Every duration/easing token below is copied from references/motion.md.
+
+  PALETTE  Paper warm      (color-and-light.md, palette 2)
+  TYPE     Newsreader (opsz 72) + Schibsted Grotesk   (typography.md, pairing 7)
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400&family=Schibsted+Grotesk:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* Paper warm — color-and-light.md palette 2, verbatim */
+  --ground:#F6F2EA; --ground-2:#EDE6DA; --edge:#DCD2C2;
+  --ink:#1A1713;    --ink-muted:#6B6155; --accent:#B4401F;
+
+  /* motion.md — do not invent curves */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
+
+  /* typography.md scale */
+  --step-hero: clamp(3.5rem, 13vw, 9.5rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  --gutter: clamp(1.25rem, 4vw, 5rem);
+  --section-y: 96px;
+}
+@media (min-width:900px){ :root{ --section-y:160px; } }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Schibsted Grotesk", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+img{ display:block; max-width:100%; height:auto; }
+a{ color:inherit; text-decoration:none; }
+
+/* one texture, not three — color-and-light.md */
+body::after{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:3;
+  opacity:.05; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted); margin:0;
+}
+.lead{ font-size:var(--step-lead); line-height:1.45; max-width:34ch; margin:0; text-wrap:pretty; }
+p{ text-wrap:pretty; }
+
+/* ── masthead ─────────────────────────────────────────────── */
+.masthead{
+  position:absolute; top:0; left:0; right:0; z-index:2;
+  padding-top:28px; padding-bottom:28px;
+}
+.masthead .wrap{ display:flex; align-items:baseline; justify-content:space-between; gap:24px; }
+.mark{
+  font-family:"Newsreader",serif; font-size:1.125rem; letter-spacing:.01em;
+  display:inline-flex; align-items:center; min-height:44px;
+}
+.nav{ display:flex; gap:28px; }
+.nav a{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-weight:500; color:var(--ink-muted);
+  transition:color var(--d-state) var(--ease-out);
+  display:inline-flex; align-items:center; min-height:44px;
+}
+.nav a:hover,.nav a:focus-visible{ color:var(--ink); }
+@media (max-width:719px){ .nav a:not(.nav-key){ display:none; } }
+
+/* ── hero ─────────────────────────────────────────────────── */
+.hero{
+  position:relative; min-height:100svh;
+  display:flex; align-items:flex-end;
+  padding-top:120px; padding-bottom:48px;
+}
+@media (min-width:900px){ .hero{ padding-top:132px; } }
+.h-1{
+  font-family:"Newsreader",serif; font-optical-sizing:auto;
+  font-weight:300; font-size:var(--step-hero);
+  line-height:.92; letter-spacing:-.035em;
+  margin:0 0 32px; max-width:7ch;
+}
+.hero-foot{
+  display:grid; gap:32px; padding-top:32px;
+  border-top:1px solid var(--edge);
+}
+@media (min-width:900px){
+  .hero-foot{ grid-template-columns:5fr 4fr 3fr; gap:48px; align-items:start; }
+}
+.facts{ margin:0; display:grid; gap:8px; }
+.facts div{ display:flex; justify-content:space-between; gap:16px; border-bottom:1px solid var(--edge); padding-bottom:8px; }
+.facts dt{ font-size:var(--step-small); color:var(--ink-muted); }
+.facts dd{ margin:0; font-size:var(--step-small); font-variant-numeric:tabular-nums; }
+
+.eyebrow-row{ display:flex; justify-content:space-between; gap:16px; margin-bottom:28px; }
+
+/* ── plates ───────────────────────────────────────────────── */
+.plate{ padding-top:var(--section-y); }
+.plate figure{ margin:0; }
+.plate img{ width:100%; aspect-ratio:16/9; object-fit:cover; }
+.plate.tall img{ aspect-ratio:4/5; }
+.plate-copy{ max-width:46ch; }
+.cap{
+  display:flex; flex-direction:column; gap:8px;
+  margin-top:16px; font-size:var(--step-small); color:var(--ink-muted);
+}
+@media (min-width:720px){ .cap{ flex-direction:row; justify-content:space-between; gap:24px; } }
+.split-plate{ display:grid; gap:40px; align-items:center; }
+@media (min-width:900px){ .split-plate{ grid-template-columns:5fr 7fr; gap:64px; } }
+.wide-plate{ display:grid; gap:24px; }
+@media (min-width:900px){
+  .wide-plate .cap{ grid-template-columns:1fr; }
+}
+
+/* ── the character word ───────────────────────────────────── */
+.word-stage{ padding-top:var(--section-y); text-align:center; }
+.word{
+  font-family:"Newsreader",serif; font-weight:300;
+  font-size:clamp(2.75rem, 13vw, 12rem);
+  line-height:1; letter-spacing:-.02em; text-transform:uppercase;
+  margin:16px 0 0; display:block; white-space:nowrap;
+}
+.word-note{ max-width:46ch; margin:40px 0 0; color:var(--ink-muted); text-align:left; }
+@media (min-width:900px){ .word-note{ margin-left:auto; margin-right:0; } }
+
+/* ── price index ──────────────────────────────────────────── */
+.tariff{ padding-top:var(--section-y); }
+.tariff h2{
+  font-family:"Newsreader",serif; font-weight:300; font-size:var(--step-h2);
+  line-height:1; letter-spacing:-.03em; margin:16px 0 48px;
+}
+.row{
+  display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:baseline;
+  padding-top:20px; padding-bottom:20px; border-top:1px solid var(--edge);
+}
+.row:last-child{ border-bottom:1px solid var(--edge); }
+.row .n{ font-size:var(--step-label); color:var(--ink-muted); letter-spacing:.14em; font-variant-numeric:tabular-nums; }
+.row .t{ font-family:"Newsreader",serif; font-size:clamp(1.25rem,2.4vw,2rem); font-weight:300; letter-spacing:-.02em; }
+.row .t small{ display:block; font-family:"Schibsted Grotesk",sans-serif; font-size:var(--step-small); color:var(--ink-muted); letter-spacing:0; margin-top:4px; }
+.row .p{ font-size:clamp(1.125rem,1.6vw,1.375rem); font-variant-numeric:tabular-nums; }
+
+/* ── quote ────────────────────────────────────────────────── */
+.quote{ padding-top:var(--section-y); }
+.quote blockquote{
+  margin:0; font-family:"Newsreader",serif; font-weight:300;
+  font-size:clamp(1.75rem,3.4vw,3rem); line-height:1.12; letter-spacing:-.03em;
+  max-width:20ch;
+}
+.quote cite{ display:block; margin-top:24px; font-style:normal; font-size:var(--step-small); color:var(--ink-muted); }
+
+/* ── footer ───────────────────────────────────────────────── */
+.foot{ margin-top:var(--section-y); padding-top:56px; padding-bottom:56px; background:var(--ground-2); }
+.foot .wrap{ display:grid; gap:32px; }
+@media (min-width:900px){ .foot .wrap{ grid-template-columns:repeat(3,1fr); gap:48px; } }
+.foot p{ margin:8px 0 0; font-size:var(--step-small); color:var(--ink-muted); }
+.foot a.tel{ color:var(--ink); border-bottom:1px solid var(--edge); transition:border-color var(--d-state) var(--ease-out); display:inline-flex; align-items:center; min-height:44px; }
+.foot a.tel:hover{ border-color:var(--accent); }
+.foot .stamp{
+  font-family:"Newsreader",serif; font-size:clamp(2.25rem,7.5vw,5.5rem);
+  font-weight:300; letter-spacing:-.035em; line-height:1;
+  color:var(--accent); margin:64px 0 0;
+}
+
+/* ══ MOTION ═══════════════════════════════════════════════════
+   Everything below only exists once JS is alive. Without it the
+   page renders complete — see references/motion.md, "done safely". */
+/* The clip box is the PADDING box, so .18em of headroom above the cap line and
+   below the descender line keeps a 0.92 line-height from shaving the glyphs.
+   Negative margins hand the space back, and the flex column stops those margins
+   from collapsing into the heading — which would tighten the line pitch.
+   `.is-split` is applied only AFTER the measurement pass: a flex/grid container
+   turns every child span into its own item, which would break the word-wrap
+   measurement the splitter depends on. */
+.is-split{ display:grid; }
+.ln{ display:block; overflow:hidden; padding-block:.18em; margin-block:-.18em; }
+.ln-i{ display:block; }
+.ch{ display:inline-block; overflow:hidden; padding-block:.18em; margin-block:-.18em; vertical-align:top; }
+.ch-i{ display:inline-block; }
+
+.js .reveal-lines .ln-i{ transform:translateY(160%); }
+.js .reveal-lines.is-in .ln-i{
+  transform:none;
+  transition:transform var(--d-enter) var(--ease-out);
+  transition-delay:calc(var(--i) * 70ms);
+}
+.js .reveal-chars .ch-i{ transform:translateY(160%); }
+.js .reveal-chars.is-in .ch-i{
+  transform:none;
+  transition:transform var(--d-enter) var(--ease-out);
+  transition-delay:calc(var(--i) * 50ms);
+}
+/* a different gesture for a different meaning — motion.md */
+.js .reveal-fade{ opacity:0; transform:translateY(14px); }
+.js .reveal-fade.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+.js .reveal-image img{ transform:scale(1.06); }
+.js .reveal-image.is-in img{ transform:none; transition:transform 900ms var(--ease-out); }
+.reveal-image{ overflow:hidden; }
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+  .js .reveal-lines .ln-i,
+  .js .reveal-chars .ch-i,
+  .js .reveal-image img{ transform:none !important; }
+  .js .reveal-fade{ opacity:1 !important; transform:none !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="mark" href="#">Bristow &amp; Daughter</a>
+    <nav class="nav" aria-label="Primary">
+      <a class="nav-key" href="#tariff">Bakehouse</a>
+      <a href="#mill">The mill</a>
+      <a class="nav-key" href="#visit">Visit</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <div class="eyebrow-row">
+        <p class="label reveal-fade">Stone-ground since 2016</p>
+        <p class="label reveal-fade">Margate, Kent</p>
+      </div>
+
+      <h1 class="h-1 reveal-lines" data-split-lines>Flour. Water. Time.</h1>
+
+      <div class="hero-foot">
+        <p class="lead reveal-fade">We mill Maris Widgeon and Yeoman wheat on a granite stone at the back of the shop, ferment for twenty-eight hours, and bake in a single deck oven that has been lit every morning since 1974.</p>
+        <p class="reveal-fade" style="color:var(--ink-muted);max-width:38ch">Bread is sold from 07:30 until it runs out, which on a Saturday is usually before noon. Nothing is held back, frozen or brought in.</p>
+        <dl class="facts reveal-fade">
+          <div><dt>Ferment</dt><dd>28 hours</dd></div>
+          <div><dt>Milled on site</dt><dd>100%</dd></div>
+          <div><dt>Bakes per week</dt><dd>6</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="plate">
+    <div class="wrap">
+      <div class="wide-plate">
+        <figure class="reveal-image">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1600&q=80&auto=format"
+               alt="Three dark-crusted country loaves cooling on a floured board" width="1600" height="900">
+        </figure>
+        <div class="cap reveal-fade">
+          <span>Plate 01 — deck oven, 240&nbsp;°C falling to 210&nbsp;°C</span>
+          <span>Photographed by the door, 09:52</span>
+        </div>
+        <p class="plate-copy reveal-fade">Thursday's bake: two Kentish cob loaves and a seeded rye, pulled at 09:10 and left to cool on the mill bench for forty minutes before anything is cut.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="word-stage" id="mill">
+    <div class="wrap">
+      <p class="label reveal-fade">The same oven, the same stone</p>
+      <span class="word reveal-chars" data-split-chars>Bakehouse</span>
+      <p class="word-note reveal-fade">The mill runs on Tuesday and Friday. Everything we bake in the following forty-eight hours comes out of those two sacks, which is why the loaf you buy on a Sunday tastes different from the one you bought on a Wednesday.</p>
+    </div>
+  </section>
+
+  <section class="tariff" id="tariff">
+    <div class="wrap">
+      <p class="label reveal-fade">Counter, Wednesday to Sunday</p>
+      <h2 class="reveal-lines" data-split-lines>What comes out of the oven</h2>
+
+      <div class="row reveal-fade">
+        <span class="n">01</span>
+        <span class="t">Country sourdough<small>1&nbsp;kg · Maris Widgeon, 28-hour ferment</small></span>
+        <span class="p">£5.80</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="n">02</span>
+        <span class="t">Seeded rye<small>800&nbsp;g · linseed, sunflower, caraway</small></span>
+        <span class="p">£6.40</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="n">03</span>
+        <span class="t">Kentish cob<small>600&nbsp;g · soft white, milled Tuesday</small></span>
+        <span class="p">£4.20</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="n">04</span>
+        <span class="t">Butter croissant<small>Laminated Friday, baked Saturday</small></span>
+        <span class="p">£3.10</span>
+      </div>
+      <div class="row reveal-fade">
+        <span class="n">05</span>
+        <span class="t">Cardamom bun<small>Six per tray, twice a day</small></span>
+        <span class="p">£3.80</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="plate tall">
+    <div class="wrap">
+      <div class="split-plate">
+        <div class="plate-copy">
+          <p class="label reveal-fade">Plate 02</p>
+          <p class="reveal-fade" style="margin-top:16px">Lamination happens on Friday afternoon on a marble slab that came out of a fishmonger's on Northdown Road. Sixteen turns, one overnight rest, baked from cold at 07:00.</p>
+        </div>
+        <figure class="reveal-image">
+          <img src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=1600&q=80&auto=format"
+               alt="Croissants under a fall of flour on a dark bench" width="1600" height="2000">
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="quote">
+    <div class="wrap">
+      <blockquote class="reveal-lines" data-split-lines>We only make what we can sell before four.</blockquote>
+      <cite class="reveal-fade">Ines Bristow, head baker</cite>
+    </div>
+  </section>
+</main>
+
+<footer class="foot" id="visit">
+  <div class="wrap">
+    <div>
+      <p class="label">Find us</p>
+      <p>41 Northdown Road<br>Margate CT9 2RN</p>
+    </div>
+    <div>
+      <p class="label">Counter hours</p>
+      <p>Wednesday to Sunday<br>07:30 – 15:00, or until sold out</p>
+    </div>
+    <div>
+      <p class="label">Wholesale</p>
+      <p><a class="tel" href="tel:+441843555018">01843 555 018</a></p>
+    </div>
+  </div>
+  <div class="wrap"><p class="stamp">Bristow &amp; Daughter</p></div>
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  root.classList.add('js');
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── splitting ────────────────────────────────────────────
+     Both splitters keep the source string on the node so a resize
+     can rebuild from clean text instead of from already-wrapped markup. */
+  function source(el) {
+    if (!el.dataset.text) el.dataset.text = el.textContent.replace(/\s+/g, ' ').trim();
+    return el.dataset.text;
+  }
+  function esc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function splitLines(el) {
+    var text = source(el);
+    // pass 1 — plain block flow, so words wrap exactly as the design intends
+    el.classList.remove('is-split');
+    el.innerHTML = text.split(' ')
+      .map(function (w) { return '<span class="w">' + esc(w) + '</span>'; })
+      .join(' ');
+
+    var words = Array.prototype.slice.call(el.querySelectorAll('.w'));
+    var lines = [];
+    var top = null;
+    words.forEach(function (w) {
+      var t = Math.round(w.getBoundingClientRect().top);
+      if (top === null || Math.abs(t - top) > 3) { lines.push([]); top = t; }
+      lines[lines.length - 1].push(w.textContent);
+    });
+
+    // pass 2 — one clip box per measured line
+    el.innerHTML = lines.map(function (l, i) {
+      return '<span class="ln"><span class="ln-i" style="--i:' + i + '">' + esc(l.join(' ')) + '</span></span>';
+    }).join('');
+    el.classList.add('is-split');   // grid rows: the clip boxes' negative margins stop collapsing
+  }
+
+  function splitChars(el) {
+    var text = source(el);
+    el.innerHTML = text.split('').map(function (c, i) {
+      if (c === ' ') return ' ';
+      return '<span class="ch"><span class="ch-i" style="--i:' + i + '">' + esc(c) + '</span></span>';
+    }).join('');
+  }
+
+  var lineTargets = Array.prototype.slice.call(document.querySelectorAll('[data-split-lines]'));
+  var charTargets = Array.prototype.slice.call(document.querySelectorAll('[data-split-chars]'));
+
+  function buildAll() {
+    lineTargets.forEach(splitLines);
+    charTargets.forEach(splitChars);
+  }
+  buildAll();
+
+  /* ── reveal ──────────────────────────────────────────────── */
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      e.target.classList.add('is-in');
+      io.unobserve(e.target);
+    });
+  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+
+  Array.prototype.slice
+    .call(document.querySelectorAll('.reveal-lines, .reveal-chars, .reveal-fade, .reveal-image'))
+    .forEach(function (el) { io.observe(el); });
+
+  /* the hero is above the fold — play it on the first frame after layout,
+     not on an observer that has already fired by the time fonts swap in */
+  function playHero() {
+    document.querySelectorAll('.hero .reveal-lines, .hero .reveal-fade')
+      .forEach(function (el) { el.classList.add('is-in'); });
+  }
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(function () {
+      lineTargets.forEach(function (el) { if (!el.classList.contains('is-in')) splitLines(el); });
+      requestAnimationFrame(playHero);
+    });
+  }
+  requestAnimationFrame(function () { requestAnimationFrame(playHero); });
+
+  /* ── survive resize ───────────────────────────────────────
+     Re-measure line breaks, then hand back the state each node was in so
+     nothing re-animates while the reader is looking at it. */
+  var w = window.innerWidth;
+  var t;
+  window.addEventListener('resize', function () {
+    if (window.innerWidth === w) return;   // ignore mobile URL-bar height changes
+    w = window.innerWidth;
+    clearTimeout(t);
+    t = setTimeout(function () {
+      lineTargets.forEach(function (el) {
+        var wasIn = el.classList.contains('is-in');
+        el.classList.remove('is-in');
+        splitLines(el);
+        if (wasIn || reduce) {
+          void el.offsetWidth;               // flush, so the restore is not a transition
+          el.classList.add('is-in');
+        }
+      });
+    }, 160);
+  });
+})();
+</script>
+</body>
+</html>

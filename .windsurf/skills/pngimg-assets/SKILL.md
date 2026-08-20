@@ -9,6 +9,8 @@ description: Search and download transparent PNG cutouts from pngimg.com for moc
 
 Search https://pngimg.com and pull full-resolution transparent PNGs from the terminal. No API key, no browser.
 
+For **3D** (glTF/GLB + HDRI, R3F / `/premium-web-design`), use `/gltf-assets` instead.
+
 ## Licence gate (check before downloading)
 
 pngimg.com content is **CC BY-NC 4.0** — attribution required, **non-commercial only**.

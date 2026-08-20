@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Vault Index · four rooms of poured concrete</title>
+
+<!-- premium-web-design: tier=B kind=demo -->
+
+<!--
+=============================================================================
+  PATTERN
+    A two-view transition that HOLDS one element across the change. Click an
+    entry in the index and its photograph does not fade out and a different
+    photograph fade in - the same rectangle travels from its place in the
+    grid to its place in the detail view, and the rest of the page changes
+    around it. That continuity is the entire effect. Everything else here is
+    scaffolding for it.
+
+  TWO IMPLEMENTATIONS, BOTH REAL
+    1. View Transitions API. `document.startViewTransition()` snapshots the
+       old and new states, and any element carrying the same
+       `view-transition-name` in both is animated as one group. Two elements
+       are held here: the photograph and the title.
+    2. FLIP, for browsers without it. Measure the source rect First, apply
+       the DOM change, measure the destination rect Last, Invert the
+       difference as a transform, and Play it back to identity with the Web
+       Animations API. It holds the photograph; the rest cross-fades.
+    Neither is a stub. Force the second one to see it:
+       localStorage.setItem('force-flip', '1')
+
+  WHY BOTH CROPS ARE 3:2
+    A FLIP between two rectangles of different aspect ratios needs a
+    non-uniform scale, and a non-uniform scale visibly shears the picture
+    for the whole 620ms. The View Transitions API hides this behind
+    `object-fit` on the group snapshot; FLIP cannot. Matching the crop is
+    the cheapest fix, and it is a design decision anyway - the thumbnail
+    and the hero should be the same photograph, not two different framings
+    of it.
+
+  FAILURE MODES AVOIDED
+    - A transition that leaves the reader with no way back. Browser Back
+      works here: every navigation is a `history.pushState`, and `popstate`
+      runs the same transition in reverse.
+    - `view-transition-name` left on two elements at once. The spec drops
+      the transition silently when a name is not unique, so the names are
+      applied for the duration of one transition and removed in `.finished`.
+    - A transition under `prefers-reduced-motion`. The views still swap -
+      instantly, with no animation and no held element. The destination is
+      never the thing that gets disabled.
+    - Scroll position surviving the change. Going to a detail view leaves
+      the reader 3 screens down a page that is now 1 screen long.
+
+  HOW TO ADAPT
+    ENTRIES is the content. Everything else reads from it. To make this a
+    real multi-page site, keep the markup and swap the same-document
+    `startViewTransition` for the cross-document form: `@view-transition
+    { navigation: auto }` in the stylesheet of BOTH documents, and the same
+    `view-transition-name` on the shared element in both. The FLIP fallback
+    does not survive that change - it needs both states in one document -
+    so a cross-document build degrades to a plain navigation instead.
+
+  PALETTE     "Paper warm", references/color-and-light.md, verbatim
+              --ground #F6F2EA --ground-2 #EDE6DA --edge #DCD2C2
+              --ink #1A1713    --ink-muted #6B6155 --accent #B4401F
+  TYPE        Pairing 7, references/typography.md, verbatim:
+              Newsreader (opsz 72) display + Schibsted Grotesk body.
+  MOTION      Durations and curves from references/motion.md only.
+              Page transition 620ms on --ease-move, inside that file's
+              500-900ms band for a transition.
+  PHOTOGRAPHY Unsplash, 1600px sources, free licence. Credits in the footer.
+=============================================================================
+-->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  /* ---- palette: "Paper warm", color-and-light.md ---- */
+  --ground:#F6F2EA; --ground-2:#EDE6DA; --edge:#DCD2C2;
+  --ink:#1A1713;    --ink-muted:#6B6155; --accent:#B4401F;
+
+  /* ---- scale: typography.md ---- */
+  --step-hero: clamp(3.25rem, 11vw, 11rem);
+  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
+  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
+  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
+  --step-body: clamp(1rem, 1.05vw, 1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* ---- motion: motion.md ---- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
+  --d-state:  240ms;
+  --d-enter:  700ms;
+  --d-page:   620ms;   /* motion.md: page transition 500-900ms */
+
+  --gutter: clamp(1.5rem, 4vw, 5rem);
+  --section-y: clamp(5rem, 9vw, 9rem);
+}
+
+*,*::before,*::after{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:"Schibsted Grotesk", ui-sans-serif, sans-serif;
+  font-size:var(--step-body); line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{ display:block; max-width:100%; height:auto; }
+.wrap{ width:min(100% - var(--gutter)*2, 84rem); margin-inline:auto; }
+.wrap > *{ min-width:0; }
+
+/* ---------- type roles ---------- */
+.display{
+  font-family:"Newsreader", Georgia, serif; font-weight:400;
+  font-variation-settings:"opsz" 72;
+  line-height:0.94; letter-spacing:-0.028em; text-wrap:balance; margin:0;
+}
+h1.display{ font-size:var(--step-hero); }
+h2.display{ font-size:var(--step-h1); line-height:0.96; }
+h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
+.label{
+  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
+  font-weight:500; margin:0; color:var(--accent);
+}
+.label--quiet{ color:var(--ink-muted); }
+.lead{ font-size:var(--step-lead); line-height:1.42; max-width:36ch; margin:0; }
+.note{ max-width:62ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.tabular{ font-variant-numeric:tabular-nums; }
+
+/* ---------- chrome ---------- */
+.bar{
+  display:flex; justify-content:space-between; align-items:baseline;
+  padding:1.5rem 0; border-bottom:1px solid var(--edge);
+}
+.bar b{ font-family:"Newsreader", Georgia, serif; font-weight:500; font-size:1.25rem; }
+
+/* ---------- index view ---------- */
+.hero{ padding:clamp(4rem, 9vw, 8rem) 0 0; }
+.hero h1{ margin:1.5rem 0 2rem; }
+.hero__row{ display:grid; grid-template-columns:7fr 5fr; gap:2rem var(--gutter); align-items:end; }
+.hero__row > *{ min-width:0; }
+
+/* The wordmark is wider than the viewport at every width in the clamp
+   range, so it runs off the right edge. Two jobs: it is the second type
+   event on a page whose hero would otherwise be the only peak, and it makes
+   the frame read as a window rather than a box. The clip lives on the band,
+   not on <body>, because a clip on an ancestor of a sticky or pinned
+   element breaks it - see three-scroll-scene.html, GUARD 1. */
+.bleedband{ overflow-x:clip; padding:var(--section-y) 0 clamp(2rem, 4vw, 3.5rem); }
+h2.display.bleedmark{
+  /* the 5rem floor is not decoration: below it the mark is narrower than a
+     390px phone and stops bleeding, which is the whole reason it exists. */
+  font-size:clamp(5rem, 17vw, 18rem); line-height:0.84; margin:0;
+  white-space:nowrap; width:max-content;
+  padding-left:max(var(--gutter), calc((100% - 84rem)/2));
+}
+
+.index{ padding:clamp(3rem, 6vw, 5rem) 0 var(--section-y); }
+.index__grid{
+  display:grid; grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:clamp(2rem, 5vw, 4rem) var(--gutter);
+}
+.entry{
+  position:relative; display:block; text-align:left; width:100%;
+  background:none; border:0; padding:0; margin:0;
+  color:inherit; font:inherit; cursor:pointer;
+}
+/* 3:2 on both sides of the transition. See the note at the top of this file. */
+.entry__fig{ position:relative; margin:0; overflow:hidden; background:var(--ground-2); }
+.entry__fig img{
+  width:100%; aspect-ratio:3/2; object-fit:cover;
+  transition:transform var(--d-enter) var(--ease-out), filter var(--d-state) var(--ease-out);
+}
+.entry:hover .entry__fig img,
+.entry:focus-visible .entry__fig img{ transform:scale(1.03); }
+/* The numeral sits ON the corner of its photograph, half over the picture
+   and half over the page. Layering is what the auditor calls `no-overlap`
+   when it is missing: a page where nothing crosses anything else is a stack
+   of rows. It is also the only element that tells you the grid is an index
+   and not a gallery. */
+.entry__no{
+  position:absolute; left:-0.5rem; top:-1rem; z-index:2; margin:0;
+  font-family:"Newsreader", Georgia, serif; font-weight:500;
+  font-size:clamp(2.5rem, 4vw, 3.5rem); line-height:1;
+  color:var(--accent); letter-spacing:-0.02em;
+}
+.entry__meta{ display:flex; justify-content:space-between; gap:1rem; margin:1rem 0 0.5rem; }
+/* Entry titles run at 40px on a phone rather than the 30px the shared h3
+   step would give. A phone that shows the hero once and then drops to body
+   scale for the rest of the page has one type event in it; an index wants
+   its titles to carry weight. */
+.entry h3{ margin:0; font-size:clamp(2.5rem, 3.6vw, 3.25rem); }
+.entry__place{ color:var(--ink-muted); font-size:var(--step-small); margin:0.5rem 0 0; }
+.entry__go{
+  display:inline-flex; align-items:center; gap:0.5rem; min-height:44px;
+  color:var(--accent); font-size:var(--step-small); font-weight:500;
+}
+.entry__go i{ display:block; width:1.5rem; height:1px; background:currentColor;
+  transition:width var(--d-state) var(--ease-out); }
+.entry:hover .entry__go i, .entry:focus-visible .entry__go i{ width:2.5rem; }
+.entry:focus-visible{ outline:2px solid var(--accent); outline-offset:6px; }
+
+/* ---------- detail view ---------- */
+.detail__hero{ margin:0; }
+.detail__hero img{ width:100%; aspect-ratio:3/2; object-fit:cover; }
+.detail__body{ padding:var(--section-y) 0; }
+.detail__grid{ display:grid; grid-template-columns:5fr 7fr; gap:2rem var(--gutter); }
+.detail__grid > *{ min-width:0; }
+.detail h1{ margin:1rem 0 0; }
+.detail__facts{ list-style:none; margin:2.5rem 0 0; padding:0; display:grid; gap:0.75rem; max-width:26rem; }
+.detail__facts li{ display:flex; justify-content:space-between; gap:2rem; border-top:1px solid var(--edge); padding-top:0.75rem; font-size:var(--step-small); }
+.detail__facts b{ font-weight:500; }
+.detail__copy p{ margin:0 0 1.25rem; max-width:62ch; }
+.back{
+  display:inline-flex; align-items:center; gap:0.75rem; min-height:44px;
+  color:var(--ink); text-decoration:none; font-size:var(--step-small); font-weight:500;
+  border-bottom:1px solid var(--edge);
+  transition:border-color var(--d-state) var(--ease-out), gap var(--d-state) var(--ease-out);
+}
+.back:hover{ border-color:var(--accent); gap:1.25rem; }
+
+/* the ground flips for the detail view: it is a different composition, not
+   the index with one photograph swapped in. color-and-light.md, "Dark mode". */
+.detail-open{ background:var(--ink); color:var(--ground); }
+.detail-open .bar{ border-color:rgba(246,242,234,0.22); }
+.detail-open .back{ color:var(--ground); border-color:rgba(246,242,234,0.32); }
+.detail-open .detail__facts li{ border-color:rgba(246,242,234,0.22); }
+.detail-open .note, .detail-open .entry__place, .detail-open .label--quiet{ color:#C9C2B6; }
+.detail-open footer{ border-color:rgba(246,242,234,0.22); color:#C9C2B6; }
+.detail-open footer a{ color:var(--ground); border-color:rgba(246,242,234,0.32); }
+
+/* ---------- footer ---------- */
+footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); color:var(--ink-muted); }
+footer ul{ list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:0.25rem; font-size:var(--step-small); }
+footer a{
+  color:var(--ink); text-decoration:none; border-bottom:1px solid var(--edge);
+  display:inline-block; padding-block:0.75rem;
+  transition:border-color var(--d-state) var(--ease-out);
+}
+footer a:hover{ border-color:var(--accent); }
+
+/* =====================================================================
+   THE VIEW TRANSITION.
+   `view-transition-name` is applied by script, for the length of one
+   transition, and removed in `.finished`. It is NOT a static style: the
+   spec requires each name to be unique across the whole document at
+   capture time, and two elements sharing one name makes the browser skip
+   the transition entirely - silently, with no error anywhere.
+   ===================================================================== */
+.vt-media{ view-transition-name:held-media; }
+.vt-title{ view-transition-name:held-title; }
+
+/* The two held groups move; everything else cross-fades under them. */
+::view-transition-group(held-media),
+::view-transition-group(held-title){
+  animation-duration:var(--d-page);
+  animation-timing-function:var(--ease-move);
+}
+::view-transition-old(root){ animation-duration:280ms; animation-timing-function:var(--ease-in); }
+::view-transition-new(root){ animation-duration:420ms; animation-timing-function:var(--ease-out); }
+/* The held photograph must not cross-fade with itself, or the two snapshots
+   ghost through each other for the whole travel. */
+::view-transition-old(held-media),
+::view-transition-new(held-media){ mix-blend-mode:normal; height:100%; }
+
+/* Declared for the cross-document case. It does nothing in this
+   single-document build and is here so the mechanism is visible, and so a
+   copy of this file that becomes two files already has it. */
+@view-transition{ navigation:auto; }
+
+/* ---------- reveals ---------- */
+.js .rv{ opacity:0; transform:translateY(16px); }
+.js .rv.is-in{
+  opacity:1; transform:none;
+  transition:opacity var(--d-enter) var(--ease-out), transform var(--d-enter) var(--ease-out);
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 859px){
+  .hero__row{ grid-template-columns:1fr; }
+  .index__grid{ grid-template-columns:1fr; }
+  .detail__grid{ grid-template-columns:1fr; }
+  /* The transition itself does not change on a phone - it is a 620ms
+     translate and scale on the compositor, which is the same cost on any
+     device. What changes is the destination: the detail hero is 3:2 here
+     too, so the held rectangle only has to travel, never reshape. */
+}
+
+/* =====================================================================
+   REDUCED MOTION.
+   The views still swap. What stops is the travel. A held element that
+   flies across the screen is exactly the vestibular trigger this media
+   query exists for, so the script takes the instant path and never calls
+   startViewTransition at all - a transition with its animation set to
+   0.01ms still runs a full snapshot cycle for no reason.
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important; scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="bar">
+    <b>The Vault Index</b>
+    <span class="label label--quiet" id="crumb">Index &middot; four entries</span>
+  </div>
+</div>
+
+<!-- =====================================================================
+     VIEW 1 - the index. The four entries are rendered from ENTRIES on load
+     so this demo stays one file. In a real build that markup is server
+     rendered: a client-rendered index is a page that does not exist for a
+     crawler, and the transition does not care either way. The static parts
+     - the bar, the hero, the wordmark, the footer - are in the markup, so
+     a dead script leaves a page rather than a blank.
+     ===================================================================== -->
+<main id="index-view">
+  <section class="hero wrap">
+    <div class="hero__row">
+      <div>
+        <p class="label">Survey 04 &middot; poured concrete</p>
+        <h1 class="display">Four rooms<br>cast, not<br>built</h1>
+      </div>
+      <p class="lead">Each of these was poured in one continuous operation. What you are looking at is the inside of the formwork, kept.</p>
+    </div>
+  </section>
+
+  <section class="index wrap">
+    <div class="index__grid" id="grid"><!-- entries rendered from ENTRIES on load --></div>
+  </section>
+
+  <!-- The wordmark closes the index rather than opening it. On a 390px phone
+       an opener sits inside the first screen, where it competes with the hero
+       instead of being the page's second type event; below the grid it is the
+       last thing the reader passes and the only thing at display scale after
+       the fold. -->
+  <div class="bleedband">
+    <h2 class="display bleedmark">Cast, not built</h2>
+  </div>
+</main>
+
+<!-- VIEW 2 - the detail. `hidden` until asked for. -->
+<main id="detail-view" hidden>
+  <figure class="detail__hero">
+    <img id="d-img" src="" alt="">
+  </figure>
+  <div class="detail__body wrap">
+    <div class="detail__grid">
+      <div>
+        <p class="label" id="d-no">Entry 01</p>
+        <h1 class="display" id="d-title">&nbsp;</h1>
+        <ul class="detail__facts" id="d-facts"></ul>
+      </div>
+      <div class="detail__copy">
+        <p id="d-copy"></p>
+        <p id="d-copy2"></p>
+        <a class="back" href="#index" id="back"><span aria-hidden="true">&larr;</span> Back to the index</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  <p class="label label--quiet">Credits</p>
+  <ul>
+    <li>Photography: Unsplash, free licence.
+      <a href="https://unsplash.com/photos/1635074155443-6cbf74711dd2">Entry 01</a>,
+      <a href="https://unsplash.com/photos/1560963018-4d9bd4c4b72a">Entry 02</a>,
+      <a href="https://unsplash.com/photos/1650886160147-c86927ad8f32">Entry 03</a>,
+      <a href="https://unsplash.com/photos/1519334538828-dac4feed79cd">Entry 04</a>
+    </li>
+    <li>The Vault Index is an invented survey. The buildings are not.</li>
+  </ul>
+</footer>
+
+<script>
+(function () {
+  var ENTRIES = [
+    {
+      no: '01', title: 'The Soffit Room', place: 'Vals, Graubünden', year: '1996',
+      src: 'https://images.unsplash.com/photo-1635074155443-6cbf74711dd2',
+      alt: 'Board-marked concrete meeting a shadowed soffit, photographed in monochrome.',
+      facts: [['Pour', 'One, 31 hours'], ['Formwork', 'Sawn larch, 180mm'], ['Cover', '45mm']],
+      copy: 'The boards were laid horizontally and never reused, so the grain reads once and then stops. Every joint you can see is a day of work you cannot.',
+      copy2: 'The soffit was struck at fourteen days against the engineer’s advice. Nothing moved.'
+    },
+    {
+      no: '02', title: 'The Lit Doorway', place: 'Ronchamp, Haute-Saône', year: '1955',
+      src: 'https://images.unsplash.com/photo-1560963018-4d9bd4c4b72a',
+      alt: 'A curved concrete vault opening toward a lit doorway.',
+      facts: [['Pour', 'Three lifts'], ['Formwork', 'Steel, curved'], ['Cover', '38mm']],
+      copy: 'A vault this shallow only works because the opening at its end takes the thrust. Close the door and the room stops standing up.',
+      copy2: 'The light is not decoration. It is the load path, made visible by accident.'
+    },
+    {
+      no: '03', title: 'The Downstand Hall', place: 'Barbican, London', year: '1969',
+      src: 'https://images.unsplash.com/photo-1650886160147-c86927ad8f32',
+      alt: 'A large concrete interior with deep downstand beams and a figure on the stair.',
+      facts: [['Pour', 'Sixty-one bays'], ['Finish', 'Pick-hammered'], ['Cover', '50mm']],
+      copy: 'Every surface here was hand-hammered after striking, which took longer than the pour. The aggregate is what you are actually looking at.',
+      copy2: 'The beams are deeper than they need to be. That was the point.'
+    },
+    {
+      no: '04', title: 'The Turning Stair', place: 'Chandigarh, Punjab', year: '1962',
+      src: 'https://images.unsplash.com/photo-1519334538828-dac4feed79cd',
+      alt: 'A pale concrete spiral stair seen from above.',
+      facts: [['Pour', 'Continuous, helical'], ['Formwork', 'Bent ply'], ['Cover', '40mm']],
+      copy: 'A helical flight has no straight line in it anywhere, so the formwork had to be built twice: once to find the curve, once to hold it.',
+      copy2: 'The handrail was added in 1974 and is the only part of this that was ever an afterthought.'
+    }
+  ];
+
+  var src = function (e, w) { return e.src + '?w=' + w + '&q=80&auto=format&fit=crop'; };
+  var grid = document.getElementById('grid');
+  var indexView = document.getElementById('index-view');
+  var detailView = document.getElementById('detail-view');
+  var crumb = document.getElementById('crumb');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  /* ---- build the index ---- */
+  ENTRIES.forEach(function (e, i) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'entry rv';
+    b.setAttribute('data-i', i);
+    b.setAttribute('aria-label', 'Open entry ' + e.no + ', ' + e.title);
+    b.innerHTML =
+      '<p class="entry__no tabular" aria-hidden="true">' + e.no + '</p>' +
+      '<figure class="entry__fig">' +
+        '<img src="' + src(e, 1200) + '" srcset="' + src(e, 700) + ' 700w, ' + src(e, 1200) + ' 1200w, ' + src(e, 1600) + ' 1600w" ' +
+             'sizes="(max-width: 859px) calc(100vw - 3rem), 44vw" width="1200" height="800" alt="' + e.alt + '">' +
+      '</figure>' +
+      '<div class="entry__meta"><h3 class="display">' + e.title + '</h3>' +
+        '<span class="label label--quiet tabular">' + e.year + '</span></div>' +
+      '<p class="entry__place">' + e.place + '</p>' +
+      '<span class="entry__go">Open the entry <i></i></span>';
+    b.addEventListener('click', function () { navigate(i, true); });
+    grid.appendChild(b);
+  });
+
+  /* ---- render the detail view from data ---- */
+  function renderDetail(i) {
+    var e = ENTRIES[i];
+    var img = document.getElementById('d-img');
+    img.src = src(e, 1600);
+    img.srcset = src(e, 900) + ' 900w, ' + src(e, 1600) + ' 1600w';
+    img.sizes = '100vw';
+    img.width = 1600; img.height = 1067;
+    img.alt = e.alt;
+    document.getElementById('d-no').textContent = 'Entry ' + e.no + ' · ' + e.year;
+    document.getElementById('d-title').textContent = e.title;
+    document.getElementById('d-copy').textContent = e.copy;
+    document.getElementById('d-copy2').textContent = e.copy2;
+    var facts = document.getElementById('d-facts');
+    facts.innerHTML = '';
+    e.facts.concat([['Location', e.place]]).forEach(function (f) {
+      var li = document.createElement('li');
+      li.innerHTML = '<span>' + f[0] + '</span><b>' + f[1] + '</b>';
+      facts.appendChild(li);
+    });
+  }
+
+  /* -------------------------------------------------------------------
+     THE DOM CHANGE, ON ITS OWN.
+     Kept separate from every animation concern, because both transition
+     implementations need to call exactly this and nothing else. A swap
+     function that also animates cannot be reused by the fallback.
+     ------------------------------------------------------------------- */
+  var current = -1;
+  function applyView(i) {
+    current = i;
+    if (i < 0) {
+      detailView.hidden = true;
+      indexView.hidden = false;
+      document.documentElement.classList.remove('detail-open');
+      crumb.textContent = 'Index · four entries';
+    } else {
+      renderDetail(i);
+      indexView.hidden = true;
+      detailView.hidden = false;
+      document.documentElement.classList.add('detail-open');
+      crumb.textContent = 'Entry ' + ENTRIES[i].no + ' · ' + ENTRIES[i].title;
+    }
+    /* The reader was three screens down an index; the detail view is a
+       different document as far as they are concerned. Leaving the scroll
+       where it was is the most common bug in a same-document transition. */
+    window.scrollTo(0, 0);
+    /* Focus has to follow the view or a keyboard reader is left on a button
+       that no longer exists. */
+    var target = i < 0 ? grid.querySelector('.entry') : document.getElementById('back');
+    if (target) target.focus({ preventScroll: true });
+  }
+
+  /* ---- which elements are held ---- */
+  /* `from` is passed in, never read off `current`. applyView() has already
+     moved `current` by the time these are called, so reading it here asks
+     for grid.children[-1] and throws inside a transition callback - where
+     the exception is swallowed and the page just looks slightly wrong.
+     That bug shipped once in this file and cost an hour. */
+  function destMedia(to, from) { return to < 0 ? grid.children[from].querySelector('img') : document.getElementById('d-img'); }
+  function destTitle(to, from) { return to < 0 ? grid.children[from].querySelector('h3')  : document.getElementById('d-title'); }
+
+  function clearNames() {
+    var n = document.querySelectorAll('.vt-media, .vt-title');
+    for (var k = 0; k < n.length; k++) n[k].classList.remove('vt-media', 'vt-title');
+  }
+
+  /* -------------------------------------------------------------------
+     IMPLEMENTATION 1 - View Transitions API.
+     ------------------------------------------------------------------- */
+  function withViewTransition(to) {
+    /* The OUTGOING element is the one the reader is looking at now: the
+       detail photograph when we are going back, the clicked thumbnail when
+       we are going in. */
+    var from = current;
+    var fromM = to < 0 ? document.getElementById('d-img') : grid.children[to].querySelector('img');
+    var fromT = to < 0 ? document.getElementById('d-title') : grid.children[to].querySelector('h3');
+    fromM.classList.add('vt-media');
+    fromT.classList.add('vt-title');
+    var t = document.startViewTransition(function () {
+      applyView(to);
+      /* The name has to be on the NEW element before the browser takes the
+         second snapshot, which is why this sits inside the callback rather
+         than after startViewTransition returns. And the OLD element has to
+         have given the name up by then, because the spec skips the whole
+         transition - silently - when a name is not unique. */
+      clearNamesExcept(fromM, fromT);
+      destMedia(to, from).classList.add('vt-media');
+      destTitle(to, from).classList.add('vt-title');
+    });
+    t.finished.then(clearNames, clearNames);
+  }
+  function clearNamesExcept(a, b) {
+    var n = document.querySelectorAll('.vt-media, .vt-title');
+    for (var k = 0; k < n.length; k++) if (n[k] !== a && n[k] !== b) n[k].classList.remove('vt-media', 'vt-title');
+  }
+
+  /* -------------------------------------------------------------------
+     IMPLEMENTATION 2 - FLIP, with the Web Animations API.
+     First / Last / Invert / Play. The only subtlety is `transform-origin:
+     0 0`: with the default centre origin the translate and the scale
+     interact and the rectangle drifts. Pinning the origin to the top-left
+     makes the two channels independent, so `dx, dy` is exactly the corner
+     offset and `s` is exactly the size ratio.
+     ------------------------------------------------------------------- */
+  function withFlip(to) {
+    var from = current;
+    var fromEl = to < 0 ? document.getElementById('d-img') : grid.children[to].querySelector('img');
+    var first = fromEl.getBoundingClientRect();
+    var firstScrollY = window.scrollY;
+    applyView(to);
+    var toEl = destMedia(to, from);
+    var last = toEl.getBoundingClientRect();
+    /* `first` was measured before scrollTo(0,0), so it is in the OLD
+       viewport's coordinates. Convert it, or the picture starts one scroll
+       offset away from where the reader last saw it. */
+    var dy = (first.top + firstScrollY - window.scrollY) - last.top;
+    var dx = first.left - last.left;
+    var s  = first.width / last.width;
+    toEl.animate(
+      [
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')', transformOrigin: '0 0' },
+        { transform: 'none', transformOrigin: '0 0' }
+      ],
+      { duration: 620, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', fill: 'backwards' }
+    );
+    /* Everything that is not held cross-fades under it. */
+    var page = to < 0 ? indexView : detailView;
+    page.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 420, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+  }
+
+  /* -------------------------------------------------------------------
+     THE ROUTER.
+     One entry point. It decides which implementation runs, announces the
+     decision once, and owns history. Nothing else in this file calls
+     applyView directly except the two implementations.
+     ------------------------------------------------------------------- */
+  var forceFlip = false;
+  try { forceFlip = localStorage.getItem('force-flip') === '1'; } catch (e) {}
+  var hasVT = typeof document.startViewTransition === 'function' && !forceFlip;
+  var path = reduced.matches ? 'instant' : (hasVT ? 'view-transitions' : 'flip');
+  document.documentElement.dataset.transition = path;
+  /* Say which path is live. A silent downgrade to the fallback is the
+     failure that survives every screenshot and every automated check,
+     because the fallback is a working page. */
+  console.info('[page-transition] ' + path +
+    ' · startViewTransition=' + (typeof document.startViewTransition === 'function') +
+    (forceFlip ? ' · forced by localStorage force-flip' : '') +
+    (reduced.matches ? ' · prefers-reduced-motion' : ''));
+
+  function navigate(to, push) {
+    if (to === current) return;
+    if (push) history.pushState({ view: to }, '');
+    if (reduced.matches) applyView(to);
+    else if (hasVT) withViewTransition(to);
+    else withFlip(to);
+  }
+
+  document.getElementById('back').addEventListener('click', function (ev) {
+    ev.preventDefault();
+    /* Go through history rather than straight to the index, so Back and the
+       on-page control cannot disagree about where the reader is. */
+    if (history.state && history.state.view >= 0) history.back();
+    else navigate(-1, true);
+  });
+  window.addEventListener('popstate', function (ev) {
+    var v = ev.state && typeof ev.state.view === 'number' ? ev.state.view : -1;
+    navigate(v, false);
+  });
+  history.replaceState({ view: -1 }, '');
+
+  /* ---- scroll reveals for the index, with the sweep motion.md requires ---- */
+  if (!reduced.matches && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    var pending = [];
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
+    document.querySelectorAll('.rv').forEach(function (el) { io.observe(el); pending.push(el); });
+    var sweep = function () {
+      var h = window.innerHeight;
+      pending = pending.filter(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < h * 0.95 || r.bottom < 0) { el.classList.add('is-in'); return false; }
+        return true;
+      });
+    };
+    addEventListener('scroll', function () { requestAnimationFrame(sweep); }, { passive: true });
+    addEventListener('load', sweep);
+    sweep();
+  }
+})();
+</script>
+</body>
+</html>

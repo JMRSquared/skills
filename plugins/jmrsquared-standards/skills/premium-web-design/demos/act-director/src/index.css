@@ -1,0 +1,505 @@
+/* ---------------------------------------------------------------------------
+   Plain CSS on purpose. The architecture this demo teaches is in src/story and
+   src/three; swap this file for Tailwind, CSS modules or anything else without
+   touching a line of the director.
+   --------------------------------------------------------------------------- */
+
+:root {
+  --void: #07090c;
+  --ink: #0d1117;
+  --line: #232c38;
+  --mist: #f3f5f7;
+  --fog: #a4adb6;
+  --ash: #6a747d;
+  --accent: #ff7a45;
+  --accent-bright: #ffb489;
+
+  --gutter: clamp(1.25rem, 5vw, 5rem);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --d-enter: 0.85s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--void);
+  -webkit-font-smoothing: antialiased;
+  /* clip, not hidden. `overflow: hidden` forces the other axis to `auto` and
+     creates a scroll container, which silently kills every sticky descendant. */
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--mist);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow-x: clip;
+}
+
+/* Lenis owns the scroll; it needs default scrollbar behaviour left alone. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+main {
+  position: relative;
+  z-index: 10;
+}
+
+/* ---- Stage ---------------------------------------------------------------- */
+
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.stage--static {
+  background: var(--void);
+}
+
+/* The no-WebGL still. Render this out of the live scene rather than
+   art-directing it separately, or the two paths drift. */
+.stage__still {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-size: min(56vw, 720px) auto;
+  background-position: 76% 58%;
+  opacity: 0.72;
+}
+
+.stage__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, var(--void) 12%, rgb(7 9 12 / 55%) 46%, transparent 72%),
+    radial-gradient(75% 65% at 78% 60%, transparent, var(--void) 84%);
+}
+
+/* ---- Loader --------------------------------------------------------------- */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 0 var(--gutter) 2rem;
+  background: var(--void);
+  transition: opacity 0.5s ease-out;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+.loader__count {
+  font-variant-numeric: tabular-nums;
+  color: var(--fog);
+}
+.loader__rail {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+.loader__bar {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease-out;
+}
+
+/* ---- Act shell ------------------------------------------------------------ */
+
+.act {
+  position: relative;
+}
+
+.act__pin {
+  position: sticky;
+  top: 0;
+  display: flex;
+  /* svh, never vh. On iOS `vh` is the address-bar-expanded height, so a 100vh
+     sticky stage is taller than the visible area and its bottom is unreachable. */
+  height: 100svh;
+  overflow: hidden;
+}
+.act__pin--center {
+  align-items: center;
+}
+.act__pin--bottom {
+  align-items: flex-end;
+  padding-bottom: clamp(3rem, 8vh, 6rem);
+}
+.act__pin--split {
+  align-items: flex-start;
+  padding-top: clamp(5rem, 12vh, 7rem);
+}
+@media (min-width: 64rem) {
+  .act__pin--split {
+    align-items: center;
+    padding-top: 0;
+  }
+}
+
+/* Narrow screens stack the copy over the product, so they get a scrim.
+   Wide screens sit the two side by side and a scrim would only mute the render. */
+.act__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    var(--void) 0%,
+    rgb(7 9 12 / 92%) 44%,
+    rgb(7 9 12 / 62%) 58%,
+    transparent 72%,
+    rgb(7 9 12 / 70%) 96%,
+    var(--void) 100%
+  );
+}
+/* Wide screens keep a reading gradient instead: dense under the copy column,
+   clear over the product, so the headline never lands on a bright surface as
+   the object turns. A flat scrim over the whole frame would mute the render. */
+@media (min-width: 64rem) {
+  .act__scrim {
+    background: linear-gradient(
+      100deg,
+      var(--void) 0%,
+      rgb(7 9 12 / 72%) 30%,
+      rgb(7 9 12 / 30%) 52%,
+      transparent 68%
+    );
+  }
+}
+
+.act__column {
+  position: relative;
+  width: 100%;
+  max-width: 82rem;
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+
+/* ---- Copy ----------------------------------------------------------------- */
+
+.copy {
+  max-width: 34rem;
+}
+
+.eyebrow {
+  margin: 0;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.display {
+  margin: 1.1rem 0 0;
+  font-size: clamp(2.2rem, 5.4vw, 3.6rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.lede {
+  margin: 1.4rem 0 0;
+  max-width: 32rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  line-height: 1.65;
+  color: var(--fog);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.2rem;
+}
+
+.button {
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #1c0a02;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.85rem 1.75rem;
+  cursor: pointer;
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.button:hover {
+  transform: translateY(-2px);
+}
+.button--ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--mist);
+}
+.button--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  gap: 2.5rem;
+}
+@media (min-width: 64rem) {
+  .grid {
+    grid-template-columns: 0.95fr 1.05fr;
+    align-items: center;
+    gap: 4rem;
+  }
+}
+
+/* ---- Scrubbed DOM --------------------------------------------------------- */
+
+.callouts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 24rem;
+  margin-inline-start: auto;
+}
+
+.callout {
+  position: relative;
+  padding: 0.9rem 0 0.9rem 2.2rem;
+  border-bottom: 1px solid var(--line);
+  opacity: 0.26;
+  transition: opacity 0.5s ease-out;
+}
+.callout.is-on {
+  opacity: 1;
+}
+.callout__dot {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--line);
+  transform: translateY(-50%);
+  transition:
+    background 0.5s ease-out,
+    box-shadow 0.5s ease-out;
+}
+.callout.is-on .callout__dot {
+  background: var(--accent);
+}
+.callout.is-current .callout__dot {
+  box-shadow: 0 0 16px 2px var(--accent);
+}
+.callout__title {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.callout__note {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  color: var(--ash);
+}
+
+.readout {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  border-top: 1px solid var(--line);
+  padding-top: 1.5rem;
+  margin-top: 2.2rem;
+  max-width: 28rem;
+}
+.readout__value {
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: clamp(2.4rem, 5vw, 3rem);
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+}
+.readout__label {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--ash);
+}
+
+/* ---- HUD ------------------------------------------------------------------ */
+
+.hud {
+  position: fixed;
+  left: var(--gutter);
+  bottom: 1.75rem;
+  z-index: 40;
+  display: none;
+  gap: 0.5rem;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ash);
+  pointer-events: none;
+}
+.hud__index {
+  color: var(--accent);
+}
+.hud__label {
+  margin-left: 0.75rem;
+  color: var(--fog);
+}
+@media (min-width: 40rem) {
+  .hud {
+    display: flex;
+  }
+}
+
+.dots {
+  position: fixed;
+  right: 1.5rem;
+  top: 50%;
+  z-index: 40;
+  display: none;
+  flex-direction: column;
+  gap: 0.75rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 999px;
+  background: var(--line);
+  transition:
+    background 0.5s ease-out,
+    transform 0.5s var(--ease-out-expo);
+}
+.dot.is-on {
+  background: var(--accent);
+}
+.dot.is-current {
+  transform: scale(1.7);
+}
+@media (min-width: 64rem) {
+  .dots {
+    display: flex;
+  }
+}
+
+.cue {
+  position: absolute;
+  left: 50%;
+  bottom: 1.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: ui-monospace, "SF Mono", monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.cue__rail {
+  position: relative;
+  display: block;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.cue__dot {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 1rem;
+  background: var(--accent);
+  animation: cue 2.4s var(--ease-out-expo) infinite;
+}
+@keyframes cue {
+  0% {
+    transform: translateX(-100%);
+  }
+  60%,
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+/* ---- Reveal --------------------------------------------------------------- */
+
+/* The hidden state is applied only once JS has armed the observer, so a failed
+   bundle leaves readable copy rather than a blank page. */
+.reveal {
+  transition:
+    opacity var(--d-enter) var(--ease-out-expo),
+    transform var(--d-enter) var(--ease-out-expo),
+    filter var(--d-enter) var(--ease-out-expo);
+}
+.reveal--armed {
+  opacity: 0;
+  transform: translateY(26px);
+  filter: blur(6px);
+}
+.reveal--armed.is-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ---- Reduced motion ------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* The pin is released rather than the tween being disabled. A pinned section
+     with a dead animation is viewport-heights of scroll that do nothing. */
+  .act {
+    min-height: 0 !important;
+  }
+
+  /* Releasing the pin collapses the document, and a stage left at
+     `position: fixed; inset: 0` then covers the whole viewport behind a page
+     that is now only a few screens long. Put it back in flow so the reader gets
+     a still at the top of a short document instead of a fixed backdrop behind
+     everything. */
+  .stage {
+    position: relative !important;
+    height: 60svh;
+  }
+  .act__pin {
+    position: static;
+    height: auto;
+    padding-block: clamp(5rem, 14vh, 9rem);
+  }
+  .act__scrim,
+  .cue {
+    display: none;
+  }
+}

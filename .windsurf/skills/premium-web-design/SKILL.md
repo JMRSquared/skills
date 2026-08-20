@@ -1,286 +1,775 @@
 ---
 name: premium-web-design
-description: Build Awwwards-caliber customer-facing websites — Site of the Day bar for design, motion, UX, and craft. Use when building or redesigning marketing sites, product sites, landing pages, brand/campaign microsites, or interactive web experiences; when the user runs /premium-web-design; or asks for premium / Awwwards / award-winning / cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
+description: Build Awwwards-caliber customer-facing websites — Site of the Day bar for design, motion, UX, and craft. Use when building or redesigning marketing sites, product sites, landing pages, brand/campaign microsites, or interactive web experiences; when the user runs /premium-web-design; or asks for premium / Awwwards / award-winning / cinematic web design. Ships measured studies of 15 award sites, a numeric art-direction contract, and a Playwright auditor that scores the rendered page. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
 ---
 
-# Premium Interactive Website Design
+# Premium web design
 
-## Bar (pass / fail)
+## The bar
 
-This skill exists so an agent (or human following it) ships work that could **credibly compete for Awwwards Site of the Day** — not a “nice marketing site,” not a polished SaaS template, not tasteful defaults.
+A stranger lands, feels art direction in the first seconds, meets three moments
+worth pausing for, understands the offer without reading a wall of copy, and
+leaves remembering the brand.
 
-**Pass line:** a stranger lands, feels art direction in the first seconds, meets at least **three signature moments** worth pausing for, understands the offer without reading a wall of copy, and leaves remembering the brand.
+You are operating as creative director, motion designer, and front-end
+craftsperson on one brief. Under schedule pressure, cut pages — never craft on
+what ships.
 
-**Fail line (any one):** inventing “premium” from memory; generic card-grid SaaS layout; Inter/Roboto/system as the display voice; flat single-color page with fade-ins only; box/Lego 3D stand-ins for real products; sections with no reference attribution; skipping the study board; “good enough” polish.
+## Why sites built with this skill used to come out ugly
 
-You are operating as **creative director + motion designer + front-end craftsperson** on one brief. Protect the bar. If schedule pressure appears, cut scope of pages — never cut craft on what you ship.
+Eight mechanisms, and the fix for each. Everything below is one of these fixes.
+
+| Failure | Mechanism | Fix |
+|---|---|---|
+| Imagined references | An agent told to "study award sites" recalls them from training data instead of seeing them, then builds the average of the web | **Step 2** — a measured corpus of 15 sites is on disk. Read it. |
+| Adjectives with no numbers | "Expressive typography" and "art-directed spacing" carry no values, so the model emits its default: Inter at 36px, 14px grey body, 8px radius everywhere | **Step 3** — an Art Direction Contract of literal values, written before any component code |
+| Never looking | Contrast, optical spacing, real type size, crops, overlaps, and broken fonts are invisible in source. A self-scored 9/10 ends the improvement loop with nothing rendered | **Step 6** — `scripts/audit-page.mjs` renders and measures the page, and you read the frames |
+| Ambition past reliability | Quotas demanding WebGL and scrub on every brief produce collapsed pins, stretched canvases, and copy unreadable over motion | **Step 4** — pick a tier you can land. A broken Tier C loses to a perfect Tier A. |
+| Ambition promised, never enforced | The skill says Awwwards, cinematic, 3D scroll storytelling, and marks Tier B the default. Then every gate measures only what to avoid, so a page with no pin, no scrub, no transition and no scene passes cleanly and the tier ladder is decorative | **Step 4** — declare the tier in the markup, and the auditor now detects what you actually shipped and reports `CRAFT` when the declaration and the page disagree |
+| Restraint with nothing behind it | Every other rule here is a *don't*. Obey them all and you ship a page that is correct, tasteful, and forgettable: six images, the biggest type in the hero, nothing overlapping, nothing bleeding, two ground changes in nine screens | **Step 4b** — a density floor and a signature device, both measured by the auditor as SPARSE findings |
+| The skill became the house style | Four sites, four agents, no shared context, and every automated gate passed. All four shipped `cubic-bezier(0.16,1,0.3,1)`, `cubic-bezier(0.7,0,0.84,0)`, `120ms`/`240ms`/`400ms`/`700ms` and one `translateY(14px)` reveal, copied out of `motion.md` from under the words "use these, do not invent curves". Two also copied the gutter and section-spacing clamps. A jury compared them to the corpus and rejected all four: they moved identically, ran one symmetric band rhythm end to end, and three of them closed on the same FAQ accordion, footer wordmark and key/value table taken from the steal lists | **Step 3 and `references/motion.md`**: the motion tokens are now ranges with reasoning and a three-line budget you state, one non-uniform motion is required at Tier B and above, bands carry two spacing values, and no more than two components come from any one study |
+| Counts satisfied, intent defeated | Every gate that counts something can be fed something that costs nothing. An adversarial page cleared FAIL 0 / WARN 0 / SPARSE 0 / CRAFT 0 with an empty `<canvas>`, an empty `<div data-loader>`, one `view-transition-name`, an empty sticky div, eight copies of one photograph, `srcset="pic.jpg"`, an empty `<details>`, `<a href="#">4.9</a>`, a 420px word clipped to 8px, and a display face that does not exist. Every check read a declaration instead of a result | **Step 6** — the auditor now reads results: canvas pixels, loader disappearance, distinct image sources, box geometry, font availability, and whether a link goes anywhere |
 
 ## Activation
 
-**Auto-fire (Tier 2)** on customer-facing visual surfaces: new sites, redesigns, marketing and product marketing pages, landing pages, brand/campaign microsites, interactive demos, scroll-story experiences.
+**Auto-fire** on customer-facing visual surfaces: new sites, redesigns, marketing
+and product pages, landing pages, brand and campaign microsites, interactive
+demos, scroll-story experiences.
 
-**Do not auto-fire** on authenticated app chrome (dashboards, settings, admin, CRUD tables), design-system / component-library work unless a marketing treatment is requested, or pure logic / API / infra edits.
+**Do not auto-fire** on authenticated app chrome, design-system work, or pure
+logic/API/infra edits. `/premium-web-design` applies the full bar on demand.
 
-**Companion:** `/premium-web-design` applies this full bar on demand — including a marketing section inside an app when invoked.
+**Companions:** photography → `/jmr-image` (Unsplash then Pexels, commercial-safe) or
+`scripts/find-photos.mjs` (no key, contact sheet). 2D cutouts →
+`/pngimg-assets` (CC BY-NC). glTF/GLB + HDRIs → `/gltf-assets` (Poly Haven CC0
+first). Owner photography still dominates any physical product, place, or
+service hero.
 
-When this skill and `react-tsx-component` both apply: this skill owns visual direction, composition, motion, and asset quality; `react-tsx-component` still owns component form (`export function`, `interface Props` at bottom, Tailwind-only, handler naming).
+`/jmr-image` with neither `UNSPLASH_ACCESS_KEY` nor `PEXELS_API_KEY` set
+silently searches pngimg only, which is CC BY-NC, and still exits 0. Check
+the keys before a commercial build.
 
-## Hard gate (non-negotiable)
+When `react-tsx-component` also applies: this skill owns visual direction,
+composition, motion, and asset quality; that one owns component form.
 
-This skill fails if you invent an award look from memory or training data.
+---
 
-**You must:**
+## Step 0 — Capability check
 
-1. Open reference sites below in a **real browser** (WebFetch alone is not enough; scroll the live experience).
-2. Extract **at least 10 concrete craft components** to ship.
-3. Publish a **Reference Study Board** in the chat **before any design or code**.
-4. Compose the **entire website** from those board items (reskinned to the brand). Soft inspiration is a failure mode.
-5. State an **art direction one-liner** and name **≥3 signature moments** before coding.
+Run this before anything else:
 
-**Very very strict:** if fewer than 10 attributed items are listed, or any shipped section cannot map to the board, stop and restudy. Do not proceed.
-
-**Allowed adaptation:** re-skin colors, type, copy, and brand marks. Rebuild the pattern in project code.
-
-**Forbidden:** cloning logos, copy, proprietary 3D assets, or pixel-identical layouts. Do not ship a generic SaaS template and claim the references were used.
-
-## Workflow
-
-Copy and track:
-
-```
-Understand → Study references (≥10 board) → Art direction + 3 signature moments → Design from board → Build board items → Interact → Test → Polish to award bar → Jury self-score → Verify board
-```
-
-1. **Understand** — product, brand, audience, constraints, conversion goal.
-2. **Study references** — mine the full catalogue (benchmarks, product-page builds, cross-industry library). Mix origins. Fill the board with **≥10** items.
-3. **Art direction** — one line: brand feeling, type posture, motion personality, hero thesis. Plus **≥3 signature moments** (each must map to a board row).
-4. **Design** — compose exclusively from board items adapted to this brand.
-5. **Build** — working UI for every board item; no mock-only stops.
-6. **Interact** — hover/touch, scroll, load, transitions, demos called out on the board.
-7. **Test** — mobile, tablet, desktop, touch; `prefers-reduced-motion`.
-8. **Polish** — pacing, easing, crop, type rhythm, empty space, performance. Award sites feel intentional in the quiet parts too.
-9. **Jury self-score** — score yourself (table below). Any category below **8/10** → revise before claiming done.
-10. **Verify board** — re-paste the board with each item `SHIPPED` + file/section.
-
-Before coding, state:
-
-**"Reading this as: \<page kind> for \<audience>, \<vibe>, leaning \<direction>."**
-
-Then: art direction one-liner → ≥3 signature moments → completed Reference Study Board.
-
-## Reference Study Board (required output)
-
-Paste this block **before coding**. Fill every row. Minimum **10** items. Prefer **≥4 different reference URLs** and **≥2 different origin groups**.
-
-```
-### Art direction
-<one line>
-
-### Signature moments (≥3)
-1. <moment> ← board #
-2. <moment> ← board #
-3. <moment> ← board #
-
-### Reference Study Board
-| # | Source URL | Craft component / pattern observed | Where it appears on that site | How I will implement it on this project |
-|---|------------|------------------------------------|-------------------------------|-----------------------------------------|
-| 1 |            |                                    |                               |                                         |
-| 2 |            |                                    |                               |                                         |
-| … |            |                                    |                               |                                         |
-|10+|            |                                    |                               |                                         |
-
-Page composition plan (board items only):
-- Load / first 3s ← board #
-- Hero ← board #
-- Section 2 ← board #
-- Section 3 ← board #
-- …
-- Motion stack choices ← board #
+```bash
+node -e "import('playwright').then(()=>console.log('SIGHTED')).catch(()=>console.log('BLIND'))"
+# If it prints BLIND, try a directory that has playwright installed. PW_DIR is
+# the directory CONTAINING node_modules, and the catch matters or a genuinely
+# blind agent gets an unhandled rejection instead of the word BLIND:
+#   PW_DIR=/path/to/dir node -e "import(process.env.PW_DIR+'/node_modules/playwright/index.mjs').then(()=>console.log('SIGHTED')).catch(()=>console.log('BLIND'))"
+# To install: mkdir -p ~/.pw && cd ~/.pw && npm i playwright && npx playwright install chromium
 ```
 
-### What counts as a "thing" / component
+`PW_DIR=… node …` is a command PREFIX, not a separate line: exported on its own
+it prints `Cannot find package 'undefined'` rather than `BLIND`. And in any
+`.mjs` you write yourself, import playwright by **absolute path**. `NODE_PATH`
+does not apply to ES modules, so `import { chromium } from 'playwright'` fails
+from a scratch script no matter what you set:
 
-Each board row must be a **concrete, buildable craft unit** you can point to on a reference page, for example:
+```js
+const { chromium } = await import('/abs/path/to/node_modules/playwright/index.mjs');
+```
 
-* Award-grade **loading / intro** sequence (brand mark, progress, sound cue, scene settle)
-* Full-bleed cinematic hero with **brand as the dominant signal**
-* Scroll-scrubbed product/hero object
-* Sticky product stage while copy chapters pin/unpin
-* Horizontal scroll gallery driven by vertical scroll
-* Menu / catalogue / services **as a scroll journey** (not a static table)
-* WebGL / R3F object with pointer parallax or physics
-* Theme / finish / attribute playground the user can click
-* Sound-linked interaction (only if product-appropriate)
-* Morphing or magnetic CTA / nav; route or chapter **page transitions**
-* Typography that scales, masks, splits, or reveals on scroll
-* Depth stack (foreground product, mid copy, atmospheric backplane)
-* Chapter wipes / clipped image / scrapbook reveals
-* Pinned **timeline** storytelling
-* Interactive demo that shows the product working instead of describing it
-* Reduced-motion fallback that stays art-directed
+**SIGHTED** — Step 6 is mandatory and the audit must exit 0 before you claim done.
 
-Vague rows fail the gate: "nice animation", "modern layout", "good typography", "dark aesthetic", "smooth scroll", "premium feel".
+**BLIND** — say so to the user in one line, offer the install command, and then
+work under tighter constraints: Tier A only (see Step 4), no scroll-scrubbed or
+pinned sections, no WebGL. You cannot verify what you cannot see, so do not ship
+techniques whose failure modes are invisible in source.
 
-### Coverage rules
+BLIND also caps the **length**, and this is the part that used to contradict
+itself. Step 1 says a page runs 5–12 viewport heights; Tier A's entry clause says
+under 6. Held together with "Tier A only", an 8-screen BLIND page was obeying two
+rules and breaking a third. So: **BLIND means under 6 screens.** Cut pages, not
+craft.
 
-* **≥10** rows, each tied to a real `Source URL` from the list below (or URLs the user attached).
-* Prefer **mixing origins** across the catalogue. Do not fill the board from one industry heading because the brief matches that label.
-* At least **3** rows = **interaction or motion** (scroll, hover, pointer, load, transition, demo).
-* At least **2** rows = **composition / layout** (hero, sticky stage, chapter structure, catalogue-as-journey).
-* At least **1** row = **product demonstration** (photo/WebGL stage, configurator, or show-don't-tell — not box proxies).
-* At least **1** row = **first-impression craft** (loader, intro, or hero settle in the first seconds).
-* Every major section you ship cites **≥1** board row. Orphan sections are not allowed.
+---
 
-## Reference sites (required study)
+## Step 1 — Direction lock
 
-Visit these in a **real browser**. Scroll the full experience. Learn pacing, depth, typography, and interaction craft. **Do not guess** what award-winning looks like from training data alone.
+Read the brief, then commit. State this block in chat before anything else. One
+pick per line, no blending, no "a mix of 2 and 4".
 
-If the user supplies additional reference URLs, treat those as **primary** and still pull enough craft from the lists below to reach ≥10 items.
+```
+Reading this as: <page kind> for <audience>, selling <the actual thing>.
+Vibe:            <1–6>
+Hero:            <1–6>
+Section system:  <1–6>
+Signature moments (exactly 3):
+  1. <moment> → section, and the asset it needs
+  2. <moment> → section, and the asset it needs
+  3. <moment> → section, and the asset it needs
+```
 
-**Cross-industry rule (non-negotiable):** headings below name where each site *came from*. They are **not** filters for which project may study them. A barber brief may pull menu-as-scroll, cinematic intros, pinned timelines, or 3D showrooms from restaurant / trade / food refs — then rebuild with barber assets, copy, and brand. Prefer the strongest craft for the job across the whole catalogue.
+The three numbered lists in this skill are **independent axes, not a matched
+set**. Vibe *n* points at palette *n* in `color-and-light.md`, deliberately. The
+twelve typography pairings are a separate axis and any pairing may sit under any
+vibe: cross them on feeling, not on number.
 
-### Industry benchmarks
+**Vibe** — 1 Night studio (cinematic dark) · 2 Paper warm (editorial craft) ·
+3 Clinic calm (care, quiet) · 4 Ink & sand (heritage trade) · 5 Bright signal
+(energetic consumer) · 6 Cold steel (technical). Palettes in
+`references/color-and-light.md`.
 
-1. [https://igloo.inc](https://igloo.inc) — Awwwards Site of the Year 2024. 3D ice-cube scroll journey. Current "wow" benchmark.
-2. [https://www.lusion.co](https://www.lusion.co) — most-awarded WebGL studio site. Scroll drives physics and particles.
-3. [https://www.activetheory.net](https://www.activetheory.net) — repeat SOTY winner. Scroll-driven 3D storytelling.
+**Hero** — 1 full-bleed statement · 2 asymmetric split · 3 editorial offset with
+massive negative space · 4 image-first with the display restrained under a scrim ·
+5 pinned stage, copy chapters cycling against a held subject · 6 typography
+behemoth, the display *is* the hero. Shapes in `references/layout-archetypes.md`.
 
-### Product-page patterns (community / course builds)
+**Section system** — 1 index/directory rows · 2 alternating editorial blocks ·
+3 poster-stacked chapters · 4 gallery-led cadence · 5 Swiss grid · 6 horizontal
+chapter driven by vertical scroll.
 
-Practical 3D + scroll product landings. Study how they sell a SKU with motion.
+Composition variety is mechanical, not a matter of taste:
 
-4. [https://fizzi.vercel.app](https://fizzi.vercel.app) — Community soda product landing. Scroll-driven 3D cans.
-5. [https://macbook-ui.vercel.app](https://macbook-ui.vercel.app) — Community MacBook product page. Scroll storytelling + interactive 3D hardware hero.
-6. [https://nimbus-keyboards1.vercel.app](https://nimbus-keyboards1.vercel.app) — Fake mechanical keyboard brand. Interactive 3D board, themes, switch playground with sound.
-7. [https://apple-iphone14.vercel.app](https://apple-iphone14.vercel.app) — Community iPhone 14 landing. Classic 3D + GSAP product page.
+- An 8-section page uses **≥4 different layout families** — a family is one row
+  of the section-composition table in `references/layout-archetypes.md`, not one
+  colour of the same row. Nothing measures this; count them yourself
+- **Max 2 consecutive** image-left/text-right splits — not measured
+- **Max 1 eyebrow label per 3 sections** — measured, as WARN `eyebrow-density`.
+  A build from this skill alone shipped six across ten sections
+- Hero headline lands in **2–3 lines at 1440, 768, and 390** — widen the
+  container before shrinking the type
+- The page runs **5–12 viewport heights of content**. Three screens is a brochure.
+  **Count content, not scroll.** A pinned chapter costs 1.5–2.5 viewport heights
+  that carry no new material, so two pinned ranges on a ten-section page land it
+  near 13 screens without a word of padding. That is correct and the auditor
+  does not check the ceiling. Do not shave section spacing to chase the number.
+- Don't reuse the display face or the vibe from your last build
 
-### Cross-industry craft library (origin labels only)
+---
 
-Grouped by the industry that shipped the site so you can find examples fast. **Any brief may mine any group.** Board rows should often mix origins, reskinned to the product in front of you.
+## Step 2 — Ground it in the corpus, not in memory
 
-#### Origin: barbers
+Fifteen award sites were loaded in a real browser, scrolled end to end,
+screenshotted at desktop and phone, and measured. The results are on disk:
 
-8. [https://anniversary.blindbarber.com/](https://anniversary.blindbarber.com/) — Blind Barber 10-Year. Awwwards SOTD. One-page scroll story, loading sequence, scrapbook reveals, pinned timeline.
-9. [https://hagisbarbershop.de/](https://hagisbarbershop.de/) — Hagi’s Barbershop. Awwwards SOTD (7.68; animations 8.0). Cinematic film intro, dark editorial scroll, strong page transitions. Luxury brand-as-product pacing.
+- `references/site-studies/<slug>.md` — art direction, first three seconds,
+  measured palette with real hex values, measured type sizes/weights/tracking,
+  a section-by-section structure table, a motion inventory with library
+  evidence, mobile adaptation, and a steal list of buildable components
+- `assets/studies/<slug>/` — the frames themselves, plus `data.json`
 
-#### Origin: plumbers / plumbing trade
+| Slug | What it is | Best for |
+|---|---|---|
+| `igloo-inc` | Site of the Year 2024, 3D ice-cube journey | WebGL scroll narrative |
+| `lusion` | Most-awarded WebGL studio | physics, particles, pointer play |
+| `activetheory` | Repeat SOTY winner | scroll-driven 3D storytelling |
+| `fizzi` | Soda product landing | scroll→3D object mapping |
+| `macbook-ui` | Hardware product page | product reveal beats |
+| `nimbus-keyboards` | Keyboard brand | configurator, theme playground |
+| `apple-iphone14` | Classic 3D + GSAP product page | canonical product scroll |
+| `blindbarber` | SOTD, barber anniversary | pinned timeline, scrapbook reveals |
+| `hagis-barbershop` | SOTD, barber | cinematic intro, dark editorial, transitions |
+| `pizzato` | SOTD, plumbing showroom | 3D showroom, illustration depth |
+| `plomberie-5-etoiles` | Nominee, local plumber | conversion-first at an award bar |
+| `amrit-palace` | SOTD, restaurant | menu-as-scroll, warm editorial, review placement |
+| `tripletta` | SOTD, pizza | high-energy pacing, infinite scroll, transitions |
+| `planetono` | SOTD, custom three.js | toon shaders, Rive micro-interactions |
+| `banzai-nudols` | SOTD + Developer Award | character-driven SKU storytelling |
+| `side-8-group` | Hand-built reference, mining/construction contractor | Tier C with nothing photogenic: particle morph, drawn technical diagrams, 3 photos in 25 screens |
 
-10. [https://pizzatoits.it/](https://pizzatoits.it/) — Pizzato. Awwwards SOTD. 3D showroom, scroll-driven about/showroom, illustration + WebGL-style depth.
-11. [https://www.plomberie5etoiles.com/](https://www.plomberie5etoiles.com/) — Plomberie 5 Étoiles. Awwwards Nominee. Conversion-first local service site that still clears an award craft bar.
+**The headings say where a site came from, not who may study it.** A veterinary
+brief should mine the restaurant menu-as-scroll, the barber's pinned timeline,
+and the plumber's booking discipline. Prefer the strongest craft for the job
+across the whole catalogue.
 
-#### Origin: restaurants / food brands
+Do this, in order:
 
-12. [https://amritpalace.com/](https://amritpalace.com/) — Amrit Palace. Awwwards SOTD (Nov 2025). GSAP scroll; menu-as-scroll / catalogue-as-journey (reuse for services, SKUs, chapters — not only food).
-13. [https://triplettapizza.com/](https://triplettapizza.com/) — Tripletta Pizza. Awwwards SOTD. Infinite scroll, page transitions, loading animation, GSAP. High-energy pacing.
-14. [https://www.planetono.space/](https://www.planetono.space/) — Planetoño. Awwwards SOTD (7.22). Custom three.js scroll engine, toon/shader 3D, Rive micro-interactions, portal scenes. Scroll-driven 3D flow narrative.
-15. [https://www.nudolsbanzai.it/](https://www.nudolsbanzai.it/) — Banzai (Nudols). Awwwards SOTD + Developer Award. Immersive 3D; attribute-as-character playground; character-driven SKU storytelling.
+1. Read **≥3 studies**, at least two from different origins
+2. **Look at their frames** with the Read tool — the studies are measurements,
+   the frames are the design
+3. Name, in chat, the specific things you are taking and from where. Three to
+   six lines is enough:
+   ```
+   Taking: hairline price rows + cursor image preview ← amrit-palace desktop-03
+           pinned year rail                          ← blindbarber desktop-03
+           full-bleed photo → quiet type alternation  ← hagis-barbershop
+   ```
 
-Study them for craft components. Rebuild for the product and brand in front of you. Do not clone layouts, copy, or brand marks.
+Every major section you ship traces to one of those lines or to the brief. A
+section that traces to neither is a section you invented on autopilot.
 
-## Motion / interaction stack
+**The steal lists are a menu, not a component library.** Three of four pages
+built from this skill closed on the same three components: a `<details>` FAQ
+accordion, a full-width footer wordmark in a face used nowhere else on the page,
+and a key/value hairline table. None of the three was in any brief. Caps:
 
-Prefer the lightest tool that still hits the award bar. Match the project's existing stack first. Choose tools that can deliver the board items — if the board needs scrubbed cinema or WebGL, do not downgrade to CSS fade-ins.
+- **Two components maximum from any one study.** Take a third and you are
+  rebuilding that site with different photographs.
+- **Name the source per component in the build notes**, the way the take-list
+  above does. A component nobody can trace was reached for, not chosen.
+- **The FAQ accordion is not a default closing section.** One study of fifteen
+  ships one: `plomberie-5-etoiles`, the nominee rather than a Site of the Day,
+  where four rows answer the customer's literal questions (`Offrez-vous un
+  service d'urgence en plomberie ?`) on a page whose entire job is booking a
+  plumber. Step 4c asks a local-business page for an objection block and that is
+  what it means. A feature list restated behind `<summary>` is furniture, and
+  the auditor already reads that check on content rather than shape.
+- **A full-width footer wordmark needs a face that already carries the page.**
+  Amrit's works because Satoshi has already set 159 leaf nodes of body and label
+  text by the time the footer arrives; Tripletta's giant `TRIPLETTA` works
+  because Oswald 700 sets 207. A face introduced for one word at the bottom is a
+  third family doing one job, and `font-sprawl` is the smaller half of that
+  problem.
+- **One key/value hairline table per page.** Where the content genuinely is a
+  catalogue, take Amrit's rule instead: 5–6 rows per block, each block on its own
+  ground, never two adjacent, each closed by one button that opens the full set.
 
-| Need | Default |
-|------|---------|
-| React page motion / scroll / layout | Motion (Framer Motion) |
-| Complex timeline / scrub / cinematic scroll | GSAP + ScrollTrigger |
-| True 3D / WebGL | React Three Fiber + Drei |
-| CSS-only page (no React) | CSS scroll-driven animations + View Transitions where supported |
-| Particles / light effects | Only if they serve the product story |
+To study a site not in the corpus:
 
-Do not add Three.js for a fade-in. Cap particle counts on mobile. Respect `prefers-reduced-motion` with coherent, still art-directed fallbacks.
+```bash
+PW_DIR=<dir with node_modules/playwright> STEPS=8 \
+  node scripts/study-site.mjs "<url>" <slug> assets/studies
+```
 
-## Design standard (award craft)
+**Virtual-scroll sites read as broken.** `igloo-inc`, `lusion` and
+`activetheory` drive everything from wheel events and never write
+`window.scrollY`, so `scrollHeight` equals the viewport height and every
+capture step reports `reachedY: 0`. Two of the three also render zero `<img>`
+elements, because the imagery lives in WebGL. A first pass at `igloo.inc`
+captured eight identical blank frames in Times and looked like a dead site; it
+was a live site that had not booted yet. When a capture shows
+`scrollHeight == viewportHeight` plus a fallback font plus `fontFaces` marked
+`unloaded`, raise `SETTLE`, trust the wheel-stepped frames over the DOM probe,
+and sample runtime colour and type from the pixels rather than from
+`data.json`.
 
-Prioritize:
+---
 
-* One composition in the first viewport (brand-first; not a dashboard of widgets)
-* Expressive typography (no default Inter/Roboto/Arial/system as the display voice)
-* Atmosphere (depth, light, texture, photo, or crafted 3D — not flat fill)
-* Minimal copy; visual storytelling over paragraphs
-* Spacing and crop that feel art-directed
-* Meaningful micro-interactions and cinematic scroll
-* Strong hierarchy; a memorable hero
-* Performance that stays smooth while looking expensive
+## Step 3 — Art Direction Contract
 
-Calibrate against the references after you have scrolled them and filled the board. Compose from the board. Ship an **original brand skin** on those studied craft components.
+Emit this block, filled with literal values, **before any component code**. Every
+line of CSS derives from it. If later code contradicts the contract, the contract
+wins. Values and rationale: `references/typography.md`, `references/color-and-light.md`,
+`references/motion.md`.
 
-## Signature WOW (required)
+```css
+/* type — 2 families. Display may never be Inter/Roboto/Arial/system/Space Grotesk/Poppins */
+--font-display:   "<real family>";
+--font-text:      "<real family>";
+--display-size:   clamp(3.25rem, 11vw, 11rem);  /* first screen lands 6–14vw at 1440 */
+--display-lh:     0.92;                          /* 0.80–1.00, never 1.25 */
+--display-track:  -0.035em;                      /* −0.02 to −0.05em display, 0 on body */
+--display-weight: 300;                           /* commit: 200–300 or 800–900 */
+--text-size:      1.0625rem;                     /* 17px. 14px body is the AI tell */
+--text-lh:        1.55;
+--measure:        66ch;
+/* display : body size ratio ≥ 5:1 */
 
-Ship **≥3 signature moments** that would make a jury stop scrolling. Each must:
+/* colour: state the model here, RATIONED ACCENT or FIELD, then fill the rest.
+   Rationed: 1 dominant + 1 accent + tinted neutrals, accent ≤10% of area
+             (Amrit rations saffron to 5 backgrounds across 11.4 screens).
+   Field:    4–6 complete {ground, tint, accent} triples, one per band, the
+             accent painting whole viewport-width bands at full saturation
+             (Tripletta: #004632, #00777D, #FF6A00, theme flipping every 1.2
+             screens). Rules for both in references/color-and-light.md.
+   Never #000 or #fff either way. */
+--ground:     #______;   /* ≥50% of painted area */
+--ground-2:   #______;
+--edge:       #______;
+--ink:        #______;   /* ≥4.5:1 on ground */
+--ink-muted:  #______;   /* verify this one — it is the one that fails */
+--accent:     #______;   /* rationed: ≤10% of area. Field: whole bands */
 
-* Trace to a board row
-* Serve the product story
-* Survive on mobile (adapted, not deleted)
+/* space: 4px base. Bands are asymmetric: two values, not one.
+   Two of four pages built from this skill shipped the old single token
+   verbatim and ran the same padding on every band for their whole length. */
+--band-y-in:  ___px;   /* 64–160 desktop, entering a band */
+--band-y-out: ___px;   /* 96–240 desktop, leaving it. Differ by ≥1.4× */
+--gutter:     clamp(___rem, ___vw, ___rem);  /* 20–28px phone, 48–96px desktop */
+--radius-sm:  __px;  --radius-lg: __px;   /* exactly 2 radii, or 0 everywhere.
+                                            0 is the usual answer once the card
+                                            grid is gone. Delete both if unused. */
 
-Examples of valid moment types: scroll-driven storytelling, WebGL object, interactive playground, cinematic load/transition, pinned timeline, catalogue-as-journey, morphing nav/CTA, typography as spectacle, depth/parallax set pieces, scrapbook/clip reveals.
+/* motion: derive these. references/motion.md carries the ranges and the
+   reasoning; it no longer prints a set to paste, because four pages built from
+   this skill shipped the same two curves and the same four durations. */
+--e-settle: cubic-bezier(_, _, _, _);  /* enters + hovers: low x1, y1 ≥ ~0.8 */
+--e-leave:  cubic-bezier(_, _, _, _);  /* exits: the mirror of settle */
+--t-tap:    ___ms;   /* 90–160  */
+--t-state:  ___ms;   /* 150–320 */
+--t-panel:  ___ms;   /* 300–520 */
+--t-arrive: ___ms;   /* 450–900 */
+--t-drift:  ___s;    /* 20–60, linear only */
+```
 
-Effects without a story fail. Decoration of cards with opacity fades fail.
+Then three more lines, in chat, under the block. They are not CSS and they are
+the part that decides whether the page moves or merely animates:
 
-## UX
+```
+Slowest motion:  <element> at <duration or cycle>, because <what the reader is
+                 being given time to do>
+Fastest motion:  <element> at <duration>, because <what has to feel instant>
+Unrequested:     <the one element moving at a rate the reader did not ask for>,
+                 at <rate>, against <what it is measured against>
+```
 
-Extremely easy to understand. Clean interface. Show the offer — demonstrate or interact — rather than describing it. Scrolling guides; it does not decorate randomly. Conversion paths (book, buy, contact) stay obvious inside the craft.
+Blind Barber's 902px numerals outrun the copy laid over them. Hagi's three
+photographs leave the frame at three rates. Tripletta scrubs its collage
+per-item. None of that was asked for, and it is why those pages read as
+authored. A page whose three lines name the same number twice has one speed.
 
-## Mobile first
+Measured anchors from the corpus, for calibration: Tripletta runs its display at
+270px/18.8vw · Fizzi 208px/14.4vw at line-height 0.80 · Amrit Palace 115px/8vw at
+**weight 300**, tracking −0.04em, with body copy at 14.4px and nav at 10.4px. The
+drama lives in the display, and the scale contrast is what reads as art
+direction.
 
-Design for mobile, tablet, desktop, and touch. Adapt heavy board items into mobile-grade versions of the **same craft idea**. Mobile must still clear the award bar.
+That last number argues with the contract above it, and the contradiction is
+worth reading rather than resolving. `--text-size: 17px` and "14px body is the AI
+tell" are the default to beat; Amrit sets 14.4px, holds a 8:1 scale ratio against
+its display, and won Site of the Day. **What makes 14px a tell is 14px with no
+scale contrast** — 36px headings over 14px grey body. Ship 17px unless you are
+buying something specific with the smaller size, and know which one you are
+doing. Nothing measures this: there is no `body-type-small` check, because a
+check set at 16px would fail the corpus.
 
-## Visual quality + real imagery
+---
 
-Create or source appropriate assets. No generic stock-as-hero, repetitive AI illustration, or template chrome.
+## Step 4 — Pick an ambition tier
 
-**Avoid (instant fail):** generic SaaS templates; excessive cards; excessive rounded corners; generic gradients; glassmorphism everywhere; huge text blocks; excessive copy; low-poly box/primitive stand-ins for real products/places; orphan sections with no board row.
+Full detail, entry requirements, and the failure modes to guard:
+`references/ambition-tiers.md`.
 
-### Real imagery hard rule (physical product / place / service)
+| Tier | What it uses | Choose when |
+|---|---|---|
+| **A — Editorial** | Type, photography, composition, CSS motion | Strong photography, short timeline, plain stack, or BLIND from Step 0 |
+| **B — Choreographed** (default) | GSAP/ScrollTrigger or Motion scroll: pins, scrubs, split reveals, transitions | The story has beats |
+| **C — Rendered** | WebGL/R3F on top of B | The object *is* the story, and a credible model exists |
 
-Dominant visual = **real photography** of the product, place, craft, or honest category context (owner assets first; else high-quality royalty-free that clearly depicts the category).
+Tier C's default stack is React + Vite + R3F + drei + Lenis, and its architecture
+is in `references/scroll-direction.md`: one timeline, keyframe tracks, a
+director, scroll state outside React. **The stack is a default, not a
+requirement.** The architecture is what matters, and a rotating object on a
+sticky canvas is not it.
 
-WebGL/R3F (when used) must **stage, parallax, scrub, clip, or depth-layer real images/textures** — not replace the product with abstract stand-ins.
+**Declare the tier in the page**, first line of `<head>`, so the auditor can
+check the claim against what you built:
 
-**Forbidden:** Lego/box heroes for real machines, venues, food, tools; procedural geometry kits as the main product; synthetic “stock” as the primary idea.
+```html
+<!-- premium-web-design: tier=B -->
+<!-- premium-web-design: tier=C mobile=B -->    phone build is a tier lower, on purpose
+<!-- premium-web-design: tier=A kind=demo -->   a pattern reference, not a page
+<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->
+```
 
-**Modeled 3D is appropriate** when the product is inherently a digital/SKU model (can, phone, configurator) **and** reads as the product. If you cannot ship a credible model, use real photos inside the motion/WebGL system.
+**`tier=A` needs `because=`.** Three clauses gate Tier A and only the length one
+can be measured, so a page could clear every craft gate by declaring A and
+stopping at 5.9 screens — under the ceiling, under the long-page floor, and
+holding SKILL.md's own "5–12 viewport heights" rule while doing it. The
+declaration now carries the other two clauses: name the award-winning page you
+are matching and say why yours needs less motion than that one. Without it the
+auditor reports `tier-a-undefended`. A reviewer reads that string, so "the stack
+is plain HTML" is not one of the answers.
 
-At least **1** board row must name the photographic treatment when this rule applies.
+`mobile=` declares a step down at **any** tier, not just C→B. `ambition-tiers.md`
+prescribes the Tier B one in as many words — "a pinned horizontal chapter becomes
+a vertical one" — so `tier=B mobile=A` is a legitimate declaration and the phone
+pass is then measured against A. Declaring it is how you honour "never ship a
+heavy model to a phone" without being told you failed to build the tier you
+declared. The fallback still has to paint something: an empty section on the
+phone is reported as `tier-fallback-missing`.
 
-## Jury self-score (required before done)
+The two Tier A checks (`tier-floor`, `tier-a-undefended`) run on the **desktop
+pass only**. The 6-screen ceiling is about how long the page was authored, and a
+phone reflows a four-screen photo essay to nine.
 
-Score 1–10 against an Awwwards-style jury. **All must be ≥8** or revise:
+`kind=demo` exempts a single-pattern reference from the density and ambition
+checks, which are statements about a finished page. It does not exempt anything
+that looks like a deliverable — a `tel:` link with a marked-up address,
+LocalBusiness JSON-LD or an embedded map; a contact form; more than 8 desktop
+screens — and the auditor says so when it rejects a claim.
 
-| Category | Question |
-|----------|----------|
-| Design | Would a creative director call this art-directed, not templated? |
-| Motion | Do signature moments feel intentional, smooth, and product-tied? |
-| UX | Can a stranger get the offer and next action without confusion? |
-| Creativity | Did we transfer cross-industry craft, or only copy the obvious genre template? |
-| Content / assets | Do type, photo/3D, and copy feel award-site grade? |
-| Mobile | Does the phone experience still feel premium? |
+The exemption is built to be useless as a dodge rather than impossible to claim.
+Every suppressed finding is still **named** in the output, and the craft line
+reads `kind demo (SPARSE+CRAFT skipped)` on every pass, so a deliverable
+declaring itself a demo prints its own punch list. Nothing is hidden; only the
+counts move.
 
-Paste the scored table in chat with the final `SHIPPED` board.
+Full code-by-code table: `references/build-loop.md`.
 
-## Implementation
+A page over 6 screens declaring `tier=A` is reported as `tier-floor`. A page
+declaring B or C with no detectable pin, scrub, transition or scene is reported
+as `tier-unmet`. Both are CRAFT findings: they do not fail the build, they tell
+you the page is not the thing you said it was.
 
-**Build it.** Do not stop at mock description.
+Answer three questions in one line each before building:
 
-**Understand → Study (≥10 board) → Art direction + 3 moments → Design from board → Build → Interact → Test → Polish → Jury self-score ≥8 → Verify board**
+1. Which tier, and why is the tier below not enough here?
+2. What is the riskiest moment in this build?
+3. What ships if that moment fails?
 
-If 3D, shaders, particles, or advanced animation appear on the board and fit the product, implement them. If a board item is wrong for this product, replace it with another studied item before coding — do not freestyle.
+No answer to 3 means drop a tier. Tier C additionally requires a real `.glb` —
+primitive boxes standing in for a real product fail this skill outright. Without
+a credible model, stage real photography inside the motion system instead.
 
-### Done checklist (all required)
+---
 
-* [ ] Art direction one-liner + ≥3 signature moments posted before code
-* [ ] Reference Study Board posted before code (≥10 rows; mix origins; ≥1 first-impression row)
-* [ ] Coverage rules met (motion ≥3, composition ≥2, product demo ≥1)
-* [ ] Every shipped section cites ≥1 board row
-* [ ] Board re-posted with `SHIPPED` + file/section markers
-* [ ] Jury self-score pasted; every category ≥8/10
-* [ ] Mobile + reduced-motion still art-directed
-* [ ] No generic SaaS / card-grid fallback
-* [ ] Real photography dominates physical product/place visuals (no box-model stand-ins)
+## Step 4b — Density and the signature device
 
-The final website must be:
+Full detail, corpus counts, CSS recipes, and worked examples for ordinary
+businesses: `references/density-and-devices.md`. Read it before you write markup.
 
-**Award-credible. Beautiful. Clean. Fast. Responsive. Interactive. Reference-grounded. Memorable.**
+The corpus median is **23 images across 9 screens**, roughly 2.5 per screen. A
+page built entirely from the restraint rules above tends to land near 0.7, and
+that ratio is most of the difference between "clean" and "cheap".
 
-> Never settle for "good enough." Never skip the study board. Push until a Site of the Day jury would take it seriously.
+Name these four before you build, the way you name the three signature moments:
+
+```
+Signature device: <the one repeating branded object>, appearing <n> times
+Second type event: <what is set larger than the hero, and where>
+Overlaps:  <which elements cross which boundaries>
+Bleeds:    <what runs past the viewport edge>
+```
+
+Two numbers per row, because they are not the same number and pretending they
+were is how a page landed at a quarter of the design floor and still reported
+SPARSE 0. **Design floor** is what the corpus does and what you are aiming at.
+**Auditor floor** is where the machine starts speaking — set at the corpus
+*worst case*, not its median, so it never argues with a real award site.
+
+| Floor | Design floor | Auditor floor | Why |
+|---|---|---|---|
+| Media per screen | ≥2.0 raw placements | ≥8 *rendered* over 8000px², page over 5 screens | Raw tag counts lie: Amrit ships 69 `<img>` and renders 10 photographs. Median rendered across the corpus is 11 |
+| Distinct photographs | ≥6, each cropped ≥2 ways | ≥5 distinct sources once 6+ placements ship | Eight placements of one frame is one picture |
+| Largest type | **not** in the hero | second event ≥80% of hero, and its box has to fit the glyphs | true of 5 of 6 image-led studies |
+| Overlaps | ≥3, of three different kinds | ≥1, and one of the pair must cover 1.2% of the viewport | Amrit ships exactly 1 on both viewports |
+| Edge bleeds | ≥2 | ≥1, carrying text, media, or 2% of the viewport | a fully contained page reads as a document |
+
+**Bleed left, or clip.** A right-hand bleed adds to `documentElement.scrollWidth`
+and trips the `overflow-x` FAIL, which the same auditor calls "always a bug,
+never a style". A left bleed costs nothing. If a device has to run off the right
+edge, put `overflow-x: clip` on its own section rather than letting the page
+scroll, and never `overflow-x: hidden` on an ancestor of a sticky element or the
+pin silently stops working.
+| Ground flips | 1 per 2–3 screens | ≥3 on a page over 6 screens | Tripletta 1.2, Hagi's 1.6, Amrit 2.8 |
+| Device repeats | ≥4, changing each time | **not measured** — nothing can tell a repeating branded object from a repeated shape | Amrit's review card, Blind Barber's year rail |
+
+The gap between those two columns is yours. Clearing the right-hand column is
+the floor of the floor; it is not the brief.
+
+**The signature device is the thing people remember.** Amrit's saffron menu
+panel. Blind Barber's pinned year rail and 902px numerals. Tripletta's die-cut
+sticker. It is an object, not a colour: it carries information, it repeats at
+different scales, and it is invented from the brief. A vet gets the engraved ID
+disc off a collar. A garage gets the inspection stamp. A builder gets the
+drawing title block.
+
+Giant tint letterforms are part of this and they are *meant* to sit below AA:
+Tripletta measures 1.55:1, Banzai 1.4:1. Mark them `aria-hidden="true"` and make
+sure the word also appears somewhere as real text. The auditor exempts marks
+that meet both conditions and counts them as ambition instead.
+
+**The failure mode of this step is noise.** Density comes from real content
+shown more ways, never from ornament. Every image is a real subject, every
+device instance carries information, and if a mark says nothing, delete it.
+
+---
+
+## Step 4c — The craft floor
+
+Three gates that the corpus meets and restraint rules never produce. All three
+are measured; see the `CRAFT` block in the auditor output.
+
+**Three weight-carrying motion techniques, minimum, on any page over 6 screens.**
+Two on a desktop page over 4 screens that is not a defended Tier A. Not three
+fade-ups. From `references/motion.md`: a scroll-pinned chapter stage, a scrubbed
+sequence tied to a real object, a masked or split type reveal at display scale, a
+cursor-driven preview on an index list, a horizontal chapter, a load sequence
+that resolves into the hero, a page transition, a magnetic element, a canvas or
+3D scene. Runnable implementations of every one of these are in `demos/`. Open
+the nearest and copy it rather than inventing it.
+
+**One non-uniform motion, minimum, at Tier B and above.** Two elements the reader
+can see at once, moving at different rates through the same scroll range. A
+stagger is not this: a stagger is one rate applied at offsets. All four pages
+built from this skill moved at exactly one rate, "700ms after it enters", and two
+of them were declared Tier B. Every corpus site does the opposite: Blind Barber's
+902px numerals outrun the copy laid over them, Hagi's three photographs leave the
+frame at three rates, Tripletta gives every photo in the `WALLOVE` grid its own
+scrub speed. Buildable forms, corpus measurements, and the rule that rate
+differences under about 15% read as a rendering bug: `references/motion.md`,
+**Non-uniform motion**. The cheapest is three photographs on three `translateY`
+ranges over one trigger, about twelve lines of JS.
+
+**A technique is a thing that happens, not a thing that is declared.** Four of
+these nine could be claimed for nothing until an adversarial page claimed all
+four at once, so the auditor now reads the result instead of the markup:
+
+| Claim | What used to satisfy it | What satisfies it now |
+|---|---|---|
+| canvas / 3D scene | any `<canvas>` over a quarter of the viewport | WebGL or three/R3F, **or** a canvas whose pixels are not uniform — something was drawn |
+| loader into hero | `<div data-loader></div>`, empty, anywhere in the page | an overlay painting over ≥25% of the viewport at 120ms and gone by 2500ms, a loading class dropped off the root, or a hooked element that behaves that way |
+| page transition | one element carrying `view-transition-name` | a transition library, a `[data-barba]`/`[data-swup]`/`[data-taxi]` marker, an `@view-transition` at-rule, `startViewTransition()` actually called, or ≥3 named elements |
+| scroll-pinned section | an empty 70vh sticky div in a 220vh parent | the same geometry **holding something** — 12+ characters of text, a media child over 5% of the viewport, or a background image |
+
+**Images ship responsively.** `srcset` with **two or more candidates carrying
+real `w`/`x` descriptors**, or `<picture>` with at least one `<source>` — WebP or
+AVIF and a JPEG fallback. `srcset="hero.jpg"` is one payload wearing the
+attribute, and it used to skip the check entirely. A source more than 2.5× its
+rendered CSS width with no real source set is reported. A 2400px hero sent whole
+to a 390px phone is the single laziest thing a premium page can do.
+
+**Local business pages close the loop.** These four come straight from the
+corpus steal lists and every one of them was missing from a page that otherwise
+scored perfectly:
+
+| Device | Why | From |
+|---|---|---|
+| Fixed bottom action bar on phones | Thumb zone. Pin it to the **bottom**, never the top | `amrit-palace`, `plomberie-5-etoiles` |
+| One line saying what happens after the button | "We confirm by text within the hour" | `content-and-copy.md` |
+| An FAQ or objection block | Answers the question that stops the booking | `plomberie-5-etoiles` |
+| A named human who is not a reviewer | Trust attaches to people, not companies | `plomberie-5-etoiles` |
+
+**The conversion checks only run when the page says it is a local business.**
+A `tel:` link alone is not enough, deliberately, or every product page with a
+support number gets told it is missing a plumber's FAQ. The switch is a second
+machine-readable signal: an `<address>` element, `LocalBusiness` JSON-LD, an
+embedded map, or opening-hours copy. Ship one, or these four checks stay silent
+and report nothing, which looks identical to passing.
+
+Both of the last two are checked on their content, not their shape. An
+`<details>` counts once **two** of them carry 40+ characters of answer past the
+summary; a heading reading "FAQ" counts once 120+ characters of answer follow it.
+An empty accordion is furniture. And a placeholder name is not a person —
+"Jane Doe, Owner" is rejected here and reported as `copy-placeholder` above.
+
+A rating with no link to its source is reported as `rating-unsourced`. The link
+has to go somewhere: `<a href="#">4.9</a>` is the claim with a link painted on
+it. Publishing `4.9` with nothing behind it is the same class of claim as a
+fabricated review.
+
+**Announce every capability downgrade with `console.info`.** If WebGL is
+missing, a model fails to fetch, or the phone build takes the still, log the
+failed condition — a silent fallback has now cost three investigations on this
+skill, and in every one the console was clean while the page rendered something
+other than what it claimed. The auditor collects and prints anything logged that
+mentions a fallback, and `tier-unmet` says so when nothing was.
+
+---
+
+## Step 5 — Build in this order
+
+```
+1. Type, colour, spacing on a still page      ← ~70% of perceived quality
+2. Composition: crop, scale contrast, negative space
+3. Real imagery at real resolution
+4. Motion — last, and only what earns it
+5. Audit loop until zero FAILs
+```
+
+Motion cannot rescue an ugly still page. Screenshot with animation disabled: if
+that frame looks like a template, animating it produces an animated template.
+
+Imagery is not decoration on this kind of site. For a physical product, place,
+or service, the dominant visual is real photography — owner assets first, then
+high-quality royalty-free that genuinely depicts the category. WebGL, when used,
+stages and moves real images and textures rather than replacing the product with
+abstract stand-ins.
+
+**Imagery is a gate, not a step. Write down what each image depicts, then read it
+against the copy that will sit beside it.** Four pages built from this skill
+cleared every automated check and were rejected in ten seconds each on the same
+fault: a Chinese-labelled milling machine on a Sheffield espresso page, a carbon
+full-suspension mountain bike on a steel framebuilder's, a bare brick wall
+captioned "the green door", a woodturning lathe throwing wood shavings in an
+exhibition named after metal swarf, and a two-tone red-and-cream 3D model wearing
+a gold "Magic" medallion under copy reading "stripped to bare metal, re-enamelled
+in a single colour". No probe catches any of them and nothing else on the page
+survives one. **Refuse to ship where the hero product is not the product.** The
+list to write, the four questions to ask of it, and the fixes in order of
+preference are in `references/imagery.md` under **The subject gate**.
+
+To find it:
+
+```bash
+# default: contact sheet, no API key, choose by eye
+PW_DIR=<dir with node_modules/playwright> \
+  node scripts/find-photos.mjs "<specific scene>" ./photos 12
+
+# or, when the frame is already decided or Step 0 reported BLIND
+skills/jmr-image/scripts/jmr-image.sh search "<specific scene>" --limit 10
+```
+
+Then read `photos/contact-sheet.jpg` and choose by eye. Full guidance —
+querying, rejection criteria, treatments, crops, resolution — in
+`references/imagery.md`. Copy rules, conversion placement, and the phrases that
+give a page away: `references/content-and-copy.md`.
+
+---
+
+## Step 6 — Audit loop (mandatory when SIGHTED)
+
+```bash
+PW_DIR=<dir with node_modules/playwright> \
+  node scripts/audit-page.mjs "<url or file://…/index.html>" ./.audit
+```
+
+It captures desktop, phone, and reduced-motion frames, measures the rendered
+result, prints every finding, and exits non-zero while any FAIL stands.
+
+Every pass, do both:
+
+1. **Read the frames** with the Read tool. The measurements catch contrast and
+   sizing; only your eyes catch a bad crop, a collision, a limp hero, or a
+   composition with nothing to look at.
+2. **Clear the findings.** FAILs reach zero. Each WARN gets a fix or one line
+   saying why the design intends it.
+
+Two or three passes is normal. One pass means you did not look. What each
+finding means and how to fix it: `references/build-loop.md`.
+
+---
+
+## Build to the intent, not to the check
+
+Every threshold in this skill is a proxy for a judgement, and every proxy can be
+satisfied without meeting the judgement. An agent that reads `audit-page.mjs`
+and builds to its numbers will pass and still ship something weak: three token
+gestures satisfy the motion count, one photograph repeated satisfies density, a
+rating linked to a search URL satisfies the source check.
+
+The checks exist because those failures are common, not because passing them is
+the goal. **If you find yourself asking what the minimum is that clears a
+finding, you have started building the wrong thing.** The corpus is the standard;
+the auditor only catches the ways pages fall short of it that are cheap to
+measure.
+
+## Instant fails
+
+Each row has a named replacement — a ban with no successor just sends you to the
+next-most-generic option — and a **Measured** column saying what the auditor
+actually does about it. That column used to be a claim ("each one has a threshold
+the auditor measures") and it was false for seven of these rows, which is a
+worse failure than not having the rule: an agent reads the table, assumes the
+linter is holding the line, and ships the thing.
+
+**Read the three "you" rows yourself. Nothing else will.**
+
+| Fail | Threshold | Measured | Ship instead |
+|---|---|---|---|
+| Generic display face | Largest first-screen face is a system/default face — the list now covers Georgia, Times, Verdana, Courier and the rest, not just the sans-serifs | FAIL `display-font-generic` | A pairing from `references/typography.md` |
+| Default-escape display face | Space Grotesk, Poppins, Montserrat, DM Sans, Outfit, Sora — where every model goes the moment you ban Inter | FAIL `display-font-escape-default` | A row from the verified pairings table, not the next likeliest name |
+| Display face that does not exist | The family is named in CSS, declared in no `@font-face`, and changes no glyph metric — the browser is drawing its default under your name | FAIL `display-font-unavailable` | Load the face, and check the frame |
+| Font sprawl | >3 families rendered | WARN `font-sprawl` | 2: display + text, contrasted across an axis (serif/sans, condensed/wide) |
+| Card-grid template | ≥6 padded boxes that are rounded **or** bordered **or** shadowed and hold only words. A tile holding a photograph is not this | FAIL `card-grid-template` | Index rows with hairlines · asymmetric editorial blocks · a horizontal gallery · one large statement instead of six equal ones |
+| Radius chaos | >4 distinct radii | WARN `radius-chaos` | Exactly 2, or 0 everywhere. Nested: inner = outer − gap |
+| Palette sprawl | >4 hue families with real area | WARN `palette-sprawl` | 1 dominant + 1 accent + tinted neutrals |
+| Hero type small | <4.5vw on the first screen | WARN `hero-type-small` | 6–14vw |
+| Body type small | <16px | **you** — and the corpus argues with the rule: Amrit Palace sets body at 14.4px and nav at 10.4px and won SOTD. 17–18px is the default to beat, not a law. Beat it on purpose or not at all | 17–18px unless you can say why |
+| Contrast | <4.5:1 body, <3:1 for ≥24px | FAIL `contrast` | Darken the text, not the brand colour |
+| Text over media, no scrim | No scrim, no text-shadow. A gradient only counts as a scrim when one of its stops actually paints (alpha ≥ 0.35) | WARN `text-over-media` | `linear-gradient(to top, rgb(0 0 0 / .78), transparent 65%)` |
+| Section rhythm | Half the sections under 48px breathing room | WARN `section-rhythm` | 96–200px between movements |
+| Measure too wide | >92 characters per line | WARN `measure-too-wide` | 60–75ch |
+| Pure `#000` / `#fff` | Either pole carrying ≥12% of the painted area | WARN `pure-black-white` | Tinted off-black and off-white |
+| Gradient text | Any `background-clip: text` gradient | FAIL `gradient-text` | One solid colour; emphasis by size or weight |
+| Purple→blue gradient | A gradient stop in the 250–290 hue band with real saturation and area | FAIL `gradient-purple-blue` | Whatever the brief actually justifies |
+| Box/primitive 3D stand-in | `<boxGeometry>` as the product | **you** — a cube renders as cleanly as a car and no probe can tell you which one you shipped. Look at the frame | A real `.glb`, or real photography inside the motion system |
+| Uniform motion | Same enter animation on ≥4 components; same hover scale on ≥3; stagger on ≥2 lists in one view | **you** — SPARSE `motion-vocabulary` counts distinct declarations and will not catch one gesture used four times | Different motion per meaning — see `references/motion.md` |
+| Motion tokens copied whole | Four or more of the easing curves or durations printed anywhere in this skill, shipped unchanged | WARN `motion-tokens-verbatim` | Ranges and the three-line budget in `references/motion.md`. The numbers are not wrong; four pages reaching the same seven means none of them chose |
+| One rate for the whole page | Nothing moves at a rate other than "n ms after it enters", on a Tier B or C page | **you**. A scrub, a pin and a stagger all read as motion to a probe, and none of them is two rates in one frame | One non-uniform pair: three photographs on three travel ranges, or a numeral outrunning the copy over it |
+| Image contradicts its copy | The photograph, model or caption depicts something other than what the sentence beside it claims | **you**. No probe can see what is in a frame. A jury sees it in ten seconds | The subject gate in `references/imagery.md`: write what each image depicts, check it against the copy, refuse to ship where the hero product is not the product |
+| Symmetric bands end to end | One `padding-block` value on every section, so the page breathes at one rate for its whole length | **you**. `section-rhythm` reads `padding-top`/`margin-top` only and fires only past half the sections | Asymmetric bands differing by ≥1.4×, plus one committed one-sided silence. Hagi's pays 450px of black between two loud sections |
+| Copy placeholders | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" | FAIL `copy-placeholder` | Real names, real prices, real phone numbers |
+| Copy tells | "Welcome to", "Unlock the power of", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, `Scroll ↓`, `SECTION 01` on four or more blocks | WARN `copy-tells` | Specific numbers (`47.2%`, `£64`), and no scroll cue |
+
+---
+
+## Done
+
+Every box needs an artifact, not a claim.
+
+**Exit 0 is not this list.** The exit code tracks FAILs only; SPARSE and CRAFT
+never touch it, by design, and the auditor now says so on the last line when
+either stands. A page that exits 0 with six ambition findings has passed the
+linter and not the bar.
+
+- [ ] Direction lock posted before code — vibe, hero, section system, 3 moments
+- [ ] ≥3 studies read, their frames viewed, and the take-list posted with sources
+- [ ] Art Direction Contract posted before component code, with literal values
+- [ ] Tier declared, with the answer to "what ships if the risky moment fails"
+- [ ] `audit-page.mjs` exits 0 at desktop and phone
+- [ ] Every desktop and phone frame read with the Read tool
+- [ ] `reduced-motion.jpg` still reads as art-directed, with nothing stranded invisible
+- [ ] No console errors in `audit.json`
+- [ ] Composition variety rules met (≥4 layout families, ≤2 consecutive splits)
+- [ ] Real photography carries any physical product, place, or service
+- [ ] Every image is a local file. Nothing hotlinks a third-party host
+- [ ] Verified by blocking the image hosts and reloading
+- [ ] Signature device named, and repeating at least four times
+- [ ] The largest type on the page is not in the hero
+- [ ] Motion budget stated: slowest, fastest, and the one element moving at a rate the reader did not ask for
+- [ ] No four easing curves or durations copied unchanged out of this skill
+- [ ] One non-uniform motion shipped and named, at Tier B or above
+- [ ] What every image depicts is written down, and read against the copy beside it
+- [ ] No more than two components taken from any one study, each named with its source
+- [ ] Most bands asymmetric, and one committed one-sided silence on the page
+- [ ] Colour model named: rationed accent, or field
+- [ ] Six or fewer middot-chained micro-labels, and any marquee carries the page's best string
+- [ ] `audit-page.mjs` reports zero SPARSE findings
+- [ ] `audit-page.mjs` reports zero CRAFT findings
+- [ ] Tier declared in the markup, and the page actually contains that tier's evidence
+- [ ] `tier=A` carries `because=` naming the award page it matches
+- [ ] Three or more weight-carrying motion techniques, named — each one a thing that happens, not an attribute that declares it
+- [ ] Every image has a real `srcset` (2+ candidates with `w`/`x`) or a `<picture>` with a `<source>`
+- [ ] ≥5 distinct photographs, not one frame placed eight times
+- [ ] Every capability downgrade announced with `console.info`
+- [ ] Local business: bottom action bar, what-happens-next line, FAQ, a named human
+- [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
+
+## Reference map
+
+| Open this | When |
+|---|---|
+| `references/typography.md` | Choosing faces, sizes, tracking, scale |
+| `references/color-and-light.md` | The two colour models (rationed accent, field), palettes, gradients, shadow, texture, dark mode |
+| `references/layout-archetypes.md` | Page shape, section composition, grid, asymmetric band spacing |
+| `references/motion.md` | Duration and easing ranges, the motion budget, non-uniform motion, reveal patterns, reduced motion |
+| `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
+| `references/imagery.md` | Sourcing, the subject gate, treating, and cropping photography |
+| `references/content-and-copy.md` | Words, conversion placement, copy tells, and the micro-label and marquee budgets |
+| `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
+| `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
+| `references/build-loop.md` | The audit loop and what each finding means |
+| `references/site-studies/*.md` | What real award sites actually do, measured |
+| `demos/*.html` | Runnable implementations of each pattern |
+
+## Demos
+
+Eleven self-contained pages, each a different palette and pairing, each
+exiting 0 from the auditor. Open the one nearest your brief and read it before you
+write the pattern yourself.
+
+| Demo | Pattern | Stack |
+|---|---|---|
+| `pinned-stage.html` | Archetype C — subject held while copy chapters cycle | sticky + IntersectionObserver |
+| `index-list.html` | Archetype E — the card-grid replacement, cursor image preview | CSS + rAF lerp |
+| `editorial-split.html` | Archetype B — sticky type column, ground shift, masked reveals | sticky + IO |
+| `type-reveal.html` | Line-mask display reveal, character split on scroll | CSS + custom splitter |
+| `loader-to-hero.html` | Load sequence that resolves *into* the hero, skippable | FLIP measurement |
+| `cursor-index.html` | Lerped custom cursor with states, magnetic CTA | rAF, `pointer: fine` only |
+| `photo-treatment.html` | Scrim, duotone, editorial crop pair, grain, with the CSS shown | SVG `feColorMatrix` |
+| `horizontal-chapter.html` | Archetype D — vertical scroll drives a horizontal pan | GSAP + ScrollTrigger |
+| `scrub-sequence.html` | Scroll-scrubbed canvas sequence, the Tier-B answer to WebGL | canvas, DPR capped |
+| `three-scroll-scene.html` | **Tier C.** A real glTF object driven across 3 scroll beats, with an image-sequence fallback | three.js r169, native scroll + CSS sticky |
+| `page-transition.html` | Index to detail, holding the photograph and the title across the change | View Transitions API + a FLIP fallback |
+
+`horizontal-chapter.html` is also the GSAP landing checklist in runnable form:
+eleven numbered guards, each commented with what breaks without it, and a pin
+that is *released* under reduced motion rather than having its tween disabled.
+
+`three-scroll-scene.html` is the same for Tier C: sixteen numbered guards, a
+DPR cap taken from four measured award sites, a full teardown on `pagehide`,
+and a real second implementation for phones and for browsers with no WebGL2.
+It also prints which path it took, because a silent downgrade to the fallback
+survives every screenshot and every automated check. Read
+`references/scroll-storytelling.md` alongside it.

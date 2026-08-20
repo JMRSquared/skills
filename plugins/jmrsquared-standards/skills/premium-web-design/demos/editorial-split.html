@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<!-- premium-web-design: tier=A kind=demo -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halden + Roe — architects, Copenhagen and London</title>
+<!--
+  ============================================================================
+  PATTERN — Layout archetype B, "editorial split" (references/layout-archetypes.md)
+  A sticky type column at 40%, scrolling image and chapter content at 60%.
+  The cheapest premium layout there is: position:sticky, one grid, no library,
+  and it reads as a magazine spread rather than a web page.
+
+  Three movements, and the ground changes under each one — dark, light, dark —
+  because a ground shift is what marks a chapter break when you have deleted
+  every divider and section heading.
+
+  DERIVED FROM
+  - blindbarber   → ground-flip chapter breaks as the only transition device,
+                    and the sticky index whose active row tracks the scroll
+  - hagis-barbershop → one long light passage between two dark ones; type set
+                    at 1.00 leading; 11px chrome against a 150px display
+  - amrit-palace  → a rationed accent (here: five appearances of #E8FF4A in
+                    eight screens, all of them functional)
+
+  THE FAILURE MODE THIS AVOIDS
+  Two.
+  (1) The 50/50 split. A 6/6 grid reads as a default; 40/60 reads as a
+      decision. The sticky column is also the narrower one, which is what
+      stops it turning into a second content column.
+  (2) The stranded reveal. Every masked image here is hidden with clip-path —
+      and Chrome folds an element's own clip-path into its IntersectionObserver
+      rectangle, so an element masked to zero height NEVER reports
+      isIntersecting and stays invisible for ever. The mask therefore goes on
+      the child <img> and the observer watches the parent. Miss that and the
+      page ships with three blank rectangles where the photography was.
+
+  HOW TO ADAPT
+  1. `.split` is the whole pattern. Duplicate it per movement, put the sticky
+     material in `.split__type` and the scrolling material in `.split__flow`.
+  2. `.split--light` is the ground shift. It re-declares four tokens and
+     nothing else — a light variant is a separate composition, not an
+     inversion, which is why `--ink-muted` gets its own value there instead of
+     being flipped.
+  3. On phones the sticky column stops being sticky and becomes a lead-in
+     block. Do not try to keep two columns at 390px.
+  4. If a movement needs the type to change as the flow scrolls (rather than
+     stay fixed), keep the same markup and swap the sticky block's contents
+     from the same IntersectionObserver that drives the works index.
+
+  Photography: Unsplash. Palette: "Night studio" (color-and-light.md #1), verbatim.
+  Type pairing: Familjen Grotesk + Sentient (typography.md row 12), verbatim.
+  Motion values: motion.md, verbatim. No invented curves, no transition:all.
+  ============================================================================
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=sentient@300,400,500&display=swap" rel="stylesheet">
+<style>
+/* ── Art direction contract ─────────────────────────────────────────────── */
+:root{
+  /* colour — palette 1, "Night studio" */
+  --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
+  --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
+
+  /* type */
+  --font-display:"Familjen Grotesk",system-ui,sans-serif;
+  --font-text:"Sentient",Georgia,serif;
+  --step-hero:clamp(3.25rem,11vw,11rem);
+  --step-h1:clamp(2.5rem,6.5vw,6rem);
+  --step-h2:clamp(1.875rem,3.6vw,3.25rem);
+  --step-h3:clamp(1.375rem,2.2vw,2rem);
+  --step-lead:clamp(1.125rem,1.5vw,1.5rem);
+  --step-body:clamp(1rem,1.05vw,1.125rem);
+  --step-small:0.9375rem;
+  --step-label:0.75rem;
+
+  /* space */
+  --gutter:clamp(1.25rem,4vw,5rem);
+  --section-y:clamp(5rem,12vh,12rem);
+
+  /* motion */
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --ease-in:cubic-bezier(0.7,0,0.84,0);
+  --ease-move:cubic-bezier(0.65,0,0.35,1);
+  --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--font-text);font-size:var(--step-body);line-height:1.55;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+img{display:block;max-width:100%}
+figure{margin:0}
+ul{list-style:none;margin:0;padding:0}
+
+/* one texture for the whole page */
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9;
+  opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap{width:min(100% - var(--gutter)*2,90rem);margin-inline:auto}
+.label{
+  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
+  font-weight:500;font-family:var(--font-display);color:var(--ink-muted);margin:0;
+}
+.display{
+  font-family:var(--font-display);font-weight:700;
+  font-size:var(--step-hero);line-height:.9;letter-spacing:-.04em;
+  text-wrap:balance;margin:0;
+}
+h2,h3{font-family:var(--font-display);font-weight:500;margin:0}
+p{text-wrap:pretty;margin:0}
+
+/* ── Masthead ───────────────────────────────────────────────────────────── */
+.masthead{
+  position:absolute;inset:0 0 auto 0;z-index:4;
+  display:flex;justify-content:space-between;align-items:baseline;gap:1rem;
+  padding:1.75rem var(--gutter);
+}
+.masthead__mark{
+  display:inline-block;padding-block:.5rem;
+  font-family:var(--font-display);font-weight:700;font-size:1.25rem;
+  letter-spacing:-.02em;color:var(--ink);text-decoration:none;
+}
+.masthead__meta{display:flex;gap:clamp(1rem,2.5vw,2.5rem)}
+
+/* ── Hero ───────────────────────────────────────────────────────────────── */
+.hero{position:relative;min-height:100svh;display:flex;background:var(--ground);padding-top:6rem}
+.hero__img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  object-position:58% 42%;filter:brightness(.6) contrast(1.12) saturate(.55);
+}
+.hero__scrim{
+  position:relative;z-index:2;width:100%;align-self:flex-end;
+  padding:8rem var(--gutter) clamp(2.5rem,4vh,5rem);
+  background-image:linear-gradient(to top,rgb(11 11 13 / .95) 0%,rgb(11 11 13 / .84) 34%,rgb(11 11 13 / .52) 62%,rgb(11 11 13 / .14) 84%,rgb(11 11 13 / 0) 100%);
+}
+.hero__scrim .label{margin-bottom:1.5rem}
+.hero__scrim .display{max-width:13ch;margin-bottom:2rem}
+.hero__lead{
+  font-size:var(--step-lead);line-height:1.45;max-width:44ch;color:#D9D8D4;
+}
+.hero__foot{
+  display:flex;gap:clamp(1.5rem,4vw,4rem);margin-top:2.75rem;padding-top:1.5rem;
+  border-top:1px solid rgb(244 243 241 / .22);flex-wrap:wrap;
+}
+.hero__foot span{
+  font-family:var(--font-display);font-size:var(--step-small);color:#C4C3C0;
+  /* 15px type sitting directly on a photograph gets its own scrim */
+  text-shadow:0 1px 18px rgb(11 11 13 / .8);
+}
+
+/* ── The split ──────────────────────────────────────────────────────────── */
+.split{padding-block:var(--section-y);background:var(--ground)}
+.split__grid{
+  display:grid;grid-template-columns:40fr 60fr;gap:clamp(2rem,5vw,5.5rem);
+  align-items:start;
+}
+.split__type{position:sticky;top:12vh}
+.split__type .label{margin-bottom:1.5rem}
+.split__title{
+  font-size:var(--step-h2);line-height:1;letter-spacing:-.035em;
+  margin-bottom:1.75rem;max-width:14ch;
+}
+.split__body{color:#CFCECB;max-width:38ch}
+.split__body+.split__body{margin-top:1.25rem}
+
+/* the works index — active row tracks the flow column */
+.index{margin-top:2.75rem;border-top:1px solid var(--edge)}
+.index li{border-bottom:1px solid var(--edge)}
+.index a{
+  display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;
+  padding:1rem 0;text-decoration:none;color:var(--ink-muted);
+  font-family:var(--font-display);font-size:var(--step-small);
+  transition:color var(--d-state) var(--ease-out);
+}
+.index a span:last-child{font-variant-numeric:tabular-nums}
+.index li[data-active="true"] a{color:var(--accent)}
+.index a:hover{color:var(--ink)}
+
+/* ── Flow column ────────────────────────────────────────────────────────── */
+.project+.project{margin-top:clamp(4rem,8vh,8rem)}
+.project__media{overflow:hidden;background:var(--ground-2);aspect-ratio:4/2.9}
+.project__media img{
+  width:100%;height:100%;object-fit:cover;
+  filter:saturate(.72) contrast(1.06) brightness(.94);
+}
+.project__head{
+  display:flex;justify-content:space-between;align-items:baseline;gap:1.5rem;
+  margin-top:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--edge);
+  flex-wrap:wrap;
+}
+.project__name{font-size:var(--step-h3);letter-spacing:-.02em}
+.project__meta{
+  font-family:var(--font-display);font-size:var(--step-small);color:var(--ink-muted);
+  font-variant-numeric:tabular-nums;
+}
+.project__text{margin-top:1.25rem;color:#CFCECB;max-width:56ch}
+.project__caption{margin-top:.75rem;font-size:var(--step-small);color:var(--ink-muted)}
+
+/* ── Ground shift: the light movement ───────────────────────────────────── */
+.split--light{
+  /* a light variant is a separate composition, not an inversion: --ink-muted
+     is re-picked for the new ground rather than flipped */
+  background:var(--ink);color:var(--ground);
+  --ink-muted:#4A4A52;
+  --edge:#D7D5D0;
+}
+.split--light .split__body,
+.split--light .method__text{color:#3D3D45}
+.split--light .method__figure img{filter:none}
+
+.method{border-top:1px solid var(--edge)}
+.method__item{
+  display:grid;grid-template-columns:4rem 1fr;gap:clamp(1rem,2.5vw,2.5rem);
+  padding:2.5rem 0;border-bottom:1px solid var(--edge);
+}
+.method__no{
+  font-family:var(--font-display);font-weight:500;font-size:var(--step-small);
+  font-variant-numeric:tabular-nums;color:var(--ink-muted);
+}
+.method__name{font-size:var(--step-h3);letter-spacing:-.02em;margin-bottom:.75rem}
+.method__text{max-width:52ch}
+.method__figure{margin-top:clamp(2.5rem,4vh,4rem)}
+.method__figure div{overflow:hidden;aspect-ratio:16/10;background:var(--ground-2)}
+.method__figure img{width:100%;height:100%;object-fit:cover}
+.method__figure figcaption{margin-top:.75rem;font-size:var(--step-small);color:var(--ink-muted)}
+
+/* ── Studio movement ────────────────────────────────────────────────────── */
+.split--studio{background:var(--ground-2)}
+.studio__pair{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.studio__pair div{overflow:hidden;background:var(--ground)}
+.studio__pair div:first-child{aspect-ratio:3/4}
+.studio__pair div:last-child{aspect-ratio:3/4;margin-top:clamp(2rem,4vh,5rem)}
+.studio__pair img{
+  width:100%;height:100%;object-fit:cover;
+  filter:saturate(.72) contrast(1.06) brightness(.94);
+}
+.studio__text{margin-top:clamp(2rem,4vh,3rem);max-width:52ch;color:#CFCECB}
+.contact{margin-top:2.5rem;display:grid;gap:1.75rem}
+.contact h3{font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);margin-bottom:.75rem}
+.contact p{color:#CFCECB;font-size:var(--step-small)}
+.contact a{
+  display:inline-block;padding-block:.5rem;color:var(--ink);text-decoration:none;
+  border-bottom:1px solid rgb(244 243 241 / .3);
+  transition:border-color var(--d-state) var(--ease-out),color var(--d-state) var(--ease-out);
+}
+.contact a:hover{color:var(--accent);border-color:var(--accent)}
+.cta{
+  display:inline-flex;align-items:center;min-height:52px;padding:0 1.75rem;
+  margin-top:2.5rem;background:var(--accent);color:#0B0B0D;
+  font-family:var(--font-display);font-weight:700;font-size:var(--step-small);
+  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;
+  transition:background-color var(--d-state) var(--ease-out),
+             transform var(--d-press) var(--ease-out);
+}
+.cta:hover{background:#F0FF7B}
+.cta:active{transform:scale(.97)}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+.foot{background:var(--ground);padding-block:clamp(3rem,8vh,5rem)}
+.foot__legal{
+  display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  border-top:1px solid var(--edge);padding-top:2rem;
+  font-family:var(--font-display);
+  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
+  color:var(--ink-muted);
+}
+
+/* ── Reveals — visible by default, hidden only when JS is alive ─────────── */
+.js .reveal{opacity:0;transform:translateY(16px)}
+.js .reveal.is-in{
+  opacity:1;transform:none;
+  transition:opacity var(--d-enter) var(--ease-out),transform var(--d-enter) var(--ease-out);
+}
+/* headings wipe up behind a mask */
+.js .wipe{overflow:hidden}
+.js .wipe>span{display:block;transform:translateY(102%)}
+.js .wipe.is-in>span{transform:none;transition:transform var(--d-enter) var(--ease-out)}
+/* images open from a mask and settle from 1.06 — the observer watches the
+   WRAPPER, because a clip-path'd element never reports isIntersecting */
+.js .unmask>img{clip-path:inset(0 0 100% 0);transform:scale(1.06)}
+.js .unmask.is-in>img{
+  clip-path:inset(0 0 0 0);transform:none;
+  transition:clip-path var(--d-enter) var(--ease-out),
+             transform var(--d-enter) var(--ease-out);
+}
+/* the method rows are the only staggered list on the page */
+.js .method__item{opacity:0;transform:translateY(12px)}
+.js .method__item.is-in{
+  opacity:1;transform:none;
+  transition:opacity var(--d-enter) var(--ease-out),transform var(--d-enter) var(--ease-out);
+  transition-delay:calc(var(--i,0) * 70ms);
+}
+
+/* ── Breakpoints ────────────────────────────────────────────────────────── */
+@media (max-width:900px){
+  .split__grid{grid-template-columns:1fr;gap:2.5rem}
+  .split__type{position:static}
+  .split__title{max-width:18ch}
+  .studio__pair div:last-child{margin-top:0}
+  .masthead{flex-direction:column;gap:.25rem}
+  .masthead__meta{gap:1.25rem}
+  .hero__scrim{padding-top:9rem}
+  .hero__scrim .display{max-width:11ch}
+  .method__item{grid-template-columns:3rem 1fr}
+  .foot__legal{flex-direction:column;gap:.5rem}
+}
+@media (max-width:520px){
+  .hero__foot{gap:.75rem 1.5rem}
+  .project__media{aspect-ratio:4/3.4}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<main>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <img class="hero__img" src="https://images.unsplash.com/photo-1635074155443-6cbf74711dd2?w=1600&q=80&auto=format" alt="Board-marked concrete meeting a shadowed soffit, photographed in monochrome.">
+    <header class="masthead">
+      <a class="masthead__mark" href="#">Halden&nbsp;+&nbsp;Roe</a>
+      <div class="masthead__meta">
+        <p class="label">Copenhagen</p>
+        <p class="label">London</p>
+        <p class="label">Founded 2009</p>
+      </div>
+    </header>
+    <div class="hero__scrim">
+      <p class="label">Architects · Load-bearing concrete, brick, glulam</p>
+      <h1 class="display">We build for the second owner.</h1>
+      <p class="hero__lead">Eleven people, six projects a year, every junction drawn in-house. Nothing we finish is clad in a material that hides what is holding it up.</p>
+      <div class="hero__foot">
+        <span>Vestergade Waterworks, 2023</span>
+        <span>Kilnhouse, 2024</span>
+        <span>Nordre Gymnasium, 2022</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Movement I — dark ground, works ──────────────────────────────── -->
+  <section class="split" id="works">
+    <div class="wrap split__grid">
+      <div class="split__type">
+        <p class="label">The practice</p>
+        <h2 class="split__title wipe"><span>Eleven people, six buildings a year.</span></h2>
+        <p class="split__body reveal">Ida Halden and Samuel Roe started the office in 2009 above a joinery in Nørrebro. We take on work we can reach by train, we draw our own details, and we put one of the eleven on every site every week.</p>
+        <p class="split__body reveal">The three below are finished and occupied. Two more are on site in Suffolk and Malmö.</p>
+        <ul class="index">
+          <li data-index="1"><a href="#p1"><span>Vestergade Waterworks</span><span>2023</span></a></li>
+          <li data-index="2"><a href="#p2"><span>Kilnhouse</span><span>2024</span></a></li>
+          <li data-index="3"><a href="#p3"><span>Nordre Gymnasium</span><span>2022</span></a></li>
+        </ul>
+      </div>
+
+      <div class="split__flow">
+        <article class="project" id="p1" data-project="1">
+          <div class="project__media unmask">
+            <img src="https://images.unsplash.com/photo-1560963018-4d9bd4c4b72a?w=1600&q=80&auto=format" alt="A curved concrete vault opening toward a lit doorway.">
+          </div>
+          <div class="project__head">
+            <h3 class="project__name">Vestergade Waterworks</h3>
+            <p class="project__meta">Copenhagen · 2023 · 2,140 m²</p>
+          </div>
+          <p class="project__text">A pumping station of 1908, emptied in 1974 and left open to the weather for a decade. The original brick vaults now carry a new cast floor, forty desks and a canteen the neighbourhood can walk into. Nothing above the cill line was demolished.</p>
+          <p class="project__caption">Lower vault, looking east toward the old inlet.</p>
+        </article>
+
+        <article class="project" id="p2" data-project="2">
+          <div class="project__media unmask">
+            <img src="https://images.unsplash.com/photo-1774802035417-782c5dc43ec2?w=1600&q=80&auto=format" alt="Oval roof-lights cast into a heavy concrete ceiling.">
+          </div>
+          <div class="project__head">
+            <h3 class="project__name">Kilnhouse</h3>
+            <p class="project__meta">Blythburgh, Suffolk · 2024 · 186 m²</p>
+          </div>
+          <p class="project__text">A house and a working kiln for a potter, set into the fall of the land so the studio sits half a storey below the living floor. The roof-lights are cast into the slab rather than cut through it, which holds even north light from ten until four.</p>
+          <p class="project__caption">Studio ceiling. 214 details were drawn at 1:5; the contractor raised no query on the envelope.</p>
+        </article>
+
+        <article class="project" id="p3" data-project="3">
+          <div class="project__media unmask">
+            <img src="https://images.unsplash.com/photo-1650886160147-c86927ad8f32?w=1600&q=80&auto=format" alt="A large concrete interior with deep downstand beams and a figure on the stair.">
+          </div>
+          <div class="project__head">
+            <h3 class="project__name">Nordre Gymnasium</h3>
+            <p class="project__meta">Aarhus · 2022 · 980 m²</p>
+          </div>
+          <p class="project__text">An assembly hall for four hundred, built inside the footprint of the 1971 sports block it replaced. The downstand beams are the acoustic treatment — there is no applied absorption anywhere in the room, and speech carries to the back row unamplified.</p>
+          <p class="project__caption">Hall at midday, north gallery.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Movement II — the ground shifts to light ─────────────────────── -->
+  <section class="split split--light">
+    <div class="wrap split__grid">
+      <div class="split__type">
+        <p class="label">Method</p>
+        <h2 class="split__title wipe"><span>The structure is the first drawing and the last.</span></h2>
+        <p class="split__body reveal">We do not design a shape and then ask an engineer to hold it up. Three habits carry most of what the office is; none of them is a piece of software.</p>
+      </div>
+
+      <div class="split__flow">
+        <div class="method">
+          <div class="method__item" style="--i:0">
+            <span class="method__no">01</span>
+            <div>
+              <h3 class="method__name">Structure first</h3>
+              <p class="method__text">Every project opens with a structural sketch at 1:200 and a written load path on one side of A4. If the diagram needs a paragraph of explanation, it is the wrong diagram and we start again.</p>
+            </div>
+          </div>
+          <div class="method__item" style="--i:1">
+            <span class="method__no">02</span>
+            <div>
+              <h3 class="method__name">Detailed in-house</h3>
+              <p class="method__text">We draw our own junctions rather than buying a system. It is slower in the office and faster on site: Kilnhouse ran fourteen weeks of drawing and zero envelope queries during construction.</p>
+            </div>
+          </div>
+          <div class="method__item" style="--i:2">
+            <span class="method__no">03</span>
+            <div>
+              <h3 class="method__name">On site every week</h3>
+              <p class="method__text">One of the eleven walks each site every week from groundworks to handover, with a camera and no agenda. It is the only quality system we have found that survives contact with a wet January.</p>
+            </div>
+          </div>
+        </div>
+
+        <figure class="method__figure">
+          <div class="unmask">
+            <img src="https://images.unsplash.com/photo-1519334538828-dac4feed79cd?w=1600&q=80&auto=format" alt="A pale concrete spiral stair seen from above.">
+          </div>
+          <figcaption>Vestergade, main stair. Cast in one pour against a re-used steel form.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Movement III — back to dark, the studio ──────────────────────── -->
+  <section class="split split--studio">
+    <div class="wrap split__grid">
+      <div class="split__type">
+        <p class="label">Studio</p>
+        <h2 class="split__title wipe"><span>Where to find us.</span></h2>
+        <p class="split__body reveal">We answer every enquiry within a fortnight, including the ones we turn down. If the site is more than four hours from a station we will tell you so in the first reply.</p>
+        <div class="contact">
+          <div>
+            <h3>Copenhagen</h3>
+            <p>Baggesensgade 12, 2. sal<br>2200 København N</p>
+            <p><a href="tel:+4532147702">+45 32 14 77 02</a></p>
+          </div>
+          <div>
+            <h3>London</h3>
+            <p>Unit 6, Perseverance Works<br>Hackney Road, London E2 8DD</p>
+            <p><a href="mailto:studio@haldenroe.com">studio@haldenroe.com</a></p>
+          </div>
+        </div>
+        <a class="cta" href="mailto:studio@haldenroe.com">Send a brief</a>
+      </div>
+
+      <div class="split__flow">
+        <div class="studio__pair">
+          <div class="unmask"><img src="https://images.unsplash.com/photo-1563891925196-a3e34f6d869c?w=1600&q=80&auto=format" alt="Concrete fins throwing hard shadows across a façade."></div>
+          <div class="unmask"><img src="https://images.unsplash.com/photo-1586871608370-4adee64d1794?w=1600&q=80&auto=format" alt="A cantilevered concrete stair against a plain wall."></div>
+        </div>
+        <p class="studio__text reveal">Work arrives three ways: a client who has lived in one of our buildings, an invited competition, or an email from someone who has read the details. The third is how Kilnhouse started, and it remains the one we open first.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__legal">
+      <span>Halden + Roe ApS · CVR 32148806</span>
+      <span>Photography Unsplash</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  root.classList.add('js');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 1 — reveals. The hidden states live behind .js, so a script failure
+         leaves every photograph and every paragraph on the page. */
+  const revealables = document.querySelectorAll('.reveal, .wipe, .unmask, .method__item');
+  if (reduced) {
+    revealables.forEach((el) => el.classList.add('is-in'));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => {
+        if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+      }),
+      { rootMargin: '0px 0px -12% 0px', threshold: 0.15 }
+    );
+    revealables.forEach((el) => io.observe(el));
+  }
+
+  /* 2 — the works index in the sticky column follows the flow column.
+         One observer, one attribute; the highlight itself is CSS. */
+  const projects = document.querySelectorAll('[data-project]');
+  const rows = document.querySelectorAll('.index li');
+  if (projects.length && rows.length) {
+    const mark = (n) => rows.forEach((li) => {
+      li.dataset.active = String(li.dataset.index === n);
+    });
+    mark('1');
+    const tracker = new IntersectionObserver(
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) mark(e.target.dataset.project); }),
+      { rootMargin: '-40% 0px -40% 0px', threshold: 0 }
+    );
+    projects.forEach((p) => tracker.observe(p));
+  }
+})();
+</script>
+</body>
+</html>
