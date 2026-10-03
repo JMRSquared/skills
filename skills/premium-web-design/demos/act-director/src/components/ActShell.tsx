@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { act } from "../story/acts";
 import { useActSection } from "../story/ScrollProvider";
+import { ACT_ORDER } from "../story/scrollStore";
 import type { ActId } from "../story/scrollStore";
 
 /**
@@ -97,22 +98,29 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
   );
 }
 
-/** Chapter label plus headline plus body. Every act opens with this block. */
+/**
+ * Headline plus body. Every act opens with this block.
+ *
+ * No eyebrow above the headline: the headline names the subject on its own
+ * (references/no-slop.md), and "ACT ONE" told the reader nothing the dots do
+ * not. The first act's headline is the page's one h1 in the display role;
+ * every later act is an h2 in the title role, one size for all of them
+ * (references/typographic-hierarchy.md, R7).
+ */
 export function ActCopy({ id, children }: ActCopyProps) {
   const entry = act(id);
+  const isFirst = id === ACT_ORDER[0];
+  const Heading = isFirst ? "h1" : "h2";
 
   return (
-    <div className="copy">
+    <div className={`copy${isFirst ? " copy--first" : ""}`}>
       <Reveal>
-        <p className="eyebrow">{entry.eyebrow}</p>
+        <Heading className={isFirst ? "display" : "title"}>{entry.headline}</Heading>
       </Reveal>
       <Reveal delay={0.08}>
-        <h2 className="display">{entry.headline}</h2>
+        <p className="lead">{entry.body}</p>
       </Reveal>
-      <Reveal delay={0.16}>
-        <p className="lede">{entry.body}</p>
-      </Reveal>
-      {children ? <Reveal delay={0.24}>{children}</Reveal> : null}
+      {children ? <Reveal delay={0.16}>{children}</Reveal> : null}
     </div>
   );
 }

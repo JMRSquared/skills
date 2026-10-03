@@ -767,8 +767,8 @@ const audit = (opts = {}) => {
      sections without noticing. An eyebrow is a short label set small, in caps
      or on wide tracking, sitting in the page rather than in the chrome. */
   /* Narrow on purpose. A caps label inside a panel is a caption, a chapter
-     name or a figure credit — horizontal-chapter.html numbers four chapters
-     inside one section and none of them is an eyebrow. The furniture the rule
+     name or a figure credit. A page that numbers chapters inside one section
+     is not running eyebrows. The furniture the rule
      bans is the label that OPENS a section, one per block, announcing structure
      the composition should already show. So: the first text in a section, and
      the same section must also carry a heading the eyebrow is sitting above. */
@@ -2241,7 +2241,7 @@ const audit = (opts = {}) => {
     } catch { /* ignore */ }
     /* Length is measured on DESKTOP only. A phone reflows a four-screen photo
        essay to nine and that says nothing about ambition — photo-treatment.html
-       runs 4.9 screens at 1440 and 9.3 at 390. */
+       runs about 7.8 screens at 1440 and longer at 390. */
     if (!onPhone && screensNow > 8) demoDisqualifiers.push(`${screensNow.toFixed(1)} desktop screens — a pattern reference is not this long`);
   }
   const demoMode = declaredKind === 'demo' && demoDisqualifiers.length === 0;

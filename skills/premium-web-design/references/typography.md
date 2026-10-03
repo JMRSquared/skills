@@ -49,6 +49,10 @@ clashes come from.
 | 11 | Cinematic dark, night mood | **Melodrama** | **Cabinet Grotesk** | Fontshare |
 | 12 | Structural, architectural | **Familjen Grotesk** | **Sentient** | Google + Fontshare |
 
+Set every pairing in sentence case, rows 5 and 6 included. A heavy wide face
+reads as poster energy through weight and width; it does not need capitals.
+The role table in `typographic-hierarchy.md` governs sizes for all twelve.
+
 Loading:
 
 ```html

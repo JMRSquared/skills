@@ -18,9 +18,8 @@ export function ActPlay() {
         <div className="readout">
           <span className="readout__value">{percent}%</span>
           <span className="readout__label">
-            Cartridge lift, read from the same track
-            <br />
-            the 3D object moves on
+            How far the cartridge has lifted, read from the same track the 3D
+            model moves on
           </span>
         </div>
       </ActCopy>

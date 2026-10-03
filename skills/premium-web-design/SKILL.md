@@ -840,7 +840,7 @@ write the pattern yourself.
 | `page-transition.html` | Index to detail, holding the photograph and the title across the change | View Transitions API + a FLIP fallback |
 
 `horizontal-chapter.html` is also the GSAP landing checklist in runnable form:
-eleven numbered guards, each commented with what breaks without it, and a pin
+eight numbered guards, each commented with what breaks without it, and a pin
 that is *released* under reduced motion rather than having its tween disabled.
 
 `three-scroll-scene.html` is the same for Tier C: sixteen numbered guards, a

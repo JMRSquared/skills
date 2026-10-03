@@ -107,9 +107,11 @@ breaking the composition:
 
 ## Small budgets
 
-**Middot-chained micro-labels: about six per page.** The pattern is
-`EST. 1998 · SHEFFIELD · MON–SAT`, set 10–12px in caps or mono. It is a real
-corpus device. Amrit flanks its hero with two 10px labels; Blind Barber runs
+**Middot-chained micro-labels: about six per page.** The corpus pattern is
+`EST. 1998 · SHEFFIELD · MON–SAT`, set 10–12px in caps or mono. This skill sets
+the same line in the small role instead: 15px, sentence case, text face
+(`Open since 1998 · Sheffield · Monday to Saturday`), per
+`typographic-hierarchy.md` R6. It is a real corpus device. Amrit flanks its hero with two 10px labels; Blind Barber runs
 11.25px chrome with a mono cut reserved for dates. It also costs one line to
 type, which is why two pages built from this skill shipped **48** and **39** of
 them. At that count the label stops being a label: every block carries a caption,

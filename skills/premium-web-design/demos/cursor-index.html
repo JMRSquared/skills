@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=A kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ellery &amp; Crane — barbering and shaving, Marylebone</title>
+<title>Ellery &amp; Crane | Barber and hot towel shaves, Marylebone</title>
 
 <!--
   PATTERN — Desktop craft: a lerped custom cursor with real states and a
@@ -54,12 +54,18 @@
     · Every duration/easing token below is copied from references/motion.md.
 
   PALETTE  Ink & sand   (color-and-light.md, palette 4)
-  TYPE     Libre Caslon Display + Karla   (typography.md, pairing 9)
+  TYPE     Libre Caslon Display + Karla   (typography.md, pairing 9), sized by
+           references/typographic-hierarchy.md: six roles, one title size for
+           every h2, row names and fees in the heading role, row numerals,
+           nav and the cursor label in the small role. No caps labels,
+           nothing under 15px.
+  COPY     references/no-slop.md: every heading names the service, the shop or
+           the street, so the headings read alone as a summary of the shop.
 -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Karla:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -73,13 +79,21 @@
   --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
   --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
 
-  /* typography.md scale */
-  --step-hero: clamp(2.75rem, 7.5vw, 6rem);
-  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
-  --step-body: clamp(1rem, 1.05vw, 1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  /* type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+     Display retuned to 112px (7.8vw) so the plain hero sentence lands in
+     three lines; every other role is the standard block, unchanged. */
+  --font-display:"Libre Caslon Display", Georgia, serif;
+  --font-text:"Karla", ui-sans-serif, sans-serif;
+  --display-weight:400;  /* Libre Caslon Display ships one weight */
+  --t-display: clamp(3.25rem, 1.857rem + 5.714vw, 7rem);       /* 52 → 112 */
+  --t-title:   clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);          /* 35 → 56  */
+  --t-heading: clamp(1.625rem, 1.486rem + 0.571vw, 2rem);       /* 26 → 32  */
+  --t-lead:    clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);    /* 21 → 24  */
+  --t-body:    clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem);  /* 17 → 18  */
+  --t-small:   0.9375rem;                                       /* 15       */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   --gutter: clamp(1.25rem, 4vw, 5rem);
   --section-y:96px;
@@ -90,8 +104,8 @@
 html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Karla", ui-sans-serif, sans-serif;
-  font-size:var(--step-body); line-height:1.55;
+  font-family:var(--font-text); font-weight:400;
+  font-size:var(--t-body); line-height:var(--lh-body);
   -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
 img{ display:block; max-width:100%; height:auto; }
@@ -100,11 +114,14 @@ p{ text-wrap:pretty; }
 :focus-visible{ outline:2px solid var(--accent); outline-offset:4px; }
 
 .wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
-.label{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
-  font-weight:500; color:var(--ink-muted); margin:0;
+/* small role: meta, captions, nav. Sentence case, 15px, never caps-tracked */
+.small{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); margin:0; }
+/* title role: every section h2, one size */
+.title{
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-title); line-height:var(--lh-title); letter-spacing:var(--tr-title);
+  text-wrap:balance; margin:0; max-width:20ch;
 }
-.serif{ font-family:"Libre Caslon Display", serif; font-weight:400; }
 
 /* one hairline grid at 3% — color-and-light.md: pick ONE texture */
 body::before{
@@ -117,12 +134,12 @@ body::before{
 .masthead{ position:relative; z-index:5; padding-top:24px; padding-bottom:24px; }
 .masthead .wrap{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
 .mark{
-  font-family:"Libre Caslon Display",serif; font-size:1.25rem; letter-spacing:.01em;
+  font-family:var(--font-display); font-size:var(--t-lead); letter-spacing:-.01em;
   display:inline-flex; align-items:center; min-height:44px;
 }
 .nav{ display:flex; gap:8px; align-items:center; }
 .nav a{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-size:var(--t-small); line-height:var(--lh-small);
   font-weight:500; color:var(--ink-muted); padding:12px;
   min-height:44px; display:inline-flex; align-items:center;
   transition:color var(--d-state) var(--ease-out);
@@ -133,17 +150,17 @@ body::before{
 /* ── hero ─────────────────────────────────────────────────── */
 .hero{ position:relative; z-index:2; padding-top:56px; padding-bottom:0; }
 .hero .grid{ display:grid; gap:40px; align-items:end; }
-@media (min-width:900px){ .hero .grid{ grid-template-columns:5fr 7fr; gap:64px; } }
+@media (min-width:900px){ .hero .grid{ grid-template-columns:7fr 5fr; gap:64px; } }
 .hero h1{
-  font-family:"Libre Caslon Display",serif; font-weight:400;
-  font-size:var(--step-hero); line-height:.98; letter-spacing:-.025em;
-  margin:20px 0 28px; max-width:8em;
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-display); line-height:var(--lh-display); letter-spacing:var(--tr-display);
+  text-wrap:balance; margin:0 0 32px; max-width:14ch;
 }
-.hero .sub{ margin:0 0 32px; color:var(--ink-muted); max-width:38ch; }
+.hero .sub{ margin:0 0 32px; font-size:var(--t-lead); line-height:var(--lh-lead); color:var(--ink); max-width:40ch; }
 .hero-meta{ display:grid; gap:8px; margin:0; }
 .hero-meta div{ display:flex; justify-content:space-between; gap:16px; border-top:1px solid var(--edge); padding-top:8px; padding-bottom:8px; }
-.hero-meta dt{ font-size:var(--step-small); color:var(--ink-muted); }
-.hero-meta dd{ margin:0; font-size:var(--step-small); font-variant-numeric:tabular-nums; }
+.hero-meta dt{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
+.hero-meta dd{ margin:0; font-size:var(--t-small); line-height:var(--lh-small); font-variant-numeric:tabular-nums; }
 .hero figure{ margin:0; overflow:hidden; }
 .hero figure img{ width:100%; aspect-ratio:4/3; object-fit:cover; filter:brightness(.86) saturate(.9); }
 
@@ -151,11 +168,7 @@ body::before{
 .index{ padding-top:var(--section-y); position:relative; z-index:2; }
 .index-head{ display:grid; gap:16px; margin-bottom:48px; }
 @media (min-width:900px){ .index-head{ grid-template-columns:1fr 1fr; align-items:end; gap:40px; } }
-.index-head h2{
-  font-family:"Libre Caslon Display",serif; font-weight:400; font-size:var(--step-h2);
-  line-height:1.02; letter-spacing:-.02em; margin:12px 0 0; max-width:9em;
-}
-.index-head p{ margin:0; color:var(--ink-muted); max-width:44ch; }
+.index-head p{ margin:0; color:var(--ink); max-width:44ch; }
 
 .rows{ border-top:1px solid var(--edge); }
 .row{
@@ -167,17 +180,20 @@ body::before{
 .row .thumb{ display:block; width:5.5rem; aspect-ratio:4/5; overflow:hidden; background:var(--ground-2); }
 .row .thumb img{ width:100%; height:100%; object-fit:cover; filter:brightness(.9) saturate(.9); }
 @media (max-width:719px){ .row{ grid-template-columns:4rem auto 1fr auto; gap:14px; } .row .thumb{ width:4rem; } }
-.row .n{ font-size:var(--step-label); letter-spacing:.14em; color:var(--ink-muted); font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
+/* the numeral is the small role: it orders the rows and stays quiet */
+.row .n{ font-size:var(--t-small); line-height:var(--lh-small); font-weight:500; color:var(--ink-muted); font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
+/* heading role: service name in the display face, fee in the text face */
 .row .name{
-  font-family:"Libre Caslon Display",serif; font-size:clamp(1.5rem,3vw,2.5rem);
-  line-height:1.05; letter-spacing:-.02em;
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-heading); line-height:var(--lh-heading); letter-spacing:var(--tr-heading);
   transition:transform var(--d-state) var(--ease-out);
 }
+/* the time and what is included: small role, under the name */
 .row .name small{
-  display:block; font-family:"Karla",sans-serif; font-size:var(--step-small);
+  display:block; font-family:var(--font-text); font-size:var(--t-small); line-height:var(--lh-small);
   color:var(--ink-muted); letter-spacing:0; margin-top:6px;
 }
-.row .fee{ font-size:clamp(1.125rem,1.6vw,1.375rem); font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
+.row .fee{ font-size:var(--t-heading); line-height:var(--lh-heading); font-weight:500; font-variant-numeric:tabular-nums; transition:color var(--d-state) var(--ease-out); }
 @media (hover:hover) and (pointer:fine){
   .row:hover{ border-color:var(--accent); }
   .row:hover .name{ transform:translateX(10px); }
@@ -195,17 +211,13 @@ body::before{
   display:grid; gap:32px; align-items:center;
 }
 @media (min-width:900px){ .book .inner{ grid-template-columns:1fr auto; gap:64px; padding:88px 72px; } }
-.book h2{
-  font-family:"Libre Caslon Display",serif; font-weight:400; font-size:var(--step-h2);
-  line-height:1.04; letter-spacing:-.02em; margin:0; max-width:11em;
-}
-.book p{ margin:16px 0 0; color:var(--ink-muted); max-width:44ch; }
+.book p{ margin:24px 0 0; color:var(--ink); max-width:48ch; }
 .magnet{ justify-self:start; will-change:transform; }
 .cta{
   display:inline-flex; align-items:center; justify-content:center;
   min-height:56px; padding:18px 36px;
   background:var(--accent); color:var(--ground);
-  font-size:var(--step-body); font-weight:500; letter-spacing:.01em;
+  font-size:var(--t-body); line-height:1; font-weight:600;
   transition:background-color var(--d-state) var(--ease-out),
              color var(--d-state) var(--ease-out),
              transform var(--d-press) var(--ease-out);
@@ -217,12 +229,15 @@ body::before{
 .foot{ margin-top:var(--section-y); padding-top:56px; padding-bottom:48px; border-top:1px solid var(--edge); position:relative; z-index:2; }
 .foot .wrap{ display:grid; gap:32px; }
 @media (min-width:900px){ .foot .wrap{ grid-template-columns:repeat(3,1fr); gap:48px; } }
-.foot p{ margin:8px 0 0; font-size:var(--step-small); color:var(--ink-muted); }
+.foot h3{ margin:0; font-size:var(--t-small); line-height:var(--lh-small); font-weight:600; color:var(--ink); }
+.foot p{ margin:8px 0 0; font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
 .foot a.line{ color:var(--ink); border-bottom:1px solid var(--edge); display:inline-flex; align-items:center; min-height:44px; transition:border-color var(--d-state) var(--ease-out); }
 .foot a.line:hover{ border-color:var(--accent); }
+/* the wordmark is the page's one second type event, in the display role */
 .foot .stamp{
-  font-family:"Libre Caslon Display",serif; font-size:clamp(2rem,7vw,5rem);
-  letter-spacing:-.03em; line-height:1; color:var(--ink); margin:56px 0 0;
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-display); line-height:var(--lh-display); letter-spacing:var(--tr-display);
+  color:var(--ink); margin:56px 0 0; grid-column:1 / -1;
 }
 
 /* ══ CURSOR ══════════════════════════════════════════════════
@@ -258,7 +273,7 @@ body::before{
   }
   .cur-label{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    font-size:var(--step-label); letter-spacing:.14em; text-transform:uppercase;
+    font-size:var(--t-small); line-height:1; font-weight:500;
     color:var(--ground); opacity:0; transition:opacity var(--d-state) var(--ease-out);
   }
 
@@ -309,7 +324,7 @@ body::before{
     <nav class="nav" aria-label="Primary">
       <a href="#index" data-cursor="link">Services</a>
       <a href="#barbers" data-cursor="link">Barbers</a>
-      <a class="nav-key" href="#book" data-cursor="link">Book</a>
+      <a class="nav-key" href="#book" data-cursor="link">Book a haircut</a>
     </nav>
   </div>
 </header>
@@ -319,13 +334,12 @@ body::before{
     <div class="wrap">
       <div class="grid">
         <div>
-          <p class="label reveal">Marylebone · Since 1974</p>
-          <h1 class="reveal" style="--i:1">One chair, one hour, no music you have to shout over.</h1>
-          <p class="sub reveal" style="--i:2">Three barbers, six services, and a booking sheet that is still a paper diary. Walk-ins before eleven; after that, ring the shop.</p>
-          <dl class="hero-meta reveal" style="--i:3">
-            <div><dt>Tuesday to Saturday</dt><dd>09:00 – 19:00</dd></div>
+          <h1 class="reveal">Haircuts and shaves in Marylebone since 1974</h1>
+          <p class="sub reveal" style="--i:1">Three barbers, six services and a paper booking diary on New Cavendish Street. Walk in before 11am, or ring the shop to book a later time.</p>
+          <dl class="hero-meta reveal" style="--i:2">
+            <div><dt>Open Tuesday to Saturday</dt><dd>09:00 to 19:00</dd></div>
             <div><dt>Longest appointment</dt><dd>75 min</dd></div>
-            <div><dt>Chairs</dt><dd>3</dd></div>
+            <div><dt>Barber&rsquo;s chairs</dt><dd>3</dd></div>
           </dl>
         </div>
         <figure class="reveal-image" data-cursor="view">
@@ -340,48 +354,45 @@ body::before{
   <section class="index" id="index">
     <div class="wrap">
       <div class="index-head">
-        <div>
-          <p class="label reveal">Services and prices</p>
-          <h2 class="reveal" style="--i:1">Everything we do, and what it costs</h2>
-        </div>
-        <p class="reveal" style="--i:2">Prices are the same for every barber and have not changed since March. A cut includes a wash, and a shave includes two hot towels and a cold one at the end.</p>
+        <h2 class="title reveal">Haircut, shave and beard prices, the same with every barber</h2>
+        <p class="reveal" style="--i:1">Our prices have not changed since March. A cut includes a wash, and a shave includes two hot towels and a cold one at the end.</p>
       </div>
 
       <div class="rows">
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">01</span>
-          <span class="name">Cut &amp; finish<small>45 minutes · wash, cut, and a proper dry finish</small></span>
+          <span class="n" aria-hidden="true">01</span>
+          <span class="name">Haircut and finish<small>45 minutes. Wash, cut and a proper dry finish.</small></span>
           <span class="fee">£48</span>
         </a>
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">02</span>
-          <span class="name">Skin fade<small>50 minutes · clipper work down to the skin, blended by hand</small></span>
+          <span class="n" aria-hidden="true">02</span>
+          <span class="name">Skin fade<small>50 minutes. Clipper work down to the skin, blended by hand.</small></span>
           <span class="fee">£52</span>
         </a>
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1596728325488-58c87691e9af?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">03</span>
-          <span class="name">Hot towel shave<small>40 minutes · straight razor, two hot towels, one cold</small></span>
+          <span class="n" aria-hidden="true">03</span>
+          <span class="name">Hot towel shave<small>40 minutes. Straight razor, two hot towels and one cold.</small></span>
           <span class="fee">£45</span>
         </a>
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">04</span>
-          <span class="name">Beard shape<small>25 minutes · razor line-out, trim, and oil</small></span>
+          <span class="n" aria-hidden="true">04</span>
+          <span class="name">Beard shape<small>25 minutes. Razor line-out, trim and oil.</small></span>
           <span class="fee">£32</span>
         </a>
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">05</span>
-          <span class="name">Grey blending<small>60 minutes · softened, not covered — patch test first</small></span>
+          <span class="n" aria-hidden="true">05</span>
+          <span class="name">Grey blending<small>60 minutes. We blend the grey into your own colour after a patch test.</small></span>
           <span class="fee">£40</span>
         </a>
         <a class="row reveal" href="#book" data-cursor="link">
           <span class="thumb"><img src="https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=400&q=80&auto=format" alt="" width="400" height="500" loading="lazy"></span>
-          <span class="n">06</span>
-          <span class="name">Two chairs, one after the other<small>75 minutes · for a father and son, or anyone else</small></span>
+          <span class="n" aria-hidden="true">06</span>
+          <span class="name">Two haircuts, one after the other<small>75 minutes. For a father and son, or any two people booking together.</small></span>
           <span class="fee">£78</span>
         </a>
       </div>
@@ -392,11 +403,11 @@ body::before{
     <div class="wrap">
       <div class="inner">
         <div>
-          <h2 class="reveal">The diary is on the counter. Ring it or come in.</h2>
-          <p class="reveal" style="--i:1">Sam Okafor works Tuesday to Friday, Dot Reilly Wednesday to Saturday, Marek Nowak every day but Thursday. If you want a particular pair of hands, say so when you ring.</p>
+          <h2 class="title reveal">Ring the shop to book, or walk in before 11am</h2>
+          <p class="reveal" style="--i:1">Sam Okafor works Tuesday to Friday, Dot Reilly Wednesday to Saturday, and Marek Nowak every day but Thursday. If you want a particular barber, say so when you ring.</p>
         </div>
         <div class="magnet" id="magnet">
-          <a class="cta" href="tel:+442075550149" data-cursor="cta">Ring 020 7555 0149</a>
+          <a class="cta" href="tel:+442075550149" data-cursor="cta">Ring 020 7555 0149 to book</a>
         </div>
       </div>
     </div>
@@ -406,19 +417,19 @@ body::before{
 <footer class="foot" id="barbers">
   <div class="wrap">
     <div>
-      <p class="label">The shop</p>
+      <h3>Find the shop</h3>
       <p>14 New Cavendish Street<br>London W1G 8UR</p>
     </div>
     <div>
-      <p class="label">Hours</p>
-      <p>Tuesday to Saturday<br>09:00 – 19:00, last cut 18:15</p>
+      <h3>Opening hours</h3>
+      <p>Tuesday to Saturday<br>09:00 to 19:00, last cut at 18:15</p>
     </div>
     <div>
-      <p class="label">Barbers</p>
-      <p>Sam Okafor · Dot Reilly · Marek Nowak</p>
+      <h3>Our three barbers</h3>
+      <p>Sam Okafor, Dot Reilly and Marek Nowak</p>
     </div>
   </div>
-  <div class="wrap"><p class="stamp">Ellery &amp; Crane</p></div>
+  <div class="wrap"><p class="stamp" aria-hidden="true">Ellery &amp; Crane</p></div>
 </footer>
 
 <!-- starts hidden: a ring parked in the middle of the page before the reader has

@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#07090c" />
     <meta name="color-scheme" content="dark" />
-    <title>Act Director — scroll-driven 3D reference build</title>
+    <title>Act Director | A cassette player opened up in a scroll-driven 3D story</title>
     <meta
       name="description"
-      content="A four-act scroll-driven 3D story: one continuous timeline, keyframe tracks, a director, and a camera that solves its own distance."
+      content="A portable cassette player opens up over four steps as you scroll. One timeline drives the 3D model, and the camera works out its own distance."
     />
     <!-- The story cannot start until the product arrives, so fetch it early. -->
     <link
@@ -33,7 +33,7 @@
     -->
     <div class="boot" id="boot" role="status" aria-live="polite">
       <span class="boot__label">Act Director</span>
-      <span class="boot__hint">Loading the scene</span>
+      <span class="boot__hint">Loading the cassette player</span>
       <div class="boot__rail"><div class="boot__bar"></div></div>
     </div>
     <style>
@@ -47,14 +47,12 @@
         gap: 0.75rem;
         background: #07090c;
         color: #f4f1ec;
-        font: 500 0.82rem/1.2 ui-sans-serif, system-ui, sans-serif;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
+        /* the small role from src/index.css: 15px, sentence case, no tracking */
+        font: 500 0.9375rem/1.5 ui-sans-serif, system-ui, sans-serif;
         transition: opacity 420ms ease, visibility 0s linear 420ms;
       }
       .boot__hint {
-        opacity: 0.5;
-        letter-spacing: 0.08em;
+        color: #a4adb6;
       }
       .boot__rail {
         width: min(220px, 46vw);

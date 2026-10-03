@@ -174,7 +174,8 @@ reader cannot see that step (Butterick, `better-typography`).
 
 - Body 17px phone, 18px desktop. **16px is the floor; nothing a reader needs is
   set under 15px.** The 13px absolute minimum is for legal lines and
-  copyright only.
+  copyright only. Diagram annotation inside an SVG figure is the one other
+  exception, at 11px or more (R6).
 - Body is `--ink`. `--ink-muted` is for the small role only, and must clear
   4.5:1 on its ground. Grey paragraphs are the commonest AI tell
   (`build-loop.md`, `contrast`).
@@ -200,8 +201,11 @@ reader cannot see that step (Butterick, `better-typography`).
 - Middot chains (`EST. 1998 · LEEDS · MON–SAT`) stay inside
   `content-and-copy.md`'s budget, and they use the small role.
 - Text drawn inside an SVG figure, such as a diagram annotation, is part of the
-  image. Anything a reader needs in order to act (a price, an hour, a phone
-  number) goes in a role.
+  image. It is exempt from the six roles and from the 15px floor, and it must
+  still render at **11px or more** at every width the figure appears, at 3:1 or
+  better against the drawing's ground (`imagery.md`, "Annotation may be small,
+  and it must stay legible"). Anything a reader needs in order to act (a price,
+  an hour, a phone number) goes in a role as well.
 
 ### R7. One title size for every section
 
@@ -331,7 +335,8 @@ later section's type event (Step 4b), also set in the display role.
 - [ ] Adjacent levels ≥20px differ by ≥1.2×; display : body ≥5:1 desktop, ≥3:1 phone
 - [ ] Every section `h2` renders at one size (plus at most the one display event)
 - [ ] Body 17/18px, weight 400, `--ink`, 60–72ch
-- [ ] Nothing a reader needs under 15px; no caps label under 14px or tracked ≥0.12em
+- [ ] Nothing a reader needs under 15px; no caps label under 14px or tracked ≥0.12em;
+      SVG diagram annotation, the one exception, renders at 11px or more
 - [ ] Eyebrows ≤1 per 3 sections, each carrying information the title does not
 - [ ] Mono used only for data, at most one mono role
 - [ ] Space above every heading ≥2× the space below it

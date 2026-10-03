@@ -7,7 +7,7 @@ export function ActOrder() {
       <ActCopy id="order">
         <div className="row">
           <button type="button" className="button" onClick={() => scrollToAct("arrive")}>
-            Play it again
+            Go back to the first view
           </button>
         </div>
       </ActCopy>
