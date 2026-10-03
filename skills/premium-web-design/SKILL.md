@@ -189,7 +189,7 @@ Do this, in order:
 3. Name, in chat, the specific things you are taking and from where. Three to
    six lines is enough:
    ```
-   Taking: hairline price rows + cursor image preview ← amrit-palace desktop-03
+   Taking: hairline price rows, a photo inline per row ← amrit-palace desktop-03
            pinned year rail                          ← blindbarber desktop-03
            full-bleed photo → quiet type alternation  ← hagis-barbershop
    ```
@@ -248,21 +248,25 @@ and sample runtime colour and type from the pixels rather than from
 
 Emit this block, filled with literal values, **before any component code**. Every
 line of CSS derives from it. If later code contradicts the contract, the contract
-wins. Values and rationale: `references/typography.md`, `references/color-and-light.md`,
+wins. Values and rationale: `references/typographic-hierarchy.md` (the type
+standard), `references/typography.md` (faces), `references/color-and-light.md`,
 `references/motion.md`.
 
 ```css
-/* type — 2 families. Display may never be Inter/Roboto/Arial/system/Space Grotesk/Poppins */
+/* type: 2 families, 6 roles. Paste the token block from
+   references/typographic-hierarchy.md and retune DISPLAY only.
+   Display may never be Inter/Roboto/Arial/system/Space Grotesk/Poppins */
 --font-display:   "<real family>";
 --font-text:      "<real family>";
---display-size:   clamp(3.25rem, 11vw, 11rem);  /* first screen lands 6–14vw at 1440 */
---display-lh:     0.92;                          /* 0.80–1.00, never 1.25 */
---display-track:  -0.035em;                      /* −0.02 to −0.05em display, 0 on body */
---display-weight: 300;                           /* commit: 200–300 or 800–900 */
---text-size:      1.0625rem;                     /* 17px. 14px body is the AI tell */
---text-lh:        1.55;
---measure:        66ch;
-/* display : body size ratio ≥ 5:1 */
+--display-weight: 300;   /* commit: 200–300 or 800–900, or the face's only weight */
+--t-display: clamp(3.25rem, 0.743rem + 10.286vw, 10rem);    /* 52 → 160. 6–14vw at 1440 */
+--t-title:   clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);         /* 35 → 56, every section h2 */
+--t-heading: clamp(1.625rem, 1.486rem + 0.571vw, 2rem);      /* 26 → 32, every h3 */
+--t-lead:    clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);   /* 21 → 24 */
+--t-body:    clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem); /* 17 → 18, --ink, 400 */
+--t-small:   0.9375rem;                                      /* 15. Nothing readable below it */
+/* ≤4 sizes per screen, ≤6 per page. Adjacent levels ≥1.2× apart.
+   display : body ≥ 5:1 at 1440, ≥ 3:1 at 390 */
 
 /* colour: state the model here, RATIONED ACCENT or FIELD, then fill the rest.
    Rationed: 1 dominant + 1 accent + tinted neutrals, accent ≤10% of area
@@ -323,14 +327,34 @@ Measured anchors from the corpus, for calibration: Tripletta runs its display at
 drama lives in the display, and the scale contrast is what reads as art
 direction.
 
-That last number argues with the contract above it, and the contradiction is
-worth reading rather than resolving. `--text-size: 17px` and "14px body is the AI
-tell" are the default to beat; Amrit sets 14.4px, holds a 8:1 scale ratio against
-its display, and won Site of the Day. **What makes 14px a tell is 14px with no
-scale contrast** — 36px headings over 14px grey body. Ship 17px unless you are
-buying something specific with the smaller size, and know which one you are
-doing. Nothing measures this: there is no `body-type-small` check, because a
-check set at 16px would fail the corpus.
+Amrit's 14.4px body and 10.4px nav used to be offered here as a licence to go
+small. That licence is withdrawn. A reviewer rejected a page built under it for
+"very bad" text hierarchy: seven competing sizes, 12px caps eyebrows on every
+block, section titles at a different size in every section, grey 15px body.
+Amrit buys its small text with almost no copy and an 8:1 display; a local
+business page carries real copy and cannot. **Body is 17–18px in `--ink`, and
+nothing a reader needs is under 15px.**
+
+**Post the role table in chat, under the contract**, one row per role, filled
+for this brief. This is the type half of the contract and the part reviewers
+read first:
+
+```
+Role     | 390  | 1440 | Face · weight | LH   | Tracking | Case     | Measure | Colour
+display  | 52   | 160  | <display> 300 | 0.92 | −0.04em  | sentence | 11ch    | --ink
+title    | 35   | 56   | <display> 300 | 1.04 | −0.025em | sentence | 20ch    | --ink
+heading  | 26   | 32   | ...           | 1.18 | −0.012em | sentence | 30ch    | --ink
+lead     | 21   | 24   | <text> 400    | 1.4  | 0        | sentence | 45ch    | --ink
+body     | 17   | 18   | <text> 400    | 1.55 | 0        | sentence | 68ch    | --ink
+small    | 15   | 15   | <text> 400/500| 1.5  | 0        | sentence | 60ch    | --ink-muted
+```
+
+Every text element on the page maps to one row. A size that is in no row is a
+bug. The rules that come with the table (four sizes per screen, 1.2× minimum
+step, one title size for every section, space above a heading at least twice
+the space below, labels as a last resort, headings that say something) are in
+`references/typographic-hierarchy.md`, with two worked examples. The auditor
+measures part of it as WARN `type-levels`.
 
 ---
 
@@ -484,10 +508,19 @@ are measured; see the `CRAFT` block in the auditor output.
 Two on a desktop page over 4 screens that is not a defended Tier A. Not three
 fade-ups. From `references/motion.md`: a scroll-pinned chapter stage, a scrubbed
 sequence tied to a real object, a masked or split type reveal at display scale, a
-cursor-driven preview on an index list, a horizontal chapter, a load sequence
-that resolves into the hero, a page transition, a magnetic element, a canvas or
-3D scene. Runnable implementations of every one of these are in `demos/`. Open
-the nearest and copy it rather than inventing it.
+horizontal chapter, a load sequence that resolves into the hero, a page
+transition, a magnetic element, a canvas or 3D scene. Eight in all. Runnable
+implementations of every one of these are in `demos/`. Open the nearest and copy
+it rather than inventing it.
+
+**No images that appear on hover or follow the cursor; show imagery in the
+layout.** A reviewer rejected the pattern outright. A photograph that only exists
+while a mouse rests on a row is a photograph a phone user, a keyboard user and a
+skimming reader never see, and it is not a motion technique here. Index rows
+carry their image inline, at every width (`demos/index-list.html`). A plain
+custom cursor or a magnetic button is fine; a cursor that carries a picture is
+not. The auditor reports a cursor follower holding an image as FAIL
+`hover-image`.
 
 **One non-uniform motion, minimum, at Tier B and above.** Two elements the reader
 can see at once, moving at different rates through the same scroll range. A
@@ -502,7 +535,7 @@ differences under about 15% read as a rendering bug: `references/motion.md`,
 ranges over one trigger, about twelve lines of JS.
 
 **A technique is a thing that happens, not a thing that is declared.** Four of
-these nine could be claimed for nothing until an adversarial page claimed all
+these eight could be claimed for nothing until an adversarial page claimed all
 four at once, so the auditor now reads the result instead of the markup:
 
 | Claim | What used to satisfy it | What satisfies it now |
@@ -564,7 +597,8 @@ mentions a fallback, and `tier-unmet` says so when nothing was.
 2. Composition: crop, scale contrast, negative space
 3. Real imagery at real resolution
 4. Motion — last, and only what earns it
-5. Audit loop until zero FAILs
+5. Copy pass: references/no-slop.md on every visible string
+6. Audit loop until zero FAILs
 ```
 
 Motion cannot rescue an ugly still page. Screenshot with animation disabled: if
@@ -602,8 +636,37 @@ skills/jmr-image/scripts/jmr-image.sh search "<specific scene>" --limit 10
 
 Then read `photos/contact-sheet.jpg` and choose by eye. Full guidance —
 querying, rejection criteria, treatments, crops, resolution — in
-`references/imagery.md`. Copy rules, conversion placement, and the phrases that
-give a page away: `references/content-and-copy.md`.
+`references/imagery.md`. The copy standard, banned words and the decode test:
+`references/no-slop.md`. Conversion placement, placeholders, and the label and
+marquee budgets: `references/content-and-copy.md`.
+
+---
+
+## Step 5b — Copy pass (mandatory, before the audit loop)
+
+Read `references/no-slop.md` before writing copy, then run this pass on the
+rendered page. A page from this skill shipped "Already booked.", "Five
+formats.", "Before you book." and "Seen across Gauteng." as its headings. The
+owner called them ugly and cryptic, and no stranger could say from them what
+the business sold. That is AI slop as much as "Elevate your brand" is.
+
+1. Pull every visible string into one list: headings, body, buttons, labels,
+   captions, alt text, marquee, FAQ, footer, `<title>`.
+2. Read the headings alone, top to bottom. Each one must tell a stranger what
+   the business does or what the section covers, and the list together must
+   describe the business. Rewrite every heading that needs its section to make
+   sense.
+3. Check the hero against the five-second test: what you sell, why it
+   matters, how to start, all in the first screen, in words.
+4. Search the source for the banned words, phrases and structures in
+   `no-slop.md`, and replace each with the fact it was standing in for.
+5. Trace every number, client, year and claim to the brief. Delete what you
+   cannot trace.
+6. Post the six-check scorecard from `no-slop.md` in chat, one row per section,
+   with the rewrite for every fail.
+
+The auditor's `copy-tells` and `headline-cryptic` WARNs catch the crude cases
+only. This pass is yours.
 
 ---
 
@@ -665,13 +728,15 @@ linter is holding the line, and ships the thing.
 | Radius chaos | >4 distinct radii | WARN `radius-chaos` | Exactly 2, or 0 everywhere. Nested: inner = outer − gap |
 | Palette sprawl | >4 hue families with real area | WARN `palette-sprawl` | 1 dominant + 1 accent + tinted neutrals |
 | Hero type small | <4.5vw on the first screen | WARN `hero-type-small` | 6–14vw |
-| Body type small | <16px | **you** — and the corpus argues with the rule: Amrit Palace sets body at 14.4px and nav at 10.4px and won SOTD. 17–18px is the default to beat, not a law. Beat it on purpose or not at all | 17–18px unless you can say why |
+| Body type small | Body under 16px, body in `--ink-muted`, or anything a reader needs under 15px | **you**. No size check exists, because a 16px floor would fire on the corpus's 10–11px nav. The standard is stricter than the corpus on purpose | 17px phone, 18px desktop, `--ink`, weight 400 |
+| Typographic hierarchy | More than 4 type sizes in one viewport or 6 on the page; adjacent heading levels under 1.2× apart; section `h2`s at 3+ sizes; a tiny caps eyebrow on every block; one-word mood headings | WARN `type-levels` (sizes per screen, near-equal heading sizes, `h2` sizes across the page) and WARN `eyebrow-density`. WARN `headline-cryptic` catches the shape of a mood heading; whether it says something is **you** | The six roles and rules in `references/typographic-hierarchy.md` |
 | Contrast | <4.5:1 body, <3:1 for ≥24px | FAIL `contrast` | Darken the text, not the brand colour |
 | Text over media, no scrim | No scrim, no text-shadow. A gradient only counts as a scrim when one of its stops actually paints (alpha ≥ 0.35) | WARN `text-over-media` | `linear-gradient(to top, rgb(0 0 0 / .78), transparent 65%)` |
 | Section rhythm | Half the sections under 48px breathing room | WARN `section-rhythm` | 96–200px between movements |
 | Measure too wide | >92 characters per line | WARN `measure-too-wide` | 60–75ch |
 | Pure `#000` / `#fff` | Either pole carrying ≥12% of the painted area | WARN `pure-black-white` | Tinted off-black and off-white |
 | Gradient text | Any `background-clip: text` gradient | FAIL `gradient-text` | One solid colour; emphasis by size or weight |
+| Hover image | An image that appears on hover or follows the cursor: a cursor preview on an index list, a photo revealed when a row is hovered | FAIL `hover-image` when a cursor follower carries an image ≥64px. An image revealed in place on hover is **you** | The photograph inline in the row, visible at rest, at every width |
 | Purple→blue gradient | A gradient stop in the 250–290 hue band with real saturation and area | FAIL `gradient-purple-blue` | Whatever the brief actually justifies |
 | Box/primitive 3D stand-in | `<boxGeometry>` as the product | **you** — a cube renders as cleanly as a car and no probe can tell you which one you shipped. Look at the frame | A real `.glb`, or real photography inside the motion system |
 | Uniform motion | Same enter animation on ≥4 components; same hover scale on ≥3; stagger on ≥2 lists in one view | **you** — SPARSE `motion-vocabulary` counts distinct declarations and will not catch one gesture used four times | Different motion per meaning — see `references/motion.md` |
@@ -681,6 +746,8 @@ linter is holding the line, and ships the thing.
 | Symmetric bands end to end | One `padding-block` value on every section, so the page breathes at one rate for its whole length | **you**. `section-rhythm` reads `padding-top`/`margin-top` only and fires only past half the sections | Asymmetric bands differing by ≥1.4×, plus one committed one-sided silence. Hagi's pays 450px of black between two loud sections |
 | Copy placeholders | lorem ipsum, Jane/John Doe, Acme/Nexus, `@example.com`, a 555 number, `99.99%`, "10x faster", "trusted by thousands" | FAIL `copy-placeholder` | Real names, real prices, real phone numbers |
 | Copy tells | "Welcome to", "Unlock the power of", "all-in-one solution", Elevate/Seamless/Unleash/Next-Gen/Delve, `Scroll ↓`, `SECTION 01` on four or more blocks | WARN `copy-tells` | Specific numbers (`47.2%`, `£64`), and no scroll cue |
+| Slop vocabulary | Any word, phrase or structure on the `no-slop.md` banned lists: world-class, state-of-the-art, testament to, in the heart of, look no further, "where X meets Y", "not just X but Y", em dashes, tricolon taglines | WARN `copy-tells` catches part of the vocabulary and 3+ em dashes. Structures are **you** | The fact the word stood in for, from the replacement column in `references/no-slop.md` |
+| Cryptic headline | A heading a stranger cannot decode alone: a verbless fragment with a full stop ("Five formats."), one or two words ("Reach."), a pun, insider jargon, a brand name standing in for the `h1` | WARN `headline-cryptic` flags visible `h1`/`h2` under four words or short verbless full-stop fragments. Clarity is **you**: run the decode test | A plain statement naming the service, place, audience or benefit: "Five ways to put your brand in front of Gauteng commuters" |
 
 ---
 
@@ -696,6 +763,7 @@ linter and not the bar.
 - [ ] Direction lock posted before code — vibe, hero, section system, 3 moments
 - [ ] ≥3 studies read, their frames viewed, and the take-list posted with sources
 - [ ] Art Direction Contract posted before component code, with literal values
+- [ ] Type role table posted (six roles, 390 and 1440 sizes), every text element mapped to a role, ≤4 sizes per screen, one `h2` size, and no `type-levels` WARN
 - [ ] Tier declared, with the answer to "what ships if the risky moment fails"
 - [ ] `audit-page.mjs` exits 0 at desktop and phone
 - [ ] Every desktop and phone frame read with the Read tool
@@ -720,23 +788,31 @@ linter and not the bar.
 - [ ] Tier declared in the markup, and the page actually contains that tier's evidence
 - [ ] `tier=A` carries `because=` naming the award page it matches
 - [ ] Three or more weight-carrying motion techniques, named — each one a thing that happens, not an attribute that declares it
+- [ ] No image appears on hover or follows the cursor; every image is visible in the layout at rest
 - [ ] Every image has a real `srcset` (2+ candidates with `w`/`x`) or a `<picture>` with a `<source>`
 - [ ] ≥5 distinct photographs, not one frame placed eight times
 - [ ] Every capability downgrade announced with `console.info`
 - [ ] Local business: bottom action bar, what-happens-next line, FAQ, a named human
+- [ ] Copy pass run: headings listed alone in page order, each one passes the decode test, and the list describes the business
+- [ ] Hero passes the five-second test: the `h1` names what you sell and where or for whom, and the first screen shows how to start
+- [ ] No word, phrase or structure from the `no-slop.md` banned lists, no em dashes, every button verb + object
+- [ ] No-slop scorecard posted: six checks per section, every fail rewritten
+- [ ] Every number, client, year and claim traced to the brief, or left out
 - [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
 
 ## Reference map
 
 | Open this | When |
 |---|---|
-| `references/typography.md` | Choosing faces, sizes, tracking, scale |
+| `references/typographic-hierarchy.md` | The type standard: six roles, sizes per screen, steps between levels, heading spacing, label bans |
+| `references/typography.md` | Choosing faces, pairings, tracking, weights |
 | `references/color-and-light.md` | The two colour models (rationed accent, field), palettes, gradients, shadow, texture, dark mode |
 | `references/layout-archetypes.md` | Page shape, section composition, grid, asymmetric band spacing |
 | `references/motion.md` | Duration and easing ranges, the motion budget, non-uniform motion, reveal patterns, reduced motion |
 | `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
 | `references/imagery.md` | Sourcing, the subject gate, treating, and cropping photography |
-| `references/content-and-copy.md` | Words, conversion placement, copy tells, and the micro-label and marquee budgets |
+| `references/no-slop.md` | Writing any visible string: the AI-slop definition, headline rules, banned lists, the decode test, the copy-pass scorecard |
+| `references/content-and-copy.md` | Conversion placement, placeholders, fake precision, and the micro-label and marquee budgets |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
 | `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
 | `references/build-loop.md` | The audit loop and what each finding means |
@@ -752,11 +828,11 @@ write the pattern yourself.
 | Demo | Pattern | Stack |
 |---|---|---|
 | `pinned-stage.html` | Archetype C — subject held while copy chapters cycle | sticky + IntersectionObserver |
-| `index-list.html` | Archetype E — the card-grid replacement, cursor image preview | CSS + rAF lerp |
+| `index-list.html` | Archetype E — the card-grid replacement, a photograph inline in every row at every width | CSS only |
 | `editorial-split.html` | Archetype B — sticky type column, ground shift, masked reveals | sticky + IO |
 | `type-reveal.html` | Line-mask display reveal, character split on scroll | CSS + custom splitter |
 | `loader-to-hero.html` | Load sequence that resolves *into* the hero, skippable | FLIP measurement |
-| `cursor-index.html` | Lerped custom cursor with states, magnetic CTA | rAF, `pointer: fine` only |
+| `cursor-index.html` | Lerped custom cursor with states, magnetic CTA, index rows with inline photographs. No image follows the cursor | rAF, `pointer: fine` only |
 | `photo-treatment.html` | Scrim, duotone, editorial crop pair, grain, with the CSS shown | SVG `feColorMatrix` |
 | `horizontal-chapter.html` | Archetype D — vertical scroll drives a horizontal pan | GSAP + ScrollTrigger |
 | `scrub-sequence.html` | Scroll-scrubbed canvas sequence, the Tier-B answer to WebGL | canvas, DPR capped |

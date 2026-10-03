@@ -65,55 +65,49 @@ Next.js: use `next/font/google` for the Google rows and `next/font/local` with
 downloaded Fontshare `.woff2` for the rest. Never `@import` inside a CSS file
 you also render above the fold — it blocks.
 
-## Scale
+## Scale and hierarchy
 
-One fluid scale, held everywhere. These clamps are tuned for a 1440px canvas
-and a 390px phone.
+**The scale lives in `references/typographic-hierarchy.md`, and it is the
+standard.** Six roles (display, title, heading, lead, body, small), each with a
+`rem + vw` clamp between 390 and 1440, a weight, a line-height, tracking, case,
+measure and colour. It also sets the rules for how many sizes a screen may
+show, the minimum step between levels, and how space binds a heading to its
+text. Paste its token block; do not rebuild a scale here.
 
-```css
-:root {
-  /* display */
-  --step-hero:  clamp(3.25rem, 11vw, 11rem);    /* the one big statement */
-  --step-h1:    clamp(2.5rem, 6.5vw, 6rem);
-  --step-h2:    clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-h3:    clamp(1.375rem, 2.2vw, 2rem);
-  /* text */
-  --step-lead:  clamp(1.125rem, 1.5vw, 1.5rem);  /* standfirst under a hero */
-  --step-body:  clamp(1rem, 1.05vw, 1.125rem);   /* 17–18px, never 14 */
-  --step-small: 0.9375rem;
-  --step-label: 0.75rem;                          /* uppercase, tracked out */
-}
-```
+The old `--step-*` scale that used to sit in this section is retired. It had
+eight steps, so a screen could show seven sizes, and it shipped a 12px
+uppercase label tracked to 0.14em that ended up on every block of every page.
 
-Rules that come with the scale:
+The three rules that used to live here still hold, and the standard now gives
+each a number:
 
-- **Body copy is 17–18px on desktop.** 14px body is the most reliable tell of
-  an AI-built page. 16px is a floor, not a target.
-- **Jump hard between levels.** A hero at 96px next to a lead at 18px reads
-  art-directed. A hero at 40px next to body at 18px reads like a document. If
-  your largest and smallest type differ by less than 4×, there is no hierarchy.
-- **One hero statement per page.** If two things are hero-sized, neither is.
+- **Body copy is 17–18px.** 16px is a floor, not a target, and body is never
+  set in `--ink-muted`.
+- **Jump hard between levels.** Adjacent levels at 20px and above differ by at
+  least 1.2×; display to body is at least 5:1 at 1440.
+- **One hero statement per page.** If two things are hero-sized in one
+  viewport, neither is.
 
 ## Optical settings
 
 ```css
 .display {
-  font-size: var(--step-hero);
+  font-size: var(--t-display);
   line-height: 0.92;            /* display type tightens; 1.2 looks limp */
-  letter-spacing: -0.035em;     /* -0.02 to -0.045 at display sizes */
+  letter-spacing: -0.035em;     /* -0.03 to -0.045 at display sizes */
   text-wrap: balance;           /* kills widows */
 }
 .body {
-  line-height: 1.55;            /* 1.5–1.65 */
+  font-size: var(--t-body);
+  line-height: 1.55;            /* 1.5–1.6 */
   letter-spacing: 0;            /* never track out body text */
-  max-width: 68ch;              /* 60–75ch */
+  max-width: 68ch;              /* 60–72ch */
   text-wrap: pretty;
 }
-.label {
-  font-size: var(--step-label);
-  text-transform: uppercase;
-  letter-spacing: 0.14em;       /* uppercase needs 0.08–0.16em or it clots */
+.label {                        /* the small role. Use sparingly: labels are a last resort */
+  font-size: var(--t-small);    /* 15px. Never 10–12px */
   font-weight: 500;
+  /* sentence case. If caps: ≤3 words, ≥14px, letter-spacing 0.06–0.1em */
 }
 .stat { font-variant-numeric: tabular-nums; }
 ```
@@ -176,8 +170,11 @@ middle. A 400-only face is already committed, because it has nothing else.
 
 | Mistake | What it looks like | Fix |
 |---|---|---|
-| Hero at 36–48px | A blog post pretending to be a brand site | `--step-hero`, 6–14vw |
-| 14px gray body | Terms-of-service energy | 17–18px, and darken the grey |
+| Hero at 36–48px | A blog post pretending to be a brand site | `--t-display`, 6–14vw |
+| 14px gray body | Terms-of-service energy | 17–18px in `--ink` |
+| Seven sizes on one screen | Nothing is in charge | Six roles, four sizes per screen at most (`typographic-hierarchy.md`) |
+| Tiny caps label on every block | Furniture announcing structure | Delete it; the title says what the section is |
+| Section titles at different sizes | Every section looks like a different site | `--t-title` on every section `h2` |
 | Five weights | Nothing feels deliberate | Two weights |
 | Tracking body copy out | "Designed" in the worst way | `letter-spacing: 0` |
 | Centering everything | No structure, no tension | Centre the hero if you like; set the rest on a left axis |

@@ -651,12 +651,39 @@ const audit = (opts = {}) => {
        fires on a real award site is a tell that gets ignored, so they are out
        of the machine list and stay in the written one. */
     [/\b(elevat(e|ing|ion)|seamless(ly)?|unleash(ing)?|empower(ing)?|revolutioni[sz]e|next[- ]gen|game[- ]?changer|cutting[- ]edge|delve)\b/i, 'a banned marketing word'],
+    /* no-slop.md structures that a regex can see without guessing. "Where X
+       meets Y", "not just X but Y" and "more than just a" are negative or
+       false-contrast framings; "whether you're X or Y" is the throat-clearing
+       audience range. */
+    [/\bwhere [a-z]+ meets? [a-z]+\b/i, '"where X meets Y"'],
+    [/\bnot just (an? |the )?[a-z' -]{1,40}?,?\s(but|it'?s|we'?re)\b/i, '"not just X, but Y"'],
+    [/\bmore than just an? \b/i, '"more than just a"'],
+    [/\bwhether you'?re\b[^.?!]{0,60}\bor\b/i, '"whether you’re X or Y"'],
   ];
   const tellHits = [];
   for (const [re, name] of TELLS) {
     const m = re.exec(pageText);
     if (m) tellHits.push({ tell: name, match: m[0].slice(0, 48) });
   }
+  /* The wider no-slop.md vocabulary. Every distinct hit is reported, so the
+     finding names all of them instead of the first. Kept to words and phrases
+     that have almost no honest use on a local business page: `premier`,
+     `leading`, `vibrant`, `innovative`, `curated`, `landscape` and `journey`
+     stay on the written list only, because a football club, a print shop, a
+     gallery, a landscaper and a travel agent all use them literally. */
+  const SLOP = /\b(tapestry|testament to|state[- ]of[- ]the[- ]art|world[- ]class|best[- ]in[- ]class|unparall?el+ed|unrivall?ed|second to none|synerg(y|ies)|nestled|in the heart of|boasts|look no further|one[- ]stop[- ]shop|to the next level|we pride ourselves|your trusted partner|commit(ted|ment) to excellence|bring your vision to life|stand out from the crowd|experience the difference|harness(ing)? the power|the possibilities are endless|plays? an? (pivotal|crucial|vital) role|pivotal|meticulously|transformative|reimagin(e|ed|ing)|redefin(e|es|ed|ing)|unlock(s|ed|ing)? (your|the|new|a|more)|in today'?s (fast[- ]paced|digital)|tailored to your (needs|business)|we'?ve got you covered|elevate your|empowering|underscor(e|es|ing)|showcasing|delv(es|ing)|effortless(ly)?|game[- ]changing)\b/gi;
+  const slopSeen = new Set();
+  for (const m of pageText.matchAll(SLOP)) {
+    const w = m[0].toLowerCase();
+    if (slopSeen.has(w)) continue;
+    slopSeen.add(w);
+    if (slopSeen.size > 12) break;
+  }
+  if (slopSeen.size) tellHits.push({ tell: `no-slop.md vocabulary (${[...slopSeen].slice(0, 8).join(', ')}${slopSeen.size > 8 ? ', …' : ''})`, match: [...slopSeen].join(', ').slice(0, 160) });
+  /* Em dashes: the most recognised punctuation tell. Three, not one, so a
+     single dash in a quoted review or a legal line does not fire. */
+  const emDashes = (pageText.match(/—/g) || []).length;
+  if (emDashes >= 3) tellHits.push({ tell: `${emDashes} em dashes`, match: 'punctuation' });
   const ownShort = [];
   for (const el of textEls) {
     const t = textOf(el).replace(/\s+/g, ' ').trim();
@@ -672,8 +699,68 @@ const audit = (opts = {}) => {
   if (scrollCues) tellHits.push({ tell: `${scrollCues} "Scroll" cue${scrollCues === 1 ? '' : 's'}`, match: 'furniture' });
   if (tellHits.length)
     add('warn', 'copy-tells',
-      `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from content-and-copy.md's banned list: ${tellHits.map((h) => h.tell).join('; ')}. Specificity is what a real business has and a generated page does not — "Open until 8pm on weekdays" beats "convenient hours".`,
+      `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from the no-slop.md banned lists: ${tellHits.map((h) => h.tell).join('; ')}. Replace each with the fact it stood in for (no-slop.md has a replacement column). Specificity is what a real business has and a generated page does not: "Open until 8pm on weekdays" beats "convenient hours".`,
       tellHits);
+
+  /* ---------- cryptic headlines ----------
+     no-slop.md, Family B. A build from this skill shipped "Already booked.",
+     "Five formats.", "Before you book." and "Seen across Gauteng." as its h1/h2
+     set, and the owner could not read his own site. A heading has to tell a
+     stranger what the business does or what the section covers, alone.
+     Clarity is not measurable, so this catches two shapes only and stays a WARN:
+       short:    under four words, unless it is a plain conventional label
+                   ("Frequently asked questions", "Contact us") or the brand
+                   name itself (a wordmark h1 is a corpus pattern; no-slop.md
+                   asks for the plain statement beside it)
+       fragment: six words or fewer, ending in a full stop, with no finite-verb
+                   signal (auxiliary, modal, contraction, subject pronoun, or a
+                   common verb). "Built for Gauteng's roads." is the ad-agency
+                   tagline shape and is meant to fire; a participle is not a
+                   finite verb.
+     Only h1/h2: card titles at h3 are legitimately short. Opacity is ignored
+     on purpose, so a heading still waiting on its reveal is read too. */
+  const CONVENTIONAL_HEADINGS = /^(faq|faqs|frequently asked questions|questions|contact|contact us|get in touch|about|about us|our (work|clients|team|story|services|prices|menu)|services|prices|pricing|price list|menu|opening hours|hours|location|locations|find us|reviews|testimonials|gallery|how it works)$/i;
+  const VERB_BASES = 'be am is are was were been being do does did done have has had can could will would shall should may might must get got book call see run put make take find send ask choose pick know need want pay start reach help work give show tell keep come go cut build fix print install place quote use try visit order plan open sell buy cover carry drive bring serve hire rent check compare read watch meet join learn save win grow look feel hear say talk speak write text email whatsapp let lets love like trust count earn reply answer deliver move travel park stay live leave choose wear cook eat drink sleep clean paint repair care treat teach train cost costs mean last arrive book stand sit ride'.split(' ');
+  const VERBISH = new Set();
+  for (const v of VERB_BASES) { VERBISH.add(v); VERBISH.add(`${v}s`); VERBISH.add(`${v}es`); }
+  for (const p of ['we', 'you', 'i', 'they', 'he', 'she', 'it']) VERBISH.add(p);
+  /* `'s` counts only on pronoun-like words: "it's" is a verb, "Gauteng's" is a possessive. */
+  const hasFiniteVerb = (words) => words.some((w) => VERBISH.has(w) || /n't$|'(re|ll|ve|d|m)$/.test(w) || /^(it|that|there|here|what|who|he|she|let)'s$/.test(w));
+  const brandName = (() => {
+    try {
+      const og = document.querySelector('meta[property="og:site_name"]');
+      const raw = (og && og.getAttribute('content')) || String(document.title || '').split(/\s[|\-–—:·]\s/)[0];
+      return String(raw || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    } catch { return ''; }
+  })();
+  const crypticHeads = [];
+  const seenHeads = new Set();
+  const headEls = Array.from(document.querySelectorAll('h1, h2, [role="heading"][aria-level="1"], [role="heading"][aria-level="2"]'));
+  for (const el of headEls) {
+    try {
+      if (el.closest('nav, footer, [role="navigation"], [aria-hidden="true"]')) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2) continue;
+      const hs = getComputedStyle(el);
+      if (hs.display === 'none' || hs.visibility === 'hidden') continue;
+      const raw = String(el.innerText || el.textContent || '').replace(/[\s ]+/g, ' ').trim();
+      if (!raw || !/\p{L}/u.test(raw) || seenHeads.has(raw.toLowerCase())) continue;
+      seenHeads.add(raw.toLowerCase());
+      const bare = raw.toLowerCase().replace(/[.!?:;,…]+$/, '').trim();
+      if (CONVENTIONAL_HEADINGS.test(bare)) continue;
+      if (brandName && bare === brandName) continue;
+      const words = bare.replace(/[‘’]/g, "'").replace(/[^\p{L}\p{N}'\s-]/gu, ' ').split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
+      const question = /\?$/.test(raw);
+      let reason = null;
+      if (words.length < 4 && !(question && words.length >= 3)) reason = `${words.length} word${words.length === 1 ? '' : 's'}`;
+      else if (/[^.]\.$|!$/.test(raw) && words.length <= 6 && !hasFiniteVerb(words)) reason = 'verbless fragment with a full stop';
+      if (reason) crypticHeads.push({ tag: el.tagName.toLowerCase(), text: raw.slice(0, 80), reason });
+    } catch { /* skip this heading */ }
+  }
+  if (crypticHeads.length)
+    add('warn', 'headline-cryptic',
+      `${crypticHeads.length} heading${crypticHeads.length === 1 ? '' : 's'} a stranger may not decode alone: ${crypticHeads.slice(0, 5).map((h) => `"${h.text}" (${h.reason})`).join('; ')}. no-slop.md: every h1/h2 names the service, place, audience or benefit in a plain statement, e.g. "Five formats." becomes "Five ways to put your brand in front of Gauteng commuters". Run the decode test; this check only sees the shape.`,
+      crypticHeads.slice(0, 12));
 
   /* Step 1: "Max 1 eyebrow label per 3 sections". A stated absolute that
      nothing measured, and a build from the skill alone shipped six across ten
@@ -712,6 +799,79 @@ const audit = (opts = {}) => {
     add('warn', 'eyebrow-density',
       `${eyebrows.length} eyebrow labels across ${sectionCount} sections. SKILL.md's composition rule is one per three sections — ${Math.ceil(sectionCount / 3)} here. An eyebrow on every block is furniture: it announces structure the composition should already be showing.`,
       eyebrows.slice(0, 10));
+
+  /* ---------- type-levels ----------
+     references/typographic-hierarchy.md: six roles, at most four sizes in any
+     one screen, adjacent levels at 20px+ at least 1.2x apart, and one title
+     size for every section. A reviewer rejected a page built from this skill
+     for seven competing sizes and section titles at a different size in every
+     section. This reads rendered sizes, not tokens.
+     Windows are one viewport tall, stepped by half a viewport down the
+     document. Ignored: nav, footer, a short masthead <header>, aria-hidden
+     tint marks, and text under 11px. Sizes within 6% merge, so 17.6px and 18px
+     are one size. The WARN starts at SIX sizes, one past the standard, so a
+     screen sharing room with chrome is not punished. Split-text spans hold one
+     character each and are skipped, which can only under-count. */
+  try {
+    const vhT = window.innerHeight || 900;
+    const syT = window.scrollY || 0;
+    const tlItems = [];
+    for (const el of textEls) {
+      try {
+        if (el.closest('nav, footer, [role="navigation"], [role="contentinfo"], [aria-hidden="true"]')) continue;
+        const hdr = el.closest('header');
+        if (hdr && hdr.getBoundingClientRect().height < vhT * 0.35) continue;
+        const t = textOf(el).replace(/\s+/g, ' ').trim();
+        if (t.length < 2) continue;
+        const size = parseFloat(getComputedStyle(el).fontSize) || 0;
+        if (size < 11) continue;
+        const r = el.getBoundingClientRect();
+        tlItems.push({ size, y: r.top + syT + r.height / 2, chars: t.length, tag: el.tagName.toLowerCase() });
+      } catch { /* skip this element */ }
+    }
+    /* Merge sizes within 6% of the smallest size in their group. */
+    const tlCluster = (list) => {
+      const sorted = list.slice().sort((a, b) => a.size - b.size);
+      const groups = [];
+      for (const it of sorted) {
+        const g = groups[groups.length - 1];
+        if (g && it.size <= g.min * 1.06) { g.max = it.size; g.chars += it.chars; g.n++; }
+        else groups.push({ min: it.size, max: it.size, chars: it.chars, n: 1 });
+      }
+      return groups.map((g) => ({ size: Math.round(((g.min + g.max) / 2) * 10) / 10, chars: g.chars, n: g.n }));
+    };
+    const docH = Math.max(document.documentElement.scrollHeight || 0, vhT);
+    const step = Math.max(200, vhT / 2);
+    const crowded = [];
+    const close = [];
+    const closeSeen = new Set();
+    let worst = 0;
+    for (let w = 0, k = 0; w < docH && k < 120; w += step, k++) {
+      const inWin = tlItems.filter((it) => it.y >= w && it.y < w + vhT);
+      if (inWin.length < 2) continue;
+      const g = tlCluster(inWin);
+      worst = Math.max(worst, g.length);
+      if (g.length > 5) crowded.push({ atY: Math.round(w), sizes: g.map((x) => x.size) });
+      for (let i = 1; i < g.length; i++) {
+        const a = g[i - 1], b = g[i];
+        if (a.size < 20 || b.size / a.size >= 1.2) continue;
+        if (a.chars < 8 || b.chars < 8) continue;
+        const key = `${a.size}/${b.size}`;
+        if (closeSeen.has(key)) continue;
+        closeSeen.add(key);
+        close.push({ atY: Math.round(w), sizes: [a.size, b.size], ratio: +(b.size / a.size).toFixed(2) });
+      }
+    }
+    const h2Sizes = tlCluster(tlItems.filter((it) => it.tag === 'h2')).map((x) => x.size);
+    const parts = [];
+    if (crowded.length) parts.push(`${crowded.length} screen${crowded.length === 1 ? ' carries' : 's carry'} more than 5 distinct type sizes (worst ${worst}; e.g. ${crowded[0].sizes.join('/')}px at y=${crowded[0].atY}). The standard is four per screen: one dominant, one supporting, body, small`);
+    if (close.length) parts.push(`${close.length} pair${close.length === 1 ? '' : 's'} of large sizes sit under 1.2x apart in one screen (${close.slice(0, 3).map((c) => `${c.sizes[0]}/${c.sizes[1]}px = ${c.ratio}x`).join(', ')}), which reads as one level wearing two tags`);
+    if (h2Sizes.length >= 3) parts.push(`section h2s render at ${h2Sizes.length} sizes (${h2Sizes.join('/')}px). Every section title uses one --t-title; the only other h2 size is the one display event`);
+    if (parts.length)
+      add('warn', 'type-levels',
+        `Typographic hierarchy is crowded or flat: ${parts.join('; ')}. Map every text element to one of the six roles in references/typographic-hierarchy.md and delete sizes rather than nudging them.`,
+        { crowded: crowded.slice(0, 6), close: close.slice(0, 6), h2Sizes, worstSizesPerScreen: worst });
+  } catch { /* type-levels is advisory; a page it cannot read reports nothing */ }
 
   /* tap targets (mobile only, caller decides) */
   const smallTargets = Array.from(document.querySelectorAll('a, button, [role=button], input, select'))
@@ -1055,11 +1215,20 @@ const audit = (opts = {}) => {
   const craftOk = !!(craftIn && craftIn.ok);
   const techniques = (craftOk && craftIn.techniques && typeof craftIn.techniques === 'object') ? craftIn.techniques : {};
   const techPresent = (craftOk && Array.isArray(craftIn.present)) ? craftIn.present : [];
+  /* Eight. A cursor-driven image preview used to be the ninth; it is banned
+     now ("no images that appear on hover or follow the cursor") and is
+     reported as FAIL hover-image below instead of counted as craft. */
   const TECHNIQUE_NAMES = [
     'scroll-pinned section', 'scrubbed sequence', 'split/masked type reveal',
-    'cursor-driven preview', 'horizontal chapter', 'loader into hero',
+    'horizontal chapter', 'loader into hero',
     'page transition', 'magnetic element', 'canvas/3D scene',
   ];
+  /* hover-image: a pointer follower carrying a picture. The driver's craft
+     probe moves the mouse and hands in what followed it. */
+  if (craftIn && craftIn.hoverImage)
+    add('fail', 'hover-image',
+      `An element follows the pointer and carries an image (${craftIn.hoverImage.el}${craftIn.hoverImage.what ? `, ${craftIn.hoverImage.what}` : ''}). This skill bans images that appear on hover or follow the cursor: a phone, a keyboard and a skimming reader never see them. Delete the follower and show the photograph in the layout, inline in its row at every width (demos/index-list.html). A plain custom cursor with no picture in it is fine.`,
+      craftIn.hoverImage);
   const LONG_PAGE_SCREENS = 6;   /* ambition-tiers.md, Tier A entry clause */
   const longPage = screensNow > LONG_PAGE_SCREENS;
 
@@ -1252,7 +1421,7 @@ const audit = (opts = {}) => {
   const techFloor = longPage ? 3 : ((!onPhone && screensNow > SHORT_PAGE_SCREENS && measuredAgainst !== 'A') ? 2 : 0);
   if (craftOk && techFloor && techPresent.length < techFloor)
     add('craft', 'motion-techniques',
-      `${techPresent.length} of 9 weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least ${techFloor} from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
+      `${techPresent.length} of ${TECHNIQUE_NAMES.length} weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least ${techFloor} from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
       { detected: techPresent, count: techPresent.length, wanted: techFloor, catalogue: TECHNIQUE_NAMES, evidence: techniques, screens: +screensNow.toFixed(1) });
 
   /* --- C4. no-loader: something has to run into the first paint --- */
@@ -2105,7 +2274,7 @@ const audit = (opts = {}) => {
   /* Every "not quite" the probe found, said out loud. Four techniques are
      rejected on evidence rather than counted, and a rejection nobody can see is
      the same failure as a capability downgrade nobody logs: the author reads
-     `techniques 3/9`, has no idea which candidate missed or by how much, and
+     `techniques 3/8`, has no idea which candidate missed or by how much, and
      the only route to the answer is reading this file. */
   const rejectedList = (craftOk && craftIn.rejected && typeof craftIn.rejected === 'object')
     ? Object.entries(craftIn.rejected).filter(([, v]) => v && typeof v === 'object')
@@ -2132,6 +2301,7 @@ const audit = (opts = {}) => {
     tierCEvidence: evidenceC,
     techniques: techPresent,
     techniqueCount: techPresent.length,
+    techniqueTotal: TECHNIQUE_NAMES.length,
     techniqueEvidence: techniques,
     loader: loaderEvidence,
     webgl: craftOk ? !!craftIn.webgl : null,
@@ -2631,6 +2801,19 @@ const cursorRead = () => {
       if (a < 400 || a > W * H * 0.5) continue;
       el.setAttribute('data-pwd-cu', String(n++));
     }
+    /* Does this element carry a picture? An <img>/<picture>/<video>/<canvas>
+       of 64px or more on itself or inside it, or a painted url() background.
+       A ring, a dot or a "View" pill carries none of these. */
+    const carriesImage = (el) => {
+      try {
+        const big = (n) => { const q = n.getBoundingClientRect(); return q.width >= 64 && q.height >= 64; };
+        if (/^(img|picture|video|canvas)$/i.test(el.tagName) && big(el)) return el.tagName.toLowerCase();
+        for (const m of el.querySelectorAll('img, picture, video, canvas')) if (big(m)) return m.tagName.toLowerCase();
+        const bg = getComputedStyle(el).backgroundImage || '';
+        if (/url\(/i.test(bg) && big(el)) return 'background-image';
+      } catch { /* ignore */ }
+      return null;
+    };
     for (const el of document.querySelectorAll('[data-pwd-cu]')) {
       let s; try { s = getComputedStyle(el); } catch { continue; }
       const r = el.getBoundingClientRect();
@@ -2639,6 +2822,7 @@ const cursorRead = () => {
         cx: Math.round(r.left + r.width / 2),
         cy: Math.round(r.top + r.height / 2),
         vis: s.visibility !== 'hidden' && s.display !== 'none' && parseFloat(s.opacity) > 0.05,
+        img: carriesImage(el),
         tag: el.tagName.toLowerCase(),
         cls: String(el.className || '').slice(0, 40),
       });
@@ -2906,7 +3090,7 @@ const craftProbe = async (ctx, target) => {
   const out = {
     ok: false, mode: null, samples: 0, screens: null, errors: [],
     techniques: {}, present: [],
-    loader: null, loaderProbe: null, loaderHookRejected: null, cursorRejected: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
+    loader: null, loaderProbe: null, loaderHookRejected: null, hoverImage: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
     webgl: false, three: false, canvasPainted: false, gsap: false, scrollTrigger: false, pinSpacer: false,
     navLegibility: null,
   };
@@ -3021,7 +3205,7 @@ const craftProbe = async (ctx, target) => {
     const ticks = Math.min(30, Math.max(6, Math.ceil(usable / Math.max(N, 1) / 500)));
 
     const series = [];
-    let cursorHit = null;
+    let hoverImage = null;
     for (let i = 0; i < N; i++) {
       if (native) {
         const y = N === 1 ? 0 : Math.round((usable * i) / (N - 1));
@@ -3038,9 +3222,12 @@ const craftProbe = async (ctx, target) => {
         if (s.pinSpacer) out.pinSpacer = true;
         if (s.bottomBar && !out.bottomBar) out.bottomBar = s.bottomBar;
       }
-      /* Cursor-driven previews live at a scroll position, so probe as we go and
-         stop the moment one answers. Hover is meaningless under touch emulation. */
-      if (!cursorHit && geom.vw >= 600 && i < 9) {
+      /* hover-image: a cursor-driven image preview is BANNED, not counted. It
+         lives at a scroll position, so probe as we go and stop the moment a
+         follower carrying a picture answers. A plain custom cursor (a ring, a
+         dot, a "View" pill) follows too and is ignored. Hover is meaningless
+         under touch emulation. */
+      if (!hoverImage && geom.vw >= 600 && i < 9) {
         try {
           const ax = Math.round(geom.vw * 0.28), ay = Math.round(geom.vh * 0.34);
           const bx = Math.round(geom.vw * 0.72), by = Math.round(geom.vh * 0.68);
@@ -3052,29 +3239,19 @@ const craftProbe = async (ctx, target) => {
           const B = await page.evaluate(cursorRead).catch(() => []);
           const mapA = new Map(A.map((e) => [e.id, e]));
           for (const b of B) {
-            if (!b.vis) continue;
+            if (!b.vis || !b.img) continue;
             const a = mapA.get(b.id);
             if (!a) continue;
             const dx = b.cx - a.cx, dy = b.cy - a.cy;
-            /* Correlated movement is not the same as following. A preview
-               wrapper centred with percentage margins on a `position: fixed`
-               element resolves BOTH axes against the viewport width, which
-               parked one build's preview 720px left and 749px above the
-               pointer: it tracked the cursor perfectly, permanently off-screen,
-               and scored as present on every pass. Ask where it ended up. */
-            const near = Math.abs(b.cx - bx) <= geom.vw * 0.5 && Math.abs(b.cy - by) <= geom.vh * 0.5;
-            const onScreen = b.cx > -40 && b.cx < geom.vw + 40 && b.cy > -40 && b.cy < geom.vh + 40;
+            /* Correlated movement with the pointer on both axes is following.
+               Where it ended up does not matter: a follower parked off-screen
+               by a percentage-margin bug is still the banned pattern. */
             if (dx >= (bx - ax) * 0.4 && dy >= (by - ay) * 0.3) {
-              if (!near || !onScreen) {
-                if (!out.cursorRejected)
-                  out.cursorRejected = { reason: `preview tracks the pointer but lands ${Math.round(Math.abs(b.cx - bx))}px across and ${Math.round(Math.abs(b.cy - by))}px away from it${onScreen ? '' : ', off-screen'}`, el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, cx: b.cx, cy: b.cy, pointerX: bx, pointerY: by, hint: 'percentage margins on a `position: fixed` element resolve against the viewport WIDTH on both axes — use translate(-50%, -50%) instead' };
-                continue;
-              }
-              cursorHit = { el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, movedX: dx, movedY: dy, mouseDx: bx - ax, mouseDy: by - ay, offsetFromPointer: [Math.round(b.cx - bx), Math.round(b.cy - by)], atSample: i };
+              hoverImage = { el: `${b.tag}${b.cls ? `.${b.cls.split(/\s+/)[0]}` : ''}`, what: b.img, movedX: dx, movedY: dy, mouseDx: bx - ax, mouseDy: by - ay, atSample: i };
               break;
             }
           }
-        } catch (e) { out.errors.push(`cursor: ${String(e).slice(0, 80)}`); }
+        } catch (e) { out.errors.push(`hover-image probe: ${String(e).slice(0, 80)}`); }
       }
     }
 
@@ -3320,7 +3497,7 @@ const craftProbe = async (ctx, target) => {
       out.three = !!fin.three;
       out.canvasPainted = !!fin.canvasPainted;
       out.webglVia = fin.webglVia || null;
-      out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null, cursor: out.cursorRejected || null };
+      out.rejected = { canvas: fin.canvasRejected || null, transition: fin.transitionRejected || null, sticky: fin.stickyRejected || null, loaderHook: out.loaderHookRejected || null };
       out.gsap = !!fin.gsap;
       out.scrollTrigger = !!fin.scrollTrigger;
       out.sceneSection = fin.sceneSection || null;
@@ -3400,7 +3577,6 @@ const craftProbe = async (ctx, target) => {
       'scroll-pinned section': pin,
       'scrubbed sequence': scrub,
       'split/masked type reveal': fin ? fin.split : null,
-      'cursor-driven preview': cursorHit,
       'horizontal chapter': track || (fin ? fin.rail : null),
       'loader into hero': out.loader,
       'page transition': fin ? fin.transition : null,
@@ -3412,6 +3588,7 @@ const craftProbe = async (ctx, target) => {
     };
     out.techniques = techniques;
     out.present = Object.keys(techniques).filter((k) => techniques[k]);
+    out.hoverImage = hoverImage;
     out.ok = series.length >= 3;
     if (!out.ok) out.errors.push(`only ${series.length} scroll samples returned`);
   } catch (e) {
@@ -3652,7 +3829,7 @@ const fmt = (label, a) => {
     `palette: ${a.palette.map((p) => `${p.color} ${p.areaPct}%`).join(' | ')}`,
     `counts: ${JSON.stringify(a.counts)}`,
     `ambition: media ${amb.renderedMedia ?? '?'} · hero ${amb.heroSize ?? '?'}px vs ${amb.largestBelowFold ?? '?'}px below · overlaps ${amb.overlapPairs ?? '?'} · bleeds ${amb.bleeders ?? '?'} · ground flips ${amb.groundFlips ?? 'n/a'} · motion ${amb.motionVocabulary ?? '?'} · tint marks ${amb.tintMarks ?? 0}`,
-    `craft: kind ${cr.kind || 'page'}${cr.demoMode ? ' (SPARSE+CRAFT skipped)' : ''} · tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/9${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
+    `craft: kind ${cr.kind || 'page'}${cr.demoMode ? ' (SPARSE+CRAFT skipped)' : ''} · tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/${cr.techniqueTotal ?? 8}${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
     `FAIL ${fails.length} · WARN ${warns.length} · SPARSE ${sparse.length} · CRAFT ${craftF.length}`,
   ];
   for (const f of notes) lines.push(`  [NOTE] ${f.code} — ${f.msg}`);

@@ -4,14 +4,20 @@ A page can be perfectly typeset and still read as machine-made, because the
 words give it away. Copy tells are the fastest signal a visitor gets, and they
 cost nothing to fix.
 
+**`references/no-slop.md` is the copy standard and it wins any conflict with
+this file.** It defines AI slop in both its forms: the inflated brochure voice
+("Elevate your brand") and the cryptic ad-agency voice ("Five formats.",
+"Already booked."). It holds the banned word and phrase lists with
+replacements, the headline rules, the decode test, before/after rewrites and
+the scoring rubric for the copy pass. This file covers what sits around the
+words: placeholders, fake precision, conversion placement, and the label and
+marquee budgets.
+
 ## Banned outright
 
-**Openers:** "Welcome to", "Unlock the power of", "Your all-in-one solution
-for", "In today's fast-paced world", "Discover the difference".
-
-**Words:** Elevate, Seamless, Unleash, Empower, Revolutionize, Next-Gen,
-Game-changer, Cutting-edge, Delve, Robust, Leverage (as a verb), Journey (for
-anything that is not travel).
+**Openers, words and structures:** the lists in `no-slop.md`. The short version:
+no "Welcome to", no "Elevate/Seamless/Unlock/Empower/Delve", no "not X but Y",
+no verbless fragment headings with a full stop, no em dashes.
 
 **Placeholders that survived:** Acme, Nexus, NovaCore, Quantum-anything, Jane
 Doe, John Smith, lorem ipsum, `hello@example.com`, `+1 (555) 123-4567`.
@@ -27,9 +33,6 @@ any `/search` path and any `?q=`-style query.
 
 **Furniture:** `SECTION 01` eyebrows on every block, `Scroll ↓` cues, decorative
 status dots, live counters, an intro paragraph explaining how good the site is.
-
-**Punctuation:** em dashes. They are the single most recognisable tell in
-generated prose.
 
 ## What the auditor reads, and what it cannot
 
@@ -50,8 +53,14 @@ not a false positive, it is the word doing exactly what the list says it does, o
 a Site of the Day. Winning an award does not make a sentence good, and one
 filler adverb in a catering paragraph is the cheapest thing on any page to fix.
 
-Nothing measures em dashes, fake precision beyond the two patterns above, or
-whether a name you invented reads as real. Read the copy aloud.
+`copy-tells` also counts the wider `no-slop.md` vocabulary (puffery such as
+"world-class", "state-of-the-art", "testament to", "in the heart of", "look no
+further", "where X meets Y", "not just X but Y"), and three or more em dashes in
+the visible text. `headline-cryptic` (WARN) flags a visible `h1`/`h2` under four
+words, or a short verbless fragment ending in a full stop. Both are rough nets.
+Nothing measures fake precision beyond the patterns above, whether a heading is
+clear, or whether a name you invented reads as real. Run the decode test in
+`no-slop.md` and read the copy aloud.
 
 ## What to write instead
 
@@ -62,11 +71,16 @@ page does not.
 
 **Use real numbers.** `47.2%`, `1,284 appointments last year`, `£64`,
 `+44 117 924 8106`. Odd numbers read as measured; round numbers read as invented.
+That cuts both ways: an odd number you made up is still made up. Use the
+numbers in the brief, and where the brief has none, write the sentence without
+one.
 
-**Cut the hero to a statement.** The hero headline is 2–6 words, and it says
-what this is or what it does for the visitor. The explanation goes in one line
-beneath it, at most 20 words. If the hero needs three sentences, the idea is not
-clear yet.
+**Make the hero a plain statement.** The `<h1>` says what the business sells
+and where or for whom, in words a stranger understands without scrolling:
+"Billboard, taxi and ATM-screen advertising across Gauteng". Most land between
+4 and 12 words. A short, clever line ("Seen across Gauteng.") fails, however
+good it looks at 200px. The supporting line beneath adds the detail in at most
+25 words. Formulas and the five-second test: `no-slop.md`, rule 2.
 
 **Write like the business talks.** A veterinary clinic does not say "pet
 wellness solutions". It says "we look after your dog". A barber does not say
@@ -133,15 +147,21 @@ What the corpus runs through one:
   ticker you have to wait for. The band appears twice, in two themes, at 1.5
   screens and 6.5 screens.
 
-Both are the sentence the business would print on a shirt. Write that sentence,
-or run the thing the reader came for, the services, the locations, the price,
-and give it a photograph as punctuation. Then let it clip.
+Run the thing the reader came for through it: the services, the locations,
+the prices, the client names. Tripletta's city list works because every word in
+it is a fact. Hagi's slogan works for a barber whose customers already know the
+shop; a two-fragment slogan on a business a stranger has never heard of fails
+the decode test in `no-slop.md`, and a marquee is the last place to make a
+reader decode anything. Give the list a photograph as punctuation. Then let it
+clip.
 
 ## Length
 
 Award pages carry less copy than agencies expect and more than agents write.
 Per section: one headline, one supporting line, and if the section earns it, one
-short paragraph of 30–60 words. Anything longer belongs on an inner page.
+short paragraph of 30–60 words. Short means few sentences, not clipped ones:
+every headline and line is still a complete, plain statement (`no-slop.md`).
+Anything longer belongs on an inner page.
 
 The exception is the section that sells the thing itself — a menu, a service
 list, a price list. Those want detail, and detail is what makes them credible.

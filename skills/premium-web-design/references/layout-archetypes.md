@@ -53,11 +53,12 @@ a vertical version of the same content.
 ┌──────────────────────────────────────┐
 │  01  SERVICE NAME        £45    →     │  full-width rows,
 │  ────────────────────────────────     │  hairline rules,
-│  02  SERVICE NAME        £60    →     │  image on hover
+│  02  [photo] SERVICE NAME £60   →     │  photo inline per row
 ```
 The best replacement for a card grid. Rows, numbers, hairlines, price on the
-right, a preview image that follows the cursor. Amrit Palace and most menu-led
-award sites are variations of this.
+right, and a photograph inline in each row, visible at rest at every width.
+Never an image that appears on hover or follows the cursor. Amrit Palace and
+most menu-led award sites are variations of this. `demos/index-list.html`.
 
 ### F. Poster stack
 ```

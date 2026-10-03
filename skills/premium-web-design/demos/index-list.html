@@ -8,11 +8,11 @@
 <!--
   ============================================================================
   PATTERN — Layout archetype E, "index / directory" (references/layout-archetypes.md)
-  The replacement for a card grid. Full-width rows: leading numeral, name,
-  price on the right, one hairline between each. A preview image follows the
-  cursor and swaps per row, so the list carries all the imagery a grid of
-  cards would have carried — without six equal boxes saying nothing is more
-  important than anything else.
+  The replacement for a card grid. Full-width rows: leading numeral, a
+  photograph, name, price on the right, one hairline between each. The
+  photograph sits inline in its row at every width, visible at rest, so the
+  list carries all the imagery a grid of cards would have carried without six
+  equal boxes saying nothing is more important than anything else.
 
   DERIVED FROM
   - amrit-palace (desktop-01, desktop-03) → name / price / description row
@@ -26,18 +26,17 @@
   (1) The card grid. Seven products becomes seven rounded, bordered, padded
       boxes, and the auditor flags card-grid-template. Rows cost less markup
       and read as a printed price list rather than a template.
-  (2) The cursor preview that dies on a phone. Every cursor-follow demo on the
-      web is desktop-only and leaves touch users with a list of names and no
-      pictures. Here the SAME <img> per row is the cursor preview under
-      (pointer: fine) and an inline thumbnail under (pointer: coarse) — one
-      element, one download, two layouts, no JS branch.
+  (2) The hover image. A photograph that only appears while a mouse rests on a
+      row, or that follows the cursor, is a photograph a phone, a keyboard
+      and a skimming reader never see. This skill bans it: no images that
+      appear on hover or follow the cursor; show imagery in the layout. Each
+      row's <img> is laid out inside the row at every width, with no JS.
 
   HOW TO ADAPT
   1. Rows are a <ul>. Each <li class="row"> needs a numeral, a name, a price
      and an <img>. Add or remove rows freely; nothing is indexed in JS.
-  2. The pointer follower lerps at 0.14/frame toward the cursor (motion.md:
-     instant tracking feels cheap, heavy lag feels broken). It writes two CSS
-     custom properties and nothing else — no per-frame style thrash.
+  2. Hover only moves type and colour (the name slides 14px, numeral and
+     price take the accent). It never reveals or moves an image.
   3. To use this for services rather than products, keep the price column and
      put the duration where the description is. An empty right column is what
      makes an index list look unfinished.
@@ -81,9 +80,6 @@
   --ease-in:cubic-bezier(0.7,0,0.84,0);
   --ease-move:cubic-bezier(0.65,0,0.35,1);
   --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
-
-  /* pointer, written by JS */
-  --px:50vw; --py:50vh;
 }
 
 *,*::before,*::after{box-sizing:border-box}
@@ -167,8 +163,9 @@ p{text-wrap:pretty}
 .row{border-bottom:1px solid var(--edge)}
 .row__link{
   display:grid;
-  grid-template-columns:4.5rem minmax(0,1fr) 8rem;
-  grid-template-areas:"no name price" ". desc .";
+  grid-template-columns:4.5rem 11rem minmax(0,1fr) 8rem;
+  grid-template-areas:"no media name price" "no media desc price";
+  grid-template-rows:auto 1fr;
   align-items:baseline;
   column-gap:clamp(1rem,2.5vw,2.5rem);row-gap:.75rem;
   padding:clamp(1.5rem,2.6vw,2.25rem) 0;
@@ -212,21 +209,15 @@ p{text-wrap:pretty}
 .cta:hover{background:var(--accent)}
 .cta:active{transform:scale(.97)}
 
-/* ── Cursor preview (pointer: fine) ─────────────────────────────────────── */
-@media (pointer:fine){
-  .row__media{
-    position:fixed;left:0;top:0;z-index:6;width:19rem;aspect-ratio:4/5;
-    pointer-events:none;overflow:hidden;
-    transform:translate3d(calc(var(--px) - 50%),calc(var(--py) - 50%),0);
-    will-change:transform;
-  }
-  .row__media img{
-    width:100%;height:100%;object-fit:cover;
-    opacity:0;transform:scale(1.06);
-    transition:opacity var(--d-state) var(--ease-out),
-               transform var(--d-layout) var(--ease-out);
-  }
-  .row:hover .row__media img{opacity:1;transform:scale(1)}
+/* ── Row photograph: inline, visible at rest, at every width ────────────── */
+.row__media{
+  grid-area:media;align-self:start;display:block;
+  aspect-ratio:4/3;overflow:hidden;background:var(--ground)
+}
+.row__media img{width:100%;height:100%;object-fit:cover}
+
+/* Hover moves type and colour only. It never reveals or moves an image. */
+@media (hover:hover) and (pointer:fine){
   .row__link:hover .row__name{transform:translateX(14px)}
   .row__link:hover .row__no,
   .row__link:hover .row__price{color:var(--accent)}
@@ -317,7 +308,7 @@ p{text-wrap:pretty}
 
 /* ── Breakpoints ────────────────────────────────────────────────────────── */
 @media (max-width:1100px){
-  .row__link{grid-template-columns:3.5rem minmax(0,1fr) 6rem}
+  .row__link{grid-template-columns:3.5rem 8.5rem minmax(0,1fr) 6rem}
 }
 @media (max-width:820px){
   .hero{grid-template-columns:1fr;gap:2rem;align-items:start}
@@ -331,18 +322,18 @@ p{text-wrap:pretty}
   .list__foot{flex-direction:column;align-items:flex-start}
 }
 
-/* ── Touch fallback (pointer: coarse) — a real image per row ──────────────
-   Declared AFTER the width breakpoints on purpose: `@media (max-width:1100px)`
-   also sets grid-template-columns, and on a 390px phone it would otherwise
-   win on source order and squash this layout back into three columns. */
-@media (pointer:coarse){
+/* ── Narrow screens: the photograph takes the full row width ──────────────
+   Declared AFTER the 1100px breakpoint on purpose: it also sets
+   grid-template-columns, and would otherwise win on source order and squash
+   this layout back into four columns. */
+@media (max-width:720px){
   .row__link{
     grid-template-columns:3rem 1fr;
     grid-template-areas:"no name" ". media" ". desc" ". price";
+    grid-template-rows:none;
     row-gap:1rem;align-items:start;
   }
-  .row__media{grid-area:media;display:block;aspect-ratio:16/10;overflow:hidden;margin-top:.25rem}
-  .row__media img{width:100%;height:100%;object-fit:cover}
+  .row__media{aspect-ratio:16/10;margin-top:.25rem}
   .row__price{justify-self:start;color:var(--accent)}
 }
 
@@ -396,7 +387,7 @@ p{text-wrap:pretty}
           <span class="row__name">Country Sourdough</span>
           <p class="row__desc">80% white, 20% wholemeal, 30-hour cold retard. Baked dark.</p>
           <span class="row__price">&pound;5.20</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1473447547337-5770a453122d?w=1600&q=80&auto=format" alt="A round sourdough loaf scored in a cross, resting on a wooden board."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1473447547337-5770a453122d?w=800&q=80&auto=format" alt="A round sourdough loaf scored in a cross, resting on a wooden board."></span>
         </a>
       </li>
       <li class="row" style="--i:1">
@@ -405,7 +396,7 @@ p{text-wrap:pretty}
           <span class="row__name">Dark Rye Miche</span>
           <p class="row__desc">Two kilos. Cracked rye and caraway, four days before it cuts properly.</p>
           <span class="row__price">&pound;6.80</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1511629036492-6c07153d3e83?w=1600&q=80&auto=format" alt="A dark, heavily blistered rye loaf on a black surface."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1511629036492-6c07153d3e83?w=800&q=80&auto=format" alt="A dark, heavily blistered rye loaf on a black surface."></span>
         </a>
       </li>
       <li class="row" style="--i:2">
@@ -414,7 +405,7 @@ p{text-wrap:pretty}
           <span class="row__name">Seeded Spelt B&acirc;tard</span>
           <p class="row__desc">Sunflower, linseed and a soaker of last week&rsquo;s crusts.</p>
           <span class="row__price">&pound;5.60</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1586765501508-cffc1fe200c8?w=1600&q=80&auto=format" alt="A long seeded batard with four diagonal scores, on a wooden table."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1586765501508-cffc1fe200c8?w=800&q=80&auto=format" alt="A long seeded batard with four diagonal scores, on a wooden table."></span>
         </a>
       </li>
       <li class="row" style="--i:3">
@@ -423,7 +414,7 @@ p{text-wrap:pretty}
           <span class="row__name">Walnut &amp; Raisin</span>
           <p class="row__desc">For cheese. Kent walnuts, soaked flame raisins, a little honey.</p>
           <span class="row__price">&pound;6.40</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1627308593341-d886acdc06a2?w=1600&q=80&auto=format" alt="A cut loaf showing an open crumb, laid on a striped cloth."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1627308593341-d886acdc06a2?w=800&q=80&auto=format" alt="A cut loaf showing an open crumb, laid on a striped cloth."></span>
         </a>
       </li>
       <li class="row" style="--i:4">
@@ -432,7 +423,7 @@ p{text-wrap:pretty}
           <span class="row__name">Cardamom Bun</span>
           <p class="row__desc">Knotted, pearl sugar, cardamom ground the same morning.</p>
           <span class="row__price">&pound;4.10</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1552632196-9442133181d3?w=1600&q=80&auto=format" alt="A tray of knotted cardamom buns behind a bakery counter card."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1552632196-9442133181d3?w=800&q=80&auto=format" alt="A tray of knotted cardamom buns behind a bakery counter card."></span>
         </a>
       </li>
       <li class="row" style="--i:5">
@@ -441,7 +432,7 @@ p{text-wrap:pretty}
           <span class="row__name">Butter Croissant</span>
           <p class="row__desc">Three-day laminate, 28% Jersey butter. Out at 08.00 only.</p>
           <span class="row__price">&pound;3.60</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1710220988673-ea5fdef36de4?w=1600&q=80&auto=format" alt="A close crop of a lacquered croissant with visible laminate layers."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1710220988673-ea5fdef36de4?w=800&q=80&auto=format" alt="A close crop of a lacquered croissant with visible laminate layers."></span>
         </a>
       </li>
       <li class="row" style="--i:5">
@@ -450,7 +441,7 @@ p{text-wrap:pretty}
           <span class="row__name">Pain au Chocolat</span>
           <p class="row__desc">Two batons of Valrhona 64%. Thirty-two a day, no more.</p>
           <span class="row__price">&pound;4.20</span>
-          <span class="row__media"><img src="https://images.unsplash.com/photo-1599125816289-736f5025fc05?w=1600&q=80&auto=format" alt="Pain au chocolat and other pastries on a bakery shelf with handwritten cards."></span>
+          <span class="row__media"><img src="https://images.unsplash.com/photo-1599125816289-736f5025fc05?w=800&q=80&auto=format" alt="Pain au chocolat and other pastries on a bakery shelf with handwritten cards."></span>
         </a>
       </li>
     </ul>
@@ -528,33 +519,6 @@ p{text-wrap:pretty}
       { rootMargin: '0px 0px -12% 0px', threshold: 0.15 }
     );
     revealables.forEach((el) => io.observe(el));
-  }
-
-  /* 2 — the cursor preview. Only ever runs on a fine pointer; on touch the
-         same <img> is already laid out inside its row by CSS alone. */
-  const fine = window.matchMedia('(pointer: fine)');
-  if (fine.matches && !reduced) {
-    let tx = window.innerWidth / 2, ty = window.innerHeight / 2;
-    let cx = tx, cy = ty, running = false;
-
-    const frame = () => {
-      /* lerp 0.14/frame — instant tracking feels cheap, heavy lag feels broken */
-      cx += (tx - cx) * 0.14;
-      cy += (ty - cy) * 0.14;
-      root.style.setProperty('--px', cx.toFixed(1) + 'px');
-      root.style.setProperty('--py', cy.toFixed(1) + 'px');
-      if (Math.abs(tx - cx) > 0.4 || Math.abs(ty - cy) > 0.4) {
-        requestAnimationFrame(frame);
-      } else {
-        running = false;
-      }
-    };
-
-    window.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse') return;
-      tx = e.clientX; ty = e.clientY;
-      if (!running) { running = true; requestAnimationFrame(frame); }
-    }, { passive: true });
   }
 })();
 </script>
