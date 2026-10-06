@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `gltf-assets` (25 skills) as the 3D companion to `pngimg-assets` for `/premium-web-design` (Sketchfab + Poly Haven). Canonical edits in `skills/` only.
+- **Notes:** Shipping `jmr-plain-language`, a new tier-1 plain-language rule for all agent prose (plus `/jmr-plain-language` rewrite mode). Canonical edits in `skills/` only.
 
 ## Purpose
 

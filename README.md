@@ -32,6 +32,7 @@ Two tiers.
 |-------|----------|
 | `jmr-standing-rules` | No silent deploy. Worktree context (branch + stage). Confirm before merge. |
 | `jmr-build-test-lint-gate` | `yarn build && yarn test && yarn lint:fix` before "done". No `@ts-ignore`, no `.skip`, no `--no-verify`. |
+| `jmr-plain-language` | Plain-language prose in every reply, commit, PR, doc and comment, applied without being asked. Bans measured AI tells: words like "delve" and "showcase", em dashes, a comma before "and", "not X but Y" contrasts, "Great question!" openers and unverified "all tests pass" claims. |
 
 **Tier 2 — task-scoped (activated by context):**
 
@@ -67,6 +68,7 @@ Two tiers.
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
+| `jmr-plain-language` | `/jmr-plain-language` rewrites pasted text in plain language and lists the main changes (also Tier 1) |
 | `npm-local-publish` | `/npm-local-publish` — Dia + TTY local npm publish when Trusted Publishing is unavailable |
 | `pngimg-assets` | `/pngimg-assets` — search + download transparent PNG cutouts (CC BY-NC gate) |
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |

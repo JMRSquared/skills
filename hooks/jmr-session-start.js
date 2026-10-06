@@ -39,10 +39,12 @@ function checkStatuslineConfigured() {
 
   const standing = readSkill('jmr-standing-rules');
   const gate = readSkill('jmr-build-test-lint-gate');
+  const plain = readSkill('jmr-plain-language');
 
   const parts = [];
   if (standing) parts.push(standing);
   if (gate) parts.push(gate);
+  if (plain) parts.push(plain);
   parts.push(
     [
       '## Stack-scoped skills available on demand',
