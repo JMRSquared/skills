@@ -14,8 +14,9 @@
  *
  * A third class, level `craft`, measures whether the AMBITION TIER the page
  * claims was actually built: a declared tier, a scroll-driven pin, a scrub, a
- * split reveal, a loader, responsive image payloads, the conversion parts the
- * corpus wins on, a sourced rating. Everything above this line can be satisfied
+ * split reveal, a loader, a scrubbed reveal in every section (reveal-coverage),
+ * responsive image payloads, the conversion parts the corpus wins on, a
+ * sourced rating. Everything above this line can be satisfied
  * by a well-set static document; CRAFT is what cannot. CRAFT never changes the
  * exit code either.
  *
@@ -213,7 +214,7 @@ const audit = (opts = {}) => {
         if (!c || c.a < 0.9) continue;
         const r = sh.getBoundingClientRect();
         if (r.width < 2 || r.height < 2) continue;
-        svgShapeCache.push({ r, color: c, area: r.width * r.height });
+        svgShapeCache.push({ r, color: c, area: r.width * r.height, node: sh });
       }
     }
     if (!svgShapeCache.length) return null;
@@ -228,7 +229,7 @@ const audit = (opts = {}) => {
       if (sh.r.width < r.width * 0.9 || sh.r.height < r.height * 0.9) continue;
       if (!best || sh.area < best.area) best = sh;
     }
-    return best ? best.color : null;
+    return best;
   };
 
   const effectiveBg = (el) => {
@@ -385,8 +386,17 @@ const audit = (opts = {}) => {
     let { color: bg, overMedia } = effectiveBg(el);
     /* Only when CSS produced no opaque ground of its own: a real
        `background-color` on the text's own chain still wins. */
-    const svgBg = svgFillBehind(el);
-    if (svgBg) bg = svgBg;
+    let ground = el;
+    while (ground && ground.nodeType === 1) {
+      const gc = parseRGB(getComputedStyle(ground).backgroundColor);
+      if (gc && gc.a >= 0.999) break;
+      ground = ground.parentElement;
+    }
+    const svgHit = svgFillBehind(el);
+    /* The shape paints behind the text only when it sits inside the text's
+       opaque ground. A pill with its own background over an SVG hill reads
+       against the pill, not the hill. */
+    if (svgHit && (!ground || ground.nodeType !== 1 || ground.contains(svgHit.node))) bg = svgHit.color;
     const size = parseFloat(s.fontSize);
     const bold = parseInt(s.fontWeight, 10) >= 700;
     const large = size >= 24 || (size >= 18.66 && bold);
@@ -1244,7 +1254,7 @@ const audit = (opts = {}) => {
     if (!hay) return null;
     const anchor = /premium-web-design\b[^\n\r]{0,320}/i.exec(String(hay));
     if (!anchor) return null;
-    const kindM = /\bkind\s*[:=]\s*(demo|page)\b/i.exec(anchor[0]);
+    const kindM = /\bkind\s*[:=]\s*(demo|page|world)\b/i.exec(anchor[0]);
     const t = /\btier\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
     if (!t) return kindM ? { tier: null, mobile: null, kind: kindM[1].toLowerCase(), because: null } : null;
     const mob = /\bmobile\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
@@ -1275,7 +1285,7 @@ const audit = (opts = {}) => {
           const t = /\btier\s*[:=]?\s*([abc])\b/i.exec(content);
           if (t) {
             const mob = /\bmobile\s*[:=]?\s*([abc])\b/i.exec(content);
-            const kd = /\bkind\s*[:=]?\s*(demo|page)\b/i.exec(content);
+            const kd = /\bkind\s*[:=]?\s*(demo|page|world)\b/i.exec(content);
             const wh = /\b(because|matching|matches)\s*[:=]?\s*(.{4,})$/i.exec(content);
             return { tier: t[1].toUpperCase(), mobile: mob ? mob[1].toUpperCase() : null, kind: kd ? kd[1].toLowerCase() : null, because: wh ? wh[2].trim() : null, via: 'meta' };
           }
@@ -1423,6 +1433,30 @@ const audit = (opts = {}) => {
     add('craft', 'motion-techniques',
       `${techPresent.length} of ${TECHNIQUE_NAMES.length} weight-carrying motion techniques over ${screensNow.toFixed(1)} screens${techPresent.length ? ` — detected: ${techPresent.join(', ')}` : ' — none detected'}. A page this long wants at least ${techFloor} from: ${TECHNIQUE_NAMES.join(', ')}. Scroll-reveal fades and hover states are the floor, not a technique.`,
       { detected: techPresent, count: techPresent.length, wanted: techFloor, catalogue: TECHNIQUE_NAMES, evidence: techniques, screens: +screensNow.toFixed(1) });
+
+  /* --- C3b. reveal-coverage: does every section answer the scroll? ---
+     A Tier B page shipped with FAIL 0 / CRAFT 0 and its owner said there was
+     no reveal on scroll anywhere. The technique count had seen a pin and ten
+     masked titles; it could not see that each title finished in 2–3 wheel
+     ticks and that body copy, rules, figures and photographs arrived already
+     finished. The driver samples every top-level section at three scroll
+     positions a quarter screen apart and once on the way back up. A section
+     counts when a reveal (clip, opacity, stroke, or a transform on something
+     that is not a photograph) moves in both intervals and reverses. */
+  const rc = craftOk ? (craftIn.revealCoverage || null) : null;
+  const revealApplies = !!(rc && !rc.skipped && tierApplies && measuredAgainst !== 'A' && rc.measured >= 3);
+  if (revealApplies) {
+    const pct = rc.revealing / rc.measured;
+    const shortList = (rc.short || []).slice(0, 10).join('; ');
+    if (pct < 0.8)
+      add('craft', 'reveal-coverage',
+        `${rc.revealing} of ${rc.measured} sections carry a scroll-tied reveal (${Math.round(pct * 100)}%; the floor is 80%). Not revealing: ${shortList}${(rc.short || []).length > 10 ? ' …' : ''}. "static" means nothing moved across half a screen of scroll; "parallax only" means only photographs drifted or zoomed, which reads as the page scrolling, not as anything appearing; "brief" means the reveal finished inside a quarter screen; "one-shot" means it played once and did not reverse on the way back up. At Tier B and above every section reveals with the scroll: headlines by line, body and figures lift, rules and drawings draw, photographs unmask, over at least 35% of the viewport. references/motion.md, **Reveal coverage**.`,
+        { revealing: rc.revealing, measured: rc.measured, pct: +pct.toFixed(2), short: rc.short, canvas: rc.canvas, rows: rc.rows });
+    else if ((rc.short || []).length && declaredKind !== 'demo')
+      add('note', 'reveal-coverage',
+        `${rc.revealing} of ${rc.measured} sections reveal with the scroll, which clears the 80% floor. Still static or short: ${shortList}.`,
+        { revealing: rc.revealing, measured: rc.measured, short: rc.short });
+  }
 
   /* --- C4. no-loader: something has to run into the first paint --- */
   const loaderEvidence = craftOk ? (craftIn.loader || null) : null;
@@ -2304,6 +2338,7 @@ const audit = (opts = {}) => {
     techniqueTotal: TECHNIQUE_NAMES.length,
     techniqueEvidence: techniques,
     loader: loaderEvidence,
+    revealCoverage: (rc && !rc.skipped) ? { revealing: rc.revealing, measured: rc.measured, ms: rc.ms, applies: revealApplies, short: rc.short, canvas: rc.canvas, rows: (rc.rows || []).map((r) => `${r.label}: ${r.state || r.skipped || (r.canvas ? 'canvas' : '?')}${r.reveal ? ` r${r.reveal.join('/')} p${r.parallax.join('/')} back${r.back}${r.mode === 'view' ? ' (held)' : ''}` : ''}`) } : null,
     webgl: craftOk ? !!craftIn.webgl : null,
     three: craftOk ? !!craftIn.three : null,
     scrollTrigger: craftOk ? !!craftIn.scrollTrigger : null,
@@ -3090,7 +3125,7 @@ const craftProbe = async (ctx, target) => {
   const out = {
     ok: false, mode: null, samples: 0, screens: null, errors: [],
     techniques: {}, present: [],
-    loader: null, loaderProbe: null, loaderHookRejected: null, hoverImage: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
+    loader: null, loaderProbe: null, loaderHookRejected: null, hoverImage: null, revealCoverage: null, bottomBar: null, sceneSection: null, railRejected: null, rejected: null,
     webgl: false, three: false, canvasPainted: false, gsap: false, scrollTrigger: false, pinSpacer: false,
     navLegibility: null,
   };
@@ -3418,6 +3453,251 @@ const craftProbe = async (ctx, target) => {
       if (process.env.PWD_DEBUG_NAV) console.error('[nav probe]', JSON.stringify(out.navLegibility));
     } catch (e) { if (process.env.PWD_DEBUG_NAV) console.error('[nav probe threw]', String(e).slice(0, 300)); }
 
+    /* ---- stage 2c: reveal coverage, per top-level section ----
+       A page passed every check above with FAIL 0 / CRAFT 0 and its owner
+       still said "I do not see any reveal on scroll anywhere". The probe had
+       counted one pin and ten masked titles, each finishing inside 216px, and
+       called the tier built. Ninety per cent of the page by area arrived
+       already finished. Technique counts cannot see that; coverage can.
+       For each section: scroll so its top sits at 85%, 60% and 35% of the
+       viewport (the hero, already on screen, at 0, 25% and 50% of a screen),
+       let any scrub settle, and read transform, clip-path, opacity and
+       stroke-dashoffset on up to 160 descendants near its top. Something that
+       moves between those positions is tied to scroll. A one-shot reveal has
+       already finished by the first sample and reads as static, on purpose.
+       Then scroll back to the first position once, so the detail can say
+       whether the reveal reverses. Cheap: ≤16 sections, 4 reads each. */
+    /* Tier A is exempt from the finding, so do not spend the time. Read the
+       declaration the same loose way the audit does; no declaration means the
+       Tier B default and the stage runs. */
+    const rcTier = await page.evaluate((phone) => {
+      try {
+        const m = /premium-web-design\b[^\n\r]{0,320}/i.exec(document.documentElement.outerHTML);
+        if (!m) return null;
+        const t = /\btier\s*[:=]\s*([abc])\b/i.exec(m[0]);
+        const mob = /\bmobile\s*[:=]\s*([abc])\b/i.exec(m[0]);
+        return ((phone && mob) ? mob[1] : (t ? t[1] : '')).toUpperCase() || null;
+      } catch { return null; }
+    }, geom.vw < 600).catch(() => null);
+    if (rcTier === 'A') out.revealCoverage = { skipped: 'tier A' };
+    if (native && usable > 0 && rcTier !== 'A') {
+      try {
+        const secs = await page.evaluate(() => {
+          for (const e of document.querySelectorAll('[data-pwd-rs]')) e.removeAttribute('data-pwd-rs');
+          const sy = window.scrollY || 0, vh = window.innerHeight, vw = window.innerWidth;
+          let list = [...document.querySelectorAll('section, footer, [data-section]')]
+            .filter((el) => !el.parentElement || !el.parentElement.closest('section, footer, [data-section]'));
+          if (list.length < 3) {
+            const main = document.querySelector('main') || document.body;
+            list = [...main.children];
+          }
+          const out = [];
+          for (const el of list) {
+            const r = el.getBoundingClientRect();
+            if (r.height < 160 || r.width < vw * 0.4) continue;
+            let st; try { st = getComputedStyle(el); } catch { continue; }
+            if (st.display === 'none' || st.visibility === 'hidden') continue;
+            const big = [...el.querySelectorAll('canvas')].some((c) => { const q = c.getBoundingClientRect(); return q.width * q.height >= vw * vh * 0.25; });
+            const h = el.querySelector('h1, h2, h3');
+            const label = `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ''}${h ? ` "${String(h.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 32)}"` : ''}`;
+            out.push({ top: Math.round(r.top + sy), h: Math.round(r.height), label, canvas: big });
+            el.setAttribute('data-pwd-rs', String(out.length - 1));
+          }
+          return out;
+        }).catch(() => []);
+        const pick = secs.length > 16 ? Array.from({ length: 16 }, (_, k) => secs[Math.round((k * (secs.length - 1)) / 15)]) : secs;
+        const vh = geom.vh;
+        const rows = [];
+        const read = (idx) => page.evaluate((i2) => {
+          const sec = document.querySelector(`[data-pwd-rs="${i2}"]`);
+          if (!sec) return null;
+          const vals = {};
+          for (const el of sec.querySelectorAll('[data-pwd-rv]')) {
+            let st; try { st = getComputedStyle(el); } catch { continue; }
+            vals[el.getAttribute('data-pwd-rv')] = [st.transform, st.clipPath, parseFloat(st.opacity), el instanceof SVGElement ? parseFloat(st.strokeDashoffset) : null];
+          }
+          return vals;
+        }, idx).catch(() => null);
+        const go = async (y) => { await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'auto' }), y).catch(() => { /* ignore */ }); await page.waitForTimeout(300); };
+        const mat = (v) => {
+          if (!v || v === 'none') return [1, 0, 0, 1, 0, 0];
+          let m = /matrix3d\(([^)]+)\)/.exec(v);
+          if (m) { const q = m[1].split(',').map(Number); return [q[0], q[1], q[4], q[5], q[12], q[13]]; }
+          m = /matrix\(([^)]+)\)/.exec(v);
+          return m ? m[1].split(',').map(Number) : [1, 0, 0, 1, 0, 0];
+        };
+        const nums = (v) => (!v || v === 'none') ? [] : (String(v).match(/-?[\d.]+/g) || []).map(Number);
+        /* What a reader can see: 4px of travel, 2% of scale, 2 units of clip,
+           0.08 of opacity, 0.02 of a normalised stroke. A transform on a
+           photograph (or a box holding only a photograph) is parallax or zoom:
+           it moves something already visible, and the research behind this
+           check measured that the eye reads it as "the page scrolled", never
+           as "something appeared". Only clip, opacity and stroke count there. */
+        const kindOf = (a, b, media) => {
+          if (!a || !b) return null;
+          if (a[1] !== b[1]) {
+            const p = nums(a[1]), q = nums(b[1]);
+            if (p.length !== q.length) return 'reveal';
+            for (let k = 0; k < p.length; k++) if (Math.abs(p[k] - q[k]) >= 2) return 'reveal';
+          }
+          if (Math.abs((a[2] || 0) - (b[2] || 0)) >= 0.08) return 'reveal';
+          if (a[3] != null && b[3] != null && Math.abs(a[3] - b[3]) >= 0.02) return 'reveal';
+          const A = mat(a[0]), B = mat(b[0]);
+          let t = Math.abs(A[4] - B[4]) >= 4 || Math.abs(A[5] - B[5]) >= 4;
+          for (const k of [0, 1, 2, 3]) if (Math.abs(A[k] - B[k]) >= 0.02) t = true;
+          return t ? (media ? 'parallax' : 'reveal') : null;
+        };
+        /* How far a value travelled, in rough "visible units": 100px of
+           travel, 0.2 of scale, 100 units of clip, a full opacity swing and a
+           full normalised stroke each count as 1. */
+        const magOf = (a, b) => {
+          if (!a || !b) return 0;
+          const A = mat(a[0]), B = mat(b[0]);
+          let m = (Math.abs(A[4] - B[4]) + Math.abs(A[5] - B[5])) / 100;
+          for (const k of [0, 1, 2, 3]) m += Math.abs(A[k] - B[k]) * 5;
+          const p = nums(a[1]), q = nums(b[1]);
+          if (p.length === q.length) for (let k = 0; k < p.length; k++) m += Math.abs(p[k] - q[k]) / 100;
+          else if (a[1] !== b[1]) m += 1;
+          m += Math.abs((a[2] || 0) - (b[2] || 0));
+          if (a[3] != null && b[3] != null) m += Math.abs(a[3] - b[3]);
+          return m;
+        };
+        const diff = (s1, s2, media, skip) => {
+          const d = { reveal: 0, parallax: 0 };
+          if (!s1 || !s2) return d;
+          for (const k of Object.keys(s1)) {
+            if (skip && skip.has(k)) continue;
+            const kd = kindOf(s1[k], s2[k], media[k]);
+            if (kd) d[kd]++;
+          }
+          return d;
+        };
+        const t0rc = Date.now();
+        /* Hard budget, so a 30-screen page cannot turn this into the slow
+           part of the audit. Sections past it are listed, not guessed. */
+        const BUDGET_MS = 150000;
+        for (const s of pick) {
+          const idx = secs.indexOf(s);
+          if (Date.now() - t0rc > BUDGET_MS) { rows.push({ label: s.label, skipped: 'time budget' }); continue; }
+          if (s.canvas) { rows.push({ label: s.label, canvas: true }); continue; }
+          const hero = s.top < vh * 0.5;
+          const clampY = (y) => Math.max(0, Math.min(usable, Math.round(y)));
+          const ys = (hero ? [0, 0.25, 0.5].map((f) => vh * f) : [0.85, 0.6, 0.35].map((f) => s.top - vh * f)).map(clampY);
+          if (ys[2] - ys[0] < vh * 0.15) { rows.push({ label: s.label, skipped: 'no scroll room' }); continue; }
+          /* One triple: tag, read three positions, read once on the way back.
+             `band` tags the strip from the section's top to one screen below
+             it (what crosses the screen on entry); `view` tags what is on
+             screen at the first position (a pinned stage). */
+          const triple = async (at, mode) => {
+            await go(at[0]);
+            const tagged = await page.evaluate(([i2, vh2, md]) => {
+              const sec = document.querySelector(`[data-pwd-rs="${i2}"]`);
+              if (!sec) return [];
+              for (const e of document.querySelectorAll('[data-pwd-rv]')) e.removeAttribute('data-pwd-rv');
+              const top = sec.getBoundingClientRect().top;
+              const media = [];
+              for (const el of sec.querySelectorAll('*')) {
+                if (/^(SCRIPT|STYLE|BR|SOURCE|TEMPLATE|DEFS|TITLE|META)$/i.test(el.tagName)) continue;
+                const r = el.getBoundingClientRect();
+                if (r.width < 2 && r.height < 2) continue;
+                if (md === 'band' ? (r.top - top > vh2 * 1.1) : (r.bottom < 0 || r.top > vh2)) continue;
+                /* A box holding a photograph is media even with a caption in
+                   it: a figure that drifts is parallax, not a reveal. */
+                const isMedia = /^(IMG|PICTURE|VIDEO|CANVAS)$/i.test(el.tagName) || !!el.querySelector('img, picture, video, canvas');
+                el.setAttribute('data-pwd-rv', String(media.length));
+                media.push(isMedia);
+                if (media.length >= 160) break;
+              }
+              return media;
+            }, [idx, vh, mode]).catch(() => []);
+            if (!tagged.length) return null;
+            /* Let a one-shot reveal fired by arriving here finish before the
+               first read, so it cannot pass for a scrub. */
+            await page.waitForTimeout(700);
+            /* A scrub with smoothing (scrub: 0.5–0.8, Lenis) is still
+               catching up when the scroll lands. Read until two reads 200ms
+               apart agree, or the lag passes for a long reveal: a title that
+               finishes in 200px would read as moving across both intervals. */
+            /* Anything still moving with the scroll parked is on a clock (a
+               marquee, a breathing loop), not on the scroll. Find it once
+               and leave it out of every comparison. */
+            const ambient = new Set();
+            {
+              const a1 = await read(idx);
+              await page.waitForTimeout(300);
+              const a2 = await read(idx);
+              if (a1 && a2) for (const k of Object.keys(a1)) if (kindOf(a1[k], a2[k], tagged[k])) ambient.add(k);
+            }
+            const settle = async () => {
+              let prev = await read(idx);
+              for (let k = 0; k < 4; k++) {
+                await page.waitForTimeout(200);
+                const cur = await read(idx);
+                const d = diff(prev, cur, tagged, ambient);
+                if (!d.reveal && !d.parallax) return cur;
+                prev = cur;
+              }
+              return prev;
+            };
+            const s0 = await settle();
+            await go(at[1]);
+            const s1 = await settle();
+            await go(at[2]);
+            const s2 = await settle();
+            await go(at[0]);
+            const sBack = await settle();
+            const d1 = diff(s0, s1, tagged, ambient), d2 = diff(s1, s2, tagged, ambient), dBack = diff(s2, sBack, tagged, ambient);
+            /* An interval only counts for an element that does at least a
+               quarter of its moving there. A title 87% risen by the second
+               position and creeping 15px after it finished in one interval,
+               whatever the threshold above says. */
+            const share = [0, 0];
+            if (s0 && s1 && s2) for (const k of Object.keys(s0)) {
+              if (ambient.has(k)) continue;
+              const k1 = kindOf(s0[k], s1[k], tagged[k]) === 'reveal', k2 = kindOf(s1[k], s2[k], tagged[k]) === 'reveal';
+              if (!k1 && !k2) continue;
+              const m1 = magOf(s0[k], s1[k]), m2 = magOf(s1[k], s2[k]), tot = m1 + m2;
+              if (k1 && m1 >= tot * 0.25) share[0]++;
+              if (k2 && m2 >= tot * 0.25) share[1]++;
+            }
+            d1.reveal = share[0]; d2.reveal = share[1];
+            /* An interval shorter than a tenth of a screen (the page ran out
+               below a footer) is not asked to show anything. */
+            const need = [at[1] - at[0] >= vh * 0.1 ? d1 : null, at[2] - at[1] >= vh * 0.1 ? d2 : null].filter(Boolean);
+            const spans = need.length > 0 && need.every((d) => d.reveal > 0);
+            const any = d1.reveal + d2.reveal;
+            const reverses = dBack.reveal > 0;
+            const state = !any ? (d1.parallax + d2.parallax ? 'parallax only' : 'static')
+              : !reverses ? 'one-shot' : !spans ? 'brief' : 'scrubbed';
+            return { sampled: tagged.length, ambient: ambient.size, state, reveal: [d1.reveal, d2.reveal], parallax: [d1.parallax, d2.parallax], back: dBack.reveal, at, mode };
+          };
+          let res = await triple(ys, 'band');
+          /* A pinned stage is still on entry and moves once it holds. A tall
+             section that did not scrub on entry gets one more triple from its
+             first held screen before it is called static. */
+          if ((!res || res.state !== 'scrubbed') && !hero && s.h > vh * 1.4) {
+            const inner = [0, 0.25, 0.5].map((f) => clampY(s.top + vh * f));
+            if (inner[2] - inner[0] >= vh * 0.15) {
+              const res2 = await triple(inner, 'view');
+              if (res2 && (!res || res2.state === 'scrubbed')) res = res2;
+            }
+          }
+          if (!res) { rows.push({ label: s.label, skipped: 'nothing to sample' }); continue; }
+          rows.push({ label: s.label, ...res });
+        }
+        await page.evaluate(() => { for (const e of document.querySelectorAll('[data-pwd-rv], [data-pwd-rs]')) { e.removeAttribute('data-pwd-rv'); e.removeAttribute('data-pwd-rs'); } window.scrollTo({ top: 0, behavior: 'auto' }); }).catch(() => { /* ignore */ });
+        const measured = rows.filter((r) => !r.skipped && !r.canvas);
+        out.revealCoverage = {
+          sections: secs.length, sampled: pick.length, ms: Date.now() - t0rc,
+          measured: measured.length,
+          revealing: measured.filter((r) => r.state === 'scrubbed').length,
+          canvas: rows.filter((r) => r.canvas).map((r) => r.label),
+          short: measured.filter((r) => r.state !== 'scrubbed').map((r) => `${r.label} (${r.state})`),
+          rows,
+        };
+      } catch (e) { out.errors.push(`reveal-coverage: ${String(e).slice(0, 80)}`); }
+    }
+
     /* ---- stage 3: magnetic hover, two scroll positions ---- */
     let magnetic = null;
     if (native && geom.vw >= 600) {
@@ -3743,7 +4023,7 @@ const heroPaintProbe = async (ctx, target) => {
   return { passes };
 };
 
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'chromium' });
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || 'chromium', executablePath: process.env.CHROME_PATH || undefined });
 const report = { url, capturedAt: new Date().toISOString(), desktop: null, mobile: null, console: [], capability: [] };
 /* A capability gate that can silently downgrade the experience has now cost
    three investigations on this skill. Anything the page logs about taking a
@@ -3829,7 +4109,7 @@ const fmt = (label, a) => {
     `palette: ${a.palette.map((p) => `${p.color} ${p.areaPct}%`).join(' | ')}`,
     `counts: ${JSON.stringify(a.counts)}`,
     `ambition: media ${amb.renderedMedia ?? '?'} · hero ${amb.heroSize ?? '?'}px vs ${amb.largestBelowFold ?? '?'}px below · overlaps ${amb.overlapPairs ?? '?'} · bleeds ${amb.bleeders ?? '?'} · ground flips ${amb.groundFlips ?? 'n/a'} · motion ${amb.motionVocabulary ?? '?'} · tint marks ${amb.tintMarks ?? 0}`,
-    `craft: kind ${cr.kind || 'page'}${cr.demoMode ? ' (SPARSE+CRAFT skipped)' : ''} · tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/${cr.techniqueTotal ?? 8}${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
+    `craft: kind ${cr.kind || 'page'}${cr.demoMode ? ' (SPARSE+CRAFT skipped)' : ''} · tier ${cr.tierDeclared || 'undeclared'}${cr.tierDeclaredMobile ? `/mobile=${cr.tierDeclaredMobile}` : ''} (measured vs ${cr.tierMeasuredAgainst || '?'}) · techniques ${cr.techniqueCount ?? '?'}/${cr.techniqueTotal ?? 8}${cr.techniques && cr.techniques.length ? ` [${cr.techniques.join(', ')}]` : ''} · loader ${cr.loader ? cr.loader.via : 'none'} · reveals ${cr.revealCoverage ? `${cr.revealCoverage.revealing}/${cr.revealCoverage.measured}` : 'n/a'} · webgl ${cr.webgl === null ? 'n/a' : cr.webgl} · probe ${cr.probed ? `${cr.probeMode}/${cr.probeSamples}` : 'not measured'}`,
     `FAIL ${fails.length} · WARN ${warns.length} · SPARSE ${sparse.length} · CRAFT ${craftF.length}`,
   ];
   for (const f of notes) lines.push(`  [NOTE] ${f.code} — ${f.msg}`);
@@ -3865,6 +4145,11 @@ const totalAmbition = [...(report.desktop?.findings || []), ...(report.mobile?.f
 /* Exit 0 is not the Done bar and never was. SKILL.md's checklist asks for zero
    SPARSE and zero CRAFT as well, and an exit code that ignores both is easy to
    read as permission to stop. Say it out loud instead of changing it. */
-if (totalFails === 0 && totalAmbition > 0)
+/* kind=world is SKILL.md's default mode: a short single-world page held to
+   FAILs only. SPARSE and CRAFT measure full.md's bar and stay informational. */
+const worldMode = [report.desktop, report.mobile].some((p) => p?.craft?.kind === 'world');
+if (totalFails === 0 && totalAmbition > 0 && worldMode)
+  console.log(`\nexit 0: done for default mode (kind=world). ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} measure the --full bar (full.md) and are informational here.`);
+else if (totalFails === 0 && totalAmbition > 0)
   console.log(`\nexit 0, but NOT done: ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} stand. SKILL.md's Done checklist asks for zero of both — the exit code only tracks FAILs.`);
 process.exit(totalFails > 0 ? 1 : 0);

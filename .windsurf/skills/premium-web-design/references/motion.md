@@ -168,6 +168,157 @@ on scroll, as Amrit's hero does.
 - Under `prefers-reduced-motion` both elements sit at their resting positions,
   and that still frame has to be a composition on its own.
 
+## Reveal coverage
+
+**Required at Tier B and above: every section carries a reveal tied to scroll
+position, visible while the reader scrolls, scrubbed so it reverses on the way
+back up.** A Tier B page shipped from this skill with FAIL 0 / CRAFT 0, and its
+owner said: "we are missing the wow factor, i do not see any reveal on scroll
+anywhere". Measured on tshemolo-media.pages.dev:
+
+- Ten section titles revealed, and each finished in 144–216px of scroll: two or
+  three wheel ticks. A reader saw a flicker.
+- Each title was one mask, so a two-line title rose as a block.
+- Body copy, rules, figures, lists, buttons, the form and the footer never moved.
+  About 90% of the page by area arrived finished.
+- Photo motion was parallax only. The service photos zoomed 1.6% per screen,
+  which nobody can see. Parallax moves something already visible, and the eye
+  reads it as "the page scrolled", never as "something appeared".
+- The hero headline held still through a 2,970px pin.
+- No line drew itself. No smooth scroll, so every scrub jumped 72px a tick.
+
+The three reference sites, measured the same way (frames in
+`site-studies/side-8-group.md`, `sirwali-nr.md`, `230-conversations.md`): sirwali
+reveals every headline line by line over `top 96% → top 68%` and draws every
+diagram over `top 92% → top 55%`; side8 inks each technical drawing over ~600px
+inside a pinned stage; 230 unmasks its photographs from the bottom with
+`clip-path: inset(0 0 100%) → inset(0)`, scrubbed. Neither of the two the
+auditor has sampled reaches full coverage (sirwali 3 of 4 sampled sections on
+desktop, 230 two of nine). The standard asks for more than either ships.
+
+### The standard
+
+| Rule | Number |
+|---|---|
+| Sections with a scroll-tied reveal | Every one. The auditor reports `reveal-coverage` under 80% |
+| Minimum scroll distance per reveal | **35% of the viewport** (315px at 900). A single line `top 92% → top 58%`; a multi-line headline staggers so the last line lands near `top 50%` (~42%) |
+| Drawings | `top 85% → center 45%`, or ~600px of a pin per drawing |
+| Scrub | `scrub: 0.5–0.8` with `ease: 'none'`. Smoothing comes from the scrub and from Lenis, not from an ease curve |
+| Smooth scroll | Lenis at Tier B and above, ticked from `gsap.ticker`. Without it a scrub steps 72px per wheel tick |
+| One-shot reveals | Only for user actions: a FAQ opening, a lightbox, a form state. And the hero's load reveal, once |
+| The hero | Responds to scroll inside its first screen: the headline leaves line by line, the lead and buttons lift away after it, all scrubbed |
+
+What reveals, by element:
+
+| Element | Gesture | Not this |
+|---|---|---|
+| Display and section headlines | **lines**: each line in its own mask, `yPercent 108 → 0`, stagger 0.12 | one mask round the whole heading |
+| Paragraphs, buttons, list items, form rows | **lift**: `y 36 → 0`, `opacity 0 → 1`, siblings offset 0.06 | arriving finished |
+| Hairlines between rows, under heads, on form fields | **rule**: `scaleX 0 → 1` from the left | a static border |
+| Diagrams, glyphs, maps, traverses | **draw**: `pathLength=1`, `stroke-dashoffset 1 → 0` | a fade-in of a finished SVG |
+| Photographs | **unmask**: `clip-path` opens (up, left, right, or from `inset(18% 22%)` at centre) while the inner image scales 1.15 → 1.0 over the same window | parallax or zoom alone |
+| Figures | **count**: `0 → n` over the figure's entry, in the copy's own format (`R100 000`) | a number that is just there |
+| Neighbouring images, tint marks | **speed**: parallax at different rates. This is the non-uniform pair, on top of a reveal, never instead of one | the only motion in a section |
+| A long section | **spine**: a vertical line `scaleY 0 → 1` across the section, a ring per step | |
+
+### The vocabulary, from sirwali-nr
+
+One hook reads data attributes inside a root and builds one scrubbed
+ScrollTrigger per element. Reduced motion builds nothing, and every element
+renders in its final state. From `src/shared/motion/use-choreography.ts`:
+
+```ts
+// [data-reveal] lines: each .reveal-line inside its .reveal-clip mask
+gsap.fromTo(node.querySelectorAll('.reveal-line'), { yPercent: 108 }, { yPercent: 0, ease: 'none', stagger: 0.12,
+  immediateRender: true, scrollTrigger: { trigger: node, start: 'top 96%', end: 'top 68%', scrub: 0.5, invalidateOnRefresh: true } });
+// [data-lift]
+gsap.fromTo(node, { y: 36, opacity: 0 }, { y: 0, opacity: 1, ease: 'none',
+  scrollTrigger: { trigger: node, start: 'top 98%', end: 'top 72%', scrub: 0.5 } });
+// [data-rule]
+gsap.fromTo(node, { scaleX: 0 }, { scaleX: 1, ease: 'none', transformOrigin: 'left center',
+  scrollTrigger: { trigger: node, start: 'top 94%', end: 'top 64%', scrub: 0.5 } });
+// [data-draw]: every stroke carries pathLength="1"
+gsap.fromTo(node.querySelectorAll('path, line, circle, rect, polyline'), { strokeDashoffset: 1 }, { strokeDashoffset: 0,
+  ease: 'none', stagger: 0.08, immediateRender: true, scrollTrigger: { trigger: node, start: 'top 92%', end: 'top 55%', scrub: 0.5 } });
+// [data-count="n"]
+gsap.to(state, { v: n, ease: 'none', onUpdate: () => { node.textContent = String(Math.round(state.v)); },
+  scrollTrigger: { trigger: node, start: 'top 92%', end: 'top 45%', scrub: 0.6 } });
+// [data-speed="n"]: yPercent 6n → -6n across the nearest section, 'top bottom' → 'bottom top', scrub 0.8
+// [data-spine]: scaleY 0 → 1 across the section, 'top 75%' → 'bottom 70%', scrub 0.6
+```
+
+sirwali's line window (`top 96% → top 68%`) is 28% of the viewport and sits
+under this standard's 35%. Widen it to `top 92% → top 58%` when you copy it.
+
+Add the unmask, which sirwali does not have (230-conversations' gesture):
+
+```js
+// [data-unmask="up|left|right|center"] on a frame; the <img> inside scales down as it opens
+const from = { up: 'inset(100% 0 0 0)', left: 'inset(0 100% 0 0)', right: 'inset(0 0 0 100%)', center: 'inset(18% 22%)' };
+gsap.timeline({ scrollTrigger: { trigger: frame, start: 'top 95%', end: 'top 40%', scrub: 0.6 } })
+  .fromTo(frame, { clipPath: from[frame.dataset.unmask || 'up'] }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none' }, 0)
+  .fromTo(frame.querySelector('img'), { scale: 1.15 }, { scale: 1, ease: 'none' }, 0);
+```
+
+Display type authored as explicit lines (`src/shared/motion/Lines.tsx`):
+
+```tsx
+createElement(as, { 'data-reveal': '', className },
+  lines.map((line, i) => createElement('span', { key: i, className: 'reveal-clip' },
+    createElement('span', { className: 'reveal-line' }, line))));
+```
+```css
+.reveal-clip { display: block; overflow: hidden; padding-top: .12em; margin-top: -.12em; padding-bottom: .06em; margin-bottom: -.06em; }
+.reveal-clip > .reveal-line { display: block; will-change: transform; }
+```
+
+When headings come from a CMS or a content file, split at runtime with GSAP
+SplitText (bundled with gsap 3.13+): `SplitText.create(el, { type: 'lines',
+mask: 'lines', autoSplit: true, onSplit: (s) => build(s.lines) })`. `autoSplit`
+re-splits on resize and font load. Without JS the heading is plain text.
+
+Smooth scroll (`src/shared/scroll/lenis.ts`):
+
+```ts
+const lenis = new Lenis({ lerp: 0.09, smoothWheel: true, syncTouch: false, autoRaf: false });
+lenis.on('scroll', ScrollTrigger.update);
+gsap.ticker.add((t) => lenis.raf(t * 1000));
+gsap.ticker.lagSmoothing(0);
+ScrollTrigger.config({ ignoreMobileResize: true });   // the address bar must not make pins jump
+```
+
+Drawn lines, traverses, maps and point-cloud formations, with the owner's rule
+for dot effects: `drawn-lines-and-formations.md`.
+
+### Phone
+
+Keep every scrub. Release pins. Drawings draw over their own entry. Shift
+windows lower (`top 96% → top 62%`), because the viewport is short and the reader
+scrolls with a thumb.
+
+### How the auditor checks it
+
+CRAFT `reveal-coverage`, Tier B and C pages, both viewports. For each top-level
+section (up to 16) it scrolls so the section's top sits at 85%, 60% and 35% of
+the viewport (the hero at 0, 25% and 50% of a screen), waits for scrubs to
+settle, and reads `transform`, `clip-path`, `opacity` and `stroke-dashoffset` on
+up to 160 descendants near the section's top. Then it scrolls back to the first
+position. A section counts as **scrubbed** when a reveal does at least a
+quarter of its travel in each quarter-screen interval and moves back on the way
+up. Reads wait until a scrub has caught up, and anything still moving with the
+scroll parked (a marquee, a breathing loop) is left out. It reports the rest by kind:
+
+- **static**: nothing moved
+- **parallax only**: only photographs drifted or zoomed
+- **brief**: the reveal finished inside a quarter screen
+- **one-shot**: it played once and stayed
+
+Under 80% scrubbed is a CRAFT finding; a partial shortfall above 80% prints as a
+NOTE. A section holding a canvas over a quarter of the viewport is listed and not
+sampled, because its motion lives in pixels. The check is a floor. A page can
+clear it with one lifted paragraph per section and still feel static, so read
+the frames scrolling down **and** back up.
+
 ## The repetition limits
 
 Uniform motion is the tell. Each of these is a fail:
@@ -193,6 +344,11 @@ for two rates in one frame rather than four gestures across a page. They are
 different requirements and a page needs both.
 
 ## Scroll reveals, done safely
+
+The observer pattern below is a one-shot reveal. It suits Tier A and user
+actions. At Tier B and above, reveals scrub with the scroll (**Reveal coverage**
+above), and the safety rules here still apply: visible by default, nothing
+stranded at `opacity: 0`, and a reduced-motion frame with every mask open.
 
 The most common way an agent ships an invisible page:
 
