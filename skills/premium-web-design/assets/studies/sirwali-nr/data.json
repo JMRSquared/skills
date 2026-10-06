@@ -1,0 +1,929 @@
+{
+  "url": "https://sirwali-nr.pages.dev",
+  "slug": "sirwali-nr",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 3103,
+      "reachedY": 3211,
+      "pct": 11
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 6206,
+      "reachedY": 6306,
+      "pct": 23
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 9309,
+      "reachedY": 9416,
+      "pct": 34
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 12412,
+      "reachedY": 12527,
+      "pct": 45
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 15514,
+      "reachedY": 15844,
+      "pct": 57
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 18617,
+      "reachedY": 18860,
+      "pct": 68
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 21720,
+      "reachedY": 22262,
+      "pct": 80
+    },
+    {
+      "file": "desktop-08.jpg",
+      "targetY": 24823,
+      "reachedY": 24946,
+      "pct": 89
+    },
+    {
+      "file": "desktop-09.jpg",
+      "targetY": 27926,
+      "reachedY": 27920,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "Robert N. S. Sirwali · A Life of Service",
+    "scrollHeight": 28826,
+    "viewportHeight": 900,
+    "screens": 32,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": true,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 2,
+      "video": 0,
+      "img": 17,
+      "svg": 15,
+      "sections": 7,
+      "buttons": 22
+    },
+    "body": {
+      "sel": "body",
+      "text": "The Sirwali Times\n    \n    \n      Special edition✦ Vhembe District, Limpopo ✦A b",
+      "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+      "fontSize": "17px",
+      "fontWeight": "400",
+      "lineHeight": "26.35px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(22, 20, 18)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "The Sirwali Times",
+        "fontFamily": "UnifrakturCook, Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif",
+        "fontSize": "102.4px",
+        "fontWeight": "700",
+        "lineHeight": "94.208px",
+        "letterSpacing": "-0.512px",
+        "textTransform": "none",
+        "color": "rgb(239, 231, 214)"
+      },
+      {
+        "sel": "h2",
+        "text": "A legacy of leadership.A journey of purpose.",
+        "fontFamily": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif",
+        "fontSize": "63px",
+        "fontWeight": "500",
+        "lineHeight": "60.48px",
+        "letterSpacing": "-1.26px",
+        "textTransform": "none",
+        "color": "rgb(22, 20, 18)"
+      },
+      {
+        "sel": "p",
+        "text": "Honouring a life of service, vision and dedication",
+        "fontFamily": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "17.05px",
+        "letterSpacing": "1.54px",
+        "textTransform": "uppercase",
+        "color": "rgb(125, 95, 22)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "26.35px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(22, 20, 18)"
+      },
+      {
+        "sel": "footer",
+        "text": "The Sirwali TimesPublished for the family of Robert Ndwamato Shane SirwaliVhembe",
+        "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "26.35px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(239, 231, 214)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(239, 231, 214)",
+        "count": 1193
+      },
+      {
+        "value": "rgb(22, 20, 18)",
+        "count": 338
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 32
+      },
+      {
+        "value": "rgb(183, 173, 153)",
+        "count": 24
+      },
+      {
+        "value": "rgb(90, 84, 75)",
+        "count": 19
+      },
+      {
+        "value": "rgb(184, 146, 46)",
+        "count": 13
+      },
+      {
+        "value": "rgb(125, 95, 22)",
+        "count": 5
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(243, 237, 224)",
+        "count": 9
+      },
+      {
+        "value": "rgb(184, 146, 46)",
+        "count": 6
+      },
+      {
+        "value": "rgb(20, 18, 16)",
+        "count": 5
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgb(201, 191, 168)",
+        "count": 1
+      },
+      {
+        "value": "rgb(22, 20, 18)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace|400",
+        "count": 97
+      },
+      {
+        "value": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|400",
+        "count": 31
+      },
+      {
+        "value": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|500",
+        "count": 21
+      },
+      {
+        "value": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif|400",
+        "count": 11
+      },
+      {
+        "value": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace|600",
+        "count": 4
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 3
+      },
+      {
+        "value": "UnifrakturCook, Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "UnifrakturCook",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://sirwali-nr.pages.dev/assets/index-BcFECZL0.js"
+    ],
+    "stylesheets": [
+      "https://sirwali-nr.pages.dev/assets/index-DGpo60pz.css",
+      "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ],
+    "html": 168283
+  },
+  "bundleLibs": [
+    "ScrollTrigger",
+    "SplitText",
+    "gsap",
+    "lenis",
+    "r3f",
+    "shader",
+    "three",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 9842,
+      "reachedY": 9842,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 19684,
+      "reachedY": 19684,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 29526,
+      "reachedY": 29526,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "Robert N. S. Sirwali · A Life of Service",
+    "scrollHeight": 30370,
+    "viewportHeight": 844,
+    "screens": 36,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": true,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 2,
+      "video": 0,
+      "img": 17,
+      "svg": 15,
+      "sections": 7,
+      "buttons": 22
+    },
+    "body": {
+      "sel": "body",
+      "text": "The Sirwali Times\n    \n    \n      Special edition✦ Vhembe District, Limpopo ✦A b",
+      "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+      "fontSize": "17px",
+      "fontWeight": "400",
+      "lineHeight": "26.35px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(22, 20, 18)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "The Sirwali Times",
+        "fontFamily": "UnifrakturCook, Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif",
+        "fontSize": "44.85px",
+        "fontWeight": "700",
+        "lineHeight": "41.262px",
+        "letterSpacing": "-0.22425px",
+        "textTransform": "none",
+        "color": "rgb(239, 231, 214)"
+      },
+      {
+        "sel": "h2",
+        "text": "A legacy of leadership.A journey of purpose.",
+        "fontFamily": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif",
+        "fontSize": "28px",
+        "fontWeight": "500",
+        "lineHeight": "26.88px",
+        "letterSpacing": "-0.56px",
+        "textTransform": "none",
+        "color": "rgb(22, 20, 18)"
+      },
+      {
+        "sel": "p",
+        "text": "Honouring a life of service, vision and dedication",
+        "fontFamily": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "17.05px",
+        "letterSpacing": "1.54px",
+        "textTransform": "uppercase",
+        "color": "rgb(125, 95, 22)"
+      },
+      {
+        "sel": "button",
+        "text": "",
+        "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "26.35px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(22, 20, 18)"
+      },
+      {
+        "sel": "footer",
+        "text": "The Sirwali TimesPublished for the family of Robert Ndwamato Shane SirwaliVhembe",
+        "fontFamily": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "26.35px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(239, 231, 214)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(239, 231, 214)",
+        "count": 1200
+      },
+      {
+        "value": "rgb(22, 20, 18)",
+        "count": 338
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 32
+      },
+      {
+        "value": "rgb(183, 173, 153)",
+        "count": 24
+      },
+      {
+        "value": "rgb(90, 84, 75)",
+        "count": 19
+      },
+      {
+        "value": "rgb(184, 146, 46)",
+        "count": 13
+      },
+      {
+        "value": "rgb(125, 95, 22)",
+        "count": 5
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(243, 237, 224)",
+        "count": 9
+      },
+      {
+        "value": "rgb(184, 146, 46)",
+        "count": 6
+      },
+      {
+        "value": "rgb(20, 18, 16)",
+        "count": 5
+      },
+      {
+        "value": "rgb(255, 255, 255)",
+        "count": 1
+      },
+      {
+        "value": "rgb(201, 191, 168)",
+        "count": 1
+      },
+      {
+        "value": "rgb(22, 20, 18)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace|400",
+        "count": 97
+      },
+      {
+        "value": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|400",
+        "count": 31
+      },
+      {
+        "value": "Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|500",
+        "count": 21
+      },
+      {
+        "value": "\"Schibsted Grotesk\", \"Helvetica Neue\", Arial, sans-serif|400",
+        "count": 11
+      },
+      {
+        "value": "\"IBM Plex Mono\", \"SF Mono\", Menlo, monospace|600",
+        "count": 4
+      },
+      {
+        "value": "ui-sans-serif, system-ui, sans-serif, \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Segoe UI Symbol\", \"Noto Color Emoji\"|400",
+        "count": 3
+      },
+      {
+        "value": "UnifrakturCook, Newsreader, \"Iowan Old Style\", \"Times New Roman\", serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "UnifrakturCook",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "IBM Plex Mono",
+        "weight": "600",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "italic",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Newsreader",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "600",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      },
+      {
+        "family": "Schibsted Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "unloaded"
+      }
+    ],
+    "scripts": [
+      "https://sirwali-nr.pages.dev/assets/index-BcFECZL0.js"
+    ],
+    "stylesheets": [
+      "https://sirwali-nr.pages.dev/assets/index-DGpo60pz.css",
+      "https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Schibsted+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    ],
+    "html": 168750
+  }
+}

@@ -1,0 +1,535 @@
+{
+  "url": "https://230-conversations.pages.dev",
+  "slug": "230-conversations",
+  "capturedAt": null,
+  "errors": [],
+  "desktop": [
+    {
+      "file": "desktop-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "desktop-01.jpg",
+      "targetY": 1256,
+      "reachedY": 1256,
+      "pct": 11
+    },
+    {
+      "file": "desktop-02.jpg",
+      "targetY": 2513,
+      "reachedY": 2513,
+      "pct": 22
+    },
+    {
+      "file": "desktop-03.jpg",
+      "targetY": 3769,
+      "reachedY": 3769,
+      "pct": 33
+    },
+    {
+      "file": "desktop-04.jpg",
+      "targetY": 5026,
+      "reachedY": 5026,
+      "pct": 44
+    },
+    {
+      "file": "desktop-05.jpg",
+      "targetY": 6282,
+      "reachedY": 6282,
+      "pct": 56
+    },
+    {
+      "file": "desktop-06.jpg",
+      "targetY": 7539,
+      "reachedY": 7539,
+      "pct": 67
+    },
+    {
+      "file": "desktop-07.jpg",
+      "targetY": 8795,
+      "reachedY": 8795,
+      "pct": 78
+    },
+    {
+      "file": "desktop-08.jpg",
+      "targetY": 10052,
+      "reachedY": 10052,
+      "pct": 89
+    },
+    {
+      "file": "desktop-09.jpg",
+      "targetY": 11308,
+      "reachedY": 11308,
+      "pct": 100
+    }
+  ],
+  "data": {
+    "title": "2:30 Conversations — a youth charity in Gauteng",
+    "scrollHeight": 12208,
+    "viewportHeight": 900,
+    "screens": 13.6,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 26,
+      "svg": 11,
+      "sections": 9,
+      "buttons": 0
+    },
+    "body": {
+      "sel": "body",
+      "text": "2:30CONVERSATIONS2:30 Conversations, back to the top/ QuestionsGiveThe askOne Sa",
+      "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+      "fontSize": "17px",
+      "fontWeight": "400",
+      "lineHeight": "27.2px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(242, 237, 227)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "One Saturday fed\na thousand\npeople.",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "72px",
+        "fontWeight": "300",
+        "lineHeight": "73.44px",
+        "letterSpacing": "-2.16px",
+        "textTransform": "none",
+        "color": "rgb(242, 237, 227)"
+      },
+      {
+        "sel": "h2",
+        "text": "What one Saturday moved.",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "54px",
+        "fontWeight": "300",
+        "lineHeight": "48.6px",
+        "letterSpacing": "-1.62px",
+        "textTransform": "none",
+        "color": "rgb(22, 19, 14)"
+      },
+      {
+        "sel": "h3",
+        "text": "The conversations",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "40px",
+        "fontWeight": "300",
+        "lineHeight": "40.8px",
+        "letterSpacing": "-1px",
+        "textTransform": "none",
+        "color": "rgb(22, 19, 14)"
+      },
+      {
+        "sel": "p",
+        "text": "/ Questions",
+        "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "17.6px",
+        "letterSpacing": "3.08px",
+        "textTransform": "uppercase",
+        "color": "rgb(242, 237, 227)"
+      },
+      {
+        "sel": "footer",
+        "text": "300 FOOD PARCELS · 500 LOAVES · 1 000 FED · 1 000 CLOTHED · 250 PARTY PACKS · DU",
+        "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "27.2px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(242, 237, 227)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(242, 237, 227)",
+        "count": 300
+      },
+      {
+        "value": "rgb(22, 19, 14)",
+        "count": 93
+      },
+      {
+        "value": "rgb(199, 154, 62)",
+        "count": 43
+      },
+      {
+        "value": "rgb(138, 128, 113)",
+        "count": 37
+      },
+      {
+        "value": "rgb(111, 82, 16)",
+        "count": 34
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 31
+      },
+      {
+        "value": "rgb(167, 156, 138)",
+        "count": 21
+      },
+      {
+        "value": "rgb(92, 83, 68)",
+        "count": 17
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(11, 10, 8)",
+        "count": 8
+      },
+      {
+        "value": "rgb(199, 154, 62)",
+        "count": 5
+      },
+      {
+        "value": "rgb(42, 36, 27)",
+        "count": 3
+      },
+      {
+        "value": "rgb(237, 230, 216)",
+        "count": 2
+      },
+      {
+        "value": "rgb(22, 19, 14)",
+        "count": 2
+      },
+      {
+        "value": "rgb(226, 217, 200)",
+        "count": 1
+      },
+      {
+        "value": "rgba(11, 10, 8, 0.94)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|400",
+        "count": 112
+      },
+      {
+        "value": "Melodrama, \"Playfair Display\", Georgia, serif|300",
+        "count": 47
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|600",
+        "count": 12
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|500",
+        "count": 9
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Melodrama",
+        "weight": "300",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://230-conversations.pages.dev/assets/index-DhwbjQHR.js"
+    ],
+    "stylesheets": [],
+    "html": 108585
+  },
+  "bundleLibs": [
+    "r3f",
+    "shader",
+    "three",
+    "webgl"
+  ],
+  "assetUrls": {
+    "fonts": [],
+    "media": []
+  },
+  "pageErrors": [],
+  "mobile": [
+    {
+      "file": "mobile-00.jpg",
+      "targetY": 0,
+      "reachedY": 0,
+      "pct": 0
+    },
+    {
+      "file": "mobile-01.jpg",
+      "targetY": 4114,
+      "reachedY": 4120,
+      "pct": 33
+    },
+    {
+      "file": "mobile-02.jpg",
+      "targetY": 8228,
+      "reachedY": 8240,
+      "pct": 67
+    },
+    {
+      "file": "mobile-03.jpg",
+      "targetY": 12342,
+      "reachedY": 12342,
+      "pct": 100
+    }
+  ],
+  "mobileData": {
+    "title": "2:30 Conversations — a youth charity in Gauteng",
+    "scrollHeight": 13186,
+    "viewportHeight": 844,
+    "screens": 15.6,
+    "libs": {
+      "gsap": false,
+      "ScrollTrigger": false,
+      "three": false,
+      "lenis": false,
+      "barba": false,
+      "rive": false,
+      "matter": false,
+      "pixi": false,
+      "swiper": false,
+      "splitting": false,
+      "locomotive": false,
+      "react": true,
+      "next": false,
+      "webflow": false
+    },
+    "counts": {
+      "canvas": 1,
+      "video": 0,
+      "img": 26,
+      "svg": 11,
+      "sections": 9,
+      "buttons": 0
+    },
+    "body": {
+      "sel": "body",
+      "text": "2:30CONVERSATIONS2:30 Conversations, back to the top/ QuestionsGiveThe askOne Sa",
+      "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+      "fontSize": "17px",
+      "fontWeight": "400",
+      "lineHeight": "27.2px",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(242, 237, 227)"
+    },
+    "type": [
+      {
+        "sel": "h1",
+        "text": "One Saturday fed\na thousand\npeople.",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "36px",
+        "fontWeight": "300",
+        "lineHeight": "36.72px",
+        "letterSpacing": "-1.08px",
+        "textTransform": "none",
+        "color": "rgb(242, 237, 227)"
+      },
+      {
+        "sel": "h2",
+        "text": "What one Saturday moved.",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "30px",
+        "fontWeight": "300",
+        "lineHeight": "27px",
+        "letterSpacing": "-0.9px",
+        "textTransform": "none",
+        "color": "rgb(22, 19, 14)"
+      },
+      {
+        "sel": "h3",
+        "text": "The conversations",
+        "fontFamily": "Melodrama, \"Playfair Display\", Georgia, serif",
+        "fontSize": "25.6px",
+        "fontWeight": "300",
+        "lineHeight": "26.112px",
+        "letterSpacing": "-0.64px",
+        "textTransform": "none",
+        "color": "rgb(22, 19, 14)"
+      },
+      {
+        "sel": "p",
+        "text": "/ Questions",
+        "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+        "fontSize": "11px",
+        "fontWeight": "400",
+        "lineHeight": "17.6px",
+        "letterSpacing": "3.08px",
+        "textTransform": "uppercase",
+        "color": "rgb(242, 237, 227)"
+      },
+      {
+        "sel": "footer",
+        "text": "300 FOOD PARCELS · 500 LOAVES · 1 000 FED · 1 000 CLOTHED · 250 PARTY PACKS · DU",
+        "fontFamily": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif",
+        "fontSize": "17px",
+        "fontWeight": "400",
+        "lineHeight": "27.2px",
+        "letterSpacing": "normal",
+        "textTransform": "none",
+        "color": "rgb(242, 237, 227)"
+      }
+    ],
+    "topTextColors": [
+      {
+        "value": "rgb(242, 237, 227)",
+        "count": 300
+      },
+      {
+        "value": "rgb(22, 19, 14)",
+        "count": 93
+      },
+      {
+        "value": "rgb(199, 154, 62)",
+        "count": 43
+      },
+      {
+        "value": "rgb(138, 128, 113)",
+        "count": 37
+      },
+      {
+        "value": "rgb(111, 82, 16)",
+        "count": 34
+      },
+      {
+        "value": "rgb(0, 0, 0)",
+        "count": 31
+      },
+      {
+        "value": "rgb(167, 156, 138)",
+        "count": 21
+      },
+      {
+        "value": "rgb(92, 83, 68)",
+        "count": 17
+      }
+    ],
+    "topBackgrounds": [
+      {
+        "value": "rgb(11, 10, 8)",
+        "count": 8
+      },
+      {
+        "value": "rgb(199, 154, 62)",
+        "count": 5
+      },
+      {
+        "value": "rgb(42, 36, 27)",
+        "count": 3
+      },
+      {
+        "value": "rgb(237, 230, 216)",
+        "count": 2
+      },
+      {
+        "value": "rgb(22, 19, 14)",
+        "count": 2
+      },
+      {
+        "value": "rgb(226, 217, 200)",
+        "count": 1
+      },
+      {
+        "value": "rgba(11, 10, 8, 0.94)",
+        "count": 1
+      }
+    ],
+    "topFonts": [
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|400",
+        "count": 112
+      },
+      {
+        "value": "Melodrama, \"Playfair Display\", Georgia, serif|300",
+        "count": 47
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|600",
+        "count": 12
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|500",
+        "count": 9
+      },
+      {
+        "value": "\"Cabinet Grotesk\", \"Helvetica Neue\", Helvetica, sans-serif|700",
+        "count": 2
+      }
+    ],
+    "fontFaces": [
+      {
+        "family": "Melodrama",
+        "weight": "300",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "400",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "500",
+        "style": "normal",
+        "status": "loaded"
+      },
+      {
+        "family": "Cabinet Grotesk",
+        "weight": "700",
+        "style": "normal",
+        "status": "loaded"
+      }
+    ],
+    "scripts": [
+      "https://230-conversations.pages.dev/assets/index-DhwbjQHR.js"
+    ],
+    "stylesheets": [],
+    "html": 108526
+  }
+}
