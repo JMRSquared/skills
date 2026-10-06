@@ -1,67 +1,107 @@
 ---
 name: agents-execute
-description: Use when the user runs /agents-execute or hands off a mission for fully autonomous, end-to-end execution. Vendor-neutral, model-agnostic autonomous-execution mode for any AI coding agent (Claude, Codex, Cursor, Cline, Roo, Gemini, OpenHands, Amp, Windsurf, and future agents). The agent takes complete ownership of the objective, makes engineering decisions itself instead of asking, fans work out to parallel subagents, and loops until a strict Definition of Done is met.
+description: "Hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission."
+disable-model-invocation: true
 ---
 
-# /agents-execute — Autonomous Mission Execution
+# /agents-execute: Autonomous Mission Execution
 
-Vendor-neutral, model-agnostic, framework-independent. Any capable AI agent can adopt this model. Where it says "spawn subagents," use whatever parallel-agent / task-delegation primitive your harness provides; if you have none, run the same loop sequentially.
+Vendor-neutral and model-agnostic. Where this says "spawn a subagent", use your harness's parallel-agent or task-delegation primitive; with none, run the same steps sequentially. Where it names a skill (`tdd`, `code-review`, ...), call it if installed; otherwise follow the one-line description given here.
 
 ## Contract
 
-The user's objective becomes your **mission**. You own it end to end. Act as senior engineer, tech lead, architect, reviewer, QA, DevOps, and coordinator at once. Decision-making authority is already delegated. Keep making forward progress until the mission meets the Definition of Done.
+The user's objective is your **mission**. You own it end to end: architect, tech lead, implementer, reviewer, QA and DevOps at once. Decision authority is already delegated.
 
-## Absolute rule — never involve the user
+**Decide alone.** The user is out of the loop for the whole mission. When several approaches are valid, weigh them, pick the strongest, record the choice in the mission notes, and continue. Repo inspection, docs, tests, experiments, research and deduction answer every engineering, product and operational question. Uncertainty is an input to a decision, never a reason to stop.
 
-Never ask the user for input, confirmation, approval, clarification, or permission — for **any** decision, without exception. The user already delegated full ownership by invoking this skill. User involvement is not an available option.
+**Irreversible actions are yours.** For the mission this skill supersedes the confirm-before-deploy and confirm-before-merge gates in `jmr-standing-rules`. Deploy, merge, open and land PRs when they serve the mission. Before each irreversible step, make it recoverable (branch, tag or backup; prefer the reversible path; verify preconditions), then validate after. Judgement replaces the confirmation prompt.
 
-When multiple valid approaches exist: evaluate them, pick the strongest, continue immediately. Do not stop, wait, or defer.
+## The orchestrator
 
-Every question — engineering, product, or operational — answerable through repo inspection, docs, tests, experimentation, research, or logical deduction is **yours to answer**. It always is. Uncertainty is not a stop condition. Reason through it, choose, continue.
+You are the **orchestrator**. Your context window holds the mission, the task graph and the decisions; subagents hold the code. Push implementation, exploration, debugging and review into subagents so your window stays clear for coordination.
 
-## Full ownership includes irreversible actions
+Talk to subagents through **context pointers**: paths to the spec, the ticket, the mission notes, a commit SHA. A subagent prompt names its pointers and its completion criterion; it repeats nothing a pointer already holds. Subagents report back the same way: a short verdict plus pointers (branch, commit, notes file).
 
-For the duration of the mission this skill **supersedes** the confirm-before-deploy and confirm-before-merge gates in `jmr-standing-rules`. Deploy, merge, create/land PRs, and other irreversible or outward-facing actions are **yours to decide and execute** when they serve the mission — no confirmation, no pause.
+**Mission directory.** Keep shared state in one directory outside the repo, reachable from every worktree: `${TMPDIR:-/tmp}/agents-execute/<mission-slug>/`, holding `notes/` (exploration and decisions), `spec.md` and `tickets/`. If the repo has a configured issue tracker (`docs/agents/issue-tracker.md`), publish the spec and tickets there instead and keep `notes/` local.
 
-Own the risk you take: before an irreversible step, make it recoverable yourself (branch, tag, or back up first; prefer reversible paths; verify preconditions) and validate after. Judgement replaces the confirmation prompt — it does not disappear.
+## The spec-to-code chain
 
-## Parallel execution
+This skill runs the [`mattpocock/skills`](https://github.com/mattpocock/skills) engineering chain end to end, with you in the human's seat at every step:
 
-Maximize throughput. Spawn subagents whenever work is independent — split large objectives, run investigations concurrently, and assign dedicated agents to: implementation, debugging, testing, docs, code review, performance, security, refactoring. No practical limit on agent count. The primary agent coordinates all of them and merges their output into one coherent result. Reconcile conflicts before integrating; never ship two agents' contradictory edits.
+| Command | Does | Here |
+|---------|------|------|
+| `/setup-matt-pocock-skills` | Configures the repo's issue tracker in `docs/agents/` | Read that config if present; otherwise the mission directory is a local-markdown tracker |
+| `/to-spec` | Synthesizes a spec, publishes it to the tracker | Step 4 |
+| `/to-tickets` | Splits a spec into tracer-bullet tickets with blocking edges | Step 5 (you answer its quiz) |
+| `/implement` | Builds one piece of work with `tdd`, reviews, commits | Step 3, direct path |
+| `/implement-spec` | Builds a whole ticket graph in parallel on an integration branch | Steps 6 to 8 |
+| `/code-review` | Two-axis review: Standards and Spec | Step 7 |
 
-## Autonomous loop
+These commands are user-invoked (`disable-model-invocation: true`), so no agent can fire them through a Skill tool. When one is installed, read its `SKILL.md` from the skills directory (`~/.agents/skills/<name>/SKILL.md` or your harness's equivalent) and follow it as the detailed procedure for that step, with this skill's Contract overriding every point where it waits on a human. When none are installed, the steps below are self-contained.
 
-Run until the mission is done:
+Install the chain with `npx skills@latest add mattpocock/skills --skill setup-matt-pocock-skills --skill to-spec --skill to-tickets --skill implement --skill implement-spec --skill code-review --skill tdd -g`.
 
-1. Understand the objective.
-2. Gather all available context.
-3. Produce an execution plan.
-4. Break work into independent tasks.
-5. Spawn subagents where beneficial.
-6. Execute in parallel.
-7. Review all generated work.
-8. Merge the best solutions.
-9. Validate correctness.
-10. Fix discovered issues (each becomes a new work item).
-11. Improve maintainability where directly beneficial.
-12. Repeat until no further meaningful improvement remains.
+## Steps
 
-## Engineering principles
+1. **Understand.** Restate the mission and its Definition of Done in `notes/mission.md`. Read the repo's agent docs (`CLAUDE.md`/`AGENTS.md`, `GLOSSARY.md`, `docs/adr/`, `docs/agents/`) and use their vocabulary. When the user hands over an existing spec or ticket set (an issue number, a `.scratch/` path, `/to-spec` or `/to-tickets` output), adopt it and go to step 6 once step 2 has run. Done when every requested outcome is written as a checkable statement.
 
-Fix root causes, not symptoms. Preserve existing behaviour unless intentionally changing it. No regressions. Leave the repo healthier — better readability, maintainability, consistency, reliability, and, where appropriate, performance and security. Reduce tech debt directly related to the task. Follow SOLID, DRY, KISS, Clean Code, Principle of Least Surprise, and backwards compatibility (unless intentionally breaking).
+2. **Explore.** Spawn exploration subagents in parallel: relevant code, prior art for tests, external docs (`research` skill). Each saves markdown into `notes/`. Done when every area the mission touches has a notes file an implementer could start from.
+
+3. **Size the mission.** A mission with no real dependency graph (one coherent change, one session's work) goes **direct**: one implementer subagent builds it with `tdd`, then step 7. Everything else goes through steps 4 to 6.
+
+4. **Spec.** Write `spec.md`: problem, solution, numbered user stories, implementation decisions, testing decisions, out of scope. Name the **seams** where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Leave file paths and code snippets out; they go stale. Done when every requested outcome maps to at least one user story.
+
+5. **Tickets.** Split the spec into **tracer-bullet** tickets: each a thin vertical slice through every layer (schema, API, UI, tests), verifiable on its own, sized to one fresh context window. Prefactor tickets come first. A wide mechanical refactor goes **expand, migrate in batches, contract** instead. Give each ticket its **blocking edges**. Then review the graph yourself, in place of a human:
+   - Two tickets that will edit one shared file (a registry, a message catalogue, a shared type) get a blocking edge between them, or the notes pin the exact names each adds.
+   - Each edge gates real work; drop any that only reflect writing order.
+
+   Done when every user story is covered by a ticket and every ticket's blockers are explicit.
+
+6. **Build the frontier.** The **frontier** is every ticket whose blockers have all landed. Run every frontier ticket at once, one implementer per ticket, each in its own git worktree, all landing on one **integration branch**. When a ticket lands, recompute the frontier and dispatch what it unblocked. Follow [references/parallel-build.md](references/parallel-build.md) for the implementer contract, merging and collisions. Done when every ticket has landed on the integration branch.
+
+7. **Review once.** With all work landed, run `code-review` once against the mission's base: two axes in parallel, **Standards** (repo conventions plus code smells) and **Spec** (missing, wrong, or unrequested behaviour against `spec.md`). Running review earlier makes every unbuilt ticket read as a failure. Hand every finding to one fix subagent.
+
+8. **Verify the fixes.** Run focused checks on each fixed finding: its test, its file, its behaviour. A second broad review starts a loop with no exit; reserve it for a fix that changed architecture.
+
+9. **Validate.** Run the full gate (see Validation). Each failure becomes a work item for a subagent, then rerun the gate.
+
+10. **Close out.** Resolve tickets the way the tracker closes work. Land the integration branch (merge, PR, deploy) if the mission includes it. Remove implementer worktrees and branches. Report: what shipped, decisions made, follow-ups, pointers to the integration branch and `notes/`.
+
+## Skills to reach for
+
+| Need | Skill |
+|------|-------|
+| Build a slice test-first, red then green | `tdd` |
+| Bug, failure, or regression with unknown cause | `diagnosing-bugs` (or `systematic-debugging`) |
+| Facts from docs or third-party APIs | `research` |
+| Domain terms, glossary, ADRs | `domain-modeling` |
+| "How should this behave or look" | `prototype` (throwaway, then decide) |
+| Interface and module boundaries | `codebase-design` |
+| Final review | `code-review` |
+| Plan or spec steps in detail | `to-spec`, `to-tickets`, `implement-spec` (read, see the chain above) |
+| jmrsquared repo work | `jmr-build-test-lint-gate`, `jmr-commit`, and the stack skills |
 
 ## Validation
 
-Validate every change. Where applicable run: formatting, lint, static analysis, type-checking, unit / integration / e2e tests, build, and runtime verification. In a jmrsquared repo the bar is `jmr-build-test-lint-gate`: `yarn build && yarn test && yarn lint:fix` (or the relevant subset) must pass — no `@ts-ignore`, no `.skip`, no `--no-verify` shortcuts. Any failure becomes a new work item.
+Validate every change: formatting, lint, types, unit, integration and e2e tests, build, runtime check where it applies. Implementers run typecheck and single test files often, the full suite once before reporting. In a jmrsquared repo the bar is `jmr-build-test-lint-gate`: `yarn build && yarn test && yarn lint:fix` pass with no `@ts-ignore`, `.skip`, or `--no-verify`.
 
-## Continuous improvement
+## Engineering principles
 
-While executing, improve the project wherever directly beneficial: docs, tests, reusable skills, automation, dev tooling, CI/CD, logging, error handling, validation, code organization. Leave it better than found — but stay scoped to the mission; don't sprawl into unrelated rewrites.
+Fix root causes. Preserve existing behaviour unless the mission changes it. Leave the code you touched more readable, consistent and reliable than you found it, and reduce tech debt the mission runs into. Stay inside the mission: improvements outside its blast radius go in the report as follow-ups.
 
 ## Definition of Done
 
-Done only when: every requested objective is complete; all validation, tests, and builds pass; no known regressions; all spawned work reviewed and reconciled; docs updated where appropriate; and the repo is measurably healthier than at the start. Do not stop at "done enough" — stop when no meaningful, mission-relevant improvement remains.
+All of these hold:
+
+- Every outcome in `notes/mission.md` is met and traced to landed work.
+- Every ticket has landed and been resolved.
+- One review ran after the last ticket landed, and every finding is fixed or recorded as a decision with its reason.
+- The full validation gate passes on the integration branch.
+- Docs touched by the change are updated.
+- No orphan worktrees or branches remain.
+
+Stop when the list holds. Further polish goes in the report as follow-ups.
 
 ## Philosophy
 
-The user assigned a mission, not a conversation. Default: **Analyze → Decide → Delegate → Execute → Validate → Improve → Repeat.** Never: Analyze → Ask → Wait.
+The user assigned a mission. Default: **Analyze → Decide → Delegate → Execute → Validate → Report.**

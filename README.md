@@ -62,7 +62,7 @@ Two tiers.
 
 | Skill | Use |
 |-------|-----|
-| `agents-execute` | `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution |
+| `agents-execute` | `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution: spec, tickets, parallel build on one branch, one review. Runs the [`mattpocock/skills`](https://github.com/mattpocock/skills) `/to-spec` → `/to-tickets` → `/implement-spec` chain when installed |
 | `premium-web-design` | `/premium-web-design` — Awwwards-caliber interactive website craft (also Tier 2 auto-fire) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
@@ -214,7 +214,7 @@ In any Claude Code session once installed:
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
 - `/premium-web-design` — apply the premium interactive website design bar.
-- `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission.
+- `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission. The agent writes a spec, splits it into tickets, builds every ready ticket at once on one integration branch, then reviews once. It follows Matt Pocock's `/to-spec`, `/to-tickets` and `/implement-spec` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --skill implement-spec -g`.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
