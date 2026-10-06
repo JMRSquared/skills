@@ -327,11 +327,25 @@ which is what a real drawing sheet does. Give it `patternUnits="userSpaceOnUse"`
 a minor pitch nested inside a major one, and `stroke="currentColor"` so it
 inherits the section's ink.
 
-**Annotate like a drawing, not like a UI.** One mono face, ~9px, tracked wide,
-around 0.55 opacity, and the labels say measurable things: depths, gradients,
-tolerances, section markers. `EXTRACTION` and `SECTION A-A` are drawing
-furniture; `Learn more` is not. Invent nothing you cannot defend — a wrong
-gradient on a haul road is a lie a client will catch.
+**Annotate like a drawing, not like a UI.** One mono face, and the labels say
+measurable things: depths, gradients, tolerances, section markers. `EXTRACTION`
+and `SECTION A-A` are drawing furniture; `Learn more` is not. Invent nothing you
+cannot defend. A wrong gradient on a haul road is a lie a client will catch.
+
+**Annotation may be small, and it must stay legible.** Text drawn inside an SVG
+figure is part of the image, so it is exempt from the 15px floor in
+`typographic-hierarchy.md` (R6). It is not exempt from being read:
+
+- **At least 11px rendered**, at every width the figure appears. SVG text scales
+  with its `viewBox`, so check the phone frame: a 1200-unit drawing shown 350px
+  wide turns 12-unit text into 3.5px. Raise the unit size, or swap in a
+  phone-sized drawing with fewer, larger labels.
+- **At least 3:1 against the drawing's ground**, after opacity. A label at 0.55
+  opacity on a mid-tone plate is gone; fade the linework instead.
+- Drafting caps are allowed inside the figure, tracked +0.04 to +0.08em.
+- Anything a reader needs in order to act (a price, an hour, a phone number, the
+  service name) also appears in the page's text roles. The figure illustrates
+  it; it never holds it alone.
 
 Every one of these is an inline `<svg>`, so it costs no request, scales, inherits
 colour, and animates from the same scroll number as everything else. It also

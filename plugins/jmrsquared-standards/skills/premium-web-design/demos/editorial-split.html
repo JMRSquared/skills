@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=A kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Halden + Roe — architects, Copenhagen and London</title>
+<title>Halden + Roe | Architects in Copenhagen and London</title>
 <!--
   ============================================================================
   PATTERN — Layout archetype B, "editorial split" (references/layout-archetypes.md)
@@ -14,15 +14,21 @@
 
   Three movements, and the ground changes under each one — dark, light, dark —
   because a ground shift is what marks a chapter break when you have deleted
-  every divider and section heading.
+  every divider and every eyebrow label.
 
   DERIVED FROM
   - blindbarber   → ground-flip chapter breaks as the only transition device,
                     and the sticky index whose active row tracks the scroll
-  - hagis-barbershop → one long light passage between two dark ones; type set
-                    at 1.00 leading; 11px chrome against a 150px display
+  - hagis-barbershop → one long light passage between two dark ones; display
+                    type set at sub-1.0 leading
   - amrit-palace  → a rationed accent (here: five appearances of #E8FF4A in
                     eight screens, all of them functional)
+  - references/typographic-hierarchy.md → the six type roles and their tokens.
+                    Every text element maps to one role; no caps labels, no
+                    numbered labels, nothing under 15px.
+  - references/no-slop.md → every heading names the practice, the buildings
+                    or the way of working, so the headings read alone as a
+                    summary of the office
 
   THE FAILURE MODE THIS AVOIDS
   Two.
@@ -65,17 +71,21 @@
   --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
   --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
 
-  /* type */
+  /* type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+     Display retuned to 128px (8.9vw) so the plain h1 lands in three lines;
+     every other role is the standard block, unchanged. */
   --font-display:"Familjen Grotesk",system-ui,sans-serif;
   --font-text:"Sentient",Georgia,serif;
-  --step-hero:clamp(3.25rem,11vw,11rem);
-  --step-h1:clamp(2.5rem,6.5vw,6rem);
-  --step-h2:clamp(1.875rem,3.6vw,3.25rem);
-  --step-h3:clamp(1.375rem,2.2vw,2rem);
-  --step-lead:clamp(1.125rem,1.5vw,1.5rem);
-  --step-body:clamp(1rem,1.05vw,1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  --display-weight:700;  /* the heaviest cut Familjen Grotesk ships */
+  --t-display:clamp(3.25rem,1.486rem + 7.238vw,8rem);    /* 52 → 128 */
+  --t-title:  clamp(2.1875rem,1.7rem + 2vw,3.5rem);          /* 35 → 56  */
+  --t-heading:clamp(1.625rem,1.486rem + 0.571vw,2rem);       /* 26 → 32  */
+  --t-lead:   clamp(1.3125rem,1.243rem + 0.286vw,1.5rem);    /* 21 → 24  */
+  --t-body:   clamp(1.0625rem,1.039rem + 0.095vw,1.125rem);  /* 17 → 18  */
+  --t-small:  0.9375rem;                                     /* 15       */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   /* space */
   --gutter:clamp(1.25rem,4vw,5rem);
@@ -92,8 +102,8 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--ground);color:var(--ink);
-  font-family:var(--font-text);font-size:var(--step-body);line-height:1.55;
-  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  font-family:var(--font-text);font-size:var(--t-body);line-height:var(--lh-body);
+  font-weight:400;overflow-x:hidden;-webkit-font-smoothing:antialiased;
 }
 img{display:block;max-width:100%}
 figure{margin:0}
@@ -107,16 +117,17 @@ body::after{
 }
 
 .wrap{width:min(100% - var(--gutter)*2,90rem);margin-inline:auto}
-.label{
-  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
-  font-weight:500;font-family:var(--font-display);color:var(--ink-muted);margin:0;
+/* small role: meta, captions, nav. Sentence case, 15px, never caps-tracked */
+.small{
+  font-family:var(--font-display);font-size:var(--t-small);line-height:var(--lh-small);
+  font-weight:500;color:var(--ink-muted);margin:0;
 }
 .display{
-  font-family:var(--font-display);font-weight:700;
-  font-size:var(--step-hero);line-height:.9;letter-spacing:-.04em;
+  font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:var(--tr-display);
   text-wrap:balance;margin:0;
 }
-h2,h3{font-family:var(--font-display);font-weight:500;margin:0}
+h2,h3{font-family:var(--font-display);font-weight:var(--display-weight);margin:0}
 p{text-wrap:pretty;margin:0}
 
 /* ── Masthead ───────────────────────────────────────────────────────────── */
@@ -127,13 +138,19 @@ p{text-wrap:pretty;margin:0}
 }
 .masthead__mark{
   display:inline-block;padding-block:.5rem;
-  font-family:var(--font-display);font-weight:700;font-size:1.25rem;
-  letter-spacing:-.02em;color:var(--ink);text-decoration:none;
+  font-family:var(--font-display);font-weight:var(--display-weight);font-size:var(--t-lead);
+  letter-spacing:-.01em;color:var(--ink);text-decoration:none;
 }
 .masthead__meta{display:flex;gap:clamp(1rem,2.5vw,2.5rem)}
 
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 .hero{position:relative;min-height:100svh;display:flex;background:var(--ground);padding-top:6rem}
+.hero::before{
+  /* a top scrim so the masthead's small type holds its contrast on a light photo */
+  content:"";position:absolute;inset:0 0 auto 0;height:clamp(10rem,30vh,16rem);z-index:1;
+  background-image:linear-gradient(to bottom,rgb(11 11 13 / .78),rgb(11 11 13 / 0));
+  pointer-events:none;
+}
 .hero__img{
   position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   object-position:58% 42%;filter:brightness(.6) contrast(1.12) saturate(.55);
@@ -143,17 +160,17 @@ p{text-wrap:pretty;margin:0}
   padding:8rem var(--gutter) clamp(2.5rem,4vh,5rem);
   background-image:linear-gradient(to top,rgb(11 11 13 / .95) 0%,rgb(11 11 13 / .84) 34%,rgb(11 11 13 / .52) 62%,rgb(11 11 13 / .14) 84%,rgb(11 11 13 / 0) 100%);
 }
-.hero__scrim .label{margin-bottom:1.5rem}
-.hero__scrim .display{max-width:13ch;margin-bottom:2rem}
+.hero__scrim .display{max-width:16ch;margin-bottom:2rem}
 .hero__lead{
-  font-size:var(--step-lead);line-height:1.45;max-width:44ch;color:#D9D8D4;
+  font-size:var(--t-lead);line-height:var(--lh-lead);max-width:44ch;color:var(--ink);
 }
 .hero__foot{
   display:flex;gap:clamp(1.5rem,4vw,4rem);margin-top:2.75rem;padding-top:1.5rem;
   border-top:1px solid rgb(244 243 241 / .22);flex-wrap:wrap;
 }
 .hero__foot span{
-  font-family:var(--font-display);font-size:var(--step-small);color:#C4C3C0;
+  font-family:var(--font-display);font-size:var(--t-small);line-height:var(--lh-small);
+  font-weight:500;color:#C4C3C0;
   /* 15px type sitting directly on a photograph gets its own scrim */
   text-shadow:0 1px 18px rgb(11 11 13 / .8);
 }
@@ -165,12 +182,15 @@ p{text-wrap:pretty;margin:0}
   align-items:start;
 }
 .split__type{position:sticky;top:12vh}
-.split__type .label{margin-bottom:1.5rem}
+/* every section h2 is the title role: one size for every movement */
 .split__title{
-  font-size:var(--step-h2);line-height:1;letter-spacing:-.035em;
-  margin-bottom:1.75rem;max-width:14ch;
+  font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:var(--tr-title);
+  text-wrap:balance;max-width:20ch;
+  /* the wipe clips at the padding box: 8px of room keeps the descender of a
+     g or a comma on the last line, and the margin hands it back */
+  padding-bottom:.5rem;margin-bottom:1.5rem;
 }
-.split__body{color:#CFCECB;max-width:38ch}
+.split__body{color:var(--ink);max-width:40ch}
 .split__body+.split__body{margin-top:1.25rem}
 
 /* the works index — active row tracks the flow column */
@@ -179,8 +199,8 @@ p{text-wrap:pretty;margin:0}
 .index a{
   display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;
   padding:1rem 0;text-decoration:none;color:var(--ink-muted);
-  font-family:var(--font-display);font-size:var(--step-small);
-  transition:color var(--d-state) var(--ease-out);
+  font-family:var(--font-display);font-size:var(--t-small);line-height:var(--lh-small);
+  font-weight:500;transition:color var(--d-state) var(--ease-out);
 }
 .index a span:last-child{font-variant-numeric:tabular-nums}
 .index li[data-active="true"] a{color:var(--accent)}
@@ -198,41 +218,34 @@ p{text-wrap:pretty;margin:0}
   margin-top:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--edge);
   flex-wrap:wrap;
 }
-.project__name{font-size:var(--step-h3);letter-spacing:-.02em}
-.project__meta{
-  font-family:var(--font-display);font-size:var(--step-small);color:var(--ink-muted);
-  font-variant-numeric:tabular-nums;
-}
-.project__text{margin-top:1.25rem;color:#CFCECB;max-width:56ch}
-.project__caption{margin-top:.75rem;font-size:var(--step-small);color:var(--ink-muted)}
+.project__name{font-size:var(--t-heading);line-height:var(--lh-heading);letter-spacing:var(--tr-heading)}
+.project__meta{font-variant-numeric:tabular-nums}
+.project__text{margin-top:1.25rem;color:var(--ink);max-width:60ch}
+.project__caption{margin-top:.75rem}
 
 /* ── Ground shift: the light movement ───────────────────────────────────── */
 .split--light{
-  /* a light variant is a separate composition, not an inversion: --ink-muted
-     is re-picked for the new ground rather than flipped */
-  background:var(--ink);color:var(--ground);
+  /* a light variant is a separate composition, not an inversion: --ink and
+     --ink-muted are re-picked for the new ground rather than flipped, so body
+     copy stays on --ink here too */
+  --ink:#0B0B0D;
   --ink-muted:#4A4A52;
   --edge:#D7D5D0;
+  background:#F4F3F1;color:var(--ink);
 }
-.split--light .split__body,
-.split--light .method__text{color:#3D3D45}
 .split--light .method__figure img{filter:none}
 
 .method{border-top:1px solid var(--edge)}
-.method__item{
-  display:grid;grid-template-columns:4rem 1fr;gap:clamp(1rem,2.5vw,2.5rem);
-  padding:2.5rem 0;border-bottom:1px solid var(--edge);
+.method__item{padding:2.5rem 0;border-bottom:1px solid var(--edge)}
+.method__name{
+  font-size:var(--t-heading);line-height:var(--lh-heading);letter-spacing:var(--tr-heading);
+  text-wrap:balance;max-width:30ch;margin-bottom:1rem;
 }
-.method__no{
-  font-family:var(--font-display);font-weight:500;font-size:var(--step-small);
-  font-variant-numeric:tabular-nums;color:var(--ink-muted);
-}
-.method__name{font-size:var(--step-h3);letter-spacing:-.02em;margin-bottom:.75rem}
-.method__text{max-width:52ch}
+.method__text{max-width:60ch;color:var(--ink)}
 .method__figure{margin-top:clamp(2.5rem,4vh,4rem)}
 .method__figure div{overflow:hidden;aspect-ratio:16/10;background:var(--ground-2)}
 .method__figure img{width:100%;height:100%;object-fit:cover}
-.method__figure figcaption{margin-top:.75rem;font-size:var(--step-small);color:var(--ink-muted)}
+.method__figure figcaption{margin-top:.75rem}
 
 /* ── Studio movement ────────────────────────────────────────────────────── */
 .split--studio{background:var(--ground-2)}
@@ -244,12 +257,12 @@ p{text-wrap:pretty;margin:0}
   width:100%;height:100%;object-fit:cover;
   filter:saturate(.72) contrast(1.06) brightness(.94);
 }
-.studio__text{margin-top:clamp(2rem,4vh,3rem);max-width:52ch;color:#CFCECB}
+.studio__text{margin-top:clamp(2rem,4vh,3rem);max-width:60ch;color:var(--ink)}
 .contact{margin-top:2.5rem;display:grid;gap:1.75rem}
-.contact h3{font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);margin-bottom:.75rem}
-.contact p{color:#CFCECB;font-size:var(--step-small)}
+/* label above value, 4-8px apart: the city in ink at 600, the address muted */
+.contact__city{font-weight:600;color:var(--ink);margin-bottom:.25rem}
 .contact a{
-  display:inline-block;padding-block:.5rem;color:var(--ink);text-decoration:none;
+  display:inline-block;padding-block:.75rem;color:var(--ink);text-decoration:none;
   border-bottom:1px solid rgb(244 243 241 / .3);
   transition:border-color var(--d-state) var(--ease-out),color var(--d-state) var(--ease-out);
 }
@@ -257,8 +270,8 @@ p{text-wrap:pretty;margin:0}
 .cta{
   display:inline-flex;align-items:center;min-height:52px;padding:0 1.75rem;
   margin-top:2.5rem;background:var(--accent);color:#0B0B0D;
-  font-family:var(--font-display);font-weight:700;font-size:var(--step-small);
-  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;
+  font-family:var(--font-display);font-weight:600;font-size:var(--t-body);line-height:1;
+  text-decoration:none;
   transition:background-color var(--d-state) var(--ease-out),
              transform var(--d-press) var(--ease-out);
 }
@@ -271,8 +284,7 @@ p{text-wrap:pretty;margin:0}
   display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
   border-top:1px solid var(--edge);padding-top:2rem;
   font-family:var(--font-display);
-  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
-  color:var(--ink-muted);
+  font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-muted);
 }
 
 /* ── Reveals — visible by default, hidden only when JS is alive ─────────── */
@@ -305,13 +317,11 @@ p{text-wrap:pretty;margin:0}
 @media (max-width:900px){
   .split__grid{grid-template-columns:1fr;gap:2.5rem}
   .split__type{position:static}
-  .split__title{max-width:18ch}
   .studio__pair div:last-child{margin-top:0}
   .masthead{flex-direction:column;gap:.25rem}
   .masthead__meta{gap:1.25rem}
   .hero__scrim{padding-top:9rem}
-  .hero__scrim .display{max-width:11ch}
-  .method__item{grid-template-columns:3rem 1fr}
+  .hero__scrim .display{max-width:none}
   .foot__legal{flex-direction:column;gap:.5rem}
 }
 @media (max-width:520px){
@@ -336,15 +346,13 @@ p{text-wrap:pretty;margin:0}
     <header class="masthead">
       <a class="masthead__mark" href="#">Halden&nbsp;+&nbsp;Roe</a>
       <div class="masthead__meta">
-        <p class="label">Copenhagen</p>
-        <p class="label">London</p>
-        <p class="label">Founded 2009</p>
+        <p class="small">Copenhagen and London</p>
+        <p class="small">Founded 2009</p>
       </div>
     </header>
     <div class="hero__scrim">
-      <p class="label">Architects · Load-bearing concrete, brick, glulam</p>
-      <h1 class="display">We build for the second owner.</h1>
-      <p class="hero__lead">Eleven people, six projects a year, every junction drawn in-house. Nothing we finish is clad in a material that hides what is holding it up.</p>
+      <h1 class="display">Architects in Copenhagen and London</h1>
+      <p class="hero__lead">Eleven of us design six buildings a year in load-bearing concrete, brick and glulam, and we draw every junction in the office. We do not clad a building in a material that hides what holds it up.</p>
       <div class="hero__foot">
         <span>Vestergade Waterworks, 2023</span>
         <span>Kilnhouse, 2024</span>
@@ -357,9 +365,8 @@ p{text-wrap:pretty;margin:0}
   <section class="split" id="works">
     <div class="wrap split__grid">
       <div class="split__type">
-        <p class="label">The practice</p>
-        <h2 class="split__title wipe"><span>Eleven people, six buildings a year.</span></h2>
-        <p class="split__body reveal">Ida Halden and Samuel Roe started the office in 2009 above a joinery in Nørrebro. We take on work we can reach by train, we draw our own details, and we put one of the eleven on every site every week.</p>
+        <h2 class="split__title wipe"><span>Three buildings we finished in Copenhagen, Suffolk and Aarhus</span></h2>
+        <p class="split__body reveal">Ida Halden and Samuel Roe started the office in 2009 above a joinery in Nørrebro. We take on work we can reach by train, we draw our own details, and one of the eleven of us visits every site every week.</p>
         <p class="split__body reveal">The three below are finished and occupied. Two more are on site in Suffolk and Malmö.</p>
         <ul class="index">
           <li data-index="1"><a href="#p1"><span>Vestergade Waterworks</span><span>2023</span></a></li>
@@ -375,10 +382,10 @@ p{text-wrap:pretty;margin:0}
           </div>
           <div class="project__head">
             <h3 class="project__name">Vestergade Waterworks</h3>
-            <p class="project__meta">Copenhagen · 2023 · 2,140 m²</p>
+            <p class="project__meta small">Copenhagen, 2023, 2,140 m²</p>
           </div>
-          <p class="project__text">A pumping station of 1908, emptied in 1974 and left open to the weather for a decade. The original brick vaults now carry a new cast floor, forty desks and a canteen the neighbourhood can walk into. Nothing above the cill line was demolished.</p>
-          <p class="project__caption">Lower vault, looking east toward the old inlet.</p>
+          <p class="project__text">A pumping station of 1908, emptied in 1974 and left open to the weather for a decade. The original brick vaults now carry a new cast floor, forty desks and a canteen the neighbourhood can walk into. We demolished nothing above the cill line.</p>
+          <p class="project__caption small">The lower vault, looking east toward the old inlet</p>
         </article>
 
         <article class="project" id="p2" data-project="2">
@@ -387,10 +394,10 @@ p{text-wrap:pretty;margin:0}
           </div>
           <div class="project__head">
             <h3 class="project__name">Kilnhouse</h3>
-            <p class="project__meta">Blythburgh, Suffolk · 2024 · 186 m²</p>
+            <p class="project__meta small">Blythburgh, Suffolk, 2024, 186 m²</p>
           </div>
-          <p class="project__text">A house and a working kiln for a potter, set into the fall of the land so the studio sits half a storey below the living floor. The roof-lights are cast into the slab rather than cut through it, which holds even north light from ten until four.</p>
-          <p class="project__caption">Studio ceiling. 214 details were drawn at 1:5; the contractor raised no query on the envelope.</p>
+          <p class="project__text">A house and a working kiln for a potter, set into the fall of the land so the studio sits half a storey below the living floor. We cast the roof-lights into the slab instead of cutting them through it, and they hold even north light from ten until four.</p>
+          <p class="project__caption small">The studio ceiling. We drew 214 details at 1:5, and the contractor raised no query on the envelope.</p>
         </article>
 
         <article class="project" id="p3" data-project="3">
@@ -399,10 +406,10 @@ p{text-wrap:pretty;margin:0}
           </div>
           <div class="project__head">
             <h3 class="project__name">Nordre Gymnasium</h3>
-            <p class="project__meta">Aarhus · 2022 · 980 m²</p>
+            <p class="project__meta small">Aarhus, 2022, 980 m²</p>
           </div>
-          <p class="project__text">An assembly hall for four hundred, built inside the footprint of the 1971 sports block it replaced. The downstand beams are the acoustic treatment — there is no applied absorption anywhere in the room, and speech carries to the back row unamplified.</p>
-          <p class="project__caption">Hall at midday, north gallery.</p>
+          <p class="project__text">An assembly hall for four hundred, built inside the footprint of the 1971 sports block it replaced. The downstand beams do the acoustic work. The room has no applied absorption, and a speaker carries to the back row without a microphone.</p>
+          <p class="project__caption small">The hall at midday, from the north gallery</p>
         </article>
       </div>
     </div>
@@ -412,33 +419,23 @@ p{text-wrap:pretty;margin:0}
   <section class="split split--light">
     <div class="wrap split__grid">
       <div class="split__type">
-        <p class="label">Method</p>
-        <h2 class="split__title wipe"><span>The structure is the first drawing and the last.</span></h2>
-        <p class="split__body reveal">We do not design a shape and then ask an engineer to hold it up. Three habits carry most of what the office is; none of them is a piece of software.</p>
+        <h2 class="split__title wipe"><span>We design the structure first, then the shape of the building</span></h2>
+        <p class="split__body reveal">We do not draw a shape and then ask an engineer to hold it up. Every project we take on follows the same three rules.</p>
       </div>
 
       <div class="split__flow">
         <div class="method">
           <div class="method__item" style="--i:0">
-            <span class="method__no">01</span>
-            <div>
-              <h3 class="method__name">Structure first</h3>
-              <p class="method__text">Every project opens with a structural sketch at 1:200 and a written load path on one side of A4. If the diagram needs a paragraph of explanation, it is the wrong diagram and we start again.</p>
-            </div>
+            <h3 class="method__name">We sketch the structure at 1:200 before anything else</h3>
+            <p class="method__text">Every project opens with that sketch and a written load path on one side of A4. If the diagram needs a paragraph of explanation, it is the wrong diagram and we start again.</p>
           </div>
           <div class="method__item" style="--i:1">
-            <span class="method__no">02</span>
-            <div>
-              <h3 class="method__name">Detailed in-house</h3>
-              <p class="method__text">We draw our own junctions rather than buying a system. It is slower in the office and faster on site: Kilnhouse ran fourteen weeks of drawing and zero envelope queries during construction.</p>
-            </div>
+            <h3 class="method__name">We draw every junction ourselves</h3>
+            <p class="method__text">We do not buy in a cladding or glazing system. It is slower in the office and faster on site: Kilnhouse took fourteen weeks of drawing, and the contractor raised no envelope queries during construction.</p>
           </div>
           <div class="method__item" style="--i:2">
-            <span class="method__no">03</span>
-            <div>
-              <h3 class="method__name">On site every week</h3>
-              <p class="method__text">One of the eleven walks each site every week from groundworks to handover, with a camera and no agenda. It is the only quality system we have found that survives contact with a wet January.</p>
-            </div>
+            <h3 class="method__name">One of us visits each site every week</h3>
+            <p class="method__text">From groundworks to handover, one of the eleven walks the site each week with a camera and no agenda. It is the only quality check we have found that still works through a wet January.</p>
           </div>
         </div>
 
@@ -446,7 +443,7 @@ p{text-wrap:pretty;margin:0}
           <div class="unmask">
             <img src="https://images.unsplash.com/photo-1519334538828-dac4feed79cd?w=1600&q=80&auto=format" alt="A pale concrete spiral stair seen from above.">
           </div>
-          <figcaption>Vestergade, main stair. Cast in one pour against a re-used steel form.</figcaption>
+          <figcaption class="small">The main stair at Vestergade, cast in one pour against a reused steel form</figcaption>
         </figure>
       </div>
     </div>
@@ -456,22 +453,21 @@ p{text-wrap:pretty;margin:0}
   <section class="split split--studio">
     <div class="wrap split__grid">
       <div class="split__type">
-        <p class="label">Studio</p>
-        <h2 class="split__title wipe"><span>Where to find us.</span></h2>
+        <h2 class="split__title wipe"><span>Talk to us in Copenhagen or London about a new building</span></h2>
         <p class="split__body reveal">We answer every enquiry within a fortnight, including the ones we turn down. If the site is more than four hours from a station we will tell you so in the first reply.</p>
         <div class="contact">
           <div>
-            <h3>Copenhagen</h3>
-            <p>Baggesensgade 12, 2. sal<br>2200 København N</p>
-            <p><a href="tel:+4532147702">+45 32 14 77 02</a></p>
+            <p class="small contact__city">Copenhagen</p>
+            <p class="small">Baggesensgade 12, 2. sal<br>2200 København N</p>
+            <p class="small"><a href="tel:+4532147702">+45 32 14 77 02</a></p>
           </div>
           <div>
-            <h3>London</h3>
-            <p>Unit 6, Perseverance Works<br>Hackney Road, London E2 8DD</p>
-            <p><a href="mailto:studio@haldenroe.com">studio@haldenroe.com</a></p>
+            <p class="small contact__city">London</p>
+            <p class="small">Unit 6, Perseverance Works<br>Hackney Road, London E2 8DD</p>
+            <p class="small"><a href="mailto:studio@haldenroe.com">studio@haldenroe.com</a></p>
           </div>
         </div>
-        <a class="cta" href="mailto:studio@haldenroe.com">Send a brief</a>
+        <a class="cta" href="mailto:studio@haldenroe.com">Email the studio about your building</a>
       </div>
 
       <div class="split__flow">
@@ -479,7 +475,7 @@ p{text-wrap:pretty;margin:0}
           <div class="unmask"><img src="https://images.unsplash.com/photo-1563891925196-a3e34f6d869c?w=1600&q=80&auto=format" alt="Concrete fins throwing hard shadows across a façade."></div>
           <div class="unmask"><img src="https://images.unsplash.com/photo-1586871608370-4adee64d1794?w=1600&q=80&auto=format" alt="A cantilevered concrete stair against a plain wall."></div>
         </div>
-        <p class="studio__text reveal">Work arrives three ways: a client who has lived in one of our buildings, an invited competition, or an email from someone who has read the details. The third is how Kilnhouse started, and it remains the one we open first.</p>
+        <p class="studio__text reveal">Most of our clients have lived in one of our buildings, invited us to a competition, or emailed after reading our details. Kilnhouse started with an email like that, and we still open those first.</p>
       </div>
     </div>
   </section>
@@ -488,8 +484,8 @@ p{text-wrap:pretty;margin:0}
 <footer class="foot">
   <div class="wrap">
     <div class="foot__legal">
-      <span>Halden + Roe ApS · CVR 32148806</span>
-      <span>Photography Unsplash</span>
+      <span>Halden + Roe ApS, CVR 32148806</span>
+      <span>Photography from Unsplash</span>
     </div>
   </div>
 </footer>

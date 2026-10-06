@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=B kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Halflight — listening bar and kitchen, Rotterdam</title>
+<title>Halflight | Listening bar and kitchen on Hoogstraat, Rotterdam</title>
 
 <!--
   PATTERN — A load sequence that RESOLVES INTO the hero.
@@ -48,10 +48,16 @@
     · Every duration/easing token below is copied from references/motion.md.
 
   PALETTE  Night studio   (color-and-light.md, palette 1)
-  TYPE     Melodrama + Cabinet Grotesk   (typography.md, pairing 11)
+  TYPE     Melodrama + Cabinet Grotesk   (typography.md, pairing 11), sized by
+           references/typographic-hierarchy.md: six roles, every text element
+           maps to one. Nav, hours and the loader readout are the small role at
+           15px in sentence case; no caps labels, no eyebrows, nothing under 15px.
+  COPY     references/no-slop.md: every heading names the bar, the street, the
+           DJs, the drinks or the kitchen, so the headings read alone as a
+           summary of the business.
 -->
 
-<link href="https://api.fontshare.com/v2/css?f[]=melodrama@400,500&f[]=cabinet-grotesk@400,500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=melodrama@300,400&f[]=cabinet-grotesk@400,500&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -66,13 +72,21 @@
   --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
   --d-travel:900ms;            /* page-transition band: 500–900ms, --ease-move */
 
-  /* typography.md scale */
-  --step-hero: clamp(3.25rem, 13vw, 9rem);
-  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
-  --step-body: clamp(1rem, 1.05vw, 1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  /* type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+     Display retuned to 128px (8.9vw) so the plain eight-word headline lands in
+     three lines; every other role is the standard block, unchanged. */
+  --font-display:"Melodrama", serif;
+  --font-text:"Cabinet Grotesk", ui-sans-serif, sans-serif;
+  --display-weight:300;
+  --t-display:clamp(3.25rem, 1.486rem + 7.238vw, 8rem);      /* 52 → 128 */
+  --t-title:  clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);        /* 35 → 56  */
+  --t-heading:clamp(1.625rem, 1.486rem + 0.571vw, 2rem);     /* 26 → 32  */
+  --t-lead:   clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);  /* 21 → 24  */
+  --t-body:   clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem);/* 17 → 18  */
+  --t-small:  0.9375rem;                                     /* 15       */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   --gutter: clamp(1.25rem, 4vw, 5rem);
   --section-y:96px;
@@ -83,8 +97,8 @@
 html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Cabinet Grotesk", ui-sans-serif, sans-serif;
-  font-size:var(--step-body); line-height:1.55;
+  font-family:var(--font-text); font-weight:400;
+  font-size:var(--t-body); line-height:var(--lh-body);
   -webkit-font-smoothing:antialiased; overflow-x:hidden;
 }
 /* height:auto is load-bearing: the width/height attributes are presentational
@@ -92,10 +106,8 @@ body{
 img{ display:block; max-width:100%; height:auto; }
 a{ color:inherit; text-decoration:none; }
 .wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
-.label{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
-  font-weight:500; color:var(--ink-muted); margin:0;
-}
+/* small role: meta, captions, nav, footer. Sentence case, 15px, never caps-tracked */
+.small{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); margin:0; }
 p{ text-wrap:pretty; }
 
 /* one atmospheric glow, one grain — color-and-light.md allows both as a single
@@ -117,14 +129,14 @@ body::after{
 }
 .masthead .wrap{ display:flex; align-items:center; justify-content:space-between; gap:24px; }
 .mark{
-  font-family:"Melodrama",serif; font-weight:400;
-  font-size:1.5rem; line-height:1; letter-spacing:-.02em;
+  font-family:var(--font-display); font-weight:400;
+  font-size:var(--t-lead); line-height:1; letter-spacing:-.01em;
   transform-origin:50% 50%; will-change:transform;
   display:inline-flex; align-items:center; min-height:44px;
 }
 .nav{ display:flex; gap:8px; }
 .nav a{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:.14em;
+  font-size:var(--t-small); line-height:var(--lh-small);
   font-weight:500; color:var(--ink-muted);
   padding:12px; min-height:44px; display:inline-flex; align-items:center;
   transition:color var(--d-state) var(--ease-out);
@@ -153,7 +165,7 @@ body::after{
   transition:width 1000ms var(--ease-out);
 }
 .count{
-  margin:0; font-size:var(--step-label); letter-spacing:.14em; font-weight:500;
+  margin:0; font-size:var(--t-small); line-height:var(--lh-small); font-weight:500;
   color:var(--ink-muted); font-variant-numeric:tabular-nums;
 }
 .js.is-done .loader{ clip-path:inset(0 0 100% 0); transition:clip-path var(--d-travel) var(--ease-move); }
@@ -188,19 +200,19 @@ body::after{
 }
 .hero-copy{ position:relative; z-index:3; padding-top:132px; padding-bottom:48px; }
 .h-1{
-  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-hero);
-  line-height:.94; letter-spacing:-.035em; margin:24px 0 40px;
+  font-family:var(--font-display); font-weight:var(--display-weight); font-size:var(--t-display);
+  line-height:var(--lh-display); letter-spacing:var(--tr-display); margin:0 0 40px;
   /* measure in em, not ch: it scales with the clamp, so the headline breaks in
-     the same place at 1440 and at 390 instead of stranding one word */
-  max-width:5.8em;
+     about the same place at 1440 and at 390 instead of stranding one word */
+  max-width:9.5em; text-wrap:balance;
 }
 .hero-foot{ display:grid; gap:28px; padding-top:28px; border-top:1px solid var(--edge); }
 @media (min-width:900px){ .hero-foot{ grid-template-columns:1fr 1fr 1fr auto; gap:40px; align-items:end; } }
-.hero-foot p{ margin:0; font-size:var(--step-small); color:var(--ink-muted); }
+.hero-foot p{ margin:0; font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
 .hero-foot p strong{ display:block; color:var(--ink); font-weight:500; margin-bottom:4px; }
 .cta{
   background:var(--accent); color:var(--ground);
-  font-size:var(--step-small); font-weight:500; letter-spacing:.02em;
+  font-size:var(--t-body); line-height:1; font-weight:600;
   padding:16px 28px; display:inline-flex; align-items:center; justify-content:center;
   min-height:48px; justify-self:start;
   transition:transform var(--d-state) var(--ease-out), background-color var(--d-state) var(--ease-out);
@@ -212,21 +224,24 @@ body::after{
 .sessions{ padding-top:var(--section-y); position:relative; z-index:3; }
 .sec-head{ display:grid; gap:16px; margin-bottom:48px; }
 @media (min-width:900px){ .sec-head{ grid-template-columns:1fr 1fr; align-items:end; gap:40px; } }
-.sec-head h2{
-  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-h2);
-  line-height:1; letter-spacing:-.03em; margin:12px 0 0;
+/* every section h2 is the title role: one size for every section */
+.sessions h2, .plate h2, .kitchen h2{
+  font-family:var(--font-display); font-weight:var(--display-weight); font-size:var(--t-title);
+  line-height:var(--lh-title); letter-spacing:var(--tr-title); text-wrap:balance;
+  max-width:20ch; margin:0;
 }
-.sec-head p{ margin:0; color:var(--ink-muted); max-width:46ch; }
+.sec-head p{ margin:0; color:var(--ink); max-width:46ch; }
 .row{
   display:grid; grid-template-columns:auto 1fr auto; gap:16px; align-items:baseline;
   padding-top:24px; padding-bottom:24px; border-top:1px solid var(--edge);
   transition:background-color var(--d-state) var(--ease-out);
 }
 .row:last-of-type{ border-bottom:1px solid var(--edge); }
-.row .day{ font-size:var(--step-label); letter-spacing:.14em; color:var(--ink-muted); font-weight:500; }
-.row .who{ font-family:"Melodrama",serif; font-size:clamp(1.375rem,2.6vw,2.125rem); font-weight:400; letter-spacing:-.02em; }
-.row .who small{ display:block; font-family:"Cabinet Grotesk",sans-serif; font-size:var(--step-small); color:var(--ink-muted); letter-spacing:0; margin-top:4px; }
-.row .fee{ font-size:var(--step-body); font-variant-numeric:tabular-nums; color:var(--ink-muted); }
+.row .day{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); font-weight:500; min-width:5.5em; }
+/* the DJ's name is the heading role: display face at display weight */
+.row .who{ font-family:var(--font-display); font-size:var(--t-heading); line-height:var(--lh-heading); font-weight:var(--display-weight); letter-spacing:var(--tr-heading); }
+.row .who small{ display:block; font-family:var(--font-text); font-size:var(--t-small); line-height:var(--lh-small); font-weight:400; color:var(--ink-muted); letter-spacing:0; margin-top:4px; }
+.row .fee{ font-size:var(--t-body); font-variant-numeric:tabular-nums; color:var(--ink); }
 
 /* ── plate ────────────────────────────────────────────────── */
 .plate{ padding-top:var(--section-y); position:relative; z-index:3; }
@@ -234,11 +249,8 @@ body::after{
 @media (min-width:900px){ .plate .grid{ grid-template-columns:7fr 5fr; gap:64px; } }
 .plate figure{ margin:0; overflow:hidden; }
 .plate img{ width:100%; aspect-ratio:5/4; object-fit:cover; }
-.plate h3{
-  font-family:"Melodrama",serif; font-weight:400; font-size:var(--step-h2);
-  line-height:1.02; letter-spacing:-.03em; margin:12px 0 20px; max-width:6.9em;
-}
-.plate p{ margin:0; color:var(--ink-muted); max-width:42ch; }
+.plate h2{ margin-bottom:2rem; }
+.plate p{ margin:0; color:var(--ink); max-width:42ch; }
 
 /* ── kitchen ──────────────────────────────────────────────── */
 .kitchen{ padding-top:var(--section-y); position:relative; z-index:3; }
@@ -248,19 +260,21 @@ body::after{
   padding-top:20px; padding-bottom:20px; border-top:1px solid var(--edge);
 }
 .kline:last-child{ border-bottom:1px solid var(--edge); }
-.kline span:first-child{ font-size:var(--step-lead); }
-.kline span:last-child{ font-variant-numeric:tabular-nums; color:var(--ink-muted); }
+.kline span:first-child{ font-size:var(--t-lead); line-height:var(--lh-lead); }
+.kline span:last-child{ font-variant-numeric:tabular-nums; color:var(--ink); }
 
 /* ── footer ───────────────────────────────────────────────── */
 .foot{ margin-top:var(--section-y); padding-top:56px; padding-bottom:48px; background:var(--ground-2); position:relative; z-index:3; }
 .foot .wrap{ display:grid; gap:32px; }
 @media (min-width:900px){ .foot .wrap{ grid-template-columns:repeat(3,1fr); gap:48px; } }
-.foot p{ margin:8px 0 0; font-size:var(--step-small); color:var(--ink-muted); }
+.foot p{ margin:8px 0 0; font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
+.foot p.foot-head{ margin:0; color:var(--ink); font-weight:600; }
 .foot a.line{ color:var(--ink); border-bottom:1px solid var(--edge); display:inline-flex; align-items:center; min-height:44px; transition:border-color var(--d-state) var(--ease-out); }
 .foot a.line:hover{ border-color:var(--accent); }
+/* the page's one second type event, in the display role */
 .foot .stamp{
-  font-family:"Melodrama",serif; font-size:clamp(2.5rem,9vw,7rem); font-weight:400;
-  letter-spacing:-.04em; line-height:1; color:var(--ink); margin:56px 0 0;
+  font-family:var(--font-display); font-size:var(--t-display); font-weight:var(--display-weight);
+  letter-spacing:var(--tr-display); line-height:var(--lh-display); color:var(--ink); margin:56px 0 0;
 }
 
 /* ══ MOTION ═══════════════════════════════════════════════════ */
@@ -305,9 +319,9 @@ body::after{
   <div class="wrap">
     <a class="mark" href="#" id="mark">Halflight</a>
     <nav class="nav" aria-label="Primary">
-      <a href="#sessions">Sessions</a>
+      <a href="#sessions">This week's DJs</a>
       <a href="#kitchen">Kitchen</a>
-      <a class="nav-key" href="#visit">Visit</a>
+      <a class="nav-key" href="#visit">Find us</a>
     </nav>
   </div>
 </header>
@@ -316,7 +330,7 @@ body::after{
   <div class="loader-foot" id="loaderFoot">
     <p class="count" id="count">00</p>
     <div class="bar"><span class="bar-fill" id="barFill"></span></div>
-    <p class="count">Halflight — Rotterdam</p>
+    <p class="count">Halflight, Rotterdam</p>
   </div>
 </div>
 
@@ -329,14 +343,13 @@ body::after{
     <div class="hero-scrim"></div>
 
     <div class="wrap hero-copy">
-      <p class="label reveal-fade">Listening bar &amp; kitchen · Rotterdam</p>
-      <h1 class="h-1 reveal-lines" data-split-lines>A small room, loud after ten.</h1>
+      <h1 class="h-1 reveal-lines" data-split-lines>A listening bar and kitchen on Hoogstraat, Rotterdam</h1>
 
       <div class="hero-foot">
         <p class="reveal-fade"><strong>Hoogstraat 41</strong>3011 PG Rotterdam</p>
-        <p class="reveal-fade"><strong>Kitchen 18:00 – 23:00</strong>Bar until 02:00, Thursday to Saturday</p>
-        <p class="reveal-fade"><strong>Records from 21:00</strong>No cover before nine, ever</p>
-        <a class="cta reveal-fade" href="#visit">Book a table</a>
+        <p class="reveal-fade"><strong>Kitchen 18:00 to 23:00</strong>Bar until 02:00, Thursday to Saturday</p>
+        <p class="reveal-fade"><strong>DJs play records from 21:00</strong>No cover charge before 21:00</p>
+        <a class="cta reveal-fade" href="#visit">Phone to book a table</a>
       </div>
     </div>
   </section>
@@ -344,31 +357,28 @@ body::after{
   <section class="sessions" id="sessions">
     <div class="wrap">
       <div class="sec-head">
-        <div>
-          <p class="label reveal-fade">This week</p>
-          <h2 class="reveal-lines" data-split-lines>Four nights, one turntable</h2>
-        </div>
-        <p class="reveal-fade">Two decks, a 1974 Thorens, and a wall of records that belongs to whoever is playing. Nothing is announced more than a week ahead because nothing is booked more than a week ahead.</p>
+        <h2 class="reveal-lines" data-split-lines>Four DJs play records at Halflight this week</h2>
+        <p class="reveal-fade">Each DJ plays on two decks and a 1974 Thorens turntable, from their own records and ours. We book DJs one week ahead, so this list only covers the next four nights.</p>
       </div>
 
       <div class="row reveal-fade">
-        <span class="day">Thu</span>
-        <span class="who">Nadia Struiksma<small>21:00 — dub, minimal, and a great deal of reverb</small></span>
+        <span class="day">Thursday</span>
+        <span class="who">Nadia Struiksma<small>From 21:00, dub and minimal techno with a lot of reverb</small></span>
         <span class="fee">Free</span>
       </div>
       <div class="row reveal-fade">
-        <span class="day">Fri</span>
-        <span class="who">Bas Vermeer<small>22:00 — Brazilian jazz into house, three hours, no breaks</small></span>
+        <span class="day">Friday</span>
+        <span class="who">Bas Vermeer<small>From 22:00, three hours of Brazilian jazz into house without a break</small></span>
         <span class="fee">€8</span>
       </div>
       <div class="row reveal-fade">
-        <span class="day">Sat</span>
-        <span class="who">Marisol Okonkwo<small>22:00 — highlife, Afrobeat, and whatever arrives on Friday</small></span>
+        <span class="day">Saturday</span>
+        <span class="who">Marisol Okonkwo<small>From 22:00, highlife, Afrobeat and the records that arrived on Friday</small></span>
         <span class="fee">€10</span>
       </div>
       <div class="row reveal-fade">
-        <span class="day">Sun</span>
-        <span class="who">Alice Coltrane, in full<small>19:00 — Journey in Satchidananda, start to finish, lights down, no talking at the bar</small></span>
+        <span class="day">Sunday</span>
+        <span class="who">Alice Coltrane, one album played in full<small>From 19:00, Journey in Satchidananda from start to finish, with the lights down and no talking at the bar</small></span>
         <span class="fee">Free</span>
       </div>
     </div>
@@ -382,9 +392,8 @@ body::after{
                alt="A measure poured over a single clear block of ice at the bar" width="1600" height="1280">
         </figure>
         <div>
-          <p class="label reveal-fade">Behind the bar</p>
-          <h3 class="reveal-lines" data-split-lines>Six whiskies, chosen by Joost</h3>
-          <p class="reveal-fade">The cocktail list is twelve deep and changes when the fruit changes. Wine is mostly Loire and Jura, mostly under €50 a bottle. The whisky shelf is short on purpose, and Joost will talk you through all six if you let him.</p>
+          <h2 class="reveal-lines" data-split-lines>Joost pours cocktails, Loire and Jura wine, and six whiskies</h2>
+          <p class="reveal-fade">There are twelve cocktails on the list, and it changes when the fruit changes. Most of the wine comes from the Loire and the Jura, and most bottles cost under €50. Joost keeps six whiskies and will talk you through each one.</p>
         </div>
       </div>
     </div>
@@ -393,11 +402,8 @@ body::after{
   <section class="kitchen" id="kitchen">
     <div class="wrap">
       <div class="sec-head">
-        <div>
-          <p class="label reveal-fade">Kitchen</p>
-          <h2 class="reveal-lines" data-split-lines>Six plates, written on Tuesday</h2>
-        </div>
-        <p class="reveal-fade">Sofie cooks alone on a two-burner induction and a plancha. The menu is whatever the Wednesday market gave her, which is why it is written by hand and why it runs out.</p>
+        <h2 class="reveal-lines" data-split-lines>Sofie cooks six small plates from the Wednesday market</h2>
+        <p class="reveal-fade">She cooks alone on a two-burner induction hob and a plancha. She writes the menu by hand from what the market had, so when a plate runs out it is gone for the night.</p>
       </div>
 
       <div class="lines">
@@ -413,19 +419,19 @@ body::after{
 <footer class="foot" id="visit">
   <div class="wrap">
     <div>
-      <p class="label">Find us</p>
+      <p class="foot-head">Address</p>
       <p>Hoogstraat 41<br>3011 PG Rotterdam</p>
     </div>
     <div>
-      <p class="label">Open</p>
+      <p class="foot-head">Opening hours</p>
       <p>Wednesday to Sunday<br>18:00 until late</p>
     </div>
     <div>
-      <p class="label">Book</p>
+      <p class="foot-head">Book a table by phone</p>
       <p><a class="line" href="tel:+31103334417">+31 10 333 4417</a></p>
     </div>
   </div>
-  <div class="wrap"><p class="stamp">Halflight</p></div>
+  <div class="wrap"><p class="stamp" aria-hidden="true">Halflight</p></div>
 </footer>
 
 <script>

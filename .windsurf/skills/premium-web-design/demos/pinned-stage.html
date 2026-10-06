@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=B kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hallam Steel — one knife, eleven weeks</title>
+<title>Hallam Steel | Hand-forged kitchen knives, Sheffield</title>
 <!--
   ============================================================================
   PATTERN — Layout archetype C, "pinned stage" (references/layout-archetypes.md)
@@ -20,8 +20,11 @@
   DERIVED FROM
   - apple-iphone14 / macbook-ui  → the product held while claims cycle past it
   - blindbarber (desktop-01)     → the sticky chapter rail that marks position
-  - amrit-palace                 → sub-1.0 leading on a light-cut display serif,
-                                   nav type at 11px so the display can be 158px
+  - amrit-palace                 → sub-1.0 leading on a light-cut display serif
+  - references/typographic-hierarchy.md → the six type roles and their tokens.
+    Every text element maps to one role; no caps labels, nothing under 15px.
+  - references/no-slop.md        → every heading names the knife, the shop or
+    the step, so the headings read alone as a summary of the business
 
   THE FAILURE MODE THIS AVOIDS
   Agents build pinned sections with GSAP ScrollTrigger, get the pin maths
@@ -62,17 +65,21 @@
   --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
   --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
 
-  /* type */
+  /* type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+     Display retuned to 120px (8.3vw) so a plain eight-word headline lands in
+     three lines; every other role is the standard block, unchanged. */
   --font-display:"Libre Caslon Display",Georgia,serif;
   --font-text:"Karla",system-ui,sans-serif;
-  --step-hero:clamp(3.25rem,11vw,11rem);
-  --step-h1:clamp(2.5rem,6.5vw,6rem);
-  --step-h2:clamp(1.875rem,3.6vw,3.25rem);
-  --step-h3:clamp(1.375rem,2.2vw,2rem);
-  --step-lead:clamp(1.125rem,1.5vw,1.5rem);
-  --step-body:clamp(1rem,1.05vw,1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  --display-weight:400;  /* Libre Caslon Display ships one weight */
+  --t-display:clamp(3.25rem,1.671rem + 6.476vw,7.5rem);      /* 52 → 120 */
+  --t-title:  clamp(2.1875rem,1.7rem + 2vw,3.5rem);          /* 35 → 56  */
+  --t-heading:clamp(1.625rem,1.486rem + 0.571vw,2rem);       /* 26 → 32  */
+  --t-lead:   clamp(1.3125rem,1.243rem + 0.286vw,1.5rem);    /* 21 → 24  */
+  --t-body:   clamp(1.0625rem,1.039rem + 0.095vw,1.125rem);  /* 17 → 18  */
+  --t-small:  0.9375rem;                                     /* 15       */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   /* space */
   --gutter:clamp(1.25rem,4vw,5rem);
@@ -90,7 +97,7 @@
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;background:var(--ground);color:var(--ink);
-  font-family:var(--font-text);font-size:var(--step-body);line-height:1.55;
+  font-family:var(--font-text);font-size:var(--t-body);line-height:var(--lh-body);
   font-weight:400;overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
 }
@@ -106,16 +113,14 @@ body::after{
 }
 
 .wrap{width:min(100% - var(--gutter)*2,90rem);margin-inline:auto}
-.label{
-  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
-  font-weight:500;color:var(--ink-muted);margin:0;
-}
+/* small role: meta, captions, nav. Sentence case, 15px, never caps-tracked */
+.small{font-size:var(--t-small);line-height:var(--lh-small);font-weight:500;color:var(--ink-muted);margin:0}
 .display{
-  font-family:var(--font-display);font-weight:400;
-  font-size:var(--step-hero);line-height:.92;letter-spacing:-.035em;
+  font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-display);line-height:var(--lh-display);letter-spacing:var(--tr-display);
   text-wrap:balance;margin:0;
 }
-.lead{font-size:var(--step-lead);line-height:1.45;max-width:34ch;margin:0;color:var(--ink)}
+.lead{font-size:var(--t-lead);line-height:var(--lh-lead);max-width:40ch;margin:0;color:var(--ink)}
 p{text-wrap:pretty}
 
 /* ── Masthead ───────────────────────────────────────────────────────────── */
@@ -126,7 +131,7 @@ p{text-wrap:pretty}
 }
 .masthead__mark{
   display:inline-block;padding-block:.5rem;
-  font-family:var(--font-display);font-size:1.375rem;letter-spacing:-.02em;
+  font-family:var(--font-display);font-size:var(--t-lead);letter-spacing:-.01em;
   color:var(--ink);text-decoration:none;
 }
 .masthead__meta{display:flex;gap:clamp(1rem,2.5vw,2.5rem)}
@@ -142,9 +147,7 @@ p{text-wrap:pretty}
   padding:8rem var(--gutter) clamp(2.5rem,5vh,4.5rem);
   background-image:linear-gradient(to top,rgb(9 11 14 / .92) 0%,rgb(9 11 14 / .74) 30%,rgb(9 11 14 / .34) 62%,rgb(9 11 14 / 0) 92%);
 }
-.hero__scrim .label{margin-bottom:1.5rem}
-.hero__scrim .display{max-width:12ch;margin-bottom:2rem}
-.hero__scrim .lead{color:#DCD8D0}
+.hero__scrim .display{max-width:14ch;margin-bottom:2rem}
 .hero__rule{
   display:block;height:1px;border:0;margin:2.5rem 0 0;
   background:rgb(242 239 233 / .28);
@@ -180,11 +183,10 @@ p{text-wrap:pretty}
 }
 .rail__item{
   display:flex;align-items:baseline;gap:.75rem;
-  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;
+  font-size:var(--t-small);line-height:var(--lh-small);
   font-weight:500;color:var(--ink-muted);
   transition:color var(--d-state) var(--ease-out);
 }
-.rail__item b{font-weight:500;font-variant-numeric:tabular-nums}
 .rail__item::before{
   content:"";width:1.75rem;height:1px;background:currentColor;
   transition:width var(--d-state) var(--ease-out);
@@ -218,7 +220,7 @@ p{text-wrap:pretty}
   display:grid;
 }
 .frame__caption span{
-  grid-area:1/1;font-size:var(--step-small);color:var(--ink-muted);
+  grid-area:1/1;font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-muted);
   opacity:0;transition:opacity var(--d-state) var(--ease-out);
 }
 .stage[data-chapter="1"] .frame__caption span:nth-child(1),
@@ -244,47 +246,51 @@ p{text-wrap:pretty}
 .chapter__body{
   margin-left:auto;width:min(30vw,26rem);
 }
-.chapter__index{
-  font-family:var(--font-display);font-size:var(--step-h3);
-  color:var(--accent);margin:0 0 .75rem;
-}
+/* every chapter h2 is the title role: one size for every section */
 .chapter__title{
-  font-family:var(--font-display);font-weight:400;
-  font-size:var(--step-h2);line-height:.98;letter-spacing:-.03em;
-  margin:0 0 1.25rem;
+  font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:var(--tr-title);
+  text-wrap:balance;margin:0 0 1.5rem;
 }
-.chapter__text{margin:0;color:#C9C5BE;max-width:34ch}
+.chapter__text{margin:0;color:var(--ink);max-width:40ch}
 .chapter__spec{
   margin:1.75rem 0 0;padding-top:1rem;border-top:1px solid var(--edge);
-  font-size:var(--step-small);color:var(--ink-muted);
+  font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-muted);
   font-variant-numeric:tabular-nums;
 }
 .pin__tail{min-height:100vh}
 
 /* ── Quote band (ground shift) ──────────────────────────────────────────── */
 .band{background:var(--ground-2);padding-block:var(--section-y)}
+/* the quote is the band's one dominant line, so it takes the title role */
 .band blockquote{
-  margin:0;font-family:var(--font-display);font-weight:400;
-  font-size:clamp(1.75rem,3.4vw,3rem);line-height:1.12;letter-spacing:-.025em;
-  max-width:20ch;text-wrap:balance;
+  margin:0;font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-title);line-height:1.1;letter-spacing:var(--tr-title);
+  max-width:24ch;text-wrap:balance;
 }
-.band figcaption{margin-top:2rem;color:var(--ink-muted);font-size:var(--step-small)}
+.band figcaption{margin-top:2rem;color:var(--ink-muted);font-size:var(--t-small);line-height:var(--lh-small)}
 .band figure{margin:0}
 
 /* ── Figures row ────────────────────────────────────────────────────────── */
 .figures{padding-block:var(--section-y);background:var(--ground)}
+.figures h2{
+  font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:var(--tr-title);
+  text-wrap:balance;max-width:20ch;margin:0 0 2rem;
+}
 .figures__grid{
   display:grid;grid-template-columns:repeat(4,1fr);
   gap:clamp(1.5rem,3vw,3rem);border-top:1px solid var(--edge);padding-top:2rem;
 }
+/* the numbers share the title role with the h2 above them: same size, so the
+   screen holds three sizes (title, body, small) and nothing competes */
 .figure b{
-  display:block;font-family:var(--font-display);font-weight:400;
-  font-size:clamp(2.5rem,6vw,5.5rem);line-height:.9;letter-spacing:-.04em;
-  font-variant-numeric:tabular-nums;
+  display:block;font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:var(--tr-title);
+  font-variant-numeric:tabular-nums;color:var(--accent);
 }
 .figure span{
-  display:block;margin-top:1rem;font-size:var(--step-label);
-  text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);
+  display:block;margin-top:.5rem;font-size:var(--t-body);line-height:var(--lh-body);color:var(--ink);
 }
 
 /* ── Closing ────────────────────────────────────────────────────────────── */
@@ -299,16 +305,17 @@ p{text-wrap:pretty}
   background-image:linear-gradient(to top,rgb(9 11 14 / .92) 0%,rgb(9 11 14 / .62) 40%,rgb(9 11 14 / .18) 70%,rgb(9 11 14 / 0) 92%);
 }
 .closing__scrim h2{
-  font-family:var(--font-display);font-weight:400;
-  font-size:var(--step-h1);line-height:.96;letter-spacing:-.035em;
-  margin:1.25rem 0 1.5rem;max-width:12ch;
+  font-family:var(--font-display);font-weight:var(--display-weight);
+  font-size:var(--t-title);line-height:var(--lh-title);letter-spacing:var(--tr-title);
+  text-wrap:balance;margin:0 0 1.5rem;max-width:20ch;
 }
-.closing__scrim p{max-width:44ch;color:#DCD8D0;margin:0 0 2.25rem}
+.closing__scrim p{max-width:44ch;color:var(--ink);margin:0 0 2.25rem}
+.closing__scrim .small{margin:1rem 0 0}
 .cta{
   display:inline-flex;align-items:center;gap:.75rem;min-height:52px;
   padding:0 1.75rem;background:var(--accent);color:#12151A;
-  font-family:var(--font-text);font-weight:600;font-size:var(--step-small);
-  text-transform:uppercase;letter-spacing:.1em;text-decoration:none;
+  font-family:var(--font-text);font-weight:600;font-size:var(--t-body);line-height:1;
+  text-decoration:none;
   transition:background-color var(--d-state) var(--ease-out),
              transform var(--d-press) var(--ease-out);
 }
@@ -321,10 +328,10 @@ p{text-wrap:pretty}
   display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:2.5rem;
   border-top:1px solid var(--edge);padding-top:2.5rem;
 }
-.foot h3{font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;font-weight:500;color:var(--ink-muted);margin:0 0 1rem}
-.foot p{margin:0 0 .25rem;color:#C9C5BE;font-size:var(--step-small)}
+.foot h3{font-size:var(--t-small);line-height:var(--lh-small);font-weight:600;color:var(--ink);margin:0 0 .5rem}
+.foot p{margin:0 0 .25rem;color:var(--ink-muted);font-size:var(--t-small);line-height:var(--lh-small)}
 .foot a{
-  display:inline-block;padding-block:.5rem;
+  display:inline-block;padding-block:.625rem;
   color:var(--ink);text-decoration:none;
   border-bottom:1px solid rgb(242 239 233 / .3);
   transition:border-color var(--d-state) var(--ease-out),color var(--d-state) var(--ease-out);
@@ -332,7 +339,7 @@ p{text-wrap:pretty}
 .foot a:hover{color:var(--accent);border-color:var(--accent)}
 .foot__legal{
   margin-top:3rem;display:flex;justify-content:space-between;gap:1rem;
-  font-size:var(--step-label);text-transform:uppercase;letter-spacing:.14em;color:var(--ink-muted);
+  font-size:var(--t-small);line-height:var(--lh-small);color:var(--ink-muted);
 }
 
 /* ── Reveals — visible by default, hidden only when JS is alive ─────────── */
@@ -396,7 +403,6 @@ p{text-wrap:pretty}
   .hero__scrim .display{max-width:9ch}
   .stage{height:50svh}
   .frame{height:34svh}
-  .rail__item{font-size:.6875rem;letter-spacing:.1em}
 }
 
 @media (prefers-reduced-motion:reduce){
@@ -416,15 +422,13 @@ p{text-wrap:pretty}
     <header class="masthead">
       <a class="masthead__mark" href="#">Hallam Steel</a>
       <div class="masthead__meta">
-        <p class="label">Malin Bridge, Sheffield</p>
-        <p class="label">Est. 2011</p>
-        <p class="label">By commission</p>
+        <p class="small">Malin Bridge, Sheffield</p>
+        <p class="small">Made to order since 2011</p>
       </div>
     </header>
     <div class="hero__scrim">
-      <p class="label">Forged kitchen knives · Two benches · Ninety a year</p>
-      <h1 class="display">One knife, eleven weeks.</h1>
-      <p class="lead">Rob Sandell and Nita Vaughan draw every blade from bar stock in a shop off Malin Bridge. Nothing is cut from plate, and nothing leaves without both their marks on the tang.</p>
+      <h1 class="display">Kitchen knives forged by hand in Sheffield</h1>
+      <p class="lead">Rob Sandell and Nita Vaughan make ninety knives a year, each one to order. A knife takes eleven weeks from bar steel to the handle fitted to your hand.</p>
       <hr class="hero__rule">
     </div>
   </section>
@@ -434,43 +438,40 @@ p{text-wrap:pretty}
     <div class="stage" id="stage" data-chapter="1">
       <span class="stage__numeral" aria-hidden="true"></span>
       <nav class="stage__rail" aria-label="Chapters">
-        <span class="rail__item"><b>01</b> The billet</span>
-        <span class="rail__item"><b>02</b> The grind</span>
-        <span class="rail__item"><b>03</b> The handle</span>
+        <span class="rail__item">Forging</span>
+        <span class="rail__item">Grinding</span>
+        <span class="rail__item">Handle</span>
       </nav>
       <figure class="frame">
         <img class="frame__img" src="https://images.unsplash.com/photo-1537557209696-c595cc42018d?w=1600&q=80&auto=format" alt="A hammer falling on a bar of steel at forging heat.">
       </figure>
       <div class="frame__caption" aria-hidden="true">
-        <span>1.2519 tool steel · 240 × 40 × 4 mm · four heats</span>
-        <span>Hollow ground on a 610 mm wheel · 40 grit to 600</span>
-        <span>English walnut, Rivelin Valley · brass pin, 3.2 mm</span>
+        <span>1.2519 tool steel, 240 × 40 × 4 mm, forged over four heats</span>
+        <span>Hollow ground on a 610 mm wheel, 40 grit to 600</span>
+        <span>English walnut from Rivelin Valley, brass pin, 3.2 mm</span>
       </div>
     </div>
 
     <div class="chapters">
       <section class="chapter" data-chapter="1">
         <div class="chapter__body">
-          <p class="chapter__index">01</p>
-          <h2 class="chapter__title wipe"><span>The billet</span></h2>
-          <p class="chapter__text reveal">Bar stock arrives as 1.2519 — a tungsten tool steel that takes a fine edge and forgives a slow quench. Rob draws it down over four heats at 1,050&nbsp;°C, then buries it in vermiculite overnight so the grain settles before anything is cut.</p>
-          <p class="chapter__spec reveal">Four heats · 1,050&nbsp;°C · normalised 14 hours</p>
+          <h2 class="chapter__title wipe"><span>Rob forges every blade from a bar of tool steel</span></h2>
+          <p class="chapter__text reveal">The bar is 1.2519, a tungsten tool steel that takes a fine edge and forgives a slow quench. Rob draws it down over four heats at 1,050&nbsp;°C. Then he buries it in vermiculite overnight so the grain settles before anything is cut.</p>
+          <p class="chapter__spec reveal">Four heats at 1,050&nbsp;°C, then 14 hours to normalise</p>
         </div>
       </section>
       <section class="chapter" data-chapter="2">
         <div class="chapter__body">
-          <p class="chapter__index">02</p>
-          <h2 class="chapter__title wipe"><span>The grind</span></h2>
-          <p class="chapter__text reveal">The hollow is cut on a 610&nbsp;mm wheel and then taken back by hand, 40 grit through to 600. The edge is left 0.3&nbsp;mm at the shoulder before heat treat — thin enough to cut cleanly, thick enough to survive the oil.</p>
-          <p class="chapter__spec reveal">0.3 mm at the shoulder · 62 HRC after temper</p>
+          <h2 class="chapter__title wipe"><span>We grind each edge by hand, from 40 grit to 600</span></h2>
+          <p class="chapter__text reveal">Rob cuts the hollow on a 610&nbsp;mm wheel and takes it back by hand. He leaves the edge 0.3&nbsp;mm thick at the shoulder before heat treatment. That is thin enough to cut cleanly and thick enough to survive the oil quench.</p>
+          <p class="chapter__spec reveal">0.3 mm at the shoulder, 62 HRC after tempering</p>
         </div>
       </section>
       <section class="chapter" data-chapter="3">
         <div class="chapter__body">
-          <p class="chapter__index">03</p>
-          <h2 class="chapter__title wipe"><span>The handle</span></h2>
-          <p class="chapter__text reveal">Nita shapes stabilised walnut from a tree felled on Rivelin Valley Road, pinned in brass and bedded on G-flex. The last forty minutes are 1500 grit and a thumb, worked against a tracing of the hand that ordered it.</p>
-          <p class="chapter__spec reveal">Walnut, Rivelin Valley · brass pin · hand-fitted</p>
+          <h2 class="chapter__title wipe"><span>Nita shapes a walnut handle to fit your hand</span></h2>
+          <p class="chapter__text reveal">She uses stabilised walnut from a tree felled on Rivelin Valley Road, pinned in brass and bedded on epoxy. The last forty minutes are 1500 grit and her thumb, worked against a tracing of the hand that ordered the knife.</p>
+          <p class="chapter__spec reveal">Rivelin Valley walnut, brass pin, fitted by hand</p>
         </div>
       </section>
       <div class="pin__tail" aria-hidden="true"></div>
@@ -482,7 +483,7 @@ p{text-wrap:pretty}
     <div class="wrap">
       <figure>
         <blockquote class="reveal">The first time you cut a shallot with a knife ground for your own hand, you stop buying knives.</blockquote>
-        <figcaption class="reveal">Priya Raghunath · head chef, Bench 41, Nether Edge · commissioned a 210 gyuto in 2023</figcaption>
+        <figcaption class="reveal">Priya Raghunath, head chef at Bench 41 in Nether Edge, ordered a 210 mm gyuto in 2023</figcaption>
       </figure>
     </div>
   </section>
@@ -490,12 +491,12 @@ p{text-wrap:pretty}
   <!-- ── Figures ──────────────────────────────────────────────────────── -->
   <section class="figures">
     <div class="wrap">
-      <p class="label reveal">The shop in numbers</p>
+      <h2 class="reveal">What a Hallam Steel chef's knife costs and how long it takes</h2>
       <div class="figures__grid">
-        <div class="figure reveal"><b>62</b><span>HRC at the edge</span></div>
-        <div class="figure reveal"><b>11</b><span>Weeks per knife</span></div>
-        <div class="figure reveal"><b>£340</b><span>The 210 gyuto</span></div>
-        <div class="figure reveal"><b>90</b><span>Made last year</span></div>
+        <div class="figure reveal"><b>£340</b><span>for a 210 mm gyuto, the knife most cooks order</span></div>
+        <div class="figure reveal"><b>11</b><span>weeks from your order to the finished knife</span></div>
+        <div class="figure reveal"><b>62</b><span>HRC hardness at the edge, measured on every blade</span></div>
+        <div class="figure reveal"><b>90</b><span>knives made in the shop last year</span></div>
       </div>
     </div>
   </section>
@@ -504,10 +505,10 @@ p{text-wrap:pretty}
   <section class="closing">
     <img class="closing__img" src="https://images.unsplash.com/photo-1509460364839-ef5b594e0ee8?w=1600&q=80&auto=format" alt="Sparks thrown from a blade held against a grinding wheel.">
     <div class="closing__scrim">
-      <p class="label">Commissions</p>
-      <h2>The 2027 book opens on 3 March.</h2>
-      <p>Forty places, taken in the order they arrive. Tell us what you cook and which hand you hold it in; we will come back with a drawing and a date.</p>
-      <a class="cta" href="mailto:rob@hallamsteel.co.uk">Write to the shop</a>
+      <h2>We open forty knife commissions for 2027 on 3 March</h2>
+      <p>We take them in the order they arrive. Tell us what you cook and which hand you hold the knife in.</p>
+      <a class="cta" href="mailto:rob@hallamsteel.co.uk">Email Rob to order a knife</a>
+      <p class="small">Rob replies within a week with a drawing, a price and a date.</p>
     </div>
   </section>
 </main>
@@ -516,24 +517,24 @@ p{text-wrap:pretty}
   <div class="wrap">
     <div class="foot__grid">
       <div>
-        <h3>The shop</h3>
+        <h3>Visit the shop</h3>
         <p>Unit 4, Malin Bridge Works<br>Holme Lane, Sheffield S6 4EA</p>
         <p><a href="tel:+441142348871">0114 234 8871</a></p>
       </div>
       <div>
-        <h3>Open</h3>
+        <h3>Opening hours</h3>
         <p>Thursday to Saturday, 10–4</p>
         <p>Other days by appointment</p>
       </div>
       <div>
-        <h3>Elsewhere</h3>
+        <h3>Email and Instagram</h3>
         <p><a href="mailto:rob@hallamsteel.co.uk">rob@hallamsteel.co.uk</a></p>
         <p><a href="#">Instagram</a></p>
       </div>
     </div>
     <div class="foot__legal">
-      <span>Hallam Steel Ltd · Registered in England 07731204</span>
-      <span>Photography Unsplash</span>
+      <span>Hallam Steel Ltd, registered in England 07731204</span>
+      <span>Photography from Unsplash</span>
     </div>
   </div>
 </footer>

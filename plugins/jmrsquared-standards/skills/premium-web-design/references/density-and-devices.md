@@ -172,8 +172,15 @@ ink-on-bone on its left half and cream-on-video on its right.
 .crossing { display: grid; place-items: center; }
 .crossing > * { grid-area: 1 / 1; }           /* stack in one cell */
 .crossing video { width: min(46%, 34rem); }   /* narrower than the headline */
-.crossing h2 { z-index: 1; font-size: clamp(3rem, 8vw, 7.5rem); line-height: .92; }
+.crossing h2 { z-index: 1; font-size: var(--t-display); line-height: var(--lh-display); }
 ```
+
+This is the page's one second type event, so the `h2` takes the display role
+(`typographic-hierarchy.md` R7). Hagi's crosses with a single caps word. On a
+page you build, the crossing line is either the `h2` itself, written as a plain
+statement, or a concrete noun from the business marked `aria-hidden="true"`
+beside a real heading that says what the section covers (`no-slop.md`, display
+type and the decode test).
 
 The media must be narrower than the line or nothing crosses. The auditor fails
 text over media without a scrim, so scrim the media, or arrange it so only a

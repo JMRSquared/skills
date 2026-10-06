@@ -38,7 +38,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
 - `premium-web-design` — `/premium-web-design` — premium interactive website design (also Tier 2).
-- `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission.
+- `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission. Spec → tickets → parallel build on one integration branch → one review; follows `/to-spec`, `/to-tickets`, `/implement-spec` (mattpocock/skills) when installed.
 - `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
 - `pngimg-assets` — `/pngimg-assets` — search + download CC BY-NC PNG cutouts.
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.

@@ -17,9 +17,11 @@ changes. Write the whole table before any code, in a file the code imports.
 
 ```ts
 export const ACTS = [
-  { id: "arrive", scrollLength: 190, eyebrow: "ACT ONE", headline: "...",
+  { id: "arrive", scrollLength: 190,
+    headline: "See inside a portable cassette player",
     subject: { w: 0.9, h: 1.55 }, fill: 0.54 },
-  { id: "open", scrollLength: 260, eyebrow: "ACT TWO", headline: "...",
+  { id: "open", scrollLength: 260,
+    headline: "The tape cartridge lifts out of the deck as you scroll",
     subject: { w: 0.95, h: 2.05 }, fill: 0.60 },
 ] as const;
 ```

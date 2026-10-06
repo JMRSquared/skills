@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Vault Index · four rooms of poured concrete</title>
+<title>The Vault Index | A survey of four poured concrete rooms</title>
 
 <!-- premium-web-design: tier=B kind=demo -->
 
@@ -65,6 +65,12 @@
               --ink #1A1713    --ink-muted #6B6155 --accent #B4401F
   TYPE        Pairing 7, references/typography.md, verbatim:
               Newsreader (opsz 72) display + Schibsted Grotesk body.
+              Sized by references/typographic-hierarchy.md: six roles, and
+              every text element maps to one. The bar, years, places and
+              credits are the small role at 15px in sentence case; no caps
+              labels, nothing under 15px.
+  COPY        references/no-slop.md: each heading names the room, the place
+              or the survey, so the headings read alone.
   MOTION      Durations and curves from references/motion.md only.
               Page transition 620ms on --ease-move, inside that file's
               500-900ms band for a transition.
@@ -74,7 +80,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400;6..72,500&family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
@@ -82,14 +88,21 @@
   --ground:#F6F2EA; --ground-2:#EDE6DA; --edge:#DCD2C2;
   --ink:#1A1713;    --ink-muted:#6B6155; --accent:#B4401F;
 
-  /* ---- scale: typography.md ---- */
-  --step-hero: clamp(3.25rem, 11vw, 11rem);
-  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
-  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
-  --step-body: clamp(1rem, 1.05vw, 1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  /* ---- type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+     Display retuned to 128px (8.9vw) so the plain eight-word headline lands in
+     three lines; every other role is the standard block, unchanged. ---- */
+  --font-display:"Newsreader", Georgia, serif;
+  --font-text:"Schibsted Grotesk", ui-sans-serif, sans-serif;
+  --display-weight:300;
+  --t-display:clamp(3.25rem, 1.486rem + 7.238vw, 8rem);      /* 52 → 128 */
+  --t-title:  clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);        /* 35 → 56  */
+  --t-heading:clamp(1.625rem, 1.486rem + 0.571vw, 2rem);     /* 26 → 32  */
+  --t-lead:   clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);  /* 21 → 24  */
+  --t-body:   clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem);/* 17 → 18  */
+  --t-small:  0.9375rem;                                     /* 15       */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   /* ---- motion: motion.md ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -107,8 +120,8 @@
 html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Schibsted Grotesk", ui-sans-serif, sans-serif;
-  font-size:var(--step-body); line-height:1.55;
+  font-family:var(--font-text); font-weight:400;
+  font-size:var(--t-body); line-height:var(--lh-body);
   -webkit-font-smoothing:antialiased;
 }
 img{ display:block; max-width:100%; height:auto; }
@@ -117,19 +130,20 @@ img{ display:block; max-width:100%; height:auto; }
 
 /* ---------- type roles ---------- */
 .display{
-  font-family:"Newsreader", Georgia, serif; font-weight:400;
+  font-family:var(--font-display); font-weight:var(--display-weight);
   font-variation-settings:"opsz" 72;
-  line-height:0.94; letter-spacing:-0.028em; text-wrap:balance; margin:0;
+  font-size:var(--t-display); line-height:var(--lh-display);
+  letter-spacing:var(--tr-display); text-wrap:balance; margin:0;
 }
-h1.display{ font-size:var(--step-hero); }
-h2.display{ font-size:var(--step-h1); line-height:0.96; }
-h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
-.label{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
-  font-weight:500; margin:0; color:var(--accent);
+h1.display{ max-width:15ch; }
+/* card names are the heading role: display face at display weight */
+h3.display{
+  font-size:var(--t-heading); line-height:var(--lh-heading);
+  letter-spacing:var(--tr-heading);
 }
-.label--quiet{ color:var(--ink-muted); }
-.lead{ font-size:var(--step-lead); line-height:1.42; max-width:36ch; margin:0; }
+/* small role: meta, years, places, the crumb, credits. Sentence case, 15px */
+.small{ font-size:var(--t-small); line-height:var(--lh-small); margin:0; color:var(--ink-muted); }
+.lead{ font-size:var(--t-lead); line-height:var(--lh-lead); max-width:40ch; margin:0; }
 .note{ max-width:62ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
 .tabular{ font-variant-numeric:tabular-nums; }
 
@@ -138,25 +152,33 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
   display:flex; justify-content:space-between; align-items:baseline;
   padding:1.5rem 0; border-bottom:1px solid var(--edge);
 }
-.bar b{ font-family:"Newsreader", Georgia, serif; font-weight:500; font-size:1.25rem; }
+.bar b{ font-family:var(--font-display); font-weight:500; font-size:var(--t-lead); line-height:1.2; }
 
 /* ---------- index view ---------- */
 .hero{ padding:clamp(4rem, 9vw, 8rem) 0 0; }
-.hero h1{ margin:1.5rem 0 2rem; }
-.hero__row{ display:grid; grid-template-columns:7fr 5fr; gap:2rem var(--gutter); align-items:end; }
+.hero h1{ margin:0 0 2rem; }
+/* the headline takes the full row; the standfirst sits under it, offset
+   right, so a plain eight-word h1 has the width to land in three lines */
+.hero__row{ display:grid; grid-template-columns:7fr 5fr; gap:0 var(--gutter); }
 .hero__row > *{ min-width:0; }
+.hero__row h1{ grid-column:1 / -1; }
+.hero__row .lead{ grid-column:2; }
 
-/* The wordmark is wider than the viewport at every width in the clamp
-   range, so it runs off the right edge. Two jobs: it is the second type
+/* The wordmark is wider than the viewport at every width in the display
+   clamp, so it runs off the right edge. Two jobs: it is the second type
    event on a page whose hero would otherwise be the only peak, and it makes
-   the frame read as a window rather than a box. The clip lives on the band,
+   the frame read as a window rather than a box. It is a row of the four
+   place names, concrete nouns from the survey, and it is aria-hidden: the
+   entries carry the same places as text (no-slop.md, the decode test).
+   It uses the display role, so the page still has one display size. The clip lives on the band,
    not on <body>, because a clip on an ancestor of a sticky or pinned
    element breaks it - see three-scroll-scene.html, GUARD 1. */
 .bleedband{ overflow-x:clip; padding:var(--section-y) 0 clamp(2rem, 4vw, 3.5rem); }
-h2.display.bleedmark{
-  /* the 5rem floor is not decoration: below it the mark is narrower than a
-     390px phone and stops bleeding, which is the whole reason it exists. */
-  font-size:clamp(5rem, 17vw, 18rem); line-height:0.84; margin:0;
+.display.bleedmark{
+  /* the string is long enough to overrun a 390px phone at 52px and a 1440px
+     screen at 128px; shorten it and it stops bleeding, which is the whole
+     reason it exists. */
+  line-height:0.84; margin:0;
   white-space:nowrap; width:max-content;
   padding-left:max(var(--gutter), calc((100% - 84rem)/2));
 }
@@ -186,20 +208,18 @@ h2.display.bleedmark{
    and not a gallery. */
 .entry__no{
   position:absolute; left:-0.5rem; top:-1rem; z-index:2; margin:0;
-  font-family:"Newsreader", Georgia, serif; font-weight:500;
-  font-size:clamp(2.5rem, 4vw, 3.5rem); line-height:1;
-  color:var(--accent); letter-spacing:-0.02em;
+  font-family:var(--font-display); font-weight:500;
+  font-size:var(--t-title); line-height:1;      /* title role, decorative */
+  color:var(--accent); letter-spacing:var(--tr-title);
 }
-.entry__meta{ display:flex; justify-content:space-between; gap:1rem; margin:1rem 0 0.5rem; }
-/* Entry titles run at 40px on a phone rather than the 30px the shared h3
-   step would give. A phone that shows the hero once and then drops to body
-   scale for the rest of the page has one type event in it; an index wants
-   its titles to carry weight. */
-.entry h3{ margin:0; font-size:clamp(2.5rem, 3.6vw, 3.25rem); }
-.entry__place{ color:var(--ink-muted); font-size:var(--step-small); margin:0.5rem 0 0; }
+.entry__meta{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin:1.25rem 0 0.25rem; }
+/* Entry names are the heading role, so every card on every screen shares one
+   size with the h3s of any other section. */
+.entry h3{ margin:0; max-width:24ch; }
+.entry__place{ margin:0.25rem 0 0; }
 .entry__go{
   display:inline-flex; align-items:center; gap:0.5rem; min-height:44px;
-  color:var(--accent); font-size:var(--step-small); font-weight:500;
+  color:var(--accent); font-size:var(--t-body); line-height:1; font-weight:500;
 }
 .entry__go i{ display:block; width:1.5rem; height:1px; background:currentColor;
   transition:width var(--d-state) var(--ease-out); }
@@ -212,14 +232,15 @@ h2.display.bleedmark{
 .detail__body{ padding:var(--section-y) 0; }
 .detail__grid{ display:grid; grid-template-columns:5fr 7fr; gap:2rem var(--gutter); }
 .detail__grid > *{ min-width:0; }
-.detail h1{ margin:1rem 0 0; }
-.detail__facts{ list-style:none; margin:2.5rem 0 0; padding:0; display:grid; gap:0.75rem; max-width:26rem; }
-.detail__facts li{ display:flex; justify-content:space-between; gap:2rem; border-top:1px solid var(--edge); padding-top:0.75rem; font-size:var(--step-small); }
+.detail__head{ margin-bottom:clamp(2.5rem, 5vw, 4rem); }
+.detail h1{ margin:1.25rem 0 0; }
+.detail__facts{ list-style:none; margin:0; padding:0; display:grid; gap:0.75rem; max-width:26rem; }
+.detail__facts li{ display:flex; justify-content:space-between; gap:2rem; border-top:1px solid var(--edge); padding-top:0.75rem; font-size:var(--t-small); line-height:var(--lh-small); }
 .detail__facts b{ font-weight:500; }
 .detail__copy p{ margin:0 0 1.25rem; max-width:62ch; }
 .back{
   display:inline-flex; align-items:center; gap:0.75rem; min-height:44px;
-  color:var(--ink); text-decoration:none; font-size:var(--step-small); font-weight:500;
+  color:var(--ink); text-decoration:none; font-size:var(--t-body); line-height:1; font-weight:500;
   border-bottom:1px solid var(--edge);
   transition:border-color var(--d-state) var(--ease-out), gap var(--d-state) var(--ease-out);
 }
@@ -227,17 +248,19 @@ h2.display.bleedmark{
 
 /* the ground flips for the detail view: it is a different composition, not
    the index with one photograph swapped in. color-and-light.md, "Dark mode". */
-.detail-open{ background:var(--ink); color:var(--ground); }
+.detail-open, .detail-open body{ background:var(--ink); color:var(--ground); }
 .detail-open .bar{ border-color:rgba(246,242,234,0.22); }
 .detail-open .back{ color:var(--ground); border-color:rgba(246,242,234,0.32); }
 .detail-open .detail__facts li{ border-color:rgba(246,242,234,0.22); }
-.detail-open .note, .detail-open .entry__place, .detail-open .label--quiet{ color:#C9C2B6; }
+.detail-open .note, .detail-open .entry__place, .detail-open .small{ color:#C9C2B6; }
 .detail-open footer{ border-color:rgba(246,242,234,0.22); color:#C9C2B6; }
 .detail-open footer a{ color:var(--ground); border-color:rgba(246,242,234,0.32); }
 
 /* ---------- footer ---------- */
 footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); color:var(--ink-muted); }
-footer ul{ list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:0.25rem; font-size:var(--step-small); }
+footer ul{ list-style:none; margin:0.75rem 0 0; padding:0; display:grid; gap:0.25rem; font-size:var(--t-small); line-height:var(--lh-small); }
+footer .foot-head{ color:var(--ink); font-weight:600; }
+.detail-open footer .foot-head{ color:var(--ground); }
 footer a{
   color:var(--ink); text-decoration:none; border-bottom:1px solid var(--edge);
   display:inline-block; padding-block:0.75rem;
@@ -284,6 +307,7 @@ footer a:hover{ border-color:var(--accent); }
 /* ---------- phone ---------- */
 @media (max-width: 859px){
   .hero__row{ grid-template-columns:1fr; }
+  .hero__row .lead{ grid-column:auto; }
   .index__grid{ grid-template-columns:1fr; }
   .detail__grid{ grid-template-columns:1fr; }
   /* The transition itself does not change on a phone - it is a 620ms
@@ -313,7 +337,7 @@ footer a:hover{ border-color:var(--accent); }
 <div class="wrap">
   <div class="bar">
     <b>The Vault Index</b>
-    <span class="label label--quiet" id="crumb">Index &middot; four entries</span>
+    <span class="small" id="crumb">Index of four rooms</span>
   </div>
 </div>
 
@@ -328,11 +352,8 @@ footer a:hover{ border-color:var(--accent); }
 <main id="index-view">
   <section class="hero wrap">
     <div class="hero__row">
-      <div>
-        <p class="label">Survey 04 &middot; poured concrete</p>
-        <h1 class="display">Four rooms<br>cast, not<br>built</h1>
-      </div>
-      <p class="lead">Each of these was poured in one continuous operation. What you are looking at is the inside of the formwork, kept.</p>
+      <h1 class="display">Four concrete rooms and how each one was poured</h1>
+      <p class="lead">Each entry records the pour, the formwork and the concrete cover, with a photograph of the surface the formwork left behind.</p>
     </div>
   </section>
 
@@ -344,9 +365,9 @@ footer a:hover{ border-color:var(--accent); }
        an opener sits inside the first screen, where it competes with the hero
        instead of being the page's second type event; below the grid it is the
        last thing the reader passes and the only thing at display scale after
-       the fold. -->
+       the fold. It is decoration, so it is a <p> and aria-hidden, not an h2. -->
   <div class="bleedband">
-    <h2 class="display bleedmark">Cast, not built</h2>
+    <p class="display bleedmark" aria-hidden="true">Vals, Ronchamp, London, Chandigarh</p>
   </div>
 </main>
 
@@ -356,10 +377,12 @@ footer a:hover{ border-color:var(--accent); }
     <img id="d-img" src="" alt="">
   </figure>
   <div class="detail__body wrap">
+    <div class="detail__head">
+      <p class="small" id="d-no">Entry 01</p>
+      <h1 class="display" id="d-title">&nbsp;</h1>
+    </div>
     <div class="detail__grid">
       <div>
-        <p class="label" id="d-no">Entry 01</p>
-        <h1 class="display" id="d-title">&nbsp;</h1>
         <ul class="detail__facts" id="d-facts"></ul>
       </div>
       <div class="detail__copy">
@@ -372,15 +395,15 @@ footer a:hover{ border-color:var(--accent); }
 </main>
 
 <footer class="wrap">
-  <p class="label label--quiet">Credits</p>
+  <p class="small foot-head">Photographs and credits</p>
   <ul>
-    <li>Photography: Unsplash, free licence.
+    <li>Photographs from Unsplash, free licence:
       <a href="https://unsplash.com/photos/1635074155443-6cbf74711dd2">Entry 01</a>,
       <a href="https://unsplash.com/photos/1560963018-4d9bd4c4b72a">Entry 02</a>,
       <a href="https://unsplash.com/photos/1650886160147-c86927ad8f32">Entry 03</a>,
       <a href="https://unsplash.com/photos/1519334538828-dac4feed79cd">Entry 04</a>
     </li>
-    <li>The Vault Index is an invented survey. The buildings are not.</li>
+    <li>The Vault Index is an invented survey of real buildings.</li>
   </ul>
 </footer>
 
@@ -388,36 +411,36 @@ footer a:hover{ border-color:var(--accent); }
 (function () {
   var ENTRIES = [
     {
-      no: '01', title: 'The Soffit Room', place: 'Vals, Graubünden', year: '1996',
+      no: '01', title: 'A board-marked concrete soffit in Vals', place: 'Vals, Graubünden', year: '1996',
       src: 'https://images.unsplash.com/photo-1635074155443-6cbf74711dd2',
       alt: 'Board-marked concrete meeting a shadowed soffit, photographed in monochrome.',
-      facts: [['Pour', 'One, 31 hours'], ['Formwork', 'Sawn larch, 180mm'], ['Cover', '45mm']],
-      copy: 'The boards were laid horizontally and never reused, so the grain reads once and then stops. Every joint you can see is a day of work you cannot.',
-      copy2: 'The soffit was struck at fourteen days against the engineer’s advice. Nothing moved.'
+      facts: [['Pour', 'One pour, 31 hours'], ['Formwork', 'Sawn larch, 180mm'], ['Cover', '45mm']],
+      copy: 'The carpenters laid the larch boards horizontally and used each one once, so the grain pattern in the concrete never repeats.',
+      copy2: 'The formwork under the soffit came down at fourteen days, against the engineer’s advice, and nothing moved.'
     },
     {
-      no: '02', title: 'The Lit Doorway', place: 'Ronchamp, Haute-Saône', year: '1955',
+      no: '02', title: 'A shallow concrete vault at Ronchamp', place: 'Ronchamp, Haute-Saône', year: '1955',
       src: 'https://images.unsplash.com/photo-1560963018-4d9bd4c4b72a',
       alt: 'A curved concrete vault opening toward a lit doorway.',
       facts: [['Pour', 'Three lifts'], ['Formwork', 'Steel, curved'], ['Cover', '38mm']],
-      copy: 'A vault this shallow only works because the opening at its end takes the thrust. Close the door and the room stops standing up.',
-      copy2: 'The light is not decoration. It is the load path, made visible by accident.'
+      copy: 'A vault this shallow stands because the wall around the doorway at its end takes the thrust.',
+      copy2: 'The light from the doorway falls along that load path, so you can see where the thrust goes.'
     },
     {
-      no: '03', title: 'The Downstand Hall', place: 'Barbican, London', year: '1969',
+      no: '03', title: 'Hammered concrete beams at the Barbican', place: 'Barbican, London', year: '1969',
       src: 'https://images.unsplash.com/photo-1650886160147-c86927ad8f32',
       alt: 'A large concrete interior with deep downstand beams and a figure on the stair.',
       facts: [['Pour', 'Sixty-one bays'], ['Finish', 'Pick-hammered'], ['Cover', '50mm']],
-      copy: 'Every surface here was hand-hammered after striking, which took longer than the pour. The aggregate is what you are actually looking at.',
-      copy2: 'The beams are deeper than they need to be. That was the point.'
+      copy: 'Workers hammered every surface by hand after the formwork came off, which took longer than the pour. The hammering shows the stone aggregate inside the concrete.',
+      copy2: 'The architects made the downstand beams deeper than the loads required.'
     },
     {
-      no: '04', title: 'The Turning Stair', place: 'Chandigarh, Punjab', year: '1962',
+      no: '04', title: 'A helical concrete stair in Chandigarh', place: 'Chandigarh, Punjab', year: '1962',
       src: 'https://images.unsplash.com/photo-1519334538828-dac4feed79cd',
       alt: 'A pale concrete spiral stair seen from above.',
       facts: [['Pour', 'Continuous, helical'], ['Formwork', 'Bent ply'], ['Cover', '40mm']],
-      copy: 'A helical flight has no straight line in it anywhere, so the formwork had to be built twice: once to find the curve, once to hold it.',
-      copy2: 'The handrail was added in 1974 and is the only part of this that was ever an afterthought.'
+      copy: 'A helical stair has no straight line in it, so the builders made the formwork twice: once to find the curve and once to hold it.',
+      copy2: 'The handrail was added in 1974, twelve years after the stair was poured.'
     }
   ];
 
@@ -442,9 +465,9 @@ footer a:hover{ border-color:var(--accent); }
              'sizes="(max-width: 859px) calc(100vw - 3rem), 44vw" width="1200" height="800" alt="' + e.alt + '">' +
       '</figure>' +
       '<div class="entry__meta"><h3 class="display">' + e.title + '</h3>' +
-        '<span class="label label--quiet tabular">' + e.year + '</span></div>' +
-      '<p class="entry__place">' + e.place + '</p>' +
-      '<span class="entry__go">Open the entry <i></i></span>';
+        '<span class="small tabular">' + e.year + '</span></div>' +
+      '<p class="entry__place small">' + e.place + '</p>' +
+      '<span class="entry__go">See how this room was poured <i></i></span>';
     b.addEventListener('click', function () { navigate(i, true); });
     grid.appendChild(b);
   });
@@ -458,7 +481,7 @@ footer a:hover{ border-color:var(--accent); }
     img.sizes = '100vw';
     img.width = 1600; img.height = 1067;
     img.alt = e.alt;
-    document.getElementById('d-no').textContent = 'Entry ' + e.no + ' · ' + e.year;
+    document.getElementById('d-no').textContent = 'Entry ' + e.no + ', built in ' + e.year;
     document.getElementById('d-title').textContent = e.title;
     document.getElementById('d-copy').textContent = e.copy;
     document.getElementById('d-copy2').textContent = e.copy2;
@@ -484,13 +507,13 @@ footer a:hover{ border-color:var(--accent); }
       detailView.hidden = true;
       indexView.hidden = false;
       document.documentElement.classList.remove('detail-open');
-      crumb.textContent = 'Index · four entries';
+      crumb.textContent = 'Index of four rooms';
     } else {
       renderDetail(i);
       indexView.hidden = true;
       detailView.hidden = false;
       document.documentElement.classList.add('detail-open');
-      crumb.textContent = 'Entry ' + ENTRIES[i].no + ' · ' + ENTRIES[i].title;
+      crumb.textContent = 'Entry ' + ENTRIES[i].no + ' of 4, ' + ENTRIES[i].place;
     }
     /* The reader was three screens down an index; the detail view is a
        different document as far as they are concerned. Leaving the scroll

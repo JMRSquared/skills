@@ -2,6 +2,12 @@
    Plain CSS on purpose. The architecture this demo teaches is in src/story and
    src/three; swap this file for Tailwind, CSS modules or anything else without
    touching a line of the director.
+
+   Type follows references/typographic-hierarchy.md: six role tokens
+   (--t-display ... --t-small), every text element mapped to one of them,
+   nothing a reader needs under 15px, no caps-tracked labels, no mono. Copy
+   follows references/no-slop.md: each headline names the cassette player or
+   the part of it on screen.
    --------------------------------------------------------------------------- */
 
 :root {
@@ -13,6 +19,31 @@
   --ash: #6a747d;
   --accent: #ff7a45;
   --accent-bright: #ffb489;
+  /* In this palette --mist is the reading colour and --fog the muted one
+     (--ink here is a near-black surface, not text). Body copy is --mist;
+     --fog is for the small role only. */
+
+  /* ---- type: six roles, 390px -> 1440px ----
+     One system face. Display retuned to 96px (6.7vw) so the plain h1 lands
+     in three lines inside the left copy column, clear of the product the
+     director stages on the right. Every other role is the standard block. */
+  --font-text: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --display-weight: 300;
+  --t-display: clamp(3.25rem, 2.229rem + 4.19vw, 6rem);       /* 52 -> 96 */
+  --t-title: clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);          /* 35 -> 56 */
+  --t-heading: clamp(1.625rem, 1.486rem + 0.571vw, 2rem);     /* 26 -> 32 */
+  --t-lead: clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);     /* 21 -> 24 */
+  --t-body: clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem);   /* 17 -> 18 */
+  --t-small: 0.9375rem;                                       /* 15       */
+  --lh-display: 0.94;
+  --lh-title: 1.04;
+  --lh-heading: 1.18;
+  --lh-lead: 1.4;
+  --lh-body: 1.55;
+  --lh-small: 1.5;
+  --tr-display: -0.04em;
+  --tr-title: -0.025em;
+  --tr-heading: -0.012em;
 
   --gutter: clamp(1.25rem, 5vw, 5rem);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -37,7 +68,10 @@ body {
   margin: 0;
   background: var(--void);
   color: var(--mist);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: var(--font-text);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
   overflow-x: clip;
 }
 
@@ -99,10 +133,10 @@ main {
   padding: 0 var(--gutter) 2rem;
   background: var(--void);
   transition: opacity 0.5s ease-out;
-  font-size: 0.72rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--ash);
+  font-size: var(--t-small);
+  line-height: var(--lh-small);
+  font-weight: 500;
+  color: var(--fog);
 }
 .loader.is-done {
   opacity: 0;
@@ -110,7 +144,7 @@ main {
 }
 .loader__count {
   font-variant-numeric: tabular-nums;
-  color: var(--fog);
+  color: var(--mist);
 }
 .loader__rail {
   position: absolute;
@@ -202,31 +236,47 @@ main {
 .copy {
   max-width: 34rem;
 }
-
-.eyebrow {
-  margin: 0;
-  font-family: ui-monospace, "SF Mono", monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--accent);
+/* The opening act carries the display h1, so its column is wider. At 1440 it
+   ends near 840px; the director parks the product from about 900px right. */
+.copy--first {
+  max-width: 44rem;
 }
 
+/* display role: the one h1 */
 .display {
-  margin: 1.1rem 0 0;
-  font-size: clamp(2.2rem, 5.4vw, 3.6rem);
-  font-weight: 500;
-  line-height: 0.98;
-  letter-spacing: -0.035em;
+  margin: 0;
+  font-size: var(--t-display);
+  font-weight: var(--display-weight);
+  line-height: var(--lh-display);
+  letter-spacing: var(--tr-display);
   text-wrap: balance;
+  max-width: 14ch;
 }
 
-.lede {
-  margin: 1.4rem 0 0;
-  max-width: 32rem;
-  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
-  line-height: 1.65;
-  color: var(--fog);
+/* title role: every act h2, one size for all of them */
+.title {
+  margin: 0;
+  font-size: var(--t-title);
+  font-weight: var(--display-weight);
+  line-height: var(--lh-title);
+  letter-spacing: var(--tr-title);
+  text-wrap: balance;
+  max-width: 20ch;
+}
+
+/* lead role: the standfirst under each headline, in the reading colour */
+.lead {
+  margin: 1.5rem 0 0;
+  max-width: 45ch;
+  font-size: var(--t-lead);
+  line-height: var(--lh-lead);
+  color: var(--mist);
+  text-wrap: pretty;
+}
+@media (min-width: 900px) {
+  .lead {
+    margin-top: 2rem;
+  }
 }
 
 .row {
@@ -242,8 +292,11 @@ main {
   background: var(--accent);
   color: #1c0a02;
   font: inherit;
-  font-size: 0.85rem;
+  /* body role at 600: weight, not size, separates a button from a paragraph */
+  font-size: var(--t-body);
   font-weight: 600;
+  line-height: 1;
+  min-height: 48px;
   padding: 0.85rem 1.75rem;
   cursor: pointer;
   transition: transform 0.3s var(--ease-out-expo);
@@ -312,15 +365,19 @@ main {
 .callout.is-current .callout__dot {
   box-shadow: 0 0 16px 2px var(--accent);
 }
+/* row name in the body role at 600, note in the small role: this screen
+   already has a title and a lead, so the rows do not add a heading size */
 .callout__title {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  font-weight: 600;
 }
 .callout__note {
   margin: 0.25rem 0 0;
-  font-size: 0.78rem;
-  color: var(--ash);
+  font-size: var(--t-small);
+  line-height: var(--lh-small);
+  color: var(--fog);
 }
 
 .readout {
@@ -332,16 +389,20 @@ main {
   margin-top: 2.2rem;
   max-width: 28rem;
 }
+/* the live number shares the title role with the h2 above it, so the screen
+   holds three sizes: title, lead, small */
 .readout__value {
-  font-family: ui-monospace, "SF Mono", monospace;
-  font-size: clamp(2.4rem, 5vw, 3rem);
+  font-size: var(--t-title);
+  font-weight: var(--display-weight);
+  line-height: var(--lh-title);
+  letter-spacing: var(--tr-title);
   font-variant-numeric: tabular-nums;
   color: var(--accent);
 }
 .readout__label {
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: var(--ash);
+  font-size: var(--t-small);
+  line-height: var(--lh-small);
+  color: var(--fog);
 }
 
 /* ---- HUD ------------------------------------------------------------------ */
@@ -352,20 +413,11 @@ main {
   bottom: 1.75rem;
   z-index: 40;
   display: none;
-  gap: 0.5rem;
-  font-family: ui-monospace, "SF Mono", monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--ash);
-  pointer-events: none;
-}
-.hud__index {
-  color: var(--accent);
-}
-.hud__label {
-  margin-left: 0.75rem;
+  font-size: var(--t-small);
+  line-height: var(--lh-small);
+  font-weight: 500;
   color: var(--fog);
+  pointer-events: none;
 }
 @media (min-width: 40rem) {
   .hud {
@@ -402,46 +454,6 @@ main {
 @media (min-width: 64rem) {
   .dots {
     display: flex;
-  }
-}
-
-.cue {
-  position: absolute;
-  left: 50%;
-  bottom: 1.5rem;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: ui-monospace, "SF Mono", monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--ash);
-}
-.cue__rail {
-  position: relative;
-  display: block;
-  width: 2.5rem;
-  height: 1px;
-  background: var(--line);
-  overflow: hidden;
-}
-.cue__dot {
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  width: 1rem;
-  background: var(--accent);
-  animation: cue 2.4s var(--ease-out-expo) infinite;
-}
-@keyframes cue {
-  0% {
-    transform: translateX(-100%);
-  }
-  60%,
-  100% {
-    transform: translateX(250%);
   }
 }
 
@@ -498,8 +510,7 @@ main {
     height: auto;
     padding-block: clamp(5rem, 14vh, 9rem);
   }
-  .act__scrim,
-  .cue {
+  .act__scrim {
     display: none;
   }
 }

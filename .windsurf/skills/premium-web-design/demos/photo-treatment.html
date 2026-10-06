@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=A kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Picture desk · The Coal Room</title>
+<title>The Coal Room | How we treat photos of our Bristol music venue</title>
 
 <!--
 =============================================================================
@@ -13,10 +13,10 @@
     shown at full size and then documented underneath as a copyable CSS
     sample, so the file is both a demo and the reference for the demo.
 
-      01  Gradient scrim under display type on a full-bleed frame
-      02  Duotone mapped into two brand values with an SVG feComponentTransfer
-      03  Editorial crop pair, one 4:5 and one 16:9, deliberately misaligned
-      04  Grain layer over the photograph
+      - Gradient scrim under display type on a full-bleed frame
+      - Duotone mapped into two brand values with an SVG feComponentTransfer
+      - Editorial crop pair, one 4:5 and one 16:9, deliberately misaligned
+      - Grain layer over the photograph
 
   DERIVES FROM
     Amrit Palace (amritpalace.com). See references/site-studies/amrit-palace.md.
@@ -46,7 +46,15 @@
   TYPE        Pairing 1, references/typography.md, verbatim:
               Instrument Serif (display) + Instrument Sans (body).
               Geist Mono is the third face, admitted under the "mono doing
-              real work" clause. It sets the code samples and nothing else.
+              real work" clause. It sets the code samples and nothing else,
+              in the small role.
+              Sizes come from references/typographic-hierarchy.md: six role
+              tokens (--t-display ... --t-small), every text element mapped
+              to one of them, nothing a reader needs under 15px, no caps
+              labels and no numbered "Treatment 01" eyebrows.
+  COPY        references/no-slop.md. Each heading names the venue's photos
+              and what the treatment does to them, so the headings read
+              alone as a summary of the page.
   MOTION      Durations and curves from references/motion.md only.
   PHOTOGRAPHY Unsplash, 1600px sources, free licence. Credits in the footer.
 =============================================================================
@@ -62,14 +70,22 @@
   --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
   --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
 
-  /* ---- scale: typography.md ---- */
-  --step-hero: clamp(3.25rem, 11vw, 11rem);
-  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-h3:   clamp(1.375rem, 2.2vw, 2rem);
-  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
-  --step-body: clamp(1rem, 1.05vw, 1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  /* ---- type: references/typographic-hierarchy.md, six roles, 390 -> 1440.
+     The standard block, display at 160px (11.1vw): Instrument Serif is
+     narrow, so the plain eight-word h1 still lands in three lines. ---- */
+  --font-display:"Instrument Serif", Georgia, serif;
+  --font-text:"Instrument Sans", ui-sans-serif, sans-serif;
+  --font-mono:"Geist Mono", ui-monospace, monospace;
+  --display-weight:400;  /* Instrument Serif ships one weight */
+  --t-display:clamp(3.25rem, 0.743rem + 10.286vw, 10rem);     /* 52 -> 160 */
+  --t-title:  clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);         /* 35 -> 56  */
+  --t-heading:clamp(1.625rem, 1.486rem + 0.571vw, 2rem);      /* 26 -> 32  */
+  --t-lead:   clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);   /* 21 -> 24  */
+  --t-body:   clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem); /* 17 -> 18  */
+  --t-small:  0.9375rem;                                      /* 15        */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   /* ---- motion: motion.md ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -79,15 +95,18 @@
 
   /* ---- grid: layout-archetypes.md ---- */
   --gutter: clamp(1.5rem, 4vw, 5rem);
-  --section-y: clamp(5rem, 9vw, 9rem);
+  /* 108px at 1440. Kept tight on purpose: the code samples run at the 15px
+     small role, and the page has to stay a pattern reference, under eight
+     desktop screens. */
+  --section-y: clamp(4.5rem, 7.5vw, 7.5rem);
 }
 
 *,*::before,*::after{ box-sizing:border-box; }
 html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Instrument Sans", ui-sans-serif, sans-serif;
-  font-size:var(--step-body); line-height:1.55; letter-spacing:0;
+  font-family:var(--font-text);
+  font-size:var(--t-body); line-height:var(--lh-body); letter-spacing:0; font-weight:400;
   -webkit-font-smoothing:antialiased;
 }
 /* height:auto is load-bearing. The width/height attributes below are there to
@@ -102,28 +121,20 @@ figure{ margin:0; }
    (here: a code sample) push the whole document past the viewport. */
 .band__head > *, .duo > *, .crops > *, .grainrow > *, .colophon > *{ min-width:0; }
 
-/* ---------- type roles ---------- */
+/* ---------- type roles: one class per role, nothing sized elsewhere ---------- */
 .display{
-  font-family:"Instrument Serif", Georgia, serif;
-  font-weight:400; line-height:0.92; letter-spacing:-0.035em;
+  font-family:var(--font-display); font-weight:var(--display-weight);
   text-wrap:balance; margin:0;
 }
-h1.display{ font-size:var(--step-hero); }
-h2.display{ font-size:var(--step-h2); letter-spacing:-0.02em; line-height:1; }
-h3.display{ font-size:var(--step-h3); letter-spacing:-0.015em; line-height:1.05; }
-.label{
-  font-size:var(--step-label); text-transform:uppercase;
-  letter-spacing:0.14em; font-weight:500; margin:0; color:var(--accent);
-}
-.label--quiet{ color:var(--ink-muted); }
-.lead{ font-size:var(--step-lead); line-height:1.4; max-width:34ch; margin:0; }
-.note{ max-width:58ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
-.note strong{ color:var(--ink); font-weight:500; }
-.cap{
-  font-size:var(--step-small); color:var(--ink-muted); margin:0.75rem 0 0;
-  max-width:44ch;
-}
-.cap b{ color:var(--ink); font-weight:500; }
+h1.display{ font-size:var(--t-display); line-height:var(--lh-display); letter-spacing:var(--tr-display); max-width:14ch; }
+/* every section h2 is the title role: one size for every section */
+h2.display{ font-size:var(--t-title); line-height:var(--lh-title); letter-spacing:var(--tr-title); max-width:20ch; }
+.lead{ font-size:var(--t-lead); line-height:var(--lh-lead); max-width:42ch; margin:0; }
+/* body role: --ink, never the muted grey */
+.note{ max-width:62ch; color:var(--ink); margin:0; text-wrap:pretty; }
+/* small role: captions, meta, nav, credits. Sentence case, 15px, never caps-tracked */
+.small, .cap{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); margin:0; }
+.cap{ margin:0.75rem 0 0; max-width:48ch; text-wrap:pretty; }
 
 /* ---------- 01 · full-bleed frame + scrim ---------- */
 .hero{ position:relative; isolation:isolate; min-height:100vh; overflow:hidden; }
@@ -147,14 +158,13 @@ h3.display{ font-size:var(--step-h3); letter-spacing:-0.015em; line-height:1.05;
   background-image:linear-gradient(to bottom, rgb(0 0 0 / .62) 0%, transparent 100%);
 }
 .hero__bar a{
-  color:var(--ink); text-decoration:none; font-size:var(--step-label);
-  text-transform:uppercase; letter-spacing:0.14em; font-weight:500;
+  color:var(--ink); text-decoration:none;
+  font-size:var(--t-small); line-height:var(--lh-small); font-weight:500;
   display:inline-flex; align-items:center; min-height:44px; padding:0 0.25rem;
   transition:color var(--d-state) var(--ease-out);
 }
 .hero__bar a:hover{ color:var(--accent); }
-.hero__scrim > .label{ margin-bottom:1.5rem; }
-.hero__scrim > h1{ margin-bottom:1.5rem; max-width:12ch; }
+.hero__scrim > h1{ margin-bottom:2rem; }
 .hero__scrim > .lead{ color:var(--ink); }
 
 /* ---------- shared section shell ---------- */
@@ -163,7 +173,7 @@ h3.display{ font-size:var(--step-h3); letter-spacing:-0.015em; line-height:1.05;
   display:grid; grid-template-columns:5fr 7fr; gap:2rem var(--gutter);
   align-items:start; margin-bottom:3rem;
 }
-.band__head > div:first-child > h2{ margin:0.75rem 0 0; }
+.band__head > div:first-child > h2{ margin:0; }
 
 /* ---------- code samples ---------- */
 pre{
@@ -176,8 +186,10 @@ pre{
   max-width:62rem;
 }
 code{
-  font-family:"Geist Mono", ui-monospace, monospace;
-  font-size:0.8125rem; line-height:1.7; color:var(--ink);
+  /* the one mono role, at the small size: code a reader copies is not
+     allowed under 15px any more than a caption is */
+  font-family:var(--font-mono);
+  font-size:var(--t-small); line-height:1.5; color:var(--ink);
   display:block; width:max-content; white-space:pre;
 }
 .c-cm{ color:var(--ink-muted); }
@@ -215,17 +227,18 @@ code{
 /* ---------- colophon + footer ---------- */
 .colophon{ display:grid; grid-template-columns:repeat(3, 1fr); gap:2rem var(--gutter); }
 .colophon dl{ margin:0; }
-.colophon dt{ font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em; font-weight:500; color:var(--ink-muted); }
-.colophon dd{ margin:0.75rem 0 0; font-size:var(--step-body); }
-.colophon dd span{ display:block; color:var(--ink-muted); }
+.colophon dt{ font-size:var(--t-small); line-height:var(--lh-small); font-weight:500; color:var(--ink-muted); }
+.colophon dd{ margin:0.375rem 0 0; font-size:var(--t-body); line-height:var(--lh-body); }
+.colophon dd span{ display:block; margin-top:0.25rem; font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
 .swatches{ display:flex; gap:0.5rem; margin-top:1rem; }
 .colophon dd span.swatches{ color:inherit; }
 .swatches i{ width:2.5rem; height:2.5rem; display:block; border:1px solid var(--edge); }
 
 footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
+footer h3{ font-size:var(--t-small); line-height:var(--lh-small); font-weight:500; color:var(--ink); margin:0; }
 .credits{ display:flex; flex-wrap:wrap; gap:0.5rem 2rem; margin:1.5rem 0 0; padding:0; list-style:none; }
 .credits a{
-  color:var(--ink-muted); font-size:var(--step-small); text-decoration:none;
+  color:var(--ink-muted); font-size:var(--t-small); line-height:var(--lh-small); text-decoration:none;
   border-bottom:1px solid var(--edge);
   display:inline-flex; align-items:center; min-height:44px;
   transition:color var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
@@ -268,7 +281,6 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   .grainrow{ grid-template-columns:1fr; }
   .swatch{ max-width:14rem; }
   .colophon{ grid-template-columns:1fr; }
-  .hero__scrim > h1{ max-width:none; }
   /* art-direct the phone crop rather than inheriting the desktop one:
      at 390 the desktop centre lands on an empty piano lid */
   .hero__img{ object-position:74% 42%; }
@@ -304,11 +316,10 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="hero__scrim">
     <div class="hero__bar">
       <a href="#colophon">The Coal Room</a>
-      <a href="#t01">Picture desk</a>
+      <a href="#t01">How we treat photos</a>
     </div>
-    <p class="label">Bristol · 214 seats · doors 7pm</p>
-    <h1 class="display">Photographs carry the room</h1>
-    <p class="lead">One light source, two stops down, and nothing shot on a white wall.</p>
+    <h1 class="display">Live music in a Bristol room with 214 seats</h1>
+    <p class="lead">The Coal Room opens its doors at 7pm. This page shows how we light, crop and treat every photo of the room, with the CSS for each.</p>
   </div>
 </header>
 
@@ -317,8 +328,8 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="colophon">
       <dl>
-        <dt>Palette</dt>
-        <dd>Night studio<span>color-and-light.md, copied whole</span>
+        <dt>Colours</dt>
+        <dd>Night studio<span>From color-and-light.md, copied whole</span>
           <span class="swatches" aria-hidden="true">
             <i style="background:#0B0B0D"></i><i style="background:#141417"></i>
             <i style="background:#24242A"></i><i style="background:#F4F3F1"></i>
@@ -327,12 +338,12 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
         </dd>
       </dl>
       <dl>
-        <dt>Type</dt>
-        <dd>Instrument Serif + Instrument Sans<span>typography.md pairing 1. Geist Mono sets the code and nothing else.</span></dd>
+        <dt>Typefaces</dt>
+        <dd>Instrument Serif and Instrument Sans<span>Pairing 1 from typography.md. Geist Mono sets the code and nothing else.</span></dd>
       </dl>
       <dl>
         <dt>Photography</dt>
-        <dd>Five frames, one light<span>Every frame is stage light or desk light. No daylight, no second colour temperature.</span></dd>
+        <dd>Five photos under one kind of light<span>Stage lamps or a desk lamp light every photo, so they share one colour temperature.</span></dd>
       </dl>
     </div>
   </div>
@@ -343,15 +354,14 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="band__head">
       <div>
-        <p class="label">Treatment 01</p>
-        <h2 class="display rv-wipe">Gradient scrim</h2>
+        <h2 class="display rv-wipe">A gradient keeps type readable on any stage photo</h2>
       </div>
       <div>
-        <p class="note">The frame above is the finished article. Two gradients do the work: a heavy one rising from the bottom edge under the headline, a light one falling from the top under the masthead. <strong>The photograph is never asked to be dark enough on its own.</strong> Ink is #F4F3F1 rather than pure white, so the words sit inside the picture's tonal range instead of punching a hole in it.</p>
+        <p class="note">The photo at the top of this page shows the result. A heavy gradient rises from the bottom edge under the headline, and a light one falls from the top under the links. The words stay readable when we swap in a brighter photo. The text colour is #F4F3F1, a warm off-white, so the words sit inside the photo's range of tones.</p>
       </div>
     </div>
 
-    <pre class="rv-fade"><code><span class="c-cm">/* the scrim is a layer, not a hope */</span>
+    <pre class="rv-fade"><code><span class="c-cm">/* the scrim is its own layer over the photo */</span>
 .hero__scrim {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -379,11 +389,10 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="band__head">
       <div>
-        <p class="label">Treatment 02</p>
-        <h2 class="display rv-wipe">Duotone</h2>
+        <h2 class="display rv-wipe">A duotone maps each Coal Room photo to two colours</h2>
       </div>
       <div>
-        <p class="note">Stock arrives at four colour temperatures and reads as a collage. A duotone flattens every frame to luminance and then remaps it between two values you already own: <strong>#0B0B0D in the shadows, #E8FF4A in the highlights.</strong> Six photographs treated this way read as one commissioned shoot.</p>
+        <p class="note">Stock photos arrive lit at different colour temperatures, and side by side they look like a collage. A duotone turns each photo to greyscale, then maps the shadows to #0B0B0D and the highlights to #E8FF4A. Photos from five sources then look like one shoot.</p>
       </div>
     </div>
 
@@ -392,13 +401,13 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
         <img alt="Mixing console faders under blue light, untreated"
              src="https://images.unsplash.com/photo-1509335919466-c196457ea95a?w=1600&q=80&auto=format"
              width="1600" height="1067" loading="lazy" decoding="async">
-        <figcaption class="cap"><b>Untreated.</b> Cool tungsten blue that belongs to this frame and no other on the page.</figcaption>
+        <figcaption class="cap">The original photo of the mixing desk, lit a cool blue that no other photo on the page shares.</figcaption>
       </figure>
       <figure class="rv-scale is-duotone">
         <img alt="The same console mapped into the two brand values"
              src="https://images.unsplash.com/photo-1509335919466-c196457ea95a?w=1600&q=80&auto=format"
              width="1600" height="1067" loading="lazy" decoding="async">
-        <figcaption class="cap"><b>Duotone.</b> Same file, mapped into ground and accent. Now it belongs to the site.</figcaption>
+        <figcaption class="cap">The same file after the duotone, in the page's near-black and yellow.</figcaption>
       </figure>
     </div>
 
@@ -434,11 +443,10 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="band__head">
       <div>
-        <p class="label">Treatment 03</p>
-        <h2 class="display rv-wipe">Crop pair</h2>
+        <h2 class="display rv-wipe">We crop players at 4:5 and the room at 16:9</h2>
       </div>
       <div>
-        <p class="note">Two ratios, chosen rather than inherited: 4:5 for a person, 16:9 for a place. The wide frame starts in column 7 and drops 136px below the tall one. <strong>The misalignment is the composition.</strong> Two images at the same height on the same baseline is what a template does; the offset is what makes a reader's eye travel.</p>
+        <p class="note">We pick the ratio for the subject: 4:5 for a person and 16:9 for a place. The wide photo starts in column 7 and sits 136px lower than the tall one. That offset moves your eye from one photo to the other. Two photos on one baseline look like a template.</p>
       </div>
     </div>
 
@@ -447,13 +455,13 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
         <img alt="Bass player resting against his instrument between sets"
              src="https://images.unsplash.com/photo-1710951403141-353d4e5c7cbf?w=1600&q=80&auto=format"
              width="1600" height="1065" loading="lazy" decoding="async">
-        <figcaption class="cap"><b>4:5 · people.</b> Cropped to the shoulders so the frame is about a person, not a stage.</figcaption>
+        <figcaption class="cap">A 4:5 crop to the shoulders keeps the photo about the bass player.</figcaption>
       </figure>
       <figure class="crop--wide rv-scale">
         <img alt="A wall of illuminated VU meters on a recording console"
              src="https://images.unsplash.com/photo-1581618048889-8a9c8d4be95d?w=1600&q=80&auto=format"
              width="1600" height="1067" loading="lazy" decoding="async">
-        <figcaption class="cap"><b>16:9 · place.</b> Dropped 136px so the pair reads as a spread rather than a row.</figcaption>
+        <figcaption class="cap">A 16:9 crop of the console, set 136px lower so the pair reads as a magazine spread.</figcaption>
       </figure>
     </div>
 
@@ -465,7 +473,7 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
                   object-fit: cover;
                   object-position: <span class="c-v">52% 38%</span>; }
 
-<span class="c-cm">/* column 7, not column 6, and pushed down a whole step */</span>
+<span class="c-cm">/* start at column 7 and push it down a whole step */</span>
 .crop--wide{ grid-column: 7 / span 6;
              margin-top: clamp(3rem, 9vw, 8.5rem); }
 .crop--wide img { aspect-ratio: <span class="c-v">16/9</span>;
@@ -485,11 +493,10 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="band__head">
       <div>
-        <p class="label">Treatment 04</p>
-        <h2 class="display rv-wipe">Grain</h2>
+        <h2 class="display rv-wipe">Grain at 6% hides the banding in dark stage shadows</h2>
       </div>
       <div>
-        <p class="note">One SVG turbulence tile, no network request, laid over the photograph at 6% with <strong>mix-blend-mode: overlay</strong>. It hides JPEG blocking in the shadows and pulls compressed stock back toward film. Pick one surface texture for a site and hold it: grain or a hairline grid or a vignette, never all three.</p>
+        <p class="note">One SVG noise tile sits over the photo at 6% opacity with mix-blend-mode: overlay, and it loads nothing over the network. It hides the JPEG blocks in dark areas and makes compressed stock look closer to film. Pick one texture for a site and keep it: grain, a hairline grid or a vignette.</p>
       </div>
     </div>
 
@@ -498,11 +505,11 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
         <img alt="Double bass and drum kit waiting on an empty stage"
              src="https://images.unsplash.com/photo-1720764511354-84e463d70b2b?w=1600&q=80&auto=format"
              width="1600" height="1067" loading="lazy" decoding="async">
-        <figcaption class="cap"><b>Grained at 6%.</b> Look at the shadow under the bass: the banding is gone.</figcaption>
+        <figcaption class="cap">The empty stage with grain at 6%. The shadow under the bass no longer shows bands.</figcaption>
       </figure>
       <figure class="rv-scale">
         <div class="swatch"></div>
-        <figcaption class="cap"><b>The tile at 100%.</b> 140 x 140, fractalNoise, three octaves. It repeats, and at 6% nobody sees the repeat.</figcaption>
+        <figcaption class="cap">The noise tile at full strength: 140 × 140 pixels, fractalNoise, three octaves. At 6% nobody sees it repeat.</figcaption>
       </figure>
     </div>
 
@@ -526,14 +533,14 @@ baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E\
 
 <footer>
   <div class="wrap">
-    <p class="label label--quiet">Frames</p>
-    <p class="note" style="margin-top:1rem">All five photographs are Unsplash, free licence, credited anyway. Sources load at 1600px and never render wider than that.</p>
+    <h3>Photo credits</h3>
+    <p class="note" style="margin-top:0.5rem">All five photos come from Unsplash under its free licence, and we credit them anyway. Each loads at 1600px wide and never displays wider.</p>
     <ul class="credits">
       <li><a href="https://unsplash.com/photos/1710951403281-93d866a223cd">Stage, piano and bass</a></li>
       <li><a href="https://unsplash.com/photos/1509335919466-c196457ea95a">Console faders</a></li>
       <li><a href="https://unsplash.com/photos/1710951403141-353d4e5c7cbf">Bass player</a></li>
       <li><a href="https://unsplash.com/photos/1581618048889-8a9c8d4be95d">VU meters</a></li>
-      <li><a href="https://unsplash.com/photos/1720764511354-84e463d70b2b">Empty stage</a></li>
+      <li><a href="https://unsplash.com/photos/1720764511354-84e463d70b2b">Empty stage with bass and drums</a></li>
     </ul>
   </div>
 </footer>
@@ -548,16 +555,26 @@ baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E\
   if (reduced || !('IntersectionObserver' in window)) return;
   document.documentElement.classList.add('js');
 
+  /* A wipe starts at clip-path: inset(0 0 100% 0), and Chrome measures an
+     observed element's intersection AFTER its own clip-path. Observed
+     directly, a wiped heading has zero visible area, never reaches the 15%
+     threshold, and never appears. So a wipe is triggered by its parent,
+     which is never clipped. */
+  var targets = new Map();
+  document.querySelectorAll('.rv-wipe, .rv-scale, .rv-fade').forEach(function (el) {
+    var trigger = el.classList.contains('rv-wipe') ? el.parentElement : el;
+    targets.set(trigger, (targets.get(trigger) || []).concat(el));
+  });
+
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (e) {
       if (!e.isIntersecting) return;
-      e.target.classList.add('is-in');
+      (targets.get(e.target) || []).forEach(function (el) { el.classList.add('is-in'); });
       io.unobserve(e.target);
     });
   }, { rootMargin: '0px 0px -12% 0px', threshold: 0.15 });
 
-  document.querySelectorAll('.rv-wipe, .rv-scale, .rv-fade')
-    .forEach(function (el) { io.observe(el); });
+  targets.forEach(function (_, trigger) { io.observe(trigger); });
 })();
 </script>
 </body>

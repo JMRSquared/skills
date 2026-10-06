@@ -225,13 +225,12 @@ each one against your build before claiming done.
   is: the transform is monotonic and real. Nothing measures whether the frame is
   empty, so screenshot the stage at 25%, 50% and 75% of the pin and look at it.
 
-**Cursor-driven previews**
-- Percentage margins on a `position: fixed` element resolve against the viewport
-  **width on both axes**. `margin-inline-start: -50%; margin-block-start: -52%`
-  parked one preview 720px left and 749px above the pointer — tracking it
-  perfectly, permanently off-screen. Use `transform: translate(-50%, -50%)`.
-  The auditor now requires the preview to land within half a viewport of the
-  pointer, and reports the miss under `technique-near-miss` when it does not.
+**Cursor-driven image previews are banned**, at every tier. No images that
+appear on hover or follow the cursor; show imagery in the layout. The auditor
+reports a cursor follower carrying an image as FAIL `hover-image`. A plain custom
+cursor is still allowed: percentage margins on a `position: fixed` element
+resolve against the viewport **width on both axes**, so centre it with
+`transform: translate(-50%, -50%)`, never with negative percentage margins.
 
 **React Three Fiber**
 - Canvas with no explicit height → 0px tall, or stretched to a wrong aspect.

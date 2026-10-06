@@ -35,10 +35,14 @@ export function App() {
 }
 
 /**
- * Chapter counter and act dots.
+ * Act label and act dots.
  *
  * `useActiveAct` is the only React subscription to scroll on the page. It fires
  * four times across the whole document, not sixty times a second.
+ *
+ * The label names the step in words ("The tape lifts out"). The dots already
+ * show position, so a "01 / 04" counter would be a numbered label saying the
+ * same thing in a form nobody reads (references/typographic-hierarchy.md, R6).
  */
 function ChapterHud() {
   const activeAct = useActiveAct();
@@ -48,10 +52,7 @@ function ChapterHud() {
   return (
     <>
       <div className="hud">
-        <span className="hud__index">{pad(index + 1)}</span>
-        <span className="hud__slash">/</span>
-        <span>{pad(ACT_ORDER.length)}</span>
-        <span className="hud__label">{entry.eyebrow}</span>
+        <span className="hud__label">{entry.label}</span>
       </div>
 
       <div className="dots">
@@ -63,4 +64,3 @@ function ChapterHud() {
   );
 }
 
-const pad = (value: number) => String(value).padStart(2, "0");

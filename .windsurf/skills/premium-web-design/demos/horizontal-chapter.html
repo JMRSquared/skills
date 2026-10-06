@@ -4,7 +4,7 @@
 <!-- premium-web-design: tier=B kind=demo -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Grindale Malt · four rooms</title>
+<title>Grindale Malt | Malt whisky distillery and tours, Bridlington</title>
 
 <!--
 =============================================================================
@@ -40,6 +40,13 @@
               --ink #F2EFE9    --ink-muted #9AA1AC --accent #C89B4A
   TYPE        Pairing 9, references/typography.md, verbatim:
               Libre Caslon Display (display) + Karla (body).
+              Sizes from references/typographic-hierarchy.md: the six role
+              tokens (--t-display .. --t-small). Every text element maps to
+              one role. No caps labels, no numbered chapter labels, nothing a
+              reader needs under 15px. Display retuned to 112px at 1440.
+  COPY        references/no-slop.md: every heading names the barley, the
+              stills, the casks or the tour, so the headings read alone as a
+              summary of the distillery.
   MOTION      Durations and curves from references/motion.md only.
               scrub: 0.8, inside the 0.6-1.2 band that reference specifies.
   LIBRARY     GSAP 3.12.5 + ScrollTrigger, cdnjs, both verified 200.
@@ -57,14 +64,22 @@
   --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
   --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
 
-  /* ---- scale: typography.md ---- */
-  --step-hero: clamp(3.25rem, 11vw, 11rem);
-  --step-h1:   clamp(2.5rem, 6.5vw, 6rem);
-  --step-h2:   clamp(1.875rem, 3.6vw, 3.25rem);
-  --step-lead: clamp(1.125rem, 1.5vw, 1.5rem);
-  --step-body: clamp(1rem, 1.05vw, 1.125rem);
-  --step-small:0.9375rem;
-  --step-label:0.75rem;
+  /* ---- type: references/typographic-hierarchy.md, six roles, 390 -> 1440.
+     Display retuned to 112px (7.8vw) so the plain seven-word headline lands
+     in three lines inside the hero's text column; every other role is the
+     standard block, unchanged. ---- */
+  --font-display:"Libre Caslon Display", Georgia, serif;
+  --font-text:"Karla", ui-sans-serif, sans-serif;
+  --display-weight:400;  /* Libre Caslon Display ships one weight */
+  --t-display:clamp(3.25rem, 1.857rem + 5.714vw, 7rem);       /* 52 -> 112 */
+  --t-title:  clamp(2.1875rem, 1.7rem + 2vw, 3.5rem);         /* 35 -> 56  */
+  --t-heading:clamp(1.625rem, 1.486rem + 0.571vw, 2rem);      /* 26 -> 32  */
+  --t-lead:   clamp(1.3125rem, 1.243rem + 0.286vw, 1.5rem);   /* 21 -> 24  */
+  --t-body:   clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem); /* 17 -> 18  */
+  --t-small:  0.9375rem;                                      /* 15        */
+  --lh-display:.92; --lh-title:1.04; --lh-heading:1.18;
+  --lh-lead:1.4;    --lh-body:1.55;  --lh-small:1.5;
+  --tr-display:-.04em; --tr-title:-.025em; --tr-heading:-.012em;
 
   /* ---- motion: motion.md ---- */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -82,8 +97,8 @@
 html{ -webkit-text-size-adjust:100%; }
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"Karla", ui-sans-serif, sans-serif;
-  font-size:var(--step-body); line-height:1.55;
+  font-family:var(--font-text); font-weight:400;
+  font-size:var(--t-body); line-height:var(--lh-body);
   -webkit-font-smoothing:antialiased;
 }
 /* height:auto stops the width/height attributes landing as a presentational
@@ -92,39 +107,43 @@ img{ display:block; max-width:100%; height:auto; }
 .wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
 .wrap > *{ min-width:0; }
 
-/* ---------- type roles ---------- */
+/* ---------- type roles: references/typographic-hierarchy.md ---------- */
 .display{
-  font-family:"Libre Caslon Display", Georgia, serif; font-weight:400;
-  line-height:0.94; letter-spacing:-0.03em; text-wrap:balance; margin:0;
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-display); line-height:var(--lh-display);
+  letter-spacing:var(--tr-display); text-wrap:balance; margin:0;
 }
-h1.display{ font-size:var(--step-hero); }
-h2.display{ font-size:var(--step-h1); line-height:0.96; letter-spacing:-0.025em; }
-h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
-.label{
-  font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em;
-  font-weight:500; margin:0; color:var(--accent);
+/* every h2 on the page is the title role: one size for every section */
+.title{
+  font-family:var(--font-display); font-weight:var(--display-weight);
+  font-size:var(--t-title); line-height:var(--lh-title);
+  letter-spacing:var(--tr-title); text-wrap:balance; max-width:20ch; margin:0;
 }
-.label--quiet{ color:var(--ink-muted); }
-.lead{ font-size:var(--step-lead); line-height:1.42; max-width:32ch; margin:0; }
-.note{ max-width:44ch; color:var(--ink-muted); margin:0; text-wrap:pretty; }
+.lead{ font-size:var(--t-lead); line-height:var(--lh-lead); max-width:40ch; margin:0; }
+.body{ max-width:44ch; color:var(--ink); margin:0; text-wrap:pretty; }
+/* small role: meta, captions, rail names, credits. Sentence case, 15px */
+.small{
+  font-size:var(--t-small); line-height:var(--lh-small);
+  color:var(--ink-muted); margin:0; max-width:60ch; text-wrap:pretty;
+}
 .tabular{ font-variant-numeric:tabular-nums; }
 
 /* ---------- hero ---------- */
 .hero{ padding:clamp(6rem, 12vw, 11rem) 0 var(--section-y); }
 .hero__grid{ display:grid; grid-template-columns:7fr 5fr; gap:3rem var(--gutter); align-items:end; }
 .hero__grid > *{ min-width:0; }
-.hero h1{ margin:1.5rem 0 2rem; }
+.hero h1{ margin:0 0 2rem; max-width:14ch; }
 .hero__meta{ display:flex; flex-wrap:wrap; gap:0.75rem 2.5rem; margin:2.5rem 0 0; padding:0; list-style:none; }
-.hero__meta li{ font-size:var(--step-small); color:var(--ink-muted); }
-.hero__meta b{ color:var(--ink); font-weight:500; }
+.hero__meta li{ font-size:var(--t-small); line-height:var(--lh-small); color:var(--ink-muted); }
 .hero__meta a{
-  color:var(--accent); text-decoration:none; border-bottom:1px solid var(--edge);
+  color:var(--accent); font-weight:500; text-decoration:none; border-bottom:1px solid var(--edge);
   display:inline-flex; align-items:center; min-height:44px;
   transition:border-color var(--d-state) var(--ease-out);
 }
 .hero__meta a:hover{ border-color:var(--accent); }
+.hero__fig{ margin:0; }
 .hero__fig img{ width:100%; aspect-ratio:4/5; object-fit:cover; object-position:50% 44%; }
-.hero__fig figcaption{ margin-top:1rem; font-size:var(--step-small); color:var(--ink-muted); }
+.hero__fig figcaption{ margin-top:1rem; }
 
 /* =====================================================================
    GUARD 1: the clip lives here, on a wrapper, and it is `clip` not
@@ -171,13 +190,8 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
   background-image:linear-gradient(to top,
     rgb(8 9 11 / .88) 0%, rgb(8 9 11 / .42) 44%, rgb(8 9 11 / .10) 74%);
 }
-.panel__scrim > .label{ margin-bottom:1rem; }
-.panel__scrim > h2{ margin-bottom:1.25rem; }
-.panel__scrim > .note{ color:var(--ink); }
-.panel__scrim > .spec{
-  margin:1.5rem 0 0; font-size:var(--step-small); color:var(--accent);
-  letter-spacing:0.06em; text-transform:uppercase;
-}
+.panel__scrim > h2{ margin-bottom:1.5rem; }
+.panel__scrim > .spec{ margin:1.5rem 0 0; color:var(--accent); }
 
 /* ---------- the horizontal composition, added by JS only ---------- */
 /* GUARD 3: the pinned element clips its own track. Clipping on the pinned
@@ -212,8 +226,8 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
   transition:transform var(--d-state) var(--ease-move);
 }
 .rail__name{
-  display:block; margin-top:0.75rem; font-size:var(--step-label);
-  text-transform:uppercase; letter-spacing:0.14em; font-weight:500;
+  display:block; margin-top:0.75rem; font-size:var(--t-small);
+  line-height:var(--lh-small); font-weight:500;
   color:var(--ink-muted); transition:color var(--d-state) var(--ease-out);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
@@ -224,8 +238,9 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
 .visit{ display:grid; grid-template-columns:5fr 7fr; gap:2.5rem var(--gutter); }
 .visit > *{ min-width:0; }
 .facts{ margin:0; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:2rem var(--gutter); }
-.facts dt{ font-size:var(--step-label); text-transform:uppercase; letter-spacing:0.14em; font-weight:500; color:var(--ink-muted); }
-.facts dd{ margin:0.5rem 0 0; font-size:var(--step-lead); line-height:1.3; }
+.visit h2{ margin:0 0 1.5rem; }
+.facts dt{ font-size:var(--t-small); line-height:var(--lh-small); font-weight:500; color:var(--ink-muted); }
+.facts dd{ margin:0.5rem 0 0; font-size:var(--t-lead); line-height:var(--lh-lead); }
 .facts a{
   color:var(--ink); text-decoration:none; border-bottom:1px solid var(--accent);
   display:inline-flex; align-items:center; min-height:44px;
@@ -236,7 +251,7 @@ h3.display{ font-size:var(--step-h2); letter-spacing:-0.02em; }
 footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
 .credits{ display:flex; flex-wrap:wrap; gap:0.5rem 2rem; margin:1.5rem 0 0; padding:0; list-style:none; }
 .credits a{
-  color:var(--ink-muted); font-size:var(--step-small); text-decoration:none;
+  color:var(--ink-muted); font-size:var(--t-small); text-decoration:none;
   border-bottom:1px solid var(--edge);
   display:inline-flex; align-items:center; min-height:44px;
   transition:color var(--d-state) var(--ease-out), border-color var(--d-state) var(--ease-out);
@@ -245,7 +260,7 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
 
 .pin-warning{
   margin:0; padding:1rem var(--gutter); background:var(--accent); color:#12151A;
-  font-size:var(--step-small); font-weight:500;
+  font-size:var(--t-small); line-height:var(--lh-small); font-weight:500;
 }
 
 /* ---------- scroll reveal: visible state is the default ---------- */
@@ -280,27 +295,26 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="hero__grid">
       <div>
-        <p class="label">Grindale, North Yorkshire &middot; since 1968</p>
-        <h1 class="display">Four rooms, one spirit</h1>
-        <p class="lead">The whole distillery is four rooms in a row. Walk them the way the barley does, left to right.</p>
+        <h1 class="display">Malt whisky distilled in Grindale since 1968</h1>
+        <p class="lead">The distillery is four rooms in a row, from the mash house to the warehouse. A tour takes you through them in the order the barley moves.</p>
         <ul class="hero__meta">
-          <li><b>Tours</b> Thursday to Sunday</li>
-          <li><b>&pound;18</b> refunded against a bottle</li>
-          <li><a href="tel:+441262774318">01262 774 318</a></li>
+          <li>Tours Thursday to Sunday, 11am and 2pm</li>
+          <li>&pound;18 a head, refunded when you buy a bottle</li>
+          <li><a href="tel:+441262774318">Call 01262 774 318 to book</a></li>
         </ul>
       </div>
       <figure class="hero__fig">
         <img alt="A long warm-lit distillery hall with two figures walking away"
              src="https://images.unsplash.com/photo-1674301927403-870c370ef75f?w=1600&q=80&auto=format"
              width="1600" height="1067" fetchpriority="high" decoding="async">
-        <figcaption>The long hall, 6.40am. The only frame all year with nobody working in it.</figcaption>
+        <figcaption class="small">The long hall at 6.40am. This is our only photograph of it with nobody at work.</figcaption>
       </figure>
     </div>
   </div>
 </header>
 
 <div class="chapters-wrap">
-  <section class="stage" id="chapters" aria-label="Four rooms of the distillery">
+  <section class="stage" id="chapters" aria-label="The four rooms of the distillery">
     <div class="track" id="track">
 
       <article class="panel">
@@ -308,10 +322,9 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
              src="https://images.unsplash.com/photo-1542835497-a6813df96ed9?w=1600&q=80&auto=format"
              width="1600" height="1067" decoding="async">
         <div class="panel__scrim">
-          <p class="label">Chapter 01</p>
-          <h2 class="display">Mash house</h2>
-          <p class="note">Ten tonnes of Yorkshire barley a week, mashed at 64&deg;C in a cast-iron tun that has not moved since 1968. Three waters, and the third one starts the next batch.</p>
-          <p class="spec tabular">64&deg;C &middot; 10 t / week</p>
+          <h2 class="title">We mash ten tonnes of Yorkshire barley a week</h2>
+          <p class="body">We mash it at 64&deg;C in a cast-iron tun that has stood in the same spot since 1968. Three waters run through each batch, and the third one starts the next batch.</p>
+          <p class="small spec tabular">Mash house: 64&deg;C, 10 tonnes a week</p>
         </div>
       </article>
 
@@ -320,10 +333,9 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
              src="https://images.unsplash.com/photo-1445140463371-d8036feedc2f?w=1600&q=80&auto=format"
              width="1600" height="1065" decoding="async">
         <div class="panel__scrim">
-          <p class="label">Chapter 02</p>
-          <h2 class="display">Still room</h2>
-          <p class="note">Two stills, 4,500 and 2,700 litres. The wash still runs eight hours. The spirit still is watched by one person for the whole of it, because nobody has found a meter that beats a nose.</p>
-          <p class="spec tabular">4,500 L &middot; 8 hours</p>
+          <h2 class="title">One person watches every run through our two stills</h2>
+          <p class="body">The wash still holds 4,500 litres and runs for eight hours. The spirit still holds 2,700 litres, and one person watches it for the whole run. Nobody has found a meter that beats a nose.</p>
+          <p class="small spec tabular">Still room: 4,500 and 2,700 litres, eight-hour runs</p>
         </div>
       </article>
 
@@ -332,10 +344,9 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
              src="https://images.unsplash.com/photo-1577768731352-653895d00fe8?w=1600&q=80&auto=format"
              width="1600" height="1067" decoding="async">
         <div class="panel__scrim">
-          <p class="label">Chapter 03</p>
-          <h2 class="display">Filling store</h2>
-          <p class="note">Casks arrive by the lorry-load and leave one at a time. First-fill bourbon for the ten year old, refill sherry for the rest. Every one is weighed empty and weighed again full.</p>
-          <p class="spec tabular">200 L &middot; first fill</p>
+          <h2 class="title">We weigh every cask before and after we fill it</h2>
+          <p class="body">Casks arrive by the lorry-load and leave one at a time. The ten-year-old goes into first-fill bourbon casks, and the rest goes into refill sherry casks.</p>
+          <p class="small spec tabular">Filling store: 200-litre casks, first fill for the ten-year-old</p>
         </div>
       </article>
 
@@ -344,10 +355,9 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
              src="https://images.unsplash.com/photo-1758558531900-8e4e756be374?w=1600&q=80&auto=format"
              width="1600" height="1067" decoding="async">
         <div class="panel__scrim">
-          <p class="label">Chapter 04</p>
-          <h2 class="display">Warehouse No.&nbsp;3</h2>
-          <p class="note">Dunnage floor, casks three high, no heating and no racking. It gives 2.1% a year back to the roof. That loss is not waste, it is the reason the ninth year tastes different from the third.</p>
-          <p class="spec tabular">2.1% / year &middot; 1,140 casks</p>
+          <h2 class="title">Our whisky ages in 1,140 casks in Warehouse No.&nbsp;3</h2>
+          <p class="body">The casks sit three high on an earth floor, with no heating and no racks. About 2.1% of the spirit escapes through the roof each year. That slow loss is why a nine-year-old tastes different from a three-year-old.</p>
+          <p class="small spec tabular">Warehouse No.&nbsp;3: 1,140 casks, 2.1% lost each year</p>
         </div>
       </article>
 
@@ -366,14 +376,13 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   <div class="wrap">
     <div class="visit">
       <div>
-        <p class="label">Visiting</p>
-        <h3 class="display rv" style="margin-top:1rem">Twelve people at a time, no more</h3>
+        <h2 class="title rv">Distillery tours take twelve people at a time</h2>
       </div>
       <dl class="facts rv">
-        <div><dt>Times</dt><dd>Thursday to Sunday, 11am and 2pm</dd></div>
-        <div><dt>Price</dt><dd class="tabular">&pound;18, refunded against a bottle</dd></div>
-        <div><dt>Where</dt><dd>Grindale Lane, Bridlington YO16 4XN</dd></div>
-        <div><dt>Book</dt><dd><a href="tel:+441262774318" class="tabular">01262 774 318</a></dd></div>
+        <div><dt>Tour times</dt><dd>Thursday to Sunday, 11am and 2pm</dd></div>
+        <div><dt>Price</dt><dd class="tabular">&pound;18, refunded when you buy a bottle</dd></div>
+        <div><dt>Address</dt><dd>Grindale Lane, Bridlington YO16 4XN</dd></div>
+        <div><dt>Book a tour</dt><dd><a href="tel:+441262774318" class="tabular">Call 01262 774 318</a></dd></div>
       </dl>
     </div>
   </div>
@@ -381,8 +390,7 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
 
 <footer>
   <div class="wrap">
-    <p class="label label--quiet">Frames</p>
-    <p class="note rv" style="margin-top:1rem">Five photographs, one warm tungsten light, all Unsplash under the free licence and credited anyway.</p>
+    <p class="small">The five photographs come from Unsplash under its free licence. We credit each one here.</p>
     <ul class="credits">
       <li><a href="https://unsplash.com/photos/1674301927403-870c370ef75f">The long hall</a></li>
       <li><a href="https://unsplash.com/photos/1542835497-a6813df96ed9">Mash tun</a></li>

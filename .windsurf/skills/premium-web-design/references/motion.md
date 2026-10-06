@@ -320,16 +320,22 @@ Three per page, not thirty. Each one must:
 3. Have a still composition that works with motion removed
 
 Types that carry weight: a scrubbed sequence tied to a real object, a pinned
-chapter stage, a masked type reveal at display scale, a cursor-driven image
-preview on an index list, a horizontal chapter, a load sequence that resolves
-into the hero.
+chapter stage, a masked type reveal at display scale, a horizontal chapter, a
+load sequence that resolves into the hero.
 
 Types that do not: fade-ups, card hovers, parallax on a decorative blob,
 particles with no relationship to the product, a counter animation.
 
+Banned outright: **no images that appear on hover or follow the cursor; show
+imagery in the layout.** A cursor preview on an index list hides the
+photographs from every phone, every keyboard user and every reader who does not
+happen to rest the mouse on a row. Put the image in the row.
+
 ## Cursor and hover on desktop
 
-Custom cursors are a signature or a liability. If you build one:
+Custom cursors are a signature or a liability. A custom cursor never carries an
+image, a photograph or a preview: that is the hover-image ban above, and the
+auditor reports it as FAIL `hover-image`. If you build one:
 - Keep the native cursor's affordance legible (it must still say "clickable")
 - Use `pointer: fine` media query to disable entirely on touch
 - **Declare the `pointer: coarse` block after your width breakpoints.** Media

@@ -14,12 +14,14 @@ follows from.
 ```
 ┌──────────────────────────────────────┐
 │  ▓▓▓▓▓▓▓ image / video / 3D ▓▓▓▓▓▓▓  │  100vh, no chrome
-│        ONE WORD OR FIVE              │  hero type 10–14vw, bottom-left
-│  ─────────────────────────────────   │
+│  A plain statement of what you sell  │  display role, 6–14vw,
+│  ─────────────────────────────────   │  2–3 lines, bottom-left
 ├──────────────────────────────────────┤
-│  chapter 01   │  standfirst copy     │  asymmetric 1:2
+│  section title │  standfirst copy    │  asymmetric 1:2
 ```
-For brands where the product is a feeling. Needs one exceptional image.
+For brands where the product is a feeling. Needs one exceptional image. The
+headline still says what is sold and where (`no-slop.md`): a feeling is what the
+image carries, not the words.
 
 ### B. Editorial split
 ```
@@ -51,13 +53,15 @@ a vertical version of the same content.
 ### E. Index / directory
 ```
 ┌──────────────────────────────────────┐
-│  01  SERVICE NAME        £45    →     │  full-width rows,
+│  [photo] Boiler repair    £45   →     │  full-width rows,
 │  ────────────────────────────────     │  hairline rules,
-│  02  SERVICE NAME        £60    →     │  image on hover
+│  [photo] Bathroom refit   £60   →     │  photo inline per row
 ```
-The best replacement for a card grid. Rows, numbers, hairlines, price on the
-right, a preview image that follows the cursor. Amrit Palace and most menu-led
-award sites are variations of this.
+The best replacement for a card grid. Rows, hairlines, the service name in the
+heading role, price on the right, and a photograph inline in each row, visible
+at rest at every width.
+Never an image that appears on hover or follows the cursor. Amrit Palace and
+most menu-led award sites are variations of this. `demos/index-list.html`.
 
 ### F. Poster stack
 ```
@@ -85,13 +89,13 @@ count them yourself before you claim the rule.
 
 | Instead of | Build |
 |---|---|
-| 3 feature cards | Three full-width rows: oversized number, headline on the left axis, one line of copy, hairline between |
-| Testimonial cards | One quote at 3–4vw, attributed small, alone on a ground shift |
+| 3 feature cards | Three full-width rows: a heading that states the feature in a sentence on the left axis, one line of copy, hairline between |
+| Testimonial cards | One quote in the title role, attributed in the small role, alone on a ground shift |
 | Team card grid | Full-bleed portrait strip, names as a horizontally-scrolled index below |
 | Pricing cards | A table with real typographic hierarchy, or one recommended plan large and the others as rows |
 | Icon + title + text ×6 | An index list (archetype E), or two large images with copy set against them |
 | Logo cloud | A single line of marks at low opacity, or one sentence naming clients |
-| Stat cards | Four numbers at 6vw on one line, labels beneath in the label style |
+| Stat cards | Four numbers in the title role on one line, each with a body-size line beneath saying what it counts ("weeks from your order to the finished knife"), sentence case |
 
 Cards are not banned because cards are evil. They are banned because they are
 what an agent reaches for when it has not decided what matters, and a grid of
