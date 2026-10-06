@@ -1,12 +1,12 @@
 # Parallel build protocol
 
-Reference for step 6 of `/agents-execute`: landing a task graph of tickets on one **integration branch** with parallel implementers. Adapted from `/implement-spec` in `mattpocock/skills`; when that skill is installed, its steps apply too, and this file covers the gaps its users hit.
+Reference for step 6 of `/agents-execute`: landing a task graph of tickets on one **integration branch** with parallel implementers. Adapted from `/implement-spec` in `mattpocock/skills`; when that skill is installed, its steps apply too. This file covers the gaps its users hit.
 
 ## Integration branch
 
 Create it once from the mission's base: `agents-execute/<mission-slug>`. Every ticket lands here; nothing lands on the base branch until close-out.
 
-Open a draft PR only when the tracker closes work through PRs or the mission includes landing a PR, and only after the first merge (a branch with no commits ahead of base can't open one). Otherwise the run ends on the integration branch, which works fully offline.
+Open a draft PR only when the tracker closes work through PRs or the mission includes landing a PR. Open it only after the first merge (a branch with no commits ahead of base can't open one). Otherwise the run ends on the integration branch, which works fully offline.
 
 ## Frontier
 
@@ -16,7 +16,7 @@ Compute the frontier from what has merged into the integration branch, tracked b
 
 Each implementer subagent gets one ticket and these pointers: the spec, its ticket, `notes/`, the integration branch name. It:
 
-1. Works in its own git worktree on branch `agents-execute/<mission-slug>/<ticket-slug>`, and confirms that branch is based on the integration branch tip before starting (reset onto it if not).
+1. Works in its own git worktree on branch `agents-execute/<mission-slug>/<ticket-slug>`. It confirms that branch is based on the integration branch tip before starting (reset onto it if not).
 2. Builds the ticket with `tdd`: a failing test at the named seam first, then the code that turns it green, one slice at a time.
 3. Runs typecheck and the ticket's test files as it goes, then the full suite once.
 4. Merges the integration branch tip into its own branch and reruns the suite, so landing is a fast-forward.
@@ -32,7 +32,7 @@ Worktrees postpone collisions to merge time; they don't remove them. Two impleme
 
 ## Untracked material
 
-A worktree holds only what git tracks. Tests that read gitignored fixtures, local databases, `.env` files or credentials can skip silently there and report green. For a ticket whose verification depends on untracked material, run that ticket's verification in the main checkout, and treat any skipped test as a failure.
+A worktree holds only what git tracks. Tests that read gitignored fixtures, local databases, `.env` files or credentials can skip silently there and report green. For a ticket whose verification depends on untracked material, run that ticket's verification in the main checkout. Treat any skipped test as a failure.
 
 ## Cleanup
 
