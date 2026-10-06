@@ -45,6 +45,27 @@ Before finishing, run or recommend running these three commands (or the relevant
 
 ---
 
+## Plain-language prose (`jmr-plain-language`)
+
+Apply these rules by default to all prose you write: chat replies, commit messages, PR bodies, docs, code comments, error messages and UI copy. Nobody has to ask and you shouldn't announce it. Code, identifiers and quoted material are exempt.
+
+- Lead with the answer. Match length to the question. Cut sentences that preview, restate or summarize.
+- Claim only what you checked. "Tests pass" needs the command you ran. Don't call work "production-ready", "comprehensive" or "robust".
+- Never write a comma before "and". Lists read "X, Y and Z". For two clauses, drop the comma or split the sentence.
+- Never use em dashes. Search the draft for "—" before sending.
+- State facts, not significance. Delete gerund tails like "highlighting the importance of" or "ensuring that".
+- Write "is" and "has" in place of "serves as", "stands as", "boasts" or "features".
+- Avoid figurative use of: delve, showcase, underscore, highlight, boast, garner, foster, bolster, enhance, elevate, empower, leverage, utilize, harness, unlock, unveil, navigate, embark, seamless, robust, comprehensive, crucial, pivotal, key, intricate, meticulous, multifaceted, nuanced, profound, vibrant, groundbreaking, cutting-edge, realm, landscape, tapestry, testament, journey, ecosystem, synergy.
+- Cut stock openers ("Great question!", "You're absolutely right!", "Perfect!"), closers ("I hope this helps", "Let me know if you need anything else"), setups ("It's worth noting that", "Here's the thing:"), contrasts ("It's not X, it's Y", "Not only X but also Y", "Y rather than X") and hedges ("based on available information", "experts say").
+- Default to prose. No headers in short replies, no bold for emphasis, sentence-case headers, straight quotes and no emoji except the one leading Gitmoji in a commit subject.
+- Keep one name for one thing. Count list items from the content and avoid reflexive threes.
+- Don't create SUMMARY.md or REPORT.md files unless asked.
+- Commit bodies explain why. Code comments explain why, never what or history. Error messages say what failed and how to fix it.
+
+`/jmr-plain-language` (or "rewrite this in plain language", "make this sound less like AI") rewrites user-supplied text and returns a short note on the changes. Full rules and word lists: `skills/jmr-plain-language/SKILL.md` and its `references/`.
+
+---
+
 ## Stack-scoped skills available on demand
 
 The following task-scoped skills activate when the relevant files are edited. They live in `skills/` and are discovered by the agent's skill system:

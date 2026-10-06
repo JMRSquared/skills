@@ -9,6 +9,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 - `jmr-standing-rules` — no silent deploy; maintain worktree context; confirm before merge.
 - `jmr-build-test-lint-gate` — `yarn build && yarn test && yarn lint:fix` before "done".
+- `jmr-plain-language`: plain-language prose everywhere; no puffery words, em dashes, or sycophantic openers.
 
 **Tier 2 — description-activated (task-scoped):**
 
@@ -37,6 +38,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
+- `jmr-plain-language`: `/jmr-plain-language` rewrites user-supplied text in plain language (also Tier 1).
 - `premium-web-design` — `/premium-web-design` — premium interactive website design (also Tier 2).
 - `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission. Spec → tickets → parallel build on one integration branch → one review; follows `/to-spec`, `/to-tickets`, `/implement-spec` (mattpocock/skills) when installed.
 - `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
@@ -49,6 +51,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-help` — this card.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
 - `/jmr-review` — review current branch / staged diff.
+- `/jmr-plain-language`: rewrite pasted text in plain language.
 - `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute` — hand off a mission for fully autonomous execution.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
