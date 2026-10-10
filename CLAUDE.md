@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `jmr-plain-language`, a new tier-1 plain-language rule for all agent prose (plus `/jmr-plain-language` rewrite mode). Canonical edits in `skills/` only.
+- **Notes:** Shipping `jmr-generate-video` (alias `/generate-video`), a local narrated promo-video skill that wraps brag pinned to an audited commit. Canonical edits in `skills/` only.
 
 ## Purpose
 

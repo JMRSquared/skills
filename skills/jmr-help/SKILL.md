@@ -33,6 +33,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `pngimg-assets` — pngimg.com transparent PNG search/download with CC BY-NC gate; `/pngimg-assets`.
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
 - `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
+- `jmr-generate-video`: narrated promo video from a URL, images, PDF, code or brief, rendered locally; `/jmr-generate-video`.
 
 **Companion:**
 
@@ -45,6 +46,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `pngimg-assets` — `/pngimg-assets` — search + download CC BY-NC PNG cutouts.
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.
 - `jmr-image` — `/jmr-image` — Unsplash then Pexels photography search + download.
+- `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local promo video with voiceover via audited, pinned brag + Hyperframes.
 
 **Slash commands (Claude Code):**
 
@@ -57,6 +59,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
+- `/jmr-generate-video` or `/generate-video`: narrated promo video, portrait or landscape, female or male voice.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.
