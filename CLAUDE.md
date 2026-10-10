@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `jmr-generate-video` (alias `/generate-video`), a local narrated promo-video skill that wraps brag pinned to an audited commit. Canonical edits in `skills/` only.
+- **Notes:** Shipping `jmr-cycle` and the reworked `/agents-execute` (GitHub-only milestones built by looped cycles). `jmr-cycle` tests: `node --test skills/jmr-cycle/scripts/*.test.mjs`. Canonical edits in `skills/` only.
 
 ## Purpose
 

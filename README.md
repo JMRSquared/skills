@@ -64,7 +64,8 @@ Two tiers.
 
 | Skill | Use |
 |-------|-----|
-| `agents-execute` | `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution: spec, tickets, parallel build on one branch, one review. Runs the [`mattpocock/skills`](https://github.com/mattpocock/skills) `/to-spec` → `/to-tickets` → `/implement-spec` chain when installed |
+| `agents-execute` | `/agents-execute`: hand off a mission, or just `/agents-execute lets build` to build the repo's own spec. Writes the spec and tickets, opens them as GitHub issues on a new `milestone/<slug>` branch, then runs `/jmr-cycle` on a loop until that branch is merged into main. Needs a GitHub repository |
+| `jmr-cycle` | `/jmr-cycle <slug>`: moves a milestone forward one step: parallel agents build ready tickets on their own branches, a separate reviewer agent checks every pull request against the jmrsquared skills before it merges into `milestone/<slug>`. Status is posted to a GitHub issue. Safe to repeat with `/loop` or a scheduled routine |
 | `premium-web-design` | `/premium-web-design` — art-directed landing pages, fast; `--full` for Awwwards-caliber scroll craft (also Tier 2 auto-fire) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
@@ -103,9 +104,9 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 
 | Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
-| **29** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
+| **30** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
-| `/agents-execute`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video` slash commands | Y |: | Y |: |: |: |: |
+| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video` slash commands | Y |: | Y |: |: |: |: |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -218,7 +219,8 @@ In any Claude Code session once installed:
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
 - `/premium-web-design` — apply the premium interactive website design bar.
-- `/agents-execute` — hand off a mission for fully autonomous, parallel, end-to-end execution. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission. The agent writes a spec, splits it into tickets, builds every ready ticket at once on one integration branch, then reviews once. It follows Matt Pocock's `/to-spec`, `/to-tickets` and `/implement-spec` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --skill implement-spec -g`.
+- `/agents-execute`: hand off a mission and walk away. Type an objective, or `/agents-execute lets build` to build the spec already in the repo. The agent writes a spec, splits it into tickets, opens each ticket as a GitHub issue and creates a `milestone/<slug>` branch. It then runs `/jmr-cycle` on a loop until that branch is merged into main. It only asks you about money, migrations on shared databases, legal questions and work that would contradict the spec. The project must be on GitHub; anywhere else it stops and says so. It follows Matt Pocock's `/to-spec` and `/to-tickets` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets -g`.
+- `/jmr-cycle <slug>`: one step of a milestone: claim ready tickets, build them in parallel on their own branches, review every pull request with a separate agent, merge approved ones into `milestone/<slug>` and update the status issue. When every ticket is in, it runs a final review and the full test gate, then merges the milestone into main. `/agents-execute` starts it for you; run it by hand to nudge a milestone along.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
