@@ -55,7 +55,7 @@ The user's words are the only source. Do not fill the gaps with invented facts; 
 1. Pull out of the brief: the working name, the problem, who has it, how the idea solves it (as 3-5 steps a person would go through), what makes it different and the stage (idea, building, waitlist, raising, launching on a date).
 2. **No name given:** use a plain descriptive working title and flag it in the defaults note ("working title: ..., tell me the real name").
 3. **No call to action given:** use one that needs no link ("Coming soon", "Follow along", "Get in touch") plus whatever handle, email or site the user did give. Never make up a URL, phone number, price or launch date.
-4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font (Google Fonts or system), a wordmark of the working name set in the display font. Reuse any logo, colors or fonts the user did provide.
+4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font, a wordmark of the working name set in the display font. Pick fonts Hyperframes bundles so the render needs no font download: Archivo Black, Montserrat, Oswald, League Gothic, Space Mono, IBM Plex Mono or JetBrains Mono (see `hyperframes-creative` → `references/typography.md`). Reuse any logo, colors or fonts the user did provide.
 5. Write the shot list as **planned visuals**, one per idea in the script, chosen from section 9 of brag-overrides.md. Note which ones need a stock photo.
 
 ## Several sources at once

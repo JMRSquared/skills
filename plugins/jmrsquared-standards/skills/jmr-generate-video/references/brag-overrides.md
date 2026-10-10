@@ -20,7 +20,7 @@ brag is built for a 20-second silent brag about a code project. A narrated promo
 
 The user wants the viewer to understand everything. Narration sets the clock.
 
-- **Length.** Default 35-75 s. A user-given length wins. Budget the script at 2.3 words per second of narrated time (about 140 words per minute at speed 0.95), so 60 s of narration is about 135 words.
+- **Length.** Default 35-75 s. A user-given length wins. Budget the script at 2.6 words per second of speech at speed 0.85 (measured), then add the settles: 115 words gave 43 s of speech and a 55 s video.
 - **One idea per scene.** One screenshot or visual per narration line. Never describe a screen that is not on screen yet. Never cut away while the voice is still talking about it.
 - **Scene length = its voiceover clip + 0.8 s settle.** No scene under 3.5 s. Screenshots and dense UI get at least 4.5 s.
 - **Motion on screenshots stays gentle.** A slow push or pan (at most 8% scale change across the scene) or a highlight that moves to the part being described. No whip pans, shakes or fast zooms on a screen the viewer must read. Save energetic motion for the hook, transitions and the outro.
@@ -35,12 +35,13 @@ The user wants the viewer to understand everything. Narration sets the clock.
 
    ```bash
    mkdir -p <out>/composition/assets/vo
-   npx hyperframes tts "<line 1>" --voice af_heart --speed 0.95 --output <out>/composition/assets/vo/scene-01.wav
+   npx hyperframes tts "<line 1>" --voice af_heart --speed 0.9 --output <out>/composition/assets/vo/scene-01.wav </dev/null
    ```
 
-3. Measure each clip: `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`. Write the measured lengths into the plan next to each scene, then set every scene's `data-start` and `data-duration` from them (section 3). Leave 0.3-0.5 s of silence between lines.
-4. Wire each clip as its own `<audio>` element on the voice track at its scene's start. Duck the music to 0.12-0.15 while any clip plays (brag's `step-3-compose.md` and `audio.md` cover the mix).
-5. Listen-check by proxy: no clip over 9 s (split the line), none under 1 s (merge it), total within the length target. Regenerate a clip whose word count and duration disagree badly; Kokoro sometimes skips words in long sentences.
+3. Check each clip lost no words: `npx hyperframes transcribe <clip> -d <out>/qa -m base.en` and compare the word count with the line. Keep the word timings (`<out>/qa/transcript.json`, overwritten per run, so copy it per clip); they place captions and sync reveals to spoken words.
+4. Measure each clip: `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`. Write the measured lengths into the plan next to each scene, then set every scene's `data-start` and `data-duration` from them (section 3). Leave 0.3-0.5 s of silence between lines.
+5. Wire each clip as its own `<audio>` element on the voice track at its scene's start. Duck the music to 0.12-0.15 while any clip plays (brag's `step-3-compose.md` and `audio.md` cover the mix).
+6. Listen-check by proxy: no clip over 9 s (split the line), none under 1 s (merge it), total within the length target. Regenerate a clip whose word count and duration disagree badly; Kokoro sometimes skips words in long sentences.
 
 ## 5. Captions
 
