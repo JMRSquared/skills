@@ -14,6 +14,7 @@ brag is built for a 20-second silent brag about a code project. A narrated promo
 - "The project" is `<out>/context.md` plus `<out>/context/`. Answer brag's 9-question rubric from it. Only read a code folder directly when the user gave one.
 - Question 5 ("shortest satisfying video") is answered by section 3 below, not by 15-25 s.
 - Question 9 ("user flow") for a business with no app: the customer's path. Discover → see what you get → trust signal → how to buy or book.
+- In concept mode, questions 3, 4 and 9 are answered from the planned visuals and the "how it would work" steps in `context.md`. See section 9.
 
 ## 3. Duration and pacing (replaces brag's 15-25 s law when voice is on)
 
@@ -60,3 +61,21 @@ On by default for portrait (most people watch muted), off for landscape unless a
 ## 8. Deliver (brag step 4)
 
 Run brag's step 4 as written into `<out>`: `brag.mp4`, a best-frame poster `brag.jpg` baked as frame 0 and `share-copy.txt`. Share copy uses the business's real name, link and call to action from `context.md`.
+
+## 9. Concept mode (no product yet)
+
+Applies when SKILL.md step 0 chose concept mode. Everything above still holds except where this section replaces it.
+
+**What "show the thing" means here.** brag's "Show the thing" law and the "real screenshot or image" rule in section 3 are replaced. The thing is the idea. It must be visible in every scene, never just text on a gradient. Build visuals in the composition itself, picking per scene:
+
+- **Kinetic typography** for the hook and the one-line idea: the problem in the viewer's own words, one phrase at a time.
+- **Concept UI mockups** built in HTML/CSS when the idea is an app or a site: one screen per step of "how it would work", simple and on-brand, with placeholder data that is obviously sample ("Alex", "R250", "Tue 10:00"). Put them in a device frame. A small "Concept" tag sits in a corner of each mockup. The voice says "imagine" or "you will" when it introduces the first one.
+- **Diagrams and flows**: the 3-5 steps as icons joined by an animated path, or a before/after split.
+- **Illustrated scenes** from simple shapes and icons (an icon library through `npx hyperframes catalog`, or inline SVG) for physical products, services and events.
+- **Stock photography** only when a real-world scene carries the message better (people, places, food, premises) and designed visuals cannot. Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key (commercial-safe licences), save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. No key or no skill: stay with designed visuals. Never use photos of real, identifiable brands or of people presented as customers.
+
+**Words.** Present tense only for the problem and for what is true now (the team, the mission, the waitlist). The solution uses "will", "imagine", "coming soon" or the stage the user gave. Banned unless the user supplied them: user counts, ratings, reviews, testimonials, "trusted by", press logos, prices, launch dates, "available now", "download today".
+
+**Shape.** Hook: the problem, felt (3-4 s) → the idea in one line with the wordmark → how it would work, 3-5 steps, one scene each → why it is different (1-2 scenes) → stage and call to action from `context.md` (hold at least 4 s, voice reads it out). Drop the trust-signal scene unless the brief has a real one (founder background, a partner, a pilot).
+
+**Motion.** Designed visuals can move more than screenshots: build each scene's elements on the voice's key words, then hold still for the 0.8 s settle. The pacing rules in section 3 still apply.
