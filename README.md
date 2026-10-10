@@ -74,7 +74,7 @@ Two tiers.
 | `pngimg-assets` | `/pngimg-assets` — search + download transparent PNG cutouts (CC BY-NC gate) |
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
-| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a narrated promo video made on your machine from a website, images, a PDF, source code or a brief. Female or male voice, portrait or landscape. Runs [brag](https://github.com/latent-spaces/brag) pinned to an audited commit with telemetry off |
+| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a narrated promo video made on your machine from a website, images, a PDF, source code, a brief or an idea with nothing built yet. Female or male voice, portrait or landscape. Runs [brag](https://github.com/latent-spaces/brag) pinned to an audited commit with telemetry off |
 
 ---
 
