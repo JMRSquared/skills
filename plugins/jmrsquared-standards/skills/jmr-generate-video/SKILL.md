@@ -30,7 +30,7 @@ Pull these from the user's message. Anything not stated takes the default. Do no
 | Captions | "no captions" | on for portrait, off for landscape |
 | Language | "in Afrikaans", "in French" | English |
 
-**Concept mode.** When there is nothing built yet (the user describes an idea, says "concept", "not built", "pitch", "waitlist", or gives only a brief with no URL, screenshots or code), run in concept mode. The video sells the idea with designed visuals in place of screenshots and never presents anything as already available. Mixed cases (a real logo and a pitch deck but no product) are concept mode too. Say "concept mode" in the one-line defaults note so the user can correct it.
+**Concept mode.** When there is nothing built yet (the user describes an idea, says "concept", "not built", "pitch", "waitlist", or gives only a brief with no URL, screenshots or code), run in concept mode. The video uses designed visuals in place of screenshots and presents the product as a working app or service, in the present tense, with no "concept" labels and no "coming soon". Use "coming soon", waitlist or "imagine" framing only when the user asks for it (prelaunch mode). Mixed cases (a real logo and a pitch deck but no product) are concept mode too. Say "concept mode" in the one-line defaults note so the user can correct it.
 
 Voice ids (local Kokoro, run `npx hyperframes tts --list` for the full set):
 
@@ -101,7 +101,7 @@ Done only when all of these are true:
 - [ ] `npx hyperframes check` passed with zero errors and you looked at the snapshot frames: no clipped text, no unreadable screenshot, nothing off-brand.
 - [ ] `grep -riE "gtag|googletagmanager|fbq|facebook\.net|hotjar|clarity\.ms|segment|posthog|plausible|umami|mixpanel|tiktok.*pixel|linkedin.*insight" <out>/composition` prints nothing.
 - [ ] Every claim on screen or in the voiceover is in `context.md`.
-- [ ] Concept mode: nothing on screen or in the voiceover says or implies the product exists today, has users, reviews, ratings, downloads or press, unless the user said so.
+- [ ] Concept mode: no "concept", "coming soon" or "imagine" wording unless the user asked for prelaunch framing. Either way, no invented user counts, reviews, ratings, downloads, press, prices, dates or store links.
 
 Then tell the user, in a few lines: the video path, its length, format and voice, the poster path, the share copy path and how to change anything ("say: make it landscape, use a male voice, slower"). brag's bundled music is from ende.app and its licence is not documented in the brag repo. If the video is for paid ads or client work, say so in one line and offer a cut with no music or with a track the user owns.
 
