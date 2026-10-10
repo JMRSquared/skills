@@ -1,110 +1,110 @@
 ---
 name: agents-execute
-description: "Hand off a mission for fully autonomous, parallel, end-to-end execution. Runs /to-spec, /to-tickets and /implement-spec unattended. Agents own 100% and never ask; supersedes the deploy / merge confirm gates for the mission."
+description: "Use when the owner runs /agents-execute to hand off a mission, or the repo's own spec (\"/agents-execute lets build\"), for unattended parallel building on a GitHub repository until a milestone branch is merged into main."
 disable-model-invocation: true
 ---
 
 # /agents-execute: Autonomous Mission Execution
 
-`/agents-execute` is `/implement-spec` with nobody at the keyboard. It runs the [`mattpocock/skills`](https://github.com/mattpocock/skills) chain `/to-spec` → `/to-tickets` → `/implement-spec` end to end, sitting in the human's seat at every point where those skills stop to ask.
+`/agents-execute` turns a mission into a milestone and starts agents building it. It writes the spec, splits it into tickets, publishes them as GitHub issues on a new `milestone/<slug>` branch, then runs `/jmr-cycle` under `/loop` until that branch is merged into the base branch. It follows the [`mattpocock/skills`](https://github.com/mattpocock/skills) chain `/to-spec` → `/to-tickets` for planning and sits in the human's seat wherever those skills stop to ask.
 
-Vendor-neutral and model-agnostic. Where this says "spawn a subagent", use your harness's parallel-agent or task-delegation primitive; with none, run the same steps sequentially.
+| Part | Owns |
+|---|---|
+| `/agents-execute` (this skill) | Mission, spec, tickets, the milestone branch, starting the loop |
+| `/jmr-cycle` | Claims, parallel builders, a reviewer for every pull request, merges into the milestone branch, close-out, landing |
+| `/loop` | Repeating `/jmr-cycle` until it reports `complete` |
 
 ## Contract
 
-The user's objective is your **mission**. You own it end to end: architect, tech lead, implementer, reviewer, QA and DevOps at once. Decision authority is already delegated.
+The user's objective is your **mission**. Decision authority is delegated: the user is out of the loop for the whole mission. When several approaches are valid, weigh them and pick the strongest. Record the choice in `notes/decisions.md` and continue. Repo inspection, docs, tests, experiments, research and deduction answer every engineering, product and operational question. Uncertainty is an input to a decision, never a reason to stop.
 
-**Decide alone.** The user is out of the loop for the whole mission. When several approaches are valid, weigh them and pick the strongest. Record the choice in `notes/decisions.md` and continue. Repo inspection, docs, tests, experiments, research and deduction answer every engineering, product and operational question. Uncertainty is an input to a decision, never a reason to stop.
+The run's authority is the `/jmr-cycle` Authority section: it replaces the confirm-before-commit, merge and deploy prompts in `jmr-standing-rules` and `jmr-commit` for this mission, inside that section's limits.
 
-**Irreversible actions are yours.** For the mission this skill supersedes the confirm-before-deploy and confirm-before-merge gates in `jmr-standing-rules`. Deploy, merge, open and land PRs when they serve the mission. Before each irreversible step, make it recoverable (branch, tag or backup; prefer the reversible path; verify preconditions), then validate after. Judgement replaces the confirmation prompt.
+**Definition of done:** `milestone/<slug>` is merged into the base branch, with every ticket merged, one final review run and the full gate passing. `/jmr-cycle` reaches it; this skill starts it.
+
+## Requirements
+
+- **A GitHub repository you can push to.** Tickets, claims, reviews and status live in GitHub issues and pull requests. Without one, `/agents-execute` stops; there is no local fallback.
+- **`gh`**, signed in.
+- **`jmr-cycle`**, which ships with jmrsquared-standards. Set `CYCLE="node <jmr-cycle skill directory>/scripts/cycle.mjs"`. The directory is `~/.agents/skills/jmr-cycle`, `~/.claude/skills/jmr-cycle` or the plugin's `skills/jmr-cycle`.
 
 ## Loading the chain skills
 
-`to-spec`, `to-tickets`, `implement` and `implement-spec` are user-invoked (`disable-model-invocation: true`), so a Skill tool call cannot fire them. **Load** one by reading its `SKILL.md` from the skills directory (`~/.agents/skills/<name>/SKILL.md`, `~/.claude/skills/<name>/SKILL.md` or your harness's equivalent) and running its steps as written, with the overrides each step below lists. The Contract wins every conflict.
-
-When a chain skill is not installed, the step's own text below is the full procedure. Install the chain with:
+`to-spec`, `to-tickets` and `jmr-cycle` are user-invoked (`disable-model-invocation: true`), so a Skill tool call cannot fire them. Load one by reading its `SKILL.md` from `~/.agents/skills/<name>/`, `~/.claude/skills/<name>/` or your harness's equivalent. Run its steps with the overrides below. The Contract wins every conflict. When `to-spec` or `to-tickets` is missing, the step's own text is the full procedure. Install them with:
 
 ```bash
-npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --skill implement --skill implement-spec --skill code-review --skill tdd -g
+npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --skill code-review --skill tdd -g
 ```
-
-`tdd`, `code-review`, `research` and `diagnosing-bugs` are model-invoked: call them through the Skill tool when installed.
-
-## The orchestrator
-
-You are the **orchestrator**. Your context window holds the mission, the task graph and the decisions; subagents hold the code. Push implementation, exploration, debugging and review into subagents so your window stays clear for coordination.
-
-Talk to subagents through **context pointers**: paths to the spec, the ticket, the mission notes, a commit SHA. A subagent prompt names its pointers and its completion criterion. It repeats nothing a pointer already holds. Subagents report back the same way: a short verdict plus pointers (branch, commit, notes file).
-
-**Tracker.** If the repo has `docs/agents/issue-tracker.md` (written by `/setup-matt-pocock-skills`), the spec and tickets live there. Otherwise the **mission directory** is the tracker, run as local markdown: `${TMPDIR:-/tmp}/agents-execute/<mission-slug>/` holding `spec.md`, `issues/NN-<slug>.md` and `notes/`. Keep `notes/` in the mission directory either way so every worktree can reach it.
 
 ## Steps
 
-1. **Understand.** Restate the mission and its Definition of Done in `notes/mission.md`. Read the repo's agent docs (`CLAUDE.md`/`AGENTS.md`, `GLOSSARY.md`, `docs/adr/`, `docs/agents/`) and use their vocabulary. When the user hands over an existing spec or ticket set (an issue number, a `.scratch/` path, `/to-spec` or `/to-tickets` output), adopt it: run step 2, then go to step 6. Done when every requested outcome is written as a checkable statement.
+1. **Preflight.** Run `$CYCLE preflight`. On exit 5, print its message and stop: `/agents-execute` needs a GitHub repository. Never create, publish or reconfigure a repository yourself; that is the owner's call. Note `defaultBranch` from its output.
 
-2. **Explore.** Spawn exploration subagents in parallel: relevant code, prior art for tests, external docs (`research`). Each saves markdown into `notes/`. This is `implement-spec` step 2. Done when every area the mission touches has a notes file an implementer could start from.
+2. **Find the mission.**
+   - An objective in the prompt is the mission.
+   - A prompt with no objective ("lets build", "build it", "go") means: build what the repo already specifies. First run `$CYCLE milestones`. Resume every open milestone it lists: go to step 8 for each slug. Then check `git ls-remote --heads origin 'milestone/*'` for a branch with no status issue, open or closed (`gh issue list --label jmr:status --label milestone:<slug> --state all`): its publish failed, so rerun step 7's `publish` from a worktree of it and resume it too. When anything was resumed, stop there. Otherwise find the spec: a PRD, spec, roadmap or design doc under `docs/`, the README's roadmap, or GitHub issues that describe planned work. Pick the most complete unbuilt one and record why in `notes/decisions.md`. When no spec or objective exists, stop and say so: nothing can be built from nothing.
+   - Choose a short kebab-case `<slug>` with no `milestone/<slug>` branch on `origin`. Pick a 2 to 6 letter uppercase scenario prefix (`PAY`).
+   - The mission folder is `${TMPDIR:-/tmp}/agents-execute/<slug>/`. Write the mission and its outcomes as checkable statements in its `notes/mission.md`. `notes/decisions.md` collects dated decisions until step 7 commits it.
 
-3. **Size the mission.** A mission with no real dependency graph (one coherent change, one session's work) goes **direct**: **load `implement`** and run it in one implementer subagent, then go to step 7. Everything else runs steps 4 to 6.
+3. **Explore.** Spawn exploration subagents in parallel: the code the mission touches, prior art for tests, external docs (`research`). Each writes markdown into the `notes/` folder. Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and `docs/adr/` and use their vocabulary (`domain-modeling`). Done when every area the mission touches has a notes file an implementer could start from.
 
-4. **Spec. Load `to-spec`.** Override: where it says to check the seams with the user, pick them yourself and record why in `notes/decisions.md`. Without the skill, write `spec.md` with problem, solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the **seams** where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Leave file paths and code snippets out. Done when every requested outcome maps to at least one user story.
+4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. Leave file paths and code out. Done when every outcome maps to a user story and every user story to at least one scenario.
 
-5. **Tickets. Load `to-tickets`.** Override: replace its "Quiz the user" step with your own review of the graph, then publish. Without the skill, split the spec into **tracer-bullet** tickets: each a thin vertical slice through every layer (schema, API, UI, tests), verifiable on its own and sized to one fresh context window. Prefactor tickets come first; a wide mechanical refactor goes expand, migrate in batches, contract. Give each ticket its **blocking edges**. Either way, review the graph against these two checks:
-   - Two tickets that will edit one shared file (a registry, a message catalogue, a shared type) get a blocking edge between them, or `notes/` pins the exact names each adds.
+5. **Tickets. Load `to-tickets`.** Override: replace its "Quiz the user" step with your own review of the graph and write `tickets.json` instead of publishing. Split the spec into **tracer-bullet** tickets: each a thin vertical slice through every layer, verifiable on its own and sized to one fresh context window. Prefactor tickets come first. A wide mechanical refactor goes expand, migrate in batches, contract. Each ticket:
+
+   ```json
+   { "id": "T03", "type": "feature", "title": "Refund a captured charge",
+     "body": "What to build, the spec sections and user stories it covers, how to verify it.",
+     "blockedBy": ["T01"], "scenarios": ["PAY-004", "PAY-005"], "serial": "db" }
+   ```
+
+   `type` is one of `feature`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`. `serial` is optional: tickets that share one (a database schema, a shared registry) never build at once. Review the graph:
+   - Every scenario sits on exactly one ticket. Every user story is covered.
+   - Two tickets that edit one shared file get a blocking edge, a shared `serial` or exact names pinned in the ticket bodies.
    - Each edge gates real work. Drop any that only reflect writing order.
 
-   Done when every user story is covered by a ticket and every ticket's blockers are explicit.
+6. **Milestone file.** Write `milestone.json`:
 
-6. **Build. Load `implement-spec`** and run its steps 3 to 9: integration branch, one implementer per frontier ticket in its own worktree with `tdd`, a merger after each, re-dispatch as the frontier moves, one `code-review`, one fix subagent, resolve tickets, clean up worktrees. Apply [references/parallel-build.md](references/parallel-build.md) on top. It is the full procedure when `implement-spec` is missing. When it is present, these overrides apply:
-   - Where `implement-spec` says to tell the user to run `/setup-matt-pocock-skills`, use the mission directory as the tracker.
-   - Compute the **frontier** from what has merged into the integration branch. The tracker's blocked-by count lags until tickets close.
-   - Run steps 7 to 9 below in place of its review and close-out, so the review loop has an exit.
+   ```json
+   { "version": 1, "slug": "payments", "title": "Card payments",
+     "base": "main", "branch": "milestone/payments", "scenarioPrefix": "PAY",
+     "install": "yarn install",
+     "gate": ["yarn build", "yarn test", "yarn lint"],
+     "fix": ["yarn lint:fix"],
+     "testReports": ["yarn vitest run --reporter=json --outputFile=$JMR_RESULTS/vitest.json"],
+     "land": "merge", "deploy": [] }
+   ```
 
-   Done when every ticket has landed on the integration branch.
+   - `base` is `defaultBranch` unless the prompt names another.
+   - `gate` is the repo's own build, test and lint commands, in forms that check without rewriting files. `fix` holds the rewriting forms (formatters, `lint:fix`) that implementers run before committing. In a jmrsquared repo the two together are `jmr-build-test-lint-gate`.
+   - `testReports` writes JSON (Jest, Vitest) or JUnit XML (pytest `--junitxml`, gotestsum and most other runners) into `$JMR_RESULTS`, so status can show pass and fail per scenario.
+   - `land` is `merge` unless the prompt says the owner merges it, which makes it `pr`.
+   - `deploy` lists only deploy commands the prompt asked for, run after landing.
 
-7. **Review once.** With all work landed, call `code-review` once against the mission's base: **Standards** and **Spec** in parallel. Review run earlier reads every unbuilt ticket as a failure. Hand every finding to one fix subagent.
+7. **Publish.** Run `git fetch origin <base>`, then `git worktree add -b milestone/<slug> "${TMPDIR:-/tmp}/agents-execute/<slug>/wt" origin/<base>` and work inside that worktree. Write `docs/milestones/<slug>/` with `milestone.json`, `spec.md`, `tickets.json` and `decisions.md` (from `notes/decisions.md`, plus the mission's outcomes). From the worktree root:
+   1. `$CYCLE validate --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. Fix every error.
+   2. Commit with `jmr-commit`, then `git push -u origin milestone/<slug>`.
+   3. `$CYCLE publish --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. It is safe to rerun; on failure, fix the cause and run it again before going on.
+   4. `git worktree remove` the worktree.
 
-8. **Verify the fixes.** Run focused checks on each fixed finding: its test, its file, its behaviour. A second broad review is reserved for a fix that changed architecture.
+8. **Run.** Load `jmr-cycle` and run one full cycle for `<slug>` in this session. Then keep it going until done:
+   - Claude Code: invoke the `loop` skill with `/jmr-cycle <slug>` and no interval, so it paces itself by each cycle's `CYCLE_RESULT` line and ends on `complete`.
+   - A harness with no loop: tell the user to repeat `/jmr-cycle <slug>` or schedule it (the `jmr-cycle` "Running unattended" section).
 
-9. **Validate.** Run the full gate (see Validation). Each failure becomes a work item for a subagent, then rerun the gate.
-
-10. **Close out.** Resolve tickets the way the tracker closes work. Land the integration branch (merge, PR, deploy) if the mission includes it. Remove implementer worktrees and branches. Report what shipped, the decisions made, follow-ups and pointers to the integration branch and `notes/`.
+9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, what the first cycle merged or started, the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
 
 ## Skills to reach for
 
 | Need | Skill |
 |------|-------|
-| Spec, tickets, parallel build | `to-spec`, `to-tickets`, `implement-spec` (load, see above) |
-| Small direct change | `implement` (load) |
-| Build a slice test-first, red then green | `tdd` |
-| Bug, failure or regression with unknown cause | `diagnosing-bugs` (or `systematic-debugging`) |
-| Facts from docs or third-party APIs | `research` |
+| Spec and tickets | `to-spec`, `to-tickets` (load, see above) |
+| Building, reviewing, merging, landing | `jmr-cycle` (load) |
 | Domain terms, glossary, ADRs | `domain-modeling` |
-| "How should this behave or look" | `prototype` (throwaway, then decide) |
 | Interface and module boundaries | `codebase-design` |
-| Final review | `code-review` |
-| jmrsquared repo work | `jmr-build-test-lint-gate`, `jmr-commit` and the stack skills |
-
-## Validation
-
-Validate every change: formatting, lint, types, unit, integration and e2e tests, build and a runtime check where it applies. Implementers run typecheck and single test files often, the full suite once before reporting. In a jmrsquared repo the bar is `jmr-build-test-lint-gate`: `yarn build && yarn test && yarn lint:fix` pass with no `@ts-ignore`, `.skip` or `--no-verify`.
-
-## Engineering principles
-
-Fix root causes. Preserve existing behaviour unless the mission changes it. Leave the code you touched more readable, consistent and reliable than you found it. Reduce tech debt the mission runs into. Stay inside the mission: improvements outside its blast radius go in the report as follow-ups.
-
-## Definition of Done
-
-All of these hold:
-
-- Every outcome in `notes/mission.md` is met and traced to landed work.
-- Every ticket has landed and been resolved.
-- One review ran after the last ticket landed. Every finding is fixed or recorded as a decision with its reason.
-- The full validation gate passes on the integration branch.
-- Docs touched by the change are updated.
-- No orphan worktrees or branches remain.
-
-Stop when the list holds. Further polish goes in the report as follow-ups.
+| Facts from docs or third-party APIs | `research` |
+| "How should this behave or look" | `prototype` (throwaway, then decide) |
+| Standards every builder and reviewer applies | the Standards table in `jmr-cycle` |
 
 ## Philosophy
 
-The user assigned a mission. Default: **Analyze → Decide → Delegate → Execute → Validate → Report.**
+The user assigned a mission. Default: **Analyze → Decide → Plan → Publish → Loop → Land.**

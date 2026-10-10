@@ -41,7 +41,8 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `jmr-review` — audit current diff against every skill above.
 - `jmr-plain-language`: `/jmr-plain-language` rewrites user-supplied text in plain language (also Tier 1).
 - `premium-web-design` — `/premium-web-design` — premium interactive website design (also Tier 2).
-- `agents-execute` — autonomous, parallel, end-to-end mission execution; agents own 100% and never ask, superseding the deploy / merge confirm gates for the mission. Spec → tickets → parallel build on one integration branch → one review; follows `/to-spec`, `/to-tickets`, `/implement-spec` (mattpocock/skills) when installed.
+- `agents-execute`: unattended mission execution on a GitHub repo: spec → tickets as GitHub issues → `milestone/<slug>` branch → `/jmr-cycle` on `/loop` until the milestone is merged into main. `/agents-execute lets build` builds the repo's own spec.
+- `jmr-cycle`: one step of a milestone: claim, build in parallel, review every pull request, merge into `milestone/<slug>`, publish status; lands the milestone when every ticket is in.
 - `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
 - `pngimg-assets` — `/pngimg-assets` — search + download CC BY-NC PNG cutouts.
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.
@@ -55,7 +56,8 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-review` — review current branch / staged diff.
 - `/jmr-plain-language`: rewrite pasted text in plain language.
 - `/premium-web-design` — apply the premium interactive website design bar.
-- `/agents-execute` — hand off a mission for fully autonomous execution.
+- `/agents-execute`: hand off a mission for unattended execution until its milestone is merged.
+- `/jmr-cycle <slug>`: move a milestone forward one step.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
