@@ -22,6 +22,8 @@ The run's authority is the `/jmr-cycle` Authority section: it replaces the confi
 
 **Definition of done:** `milestone/<slug>` is merged into the base branch, with every ticket merged, one final review run and the full gate passing. `/jmr-cycle` reaches it; this skill starts it.
 
+**Speed is the goal.** Land working features in as few cycles as possible. A feature that works is done, even when the code could be nicer. Plan the smallest set of tickets that delivers the mission and leave everything else out of scope.
+
 ## Requirements
 
 - **A GitHub repository you can push to.** Tickets, claims, reviews and status live in GitHub issues and pull requests. Without one, `/agents-execute` stops; there is no local fallback.
@@ -48,17 +50,18 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
 
 3. **Explore.** Spawn exploration subagents in parallel: the code the mission touches, prior art for tests, external docs (`research`). Each writes markdown into the `notes/` folder. Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and `docs/adr/` and use their vocabulary (`domain-modeling`). Done when every area the mission touches has a notes file an implementer could start from.
 
-4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. Leave file paths and code out. Done when every outcome maps to a user story and every user story to at least one scenario.
+4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. A scenario is something a user or caller sees ("a captured charge can be refunded in full"), never an internal detail ("`refund()` returns a `Refund`"). Aim for one to three scenarios per user story. Leave file paths and code out. Put polish, nice-to-haves and cleanup under out of scope. Done when every outcome maps to a user story and every user story to at least one scenario.
 
-5. **Tickets. Load `to-tickets`.** Override: replace its "Quiz the user" step with your own review of the graph and write `tickets.json` instead of publishing. Split the spec into **tracer-bullet** tickets: each a thin vertical slice through every layer, verifiable on its own and sized to one fresh context window. Prefactor tickets come first. A wide mechanical refactor goes expand, migrate in batches, contract. Each ticket:
+5. **Tickets. Load `to-tickets`.** Override: replace its "Quiz the user" step with your own review of the graph and write `tickets.json` instead of publishing. Split the spec into **feature tickets**. Each ticket is a whole feature or bug fix a user could try once it merges, built through every layer it needs. One implementer must be able to finish it in one session. The helpers, types, refactors, tests and docs a feature needs go inside that feature's ticket, never in a ticket of their own. No prefactor tickets. When the mission is itself a refactor or migration, name each ticket by what works afterwards ("Checkout runs on the new payments client"). Aim for two to six tickets; more than eight means they are too small, so merge them. Each ticket:
 
    ```json
    { "id": "T03", "type": "feature", "title": "Refund a captured charge",
-     "body": "What to build, the spec sections and user stories it covers, how to verify it.",
+     "body": "What the user can do when this merges, the spec sections and user stories it covers, how to check it works.",
      "blockedBy": ["T01"], "scenarios": ["PAY-004", "PAY-005"], "serial": "db" }
    ```
 
-   `type` is one of `feature`, `fix`, `refactor`, `chore`, `docs`, `test`, `perf`. `serial` is optional: tickets that share one (a database schema, a shared registry) never build at once. Review the graph:
+   `type` is `feature` or `fix`; `$CYCLE validate` rejects anything else. Titles name the outcome ("Refund a captured charge"), not the code ("Add `refund()` helper"). `serial` is optional: tickets that share one (a database schema, a shared registry) never build at once. Review the graph:
+   - Merge any ticket a user could not try on its own into the ticket it serves.
    - Every scenario sits on exactly one ticket. Every user story is covered.
    - Two tickets that edit one shared file get a blocking edge, a shared `serial` or exact names pinned in the ticket bodies.
    - Each edge gates real work. Drop any that only reflect writing order.
@@ -107,4 +110,4 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
 
 ## Philosophy
 
-The user assigned a mission. Default: **Analyze → Decide → Plan → Publish → Loop → Land.**
+The user assigned a mission. Default: **Analyze → Decide → Plan → Publish → Loop → Land.** Few tickets, each a working feature, landed fast. Hours of cycles with nothing a user can try is a failed plan.

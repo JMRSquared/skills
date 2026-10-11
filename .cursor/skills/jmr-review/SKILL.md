@@ -58,6 +58,8 @@ src/components/AuthForm.tsx:1  suggestion  react-tsx-component  Domain-specific 
 ## Signal bar
 
 Block the merge when any of these appear:
+- The change doesn't do what it claims, or a test, build or lint step fails.
+- A bug that loses data, breaks an existing feature or opens a security hole.
 - `: any` in new code.
 - Missing Zod input on a new tRPC procedure.
 - New/changed tRPC procedure without a `.feature` + `.steps.ts` in the same commit.
@@ -69,7 +71,9 @@ Block the merge when any of these appear:
 - Untyped DB column in a new migration.
 - Missing FK constraint on a new relation.
 
-Suggestions are not blockers — the user decides whether to fix or defer.
+Suggestions are not blockers. The user decides whether to fix or defer.
+
+Only the list above blocks. Everything else is a suggestion, however many skills it touches: naming, structure, file length, dense lines, missing helpers and other `code-quality` or `naming-imports-exports` preferences. Never upgrade a suggestion to a blocker. Working code with suggestions is mergeable code.
 
 ## What "done" looks like
 

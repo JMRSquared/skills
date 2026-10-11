@@ -92,6 +92,32 @@ describe('cycle CLI', () => {
     assert.match(r.err, /unknown ticket T09/)
   })
 
+  it('keeps old ticket types on committed tickets and rejects them on new ones', () => {
+    const repo = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-legacy-'))
+    const git = (...args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd: repo })
+    mkdirSync(path.join(repo, 'docs/milestones/payments'), { recursive: true })
+    writeFileSync(path.join(repo, 'docs/milestones/payments/milestone.json'), JSON.stringify(milestone))
+    const write = (list) => writeFileSync(path.join(repo, 'tickets.json'), JSON.stringify({ tickets: list }))
+    const validate = () => cli(['validate', '--milestone', 'payments', '--tickets', 'tickets.json'], {}, repo)
+    const refactor = { ...tickets[0], type: 'refactor' }
+    const chore = { ...tickets[2], id: 'T02', type: 'chore' }
+    git('init', '-q')
+
+    write([refactor])
+    assert.match(validate().err, /T01 type must be one of feature, fix/)
+
+    git('add', '.')
+    git('commit', '-qm', 'plan')
+    assert.equal(validate().code, 0)
+
+    write([refactor, chore])
+    const r = validate()
+    assert.equal(r.code, 2)
+    assert.match(r.err, /T02 type must be one of feature, fix/)
+    assert.doesNotMatch(r.err, /T01 type/)
+    rmSync(repo, { recursive: true, force: true })
+  })
+
   it('fails preflight with the GitHub message when origin is missing', () => {
     const r = cli(['preflight'])
     assert.equal(r.code, 5)
