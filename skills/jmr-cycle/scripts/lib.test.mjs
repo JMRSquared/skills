@@ -103,6 +103,13 @@ describe('validateTickets', () => {
     assert.ok(errors.some((e) => e.includes('type')))
   })
 
+  it('rejects ticket types that ship no user-visible change', () => {
+    for (const type of ['refactor', 'chore', 'docs', 'test', 'perf']) {
+      const errors = validateTickets(milestone, [ticket('T01', { type })])
+      assert.ok(errors.some((e) => e.includes('type must be one of feature, fix')), type)
+    }
+  })
+
   it('reports a scenario id with the wrong prefix', () => {
     const errors = validateTickets(milestone, [ticket('T01', { scenarios: ['AT-001'] })])
     assert.ok(errors.some((e) => e.includes('AT-001')))

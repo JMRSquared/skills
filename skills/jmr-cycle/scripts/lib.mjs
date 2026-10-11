@@ -28,7 +28,12 @@ export const slugify = (text, max = 40) =>
     .slice(0, max)
     .replace(/-+$/g, '')
 
-export const TICKET_TYPES = ['feature', 'fix', 'refactor', 'chore', 'docs', 'test', 'perf']
+// A ticket must ship something a user can try. Refactors, tests and docs ride
+// inside the feature or fix that needs them, so they never queue on their own.
+export const TICKET_TYPES = ['feature', 'fix']
+// Milestones planned before that rule keep these on tickets already committed,
+// because the type is part of the ticket's branch name.
+export const LEGACY_TICKET_TYPES = ['refactor', 'chore', 'docs', 'test', 'perf']
 
 // Git cannot hold milestone/<slug> and milestone/<slug>/<ticket> as refs at
 // once, so ticket branches sit under their type instead.
@@ -78,7 +83,7 @@ const findCycle = (tickets) => {
   return null
 }
 
-export const validateTickets = (milestone, tickets) => {
+export const validateTickets = (milestone, tickets, { legacyIds = new Set() } = {}) => {
   const errors = []
   if (!Array.isArray(tickets) || tickets.length === 0) return ['tickets must be a non-empty list']
   const ids = new Set()
@@ -90,7 +95,8 @@ export const validateTickets = (milestone, tickets) => {
     ids.add(t.id)
     if (!isNonEmptyString(t.title)) errors.push(`${t.id} needs a title`)
     if (!isNonEmptyString(t.body)) errors.push(`${t.id} needs a body`)
-    if (t.type !== undefined && !TICKET_TYPES.includes(t.type)) {
+    const isLegacy = LEGACY_TICKET_TYPES.includes(t.type) && legacyIds.has(t.id)
+    if (t.type !== undefined && !TICKET_TYPES.includes(t.type) && !isLegacy) {
       errors.push(`${t.id} type must be one of ${TICKET_TYPES.join(', ')}`)
     }
     if (t.serial !== undefined && t.serial !== null && !/^[a-z0-9-]+$/.test(t.serial)) {

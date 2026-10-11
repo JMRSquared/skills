@@ -20,6 +20,7 @@ import {
   reviewState,
   statusMarks,
   latestClaim,
+  LEGACY_TICKET_TYPES,
   marker,
   mergeResults,
   milestoneLabel,
@@ -114,10 +115,25 @@ const loadMilestone = (flags) => {
   return milestone
 }
 
+const ticketList = (parsed) => (Array.isArray(parsed) ? parsed : parsed?.tickets) ?? []
+
+// Ids of tickets committed at HEAD with an old type. They keep it; only tickets
+// added since then must be a feature or a fix.
+const committedLegacyIds = (file) => {
+  const relative = path.relative(process.cwd(), path.resolve(file))
+  const r = run('git', ['show', `HEAD:./${relative}`], { allowFail: true })
+  if (r.status !== 0) return new Set()
+  try {
+    const committed = ticketList(JSON.parse(r.stdout))
+    return new Set(committed.filter((t) => LEGACY_TICKET_TYPES.includes(t.type)).map((t) => t.id))
+  } catch {
+    return new Set()
+  }
+}
+
 const loadTickets = (milestone, file) => {
-  const parsed = JSON.parse(readFileSync(file, 'utf8'))
-  const tickets = Array.isArray(parsed) ? parsed : parsed.tickets
-  const errors = validateTickets(milestone, tickets)
+  const tickets = ticketList(JSON.parse(readFileSync(file, 'utf8')))
+  const errors = validateTickets(milestone, tickets, { legacyIds: committedLegacyIds(file) })
   if (errors.length) die(`invalid ${file}:\n- ${errors.join('\n- ')}`, EXIT.invalid)
   return tickets
 }

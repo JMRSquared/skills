@@ -10,6 +10,14 @@ One run moves one milestone forward by one cycle: sync, read state, claim ready 
 
 A run keeps no state of its own. GitHub issues, pull requests and the `milestone/<slug>` branch hold all of it, so any session, machine or scheduled run carries on where the last one stopped. `/agents-execute` creates the milestone; this skill builds it.
 
+## Done means it works
+
+The goal is to land the milestone in as few cycles as possible. A ticket is done when its feature works: the gate passes, its scenario tests pass and it does what the ticket says. Then it merges. Cleaner code, extra tests, nicer names and refactors nobody asked for are not reasons to hold a ticket open or to add new ones. Every agent in a cycle follows this:
+
+- Implementers open the pull request as soon as the feature works and the gate passes. No polishing after that.
+- Reviewers check that the feature works, not that the code matches their taste (step 7).
+- New tickets are only for broken features, failing scenarios or work the mission cannot ship without. Everything else is a follow-up note in a pull request body.
+
 ## The milestone
 
 | Where | What |
@@ -77,12 +85,13 @@ Every implementer and reviewer applies the jmrsquared skills. Load model-invoked
 
 | Applies to | Skills |
 |---|---|
-| Every change | the repo's `CLAUDE.md` or `AGENTS.md`, `tdd`, `code-quality`, `codebase-design`, `domain-modeling` (the repo's glossary terms; an ADR for each lasting decision), `naming-imports-exports` |
+| Every change | the repo's `CLAUDE.md` or `AGENTS.md`, `tdd`, `code-quality`, `naming-imports-exports` |
+| A new module, interface or domain term | `codebase-design`, `domain-modeling` (the repo's glossary terms; an ADR only for a decision that changes how the system is built) |
 | Files of a stack | the matching skill: `trpc-procedure`, `bdd-router-tests`, `react-tsx-component`, `tanstack-trpc-query`, `kysley-db`, `knex-migration`, `supabase`, `supabase-auth`, `better-auth`, `sst-infra`, `react-native`, `nativewind` and the rest of `jmr-review`'s table |
 | Commits | `jmr-commit` |
 | Prose: docs, pull request bodies, comments, UI copy | `jmr-plain-language` |
 | Before a pull request | `jmr-build-test-lint-gate` plus `milestone.json` `fix` then `gate` |
-| Review | `jmr-review`, `code-review` |
+| Review | `jmr-review`, `code-review`, read through the review bar in step 7: only blockers block |
 
 ## Steps
 
@@ -116,8 +125,9 @@ Renew the lease with the same `lease` command (same `--run` and `--holder`) at t
 - The owner's approval for this run covers your commits, pushes and pull request: do not stop to ask. Anything in "Escalate" comes back to the orchestrator in your report.
 - `git worktree add -b <branch> "$RUN/<id>" origin/milestone/<slug>`, or check out `resumeBranch` or the pull request branch you were given. Run `install` there.
 - Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and ADRs, the issue with its comments (Trust says whose comments count) and the spec sections it names. Apply every skill in Standards that matches your files.
-- Build test-first with `tdd`. Each scenario id on the ticket gets a test whose title starts with the id and says what it checks, on the same line as the test call: `it('PAY-003 refunds a captured charge in full', ...)`. Only test titles count toward status. A test must not depend on files git does not track; when one has to, report `needs_owner` with why.
-- Stay inside the ticket. Work it needs outside its scope comes back as `needs_ticket` with what and why. A migration is written, never applied: report `needs_migration`.
+- Build test-first with `tdd`. Each scenario id on the ticket gets a test whose title starts with the id and says what it checks, on the same line as the test call: `it('PAY-003 refunds a captured charge in full', ...)`. Only test titles count toward status. Add other tests only where the feature can't be trusted without them. A test must not depend on files git does not track; when one has to, report `needs_owner` with why.
+- Build the whole feature, including the helpers, types and small refactors it needs. Report `needs_ticket` only when the milestone cannot ship without work that belongs to another feature; anything nice to have goes under "Follow-ups" in the pull request body. A migration is written, never applied: report `needs_migration`.
+- Done is when the feature works and the gate passes. Open the pull request then; don't keep polishing.
 - When the code shows the spec is wrong or silent, fix `spec.md` in the same pull request and add a dated row to `decisions.md`.
 - Run typecheck and the touched tests while working. Before committing, run `fix`, then the full `gate`. Commit with `jmr-commit`.
 - Merge `origin/milestone/<slug>` into your branch, rerun `gate` and push. Open the pull request into `milestone/<slug>` unless one exists. Its body starts with `<!-- jmr-pr {"milestone":"<slug>","id":"<id>"} -->`, then a plain-language summary, the scenarios now tested, decisions made and `Ticket: #<issue>`. Never `Closes #n`: closing keywords fire only on the default branch.
@@ -127,10 +137,20 @@ Wait for every implementer from steps 5 and 6 to report before step 7.
 
 **7. Review.** Review every open pull request into `milestone/<slug>` that `$CYCLE status` lists (its `pr` field) plus the SYNC pull request. Run `$CYCLE marks --pr <n>` for each and skip it when `approved` is true or `needsFix` is still true. For each other one, start a fresh reviewer subagent that did not write it. It:
 - adds a detached worktree, `git worktree add --detach "$RUN/review-<n>" origin/<branch>`, so the branch stays free to merge and delete; then runs `install` and `gate`;
-- applies `jmr-review` and `code-review` against the Standards, the ticket and the spec sections it names;
+- checks the feature works as the ticket describes: runs it where it can (the app, a script, a request) and reads the scenario tests;
 - confirms every scenario id on the ticket has a titled test that passes;
+- runs `jmr-review` and `code-review` to look for blockers;
 - runs `$CYCLE checks --pr <n> --wait`: `fail` is a required change, `pass` and `none` are fine, `pending` after the timeout leaves the pull request for the next cycle without a verdict;
 - posts one comment: `jmr-cycle review round <n>: approve <head sha>`, or `jmr-cycle review round <n>: changes` followed by the list. `<n>` is `nextRound` from `$CYCLE marks`.
+
+The review bar. Request changes only for:
+- the gate or a required check fails;
+- a scenario test is missing, skipped or failing;
+- the feature does not do what the ticket says;
+- a bug that loses data, breaks an existing feature or opens a security hole;
+- a rule in `jmr-review`'s signal bar.
+
+Everything else (style, naming, structure, `code-quality` preferences, extra test ideas) is a suggestion. Approve and list suggestions under "Notes (not blocking)" below the approve line. Suggestions never become changes or tickets. When in doubt, approve.
 
 When `nextRound` would be 4, escalate (rule 5) in place of a fourth review. Wait for every reviewer before step 8, then remove the `review-<n>` worktrees.
 
@@ -140,14 +160,14 @@ When `nextRound` would be 4, escalate (rule 5) in place of a fourth review. Wait
 3. `$CYCLE checks --pr <n> --wait` must say `pass` or `none`.
 4. Remove every worktree of this run that has the branch checked out (`git worktree list` shows them) with `git worktree remove --force`. Merge: `gh pr merge <n> --squash --delete-branch`, or `gh pr merge <n> --merge --delete-branch` for SYNC so the base's history stays in the milestone. Then `$CYCLE close --milestone <slug> --ticket <id> --pr <n>` (not for SYNC).
 5. Refresh the orchestrator: `git fetch origin milestone/<slug>`, `git checkout --detach origin/milestone/<slug>`, then `install`.
-6. For `needs_ticket`, add the ticket (see "Adding tickets"). For `needs_migration`, escalate (rule 2) before anything depending on it runs against a shared database. For `needs_owner`, escalate (rule 8).
+6. For `needs_ticket`, add the ticket (see "Adding tickets") only when the milestone cannot ship without it. Otherwise leave it as a follow-up in the pull request body. For `needs_migration`, escalate (rule 2) before anything depending on it runs against a shared database. For `needs_owner`, escalate (rule 8).
 
 After a merge that frees new frontier tickets, go back to step 3 while `--max` allows.
 
 **9. Close out.** Runs only when every ticket is done.
-1. Final review, once per milestone. When `$CYCLE marks --milestone <slug>` shows no `finalReview`, run reviewers with `jmr-review` and `code-review` (Standards and Spec in parallel) over `git diff origin/<base>...origin/milestone/<slug>`. Add each finding as a ticket (see "Adding tickets") and comment `jmr-cycle final review <sha>: <n> findings` on the status issue. When findings exist, go to step 10: the next cycles build them. Never run the final review twice. Check fixed findings with their own tests.
+1. Final review, once per milestone. When `$CYCLE marks --milestone <slug>` shows no `finalReview`, run reviewers with `jmr-review` and `code-review` (Standards and Spec in parallel) over `git diff origin/<base>...origin/milestone/<slug>`, using the step 7 review bar. Add each blocker as a `fix` ticket (see "Adding tickets") and comment `jmr-cycle final review <sha>: <n> findings` on the status issue, where `<n>` counts blockers. Suggestions go under "Follow-ups" in the landing pull request body, never into tickets. When findings exist, go to step 10: the next cycles build them. Never run the final review twice. Check fixed findings with their own tests.
 2. Gate. Skip this when `gatePass` from `$CYCLE marks --milestone <slug>` holds the current tip sha. Otherwise run `gate` and every `testReports` command (with `JMR_RESULTS=$RUN/results`). A pass gets a `jmr-cycle gate pass <sha>` comment. A failure becomes a fix ticket and a `jmr-cycle gate fail <sha>` comment. When `gateFail` already holds two entries, this third failure escalates (rule 5).
-3. Land. `$CYCLE landing --milestone <slug>`. With `state` `none`, open the pull request from `milestone/<slug>` into the base branch. Its body starts with `<!-- jmr-land {"milestone":"<slug>"} -->`, then the outcome, the tickets merged, decisions and the status issue link. Then `$CYCLE checks --pr <n> --wait` must say `pass` or `none`.
+3. Land. `$CYCLE landing --milestone <slug>`. With `state` `none`, open the pull request from `milestone/<slug>` into the base branch. Its body starts with `<!-- jmr-land {"milestone":"<slug>"} -->`, then the outcome, the tickets merged, decisions, follow-ups and the status issue link. Then `$CYCLE checks --pr <n> --wait` must say `pass` or `none`.
    - `land` `merge`: `gh pr merge <n> --merge`, or `--squash` when the repository refuses merge commits. When branch protection refuses both, escalate (rule 7).
    - `land` `pr`: escalate (rule 7) and go to step 10. Each later cycle reaches step 0.4 and finishes once the owner merges.
 4. Done. Run each `deploy` command from the orchestrator and check it. A failure escalates (rule 9) and ends the cycle with `waiting`; the next cycle retries from step 0.4. When every deploy passed, `$CYCLE finish --milestone <slug> --pr <landing pr>` closes the status issue and `git push origin --delete milestone/<slug>` removes the branch when it still exists. Skip steps 10 and 11.
@@ -164,7 +184,7 @@ After a merge that frees new frontier tickets, go back to step 3 while `--max` a
 
 ## Adding tickets
 
-Under the lease, in the orchestrator: add the ticket to `docs/milestones/<slug>/tickets.json` with the next free id (highest plus one) and its `blockedBy`, `scenarios` and `serial`. Run `$CYCLE validate --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. Commit with `jmr-commit` and `git push origin HEAD:milestone/<slug>`. On a rejected push: `git fetch origin milestone/<slug>`, `git rebase origin/milestone/<slug>`, push again. Then `$CYCLE publish --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`.
+Add a ticket only for a broken feature, a failing scenario or work the milestone cannot ship without. Its `type` is `feature` or `fix` and its title names what works once it merges. Under the lease, in the orchestrator: add the ticket to `docs/milestones/<slug>/tickets.json` with the next free id (highest plus one) and its `blockedBy`, `scenarios` and `serial`. Run `$CYCLE validate --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. Commit with `jmr-commit` and `git push origin HEAD:milestone/<slug>`. On a rejected push: `git fetch origin milestone/<slug>`, `git rebase origin/milestone/<slug>`, push again. Then `$CYCLE publish --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`.
 
 ## Running unattended
 
@@ -186,6 +206,10 @@ For runs with no session open, create a cloud routine with the `schedule` skill 
 | Squash-merging the SYNC pull request | It drops the base's history and the conflict returns next cycle; use `--merge` |
 | Treating "no checks reported" as a failure | `$CYCLE checks` reports it as `none`, which passes |
 | Running the final review again after its fixes land | Once per milestone; fixes are checked by their own tests |
+| Requesting changes for style, naming or structure | Approve with "Notes (not blocking)"; only the step 7 review bar blocks |
+| Turning review suggestions or nice-to-haves into tickets | List them as follow-ups in the pull request body |
+| Polishing a ticket after its scenarios pass and the gate is green | Open the pull request; done means it works |
+| A ticket for a helper, type, refactor, test or doc on its own | Fold it into the feature or fix that needs it |
 | Branching a ticket as `milestone/<slug>/...` | Git cannot hold both refs; use the branch `claim` prints |
 | Calling the milestone done when tickets close | Done is the landing pull request merged into the base branch |
 | A green run that skipped scenario tests | A skipped scenario test is a failure; a test that needs untracked files is escalated (rule 8) |
