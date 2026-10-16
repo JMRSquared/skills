@@ -7,13 +7,16 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import {
   LABELS,
+  briefStatus,
   buildIssueBody,
   checksVerdict,
   claimLine,
   computeStatus,
+  cyclePlan,
   decideClaim,
   deployMark,
   deployPlan,
@@ -28,9 +31,11 @@ import {
   statusMarks,
   latestClaim,
   LEGACY_TICKET_TYPES,
+  loopDelay,
   marker,
   mergeResults,
   milestoneLabel,
+  parseCycleResult,
   parseMarker,
   parseResults,
   renderStatusMarkdown,
@@ -42,6 +47,18 @@ import {
 } from './lib.mjs'
 
 const GH = process.env.JMR_CYCLE_GH || 'gh'
+const SKILL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const STEP_FILES = {
+  sync: 'steps/1-sync.md',
+  repair: 'steps/2-repair.md',
+  claim: 'steps/4-claim.md',
+  fix: 'steps/5-fix.md',
+  build: 'steps/6-build.md',
+  review: 'steps/7-review.md',
+  merge: 'steps/8-merge.md',
+  closeout: 'steps/9-closeout.md',
+  report: 'steps/10-report.md',
+}
 // Lets a rival run's claim comment land before this run reads the thread back.
 const SETTLE_MS = Number(process.env.JMR_CYCLE_SETTLE_MS ?? 4000)
 const EXIT = { ok: 0, error: 1, invalid: 2, lost: 3, unclaimable: 4, notGithub: 5 }
@@ -68,8 +85,14 @@ const HELP = `node cycle.mjs <command> [flags]
   validate  --milestone <slug> [--tickets f]     check milestone.json and a tickets file
   publish   --milestone <slug> --tickets f [--dry-run]
                                                create or update ticket issues and the status issue
-  status    --milestone <slug> [--json] [--results-dir d] [--write --run <id>]
-                                               state, frontier and scenarios; --write updates the status issue
+  status    --milestone <slug> [--json | --brief] [--results-dir d] [--write --run <id>]
+                                               state, frontier and scenarios; --brief prints only what a cycle acts
+                                               on; --write updates the status issue
+  next      --milestone <slug> [--status]       the cycle's state in brief and the step files to read, in order
+  loop      --milestone <slug> [--prompt p] [--continue-seconds 120] [--wait-minutes 60] [--retry-minutes 5]
+            [--max-cycles n] [--max-failures 3] [-- <agent command>]
+                                               run one cycle per fresh agent session (default: claude -p) until
+                                               a cycle reports complete; prints one JSON line per cycle
   workspace --milestone <slug> --holder <h> --run <id> [--prune]
                                                create and print this run's folder; --prune removes the folders
                                                and worktrees of this holder's earlier runs (hold the lease first)
@@ -95,13 +118,16 @@ const die = (message, code = EXIT.error) => {
 const parseArgs = (argv) => {
   const flags = {}
   const positional = []
+  const split = argv.indexOf('--')
+  const rest = split === -1 ? [] : argv.slice(split + 1)
+  if (split !== -1) argv = argv.slice(0, split)
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i]
     if (!arg.startsWith('--')) positional.push(arg)
     else if (argv[i + 1] === undefined || argv[i + 1].startsWith('--')) flags[arg.slice(2)] = true
     else flags[arg.slice(2)] = argv[++i]
   }
-  return { command: positional[0], flags }
+  return { command: positional[0], flags, rest }
 }
 
 const run = (cmd, args, { input, env, allowFail = false } = {}) => {
@@ -270,6 +296,28 @@ const worktreePaths = () =>
     .filter((line) => line.startsWith('worktree '))
     .map((line) => realOrSelf(line.slice('worktree '.length)))
 
+const landingState = (slug) => {
+  const data = parseMarker('jmr-status', statusIssueBySlug(slug).body)
+  data.base ??= ghJson(['repo', 'view', '--json', 'defaultBranchRef']).defaultBranchRef.name
+  const prs = ghJson([
+    'pr', 'list', '--head', data.branch, '--base', data.base, '--state', 'all', '--limit', '20',
+    '--json', 'number,url,state,headRefOid,isCrossRepository',
+  ]).filter((pr) => !pr.isCrossRepository)
+  const pr = prs.find((p) => p.state === 'OPEN') ?? prs.find((p) => p.state === 'MERGED') ?? null
+  return { state: pr ? pr.state.toLowerCase() : 'none', number: pr?.number ?? null, url: pr?.url ?? null, headSha: pr?.headRefOid ?? null, base: data.base, branch: data.branch }
+}
+
+const readStatus = (milestone, flags) => {
+  const issues = listMilestoneIssues(milestone.slug)
+  const results = flags['results-dir'] ? readResults(flags['results-dir'], milestone.scenarioPrefix) : null
+  const titles = scanTitles(flags.dir ?? process.cwd(), milestone.scenarioPrefix)
+  const openPrs = listOpenPrs(milestone)
+  const status = computeStatus({ milestone, issues, prs: [...openPrs, ...listPrs(milestone, 'merged')], titles, results })
+  const statusIssue = statusIssueOf(milestone.slug, issues)
+  status.statusIssue = statusIssue ? { number: statusIssue.number, url: statusIssue.url } : null
+  return { status, statusIssue, openPrs }
+}
+
 const createIssue = (title, body, labels) =>
   issueNumber(gh(['issue', 'create', '--title', title, '--body-file', '-', ...labels.flatMap((l) => ['--label', l])], { input: body }).trim())
 
@@ -378,20 +426,59 @@ const commands = {
 
   status: (flags) => {
     const milestone = loadMilestone(flags)
-    const issues = listMilestoneIssues(milestone.slug)
-    const results = flags['results-dir'] ? readResults(flags['results-dir'], milestone.scenarioPrefix) : null
-    const titles = scanTitles(flags.dir ?? process.cwd(), milestone.scenarioPrefix)
-    const prs = [...listOpenPrs(milestone), ...listPrs(milestone, 'merged')]
-    const status = computeStatus({ milestone, issues, prs, titles, results })
-    const statusIssue = statusIssueOf(milestone.slug, issues)
-    status.statusIssue = statusIssue ? { number: statusIssue.number, url: statusIssue.url } : null
+    const { status, statusIssue } = readStatus(milestone, flags)
     if (flags.write) {
       need(flags, 'run')
       if (!statusIssue) die('no open status issue; run publish first')
       const body = renderStatusMarkdown(status, { runId: flags.run, now: Date.now() })
       gh(['issue', 'edit', String(statusIssue.number), '--body-file', '-'], { input: body })
     }
+    if (flags.brief) return print(briefStatus(status))
     print(flags.json ? status : renderStatusMarkdown(status, { runId: flags.run ?? 'local', now: Date.now() }))
+  },
+
+  next: (flags) => {
+    const milestone = loadMilestone(flags)
+    const { status, openPrs } = readStatus(milestone, flags)
+    const brief = briefStatus(status)
+    const syncBranch = `chore/${milestone.slug}-sync-base`
+    const plan = cyclePlan({
+      mode: flags.status ? 'status' : 'cycle',
+      landing: landingState(milestone.slug).state,
+      syncOpen: openPrs.some((pr) => pr.headRefName === syncBranch),
+      brief,
+    })
+    const read = plan.steps.map((step) => path.join(SKILL_DIR, STEP_FILES[step]))
+    const publish = plan.publish ? { publish: `$CYCLE publish --milestone ${milestone.slug} --tickets docs/milestones/${milestone.slug}/tickets.json, then run next again` } : {}
+    print({ phase: plan.phase, read, ...publish, state: brief })
+  },
+
+  loop: (flags, rest) => {
+    need(flags, 'milestone')
+    if (!isSlug(flags.milestone)) die(`--milestone must be a milestone slug, got "${flags.milestone}"`, EXIT.invalid)
+    const [agent, ...agentArgs] = rest.length ? rest : ['claude', '-p']
+    const prompt = flags.prompt && flags.prompt !== true ? flags.prompt : `/jmr-cycle ${flags.milestone}`
+    const delays = {
+      continueMs: Number(flags['continue-seconds'] ?? 120) * 1e3,
+      waitMs: Number(flags['wait-minutes'] ?? 60) * 60e3,
+      retryMs: Number(flags['retry-minutes'] ?? 5) * 60e3,
+    }
+    const maxCycles = Number(flags['max-cycles'] ?? 0)
+    const maxFailures = Number(flags['max-failures'] ?? 3)
+    let failures = 0
+    for (let cycle = 1; maxCycles === 0 || cycle <= maxCycles; cycle++) {
+      // A fresh process per cycle is a fresh context: nothing from earlier
+      // cycles is carried, and GitHub holds everything the next one needs.
+      const r = spawnSync(agent, [...agentArgs, prompt], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 64 * 1024 * 1024 })
+      if (r.error) die(`${agent} could not start: ${r.error.message}. Pass the agent command after --.`)
+      const result = parseCycleResult(r.stdout)
+      const report = r.stdout.trim().split('\n').slice(-6)
+      print(JSON.stringify({ cycle, result, exitCode: r.status, at: new Date().toISOString(), report }))
+      if (result === 'complete') return
+      failures = result ? 0 : failures + 1
+      if (failures >= maxFailures) die(`${failures} cycles in a row ended without a CYCLE_RESULT line; read their report above and run /jmr-cycle ${flags.milestone} by hand.`)
+      sleep(loopDelay(result, delays))
+    }
   },
 
   claim: (flags) => {
@@ -574,14 +661,7 @@ const commands = {
 
   landing: (flags) => {
     need(flags, 'milestone')
-    const data = parseMarker('jmr-status', statusIssueBySlug(flags.milestone).body)
-    data.base ??= ghJson(['repo', 'view', '--json', 'defaultBranchRef']).defaultBranchRef.name
-    const prs = ghJson([
-      'pr', 'list', '--head', data.branch, '--base', data.base, '--state', 'all', '--limit', '20',
-      '--json', 'number,url,state,headRefOid,isCrossRepository',
-    ]).filter((pr) => !pr.isCrossRepository)
-    const pr = prs.find((p) => p.state === 'OPEN') ?? prs.find((p) => p.state === 'MERGED') ?? null
-    print({ state: pr ? pr.state.toLowerCase() : 'none', number: pr?.number ?? null, url: pr?.url ?? null, headSha: pr?.headRefOid ?? null, base: data.base, branch: data.branch })
+    print(landingState(flags.milestone))
   },
 
   checks: (flags) => {
@@ -623,7 +703,7 @@ const commands = {
   },
 }
 
-const { command, flags } = parseArgs(process.argv.slice(2))
+const { command, flags, rest } = parseArgs(process.argv.slice(2))
 const handler = commands[command ?? 'help']
 if (!handler) die(`unknown command "${command}"\n\n${HELP}`, EXIT.invalid)
-handler(flags)
+handler(flags, rest)

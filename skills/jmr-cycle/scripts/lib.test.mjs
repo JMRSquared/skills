@@ -2,7 +2,11 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+  briefStatus,
   buildIssueBody,
+  cyclePlan,
+  loopDelay,
+  parseCycleResult,
   checksVerdict,
   claimLine,
   deployPlan,
@@ -499,5 +503,73 @@ describe('renderStatusMarkdown', () => {
     assert.match(md, /0 of 1 scenarios have a test/)
     assert.match(md, /r1/)
     assert.match(md, /"base":"main"/)
+  })
+})
+
+describe('briefStatus', () => {
+  it('keeps only what a cycle acts on', () => {
+    const t1 = ticket('T01', { scenarios: ['PAY-001'] })
+    const t2 = ticket('T02', { scenarios: ['PAY-002'] })
+    const t3 = ticket('T03')
+    const pr = { number: 7, url: 'u', state: 'OPEN', body: '<!-- jmr-pr {"milestone":"payments","id":"T03"} -->' }
+    const issues = [issue(t1), issue(t2, { labels: [{ name: 'milestone:payments' }, { name: 'jmr:in-progress' }] }), issue(t3)]
+    const status = computeStatus({ milestone, issues, prs: [pr], titles: {}, results: { 'PAY-002': 'failed' } })
+    const brief = briefStatus({ ...status, statusIssue: { number: 1, url: 'https://github.com/o/r/issues/1' } })
+    assert.deepEqual(brief, {
+      phase: 'build',
+      counts: status.counts,
+      frontier: ['T01'],
+      busySerials: [],
+      building: ['T02'],
+      review: [{ id: 'T03', pr: 7 }],
+      owner: [],
+      unclosed: [],
+      scenarios: { total: 2, tested: 1, failing: ['PAY-002'] },
+      statusIssue: 'https://github.com/o/r/issues/1',
+    })
+  })
+})
+
+describe('cyclePlan', () => {
+  const brief = (extra = {}) => ({ phase: 'build', frontier: [], building: [], review: [], ...extra })
+  const steps = (input) => cyclePlan({ mode: 'cycle', landing: 'none', syncOpen: false, ...input }).steps
+
+  it('reads every build step when tickets are ready', () => {
+    assert.deepEqual(steps({ brief: brief({ frontier: ['T01'], review: [{ id: 'T02', pr: 5 }] }) }), [
+      'sync', 'repair', 'claim', 'fix', 'build', 'review', 'merge', 'report',
+    ])
+  })
+
+  it('leaves out claim and build when nothing is ready or held', () => {
+    assert.deepEqual(steps({ brief: brief({ review: [{ id: 'T02', pr: 5 }] }) }), ['sync', 'repair', 'fix', 'review', 'merge', 'report'])
+  })
+
+  it('adopts held tickets even with an empty frontier', () => {
+    assert.ok(steps({ brief: brief({ building: ['T03'] }) }).includes('claim'))
+  })
+
+  it('reads only sync, review and merge while a sync pull request is open', () => {
+    assert.deepEqual(steps({ syncOpen: true, brief: brief({ frontier: ['T01'] }) }), ['sync', 'review', 'merge', 'report'])
+  })
+
+  it('routes close-out, a merged landing, status mode and an empty milestone', () => {
+    assert.deepEqual(steps({ brief: brief({ phase: 'closeout' }) }), ['repair', 'closeout', 'report'])
+    assert.deepEqual(cyclePlan({ mode: 'cycle', landing: 'merged', brief: brief({ phase: 'closeout' }) }), { phase: 'landed', steps: ['closeout', 'report'] })
+    assert.deepEqual(steps({ mode: 'status', brief: brief({ frontier: ['T01'] }) }), ['report'])
+    assert.equal(cyclePlan({ mode: 'cycle', landing: 'none', brief: brief({ phase: 'empty' }) }).publish, true)
+  })
+})
+
+describe('loop pacing', () => {
+  it('reads the last CYCLE_RESULT line of a report', () => {
+    assert.equal(parseCycleResult('merged #4\nCYCLE_RESULT: continue\n'), 'continue')
+    assert.equal(parseCycleResult('CYCLE_RESULT: waiting\nnotes\nCYCLE_RESULT: complete'), 'complete')
+    assert.equal(parseCycleResult('crashed half way'), null)
+    assert.equal(parseCycleResult('CYCLE_RESULT: maybe'), null)
+  })
+
+  it('waits by result and retries a cycle that printed none', () => {
+    const delays = { continueMs: 1, waitMs: 2, retryMs: 3 }
+    assert.deepEqual(['continue', 'waiting', null].map((r) => loopDelay(r, delays)), [1, 2, 3])
   })
 })

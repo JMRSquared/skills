@@ -254,6 +254,65 @@ export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
   }
 }
 
+// Only what an orchestrator acts on, so a cycle's context holds a few lines in
+// place of every ticket and scenario.
+export const briefStatus = (status) => ({
+  phase: status.phase,
+  counts: status.counts,
+  frontier: status.frontier,
+  busySerials: status.busySerials,
+  building: status.tickets.filter((t) => t.state === 'building').map((t) => t.id),
+  review: status.tickets.filter((t) => t.state === 'review').map((t) => ({ id: t.id, pr: t.pr })),
+  owner: status.owner.map((o) => ({ id: o.id, number: o.number })),
+  unclosed: status.unclosed,
+  scenarios: {
+    total: status.scenarios.total,
+    tested: status.scenarios.tested,
+    failing: status.scenarios.failing.map((s) => s.id),
+  },
+  ...(status.statusIssue ? { statusIssue: status.statusIssue.url } : {}),
+})
+
+// Which step files a cycle reads, from GitHub state alone. Steps that cannot
+// apply this cycle are left out, so their text never enters the context.
+export const cyclePlan = ({ mode, landing, syncOpen, brief }) => {
+  if (mode === 'status') return { phase: brief.phase, steps: ['report'] }
+  if (landing === 'merged') return { phase: 'landed', steps: ['closeout', 'report'] }
+  if (brief.phase === 'empty') return { phase: 'empty', steps: [], publish: true }
+  if (brief.phase === 'closeout') return { phase: 'closeout', steps: ['repair', 'closeout', 'report'] }
+  if (syncOpen) return { phase: 'build', steps: ['sync', 'review', 'merge', 'report'] }
+  const canBuild = brief.frontier.length > 0 || brief.building.length > 0
+  const hasPrs = brief.review.length > 0
+  const steps = [
+    'sync',
+    'repair',
+    ...(canBuild ? ['claim'] : []),
+    ...(hasPrs ? ['fix'] : []),
+    ...(canBuild ? ['build'] : []),
+    ...(canBuild || hasPrs ? ['review', 'merge'] : []),
+    'report',
+  ]
+  return { phase: 'build', steps }
+}
+
+const CYCLE_RESULT = /^CYCLE_RESULT: (continue|waiting|complete)\s*$/
+export const parseCycleResult = (output) => {
+  const lines = String(output ?? '').trim().split('\n').reverse()
+  for (const line of lines) {
+    const m = CYCLE_RESULT.exec(line.trim())
+    if (m) return m[1]
+  }
+  return null
+}
+
+// A cycle that printed no result line crashed or was cut off; it retries soon
+// because GitHub already holds whatever it finished.
+export const loopDelay = (result, { continueMs, waitMs, retryMs }) => {
+  if (result === 'continue') return continueMs
+  if (result === 'waiting') return waitMs
+  return retryMs
+}
+
 const CLAIM_LINE = /^jmr-cycle claim (\S+) (\S+)(?: holder=(\S+))?/
 const commentId = (c) => /issuecomment-(\d+)/.exec(c.url ?? '')?.[1] ?? '0'
 

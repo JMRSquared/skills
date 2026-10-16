@@ -449,3 +449,89 @@ describe('crash recovery', () => {
     rmSync(runs, { recursive: true, force: true })
   })
 })
+
+describe('context budget', () => {
+  it('prints a brief status with no ticket bodies or scenario lists', () => {
+    const r = cli(['status', '--milestone', 'payments', '--brief'])
+    assert.equal(r.code, 0)
+    assert.deepEqual(Object.keys(r.out).sort(), ['building', 'busySerials', 'counts', 'frontier', 'owner', 'phase', 'review', 'scenarios', 'statusIssue', 'unclosed'])
+    assert.ok(JSON.stringify(r.out).length < 1000)
+  })
+
+  it('plans the cycle with step files that exist', () => {
+    const r = cli(['next', '--milestone', 'payments'])
+    assert.equal(r.code, 0)
+    // The landing pull request merged in an earlier test, so only close-out is left.
+    assert.equal(r.out.phase, 'landed')
+    assert.deepEqual(r.out.read.map((f) => path.basename(f)), ['9-closeout.md', '10-report.md'])
+    for (const file of r.out.read) assert.ok(existsSync(file), `${file} is missing`)
+    assert.deepEqual(r.out.state.building, ['T04'])
+    assert.deepEqual(cli(['next', '--milestone', 'payments', '--status']).out.read.map((f) => path.basename(f)), ['10-report.md'])
+  })
+
+  it('names every step file the plan can list', () => {
+    const steps = path.join(HERE, '..', 'steps')
+    for (const name of ['1-sync', '2-repair', '4-claim', '5-fix', '6-build', '7-review', '8-merge', '9-closeout', '10-report', 'adding-tickets']) {
+      assert.ok(existsSync(path.join(steps, `${name}.md`)), name)
+    }
+    for (const name of ['implementer', 'reviewer', 'standards']) assert.ok(existsSync(path.join(HERE, '..', 'briefs', `${name}.md`)), name)
+  })
+
+  describe('loop', () => {
+    let agentDir
+    let agent
+    const loop = (extra = []) =>
+      spawnSync('node', [CLI, 'loop', '--milestone', 'payments', '--continue-seconds', '0', '--wait-minutes', '0', '--retry-minutes', '0', ...extra, '--', 'node', agent], {
+        cwd: dir, env, encoding: 'utf8',
+      })
+    const lines = (r) => r.stdout.trim().split('\n').map((l) => JSON.parse(l))
+
+    before(() => {
+      agentDir = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-agent-'))
+      agent = path.join(agentDir, 'agent.mjs')
+      // A stand-in agent: each run is a new process, like a fresh session. It
+      // logs the prompt it got and prints the next scripted result.
+      writeFileSync(agent, `
+import { appendFileSync, existsSync, readFileSync } from 'node:fs'
+const dir = ${JSON.stringify(agentDir)}
+const script = JSON.parse(readFileSync(dir + '/script.json', 'utf8'))
+const n = existsSync(dir + '/runs.log') ? readFileSync(dir + '/runs.log', 'utf8').split('\\n').filter(Boolean).length : 0
+appendFileSync(dir + '/runs.log', process.argv.at(-1) + '\\n')
+const out = script[Math.min(n, script.length - 1)]
+console.log('merged #' + n)
+if (out) console.log('CYCLE_RESULT: ' + out)
+`)
+    })
+    after(() => rmSync(agentDir, { recursive: true, force: true }))
+
+    const script = (results) => {
+      writeFileSync(path.join(agentDir, 'script.json'), JSON.stringify(results))
+      rmSync(path.join(agentDir, 'runs.log'), { force: true })
+    }
+    const prompts = () => readFileSync(path.join(agentDir, 'runs.log'), 'utf8').trim().split('\n')
+
+    it('runs one fresh process per cycle until a cycle reports complete', () => {
+      script(['continue', null, 'waiting', 'complete'])
+      const r = loop()
+      assert.equal(r.status, 0)
+      assert.deepEqual(lines(r).map((l) => l.result), ['continue', null, 'waiting', 'complete'])
+      assert.deepEqual(lines(r)[0].report, ['merged #0', 'CYCLE_RESULT: continue'])
+      assert.deepEqual(prompts(), Array(4).fill('/jmr-cycle payments'))
+    })
+
+    it('stops after too many cycles end without a result line', () => {
+      script([null])
+      const r = loop(['--max-failures', '2'])
+      assert.equal(r.status, 1)
+      assert.equal(lines(r).length, 2)
+      assert.match(r.stderr, /2 cycles in a row ended without a CYCLE_RESULT line/)
+    })
+
+    it('stops at --max-cycles and passes a custom prompt', () => {
+      script(['continue'])
+      const r = loop(['--max-cycles', '2', '--prompt', 'run the cycle'])
+      assert.equal(r.status, 0)
+      assert.deepEqual(prompts(), ['run the cycle', 'run the cycle'])
+    })
+  })
+})

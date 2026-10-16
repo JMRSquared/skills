@@ -57,7 +57,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-plain-language`: rewrite pasted text in plain language.
 - `/premium-web-design` — apply the premium interactive website design bar.
 - `/agents-execute`: hand off a mission for unattended execution until its milestone is merged.
-- `/jmr-cycle <slug>`: move a milestone forward one step.
+- `/jmr-cycle <slug>`: move a milestone forward one step. `node <jmr-cycle dir>/scripts/cycle.mjs loop --milestone <slug>` repeats it, one fresh session per cycle.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
