@@ -82,7 +82,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    - `gate` is the repo's own build, test and lint commands, in forms that check without rewriting files. `fix` holds the rewriting forms (formatters, `lint:fix`) that implementers run before committing. In a jmrsquared repo the two together are `jmr-build-test-lint-gate`.
    - `testReports` writes JSON (Jest, Vitest) or JUnit XML (pytest `--junitxml`, gotestsum and most other runners) into `$JMR_RESULTS`, so status can show pass and fail per scenario.
    - `land` is `merge` unless the prompt says the owner merges it, which makes it `pr`.
-   - `deploy` lists only deploy commands the prompt asked for, run after landing.
+   - `deploy` lists only deploy commands the prompt asked for, run after landing. Write a step that must never run twice (a seed, a one-off data fix, a release notification) as `{ "run": "<command>", "once": true }`: if a crash cuts it off, the owner decides whether it ran.
 
 7. **Publish.** Run `git fetch origin <base>`, then `git worktree add -b milestone/<slug> "${TMPDIR:-/tmp}/agents-execute/<slug>/wt" origin/<base>` and work inside that worktree. Write `docs/milestones/<slug>/` with `milestone.json`, `spec.md`, `tickets.json` and `decisions.md` (from `notes/decisions.md`, plus the mission's outcomes). From the worktree root:
    1. `$CYCLE validate --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. Fix every error.

@@ -3,20 +3,27 @@
 // (the orchestrator worktree). `node cycle.mjs help` lists commands.
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 
 import {
   LABELS,
   buildIssueBody,
   checksVerdict,
+  claimLine,
   computeStatus,
   decideClaim,
+  deployMark,
+  deployPlan,
+  deploySteps,
   leaseDecision,
   findScenarioTitles,
   isStaleClaim,
   isTestFile,
   issueTitle,
+  isSlug,
   reviewState,
   statusMarks,
   latestClaim,
@@ -29,6 +36,7 @@ import {
   renderStatusMarkdown,
   shouldSkipDir,
   ticketBranch,
+  ticketPrs,
   validateMilestone,
   validateTickets,
 } from './lib.mjs'
@@ -62,14 +70,21 @@ const HELP = `node cycle.mjs <command> [flags]
                                                create or update ticket issues and the status issue
   status    --milestone <slug> [--json] [--results-dir d] [--write --run <id>]
                                                state, frontier and scenarios; --write updates the status issue
-  claim     --milestone <slug> --ticket T03 --run <id> [--branch b]
-                                               exit 0 won, 3 taken or lost, 4 closed or waiting on the owner
+  workspace --milestone <slug> --holder <h> --run <id> [--prune]
+                                               create and print this run's folder; --prune removes the folders
+                                               and worktrees of this holder's earlier runs (hold the lease first)
+  claim     --milestone <slug> --ticket T03 --run <id> [--holder <h>] [--branch b]
+                                               exit 0 won or adopted (a crashed run with the same holder had it),
+                                               3 taken or lost, 4 closed or waiting on the owner
+  repair    --milestone <slug>                   close tickets whose pull request merged before close ran
   release-stale --milestone <slug> --run <id>    release claims with no progress in 24 hours
   close     --milestone <slug> --ticket T03 --pr <n>
   escalate  --milestone <slug> (--ticket T03 | --status) --question-file f
+  deploy    --milestone <slug> --pr <landing pr>  run the milestone.json deploy steps not yet done for this
+                                               landing; exit 1 a step failed, 4 a once step was cut off
 
 Commands that read milestone.json look in docs/milestones/<slug>/ under the current directory, or under --dir.
-Exit codes: 0 ok, 1 a git or gh call failed, 2 invalid input, 3 claim or lease held by another run,
+Exit codes: 0 ok, 1 a git, gh or deploy command failed, 2 invalid input, 3 claim or lease held by another run,
 4 ticket closed or waiting on the owner, 5 not a GitHub repository you can push to.`
 
 const die = (message, code = EXIT.error) => {
@@ -160,11 +175,13 @@ const canWrite = (login) => {
 }
 const trusted = (comments) => comments.filter((c) => canWrite(c.author?.login))
 
-const listOpenPrs = (milestone) =>
+const listPrs = (milestone, state) =>
   ghJson([
-    'pr', 'list', '--base', milestone.branch, '--state', 'open', '--limit', '200',
+    'pr', 'list', '--base', milestone.branch, '--state', state, '--limit', '200',
     '--json', 'number,url,state,headRefName,body,title,isCrossRepository,author',
   ]).filter((pr) => !pr.isCrossRepository && canWrite(pr.author?.login))
+const listOpenPrs = (milestone) => listPrs(milestone, 'open')
+const mergedTicketPrs = (milestone) => ticketPrs(milestone.slug, listPrs(milestone, 'merged')).merged
 
 const GIT_IDENTITY = { ...process.env, GIT_AUTHOR_NAME: 'jmr-cycle', GIT_AUTHOR_EMAIL: 'jmr-cycle@localhost', GIT_COMMITTER_NAME: 'jmr-cycle', GIT_COMMITTER_EMAIL: 'jmr-cycle@localhost' }
 const leaseRef = (slug) => `refs/jmr-leases/${slug}`
@@ -230,6 +247,28 @@ const ensureLabels = (slug) => {
     gh(['label', 'create', name, '--color', color, '--description', description, '--force'])
   }
 }
+
+const closeTicket = (issue, pr) => {
+  const n = String(issue.number)
+  if (issue.state === 'OPEN') gh(['issue', 'close', n, '--comment', `Done in #${pr}`])
+  gh(['issue', 'edit', n, '--remove-label', LABELS.claim], { allowFail: true })
+}
+
+// Runs live under a folder per milestone and holder, so pruning never reaches
+// a run another checkout or another milestone's loop still owns.
+const holderRuns = (slug, holder) =>
+  path.join(tmpdir(), 'jmr-cycle', slug, createHash('sha256').update(holder).digest('hex').slice(0, 12))
+const isInside = (child, parent) => {
+  const rel = path.relative(parent, child)
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel)
+}
+const RUN_ID = /^[A-Za-z0-9_-][A-Za-z0-9_.-]*$/
+const realOrSelf = (p) => (existsSync(p) ? realpathSync(p) : p)
+const worktreePaths = () =>
+  run('git', ['worktree', 'list', '--porcelain'], { allowFail: true })
+    .stdout.split('\n')
+    .filter((line) => line.startsWith('worktree '))
+    .map((line) => realOrSelf(line.slice('worktree '.length)))
 
 const createIssue = (title, body, labels) =>
   issueNumber(gh(['issue', 'create', '--title', title, '--body-file', '-', ...labels.flatMap((l) => ['--label', l])], { input: body }).trim())
@@ -342,7 +381,8 @@ const commands = {
     const issues = listMilestoneIssues(milestone.slug)
     const results = flags['results-dir'] ? readResults(flags['results-dir'], milestone.scenarioPrefix) : null
     const titles = scanTitles(flags.dir ?? process.cwd(), milestone.scenarioPrefix)
-    const status = computeStatus({ milestone, issues, prs: listOpenPrs(milestone), titles, results })
+    const prs = [...listOpenPrs(milestone), ...listPrs(milestone, 'merged')]
+    const status = computeStatus({ milestone, issues, prs, titles, results })
     const statusIssue = statusIssueOf(milestone.slug, issues)
     status.statusIssue = statusIssue ? { number: statusIssue.number, url: statusIssue.url } : null
     if (flags.write) {
@@ -371,19 +411,25 @@ const commands = {
             title: issue.title.replace(/^\[[^\]]*\]\s*T\d+\s*/, ''),
             type: parseMarker('jmr-ticket', issue.body)?.type,
           })
+    const holder = flags.holder && flags.holder !== true ? flags.holder : null
     const base = { ticket: flags.ticket, issue: issue.number, branch, resumeBranch: previous?.branch ?? null }
     if (view.state === 'CLOSED') return print({ ...base, result: 'closed' }), process.exit(EXIT.unclaimable)
     if (labels.includes(LABELS.owner)) return print({ ...base, result: 'owner' }), process.exit(EXIT.unclaimable)
     if (labels.includes(LABELS.claim)) {
-      const held = decideClaim(view.comments, flags.run, Date.now())
+      const held = decideClaim(view.comments, flags.run, Date.now(), holder)
       if (held.won) return print({ ...base, result: 'won' })
+      if (held.adopted) {
+        // A fresh claim line restarts the stale-claim clock for this run.
+        gh(['issue', 'comment', n, '--body', claimLine(flags.run, branch, holder)])
+        return print({ ...base, result: 'adopted', previousRun: held.winner.run })
+      }
       return print({ ...base, result: 'taken', holder: held.winner }), process.exit(EXIT.lost)
     }
     gh(['issue', 'edit', n, '--add-label', LABELS.claim])
-    gh(['issue', 'comment', n, '--body', `jmr-cycle claim ${flags.run} ${branch}`])
+    gh(['issue', 'comment', n, '--body', claimLine(flags.run, branch, holder)])
     sleep(SETTLE_MS)
     const after = viewComments(n)
-    const decision = decideClaim(after.comments, flags.run, Date.now())
+    const decision = decideClaim(after.comments, flags.run, Date.now(), holder)
     for (const id of decision.mine) gh(['api', '-X', 'DELETE', `repos/{owner}/{repo}/issues/comments/${id}`], { allowFail: true })
     if (decision.won) return print({ ...base, result: 'won' })
     print({ ...base, result: 'lost', holder: decision.winner })
@@ -416,10 +462,74 @@ const commands = {
     need(flags, 'ticket', 'pr')
     const milestone = loadMilestone(flags)
     const issue = findTicket(milestone, flags.ticket)
-    const n = String(issue.number)
-    if (issue.state === 'OPEN') gh(['issue', 'close', n, '--comment', `Done in #${flags.pr}`])
-    gh(['issue', 'edit', n, '--remove-label', LABELS.claim], { allowFail: true })
+    closeTicket(issue, flags.pr)
     print({ ticket: flags.ticket, issue: issue.number, closed: true })
+  },
+
+  repair: (flags) => {
+    const milestone = loadMilestone(flags)
+    const merged = mergedTicketPrs(milestone)
+    const closed = []
+    for (const [id, issue] of ticketIssues(milestone.slug, listMilestoneIssues(milestone.slug))) {
+      const pr = merged.get(id)
+      if (issue.state !== 'OPEN' || !pr) continue
+      closeTicket(issue, pr.number)
+      closed.push({ id, issue: issue.number, pr: pr.number })
+    }
+    print({ closed })
+  },
+
+  workspace: (flags) => {
+    need(flags, 'milestone', 'holder', 'run')
+    if (!isSlug(flags.milestone)) die(`--milestone must be a milestone slug, got "${flags.milestone}"`, EXIT.invalid)
+    if (!RUN_ID.test(flags.run)) die(`--run must be letters, digits, dots, dashes or underscores, got "${flags.run}"`, EXIT.invalid)
+    const root = holderRuns(flags.milestone, flags.holder)
+    const runDir = path.join(root, flags.run)
+    mkdirSync(path.join(runDir, 'results'), { recursive: true })
+    const removed = []
+    if (flags.prune) {
+      const realRoot = realpathSync(root)
+      const realRun = realpathSync(runDir)
+      for (const wt of worktreePaths()) {
+        if (!isInside(wt, realRoot) || wt === realRun || isInside(wt, realRun)) continue
+        run('git', ['worktree', 'remove', '--force', wt], { allowFail: true })
+        removed.push(wt)
+      }
+      run('git', ['worktree', 'prune'], { allowFail: true })
+      for (const entry of readdirSync(root)) {
+        if (entry === flags.run) continue
+        rmSync(path.join(root, entry), { recursive: true, force: true })
+        removed.push(path.join(root, entry))
+      }
+    }
+    print({ runDir, removed })
+  },
+
+  deploy: (flags) => {
+    need(flags, 'pr')
+    const milestone = loadMilestone(flags)
+    const issue = statusIssueBySlug(milestone.slug)
+    const n = String(issue.number)
+    const plan = deployPlan(deploySteps(milestone), viewComments(n).comments, flags.pr)
+    const steps = []
+    for (const step of plan) {
+      if (step.action === 'skip') {
+        steps.push({ index: step.index, run: step.run, result: 'skipped' })
+        continue
+      }
+      if (step.action === 'unknown') {
+        steps.push({ index: step.index, run: step.run, result: 'unknown' })
+        return print({ result: 'unknown', steps }), process.exit(EXIT.unclaimable)
+      }
+      gh(['issue', 'comment', n, '--body', deployMark('start', flags.pr, step.index)])
+      // The command's output goes to stderr so stdout stays one JSON report.
+      const r = spawnSync('sh', ['-c', step.run], { stdio: ['ignore', 2, 2] })
+      const ok = r.status === 0
+      gh(['issue', 'comment', n, '--body', deployMark(ok ? 'done' : 'fail', flags.pr, step.index)])
+      steps.push({ index: step.index, run: step.run, result: ok ? 'done' : 'failed', exitCode: r.status })
+      if (!ok) return print({ result: 'failed', steps }), process.exit(EXIT.error)
+    }
+    print({ result: 'done', steps })
   },
 
   lease: (flags) => {

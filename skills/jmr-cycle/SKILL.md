@@ -10,6 +10,17 @@ One run moves one milestone forward by one cycle: sync, read state, claim ready 
 
 A run keeps no state of its own. GitHub issues, pull requests and the `milestone/<slug>` branch hold all of it, so any session, machine or scheduled run carries on where the last one stopped. `/agents-execute` creates the milestone; this skill builds it.
 
+## After a crash
+
+A run can die between any two steps. The next run recovers from GitHub alone:
+
+| Cut off | What the next run does |
+|---|---|
+| Mid-cycle, same checkout | Takes over the lease at once (same `HOLDER`), prunes the dead run's worktrees (step 0.4) and adopts its claims (step 4) |
+| Between a merge and `close` | `repair` closes the ticket (step 2). `status` already counts it as done, so nobody builds it again |
+| While an implementer worked | Its branch holds every commit it pushed. The adopting implementer reads that branch first and carries on (step 6) |
+| During a deploy step | `deploy` skips the steps marked done and reruns the cut-off one, unless the step is `once` (step 9.4) |
+
 ## Done means it works
 
 The goal is to land the milestone in as few cycles as possible. A ticket is done when its feature works: the gate passes, its scenario tests pass and it does what the ticket says. Then it merges. Cleaner code, extra tests, nicer names and refactors nobody asked for are not reasons to hold a ticket open or to add new ones. Every agent in a cycle follows this:
@@ -23,7 +34,7 @@ The goal is to land the milestone in as few cycles as possible. A ticket is done
 | Where | What |
 |---|---|
 | `milestone/<slug>` | The milestone branch. Every ticket merges here. It lands on the base branch at close-out |
-| `docs/milestones/<slug>/milestone.json` | Base branch, scenario prefix and the `install`, `gate`, `fix`, `testReports` and `deploy` commands, plus the `land` mode |
+| `docs/milestones/<slug>/milestone.json` | Base branch, scenario prefix and the `install`, `gate`, `fix`, `testReports` and `deploy` commands, plus the `land` mode. A `deploy` entry is a command or `{ "run": "<command>", "once": true }` for a step that must never run twice |
 | `docs/milestones/<slug>/spec.md` | The spec. Implementers read the sections their ticket names |
 | `docs/milestones/<slug>/tickets.json` | The ticket graph. `publish` turns it into GitHub issues |
 | `docs/milestones/<slug>/decisions.md` | Decisions made during the build, with dates |
@@ -42,7 +53,7 @@ Every tracker, claim, lease, CI and status action goes through `cycle.mjs` in th
 |---|---|
 | `/jmr-cycle <slug>` | One full cycle, steps 0 to 12 |
 | `/jmr-cycle` | Uses the only open milestone from `$CYCLE milestones`. With none, says so and stops. With several, lists them and stops |
-| `/jmr-cycle <slug> status` | Steps 0.1, 0.2 and 0.5, then 3, 10 and 12 (no lease, no unlease) |
+| `/jmr-cycle <slug> status` | Steps 0.1, 0.2, 0.4 without `--prune` and 0.6, then 3, 10 and 12 (no lease, no unlease) |
 | `--parallel N` | Tickets built at once. Default 3 |
 | `--max N` | Tickets started in this cycle. Default 6 |
 
@@ -75,7 +86,7 @@ Escalating means: write the question, the options and your recommendation to a f
 6. a conflict touches code where neither side is clearly right;
 7. the landing pull request is ready and `land` is `pr`, or branch protection blocks the merge;
 8. a scenario can only be verified with files git does not track (`.env`, local databases, private fixtures);
-9. a `deploy` command fails after the landing merge.
+9. a `deploy` step fails after the landing merge, or a `once` step was cut off and may have run.
 
 The owner answers in the issue thread and removes `needs:owner`. The next cycle picks the ticket up again. Its implementer reads the answer in the comments.
 
@@ -97,10 +108,11 @@ Every implementer and reviewer applies the jmrsquared skills. Load model-invoked
 
 **0. Preflight, lease and workspace.**
 1. From the owner's checkout run `$CYCLE preflight`. Exit 5 means this is not a GitHub repository you can push to: print its message and stop.
-2. Set `RUN=${TMPDIR:-/tmp}/jmr-cycle/<UTC timestamp>-<8 random hex>` and `RUN_ID` to its last segment. Read the milestone's `branch` and `base` from `$CYCLE milestones`.
-3. Set `HOLDER="$(hostname):<absolute path of the owner's checkout>"`. It stays the same across a `/loop`, so a cycle can take over from a predecessor that crashed. Run `$CYCLE lease --milestone <slug> --run $RUN_ID --holder "$HOLDER"`. Exit 3 means another loop is working this milestone: reply with `CYCLE_RESULT: waiting` and stop.
-4. `$CYCLE landing --milestone <slug>`. When `state` is `merged`, create the orchestrator from `origin/<base>` in place of the milestone branch in 0.5 (it may be deleted; the milestone's files are on the base now) and go to step 9.4.
-5. `mkdir -p "$RUN/results"`, `git fetch origin <base> milestone/<slug>`, `git worktree add --detach "$RUN/orchestrator" origin/milestone/<slug>`, then the `install` command there. Every command below runs in `$RUN/orchestrator` unless it names another worktree.
+2. Set `RUN_ID=<UTC timestamp>-<8 random hex>` and `HOLDER="$(hostname):<absolute path of the owner's checkout>"`. The holder stays the same across a `/loop`, so a cycle can take over from a predecessor that crashed. Read the milestone's `branch` and `base` from `$CYCLE milestones`.
+3. Run `$CYCLE lease --milestone <slug> --run $RUN_ID --holder "$HOLDER"`. Exit 3 means another loop is working this milestone: reply with `CYCLE_RESULT: waiting` and stop.
+4. From the owner's checkout run `$CYCLE workspace --milestone <slug> --holder "$HOLDER" --run $RUN_ID --prune` and set `RUN` to the `runDir` it prints. It creates `$RUN/results` and removes the folders and worktrees that this holder's crashed runs left behind. Only run `--prune` while holding the lease.
+5. `$CYCLE landing --milestone <slug>`. When `state` is `merged`, create the orchestrator from `origin/<base>` in place of the milestone branch in 0.6 (it may be deleted; the milestone's files are on the base now) and go to step 9.4.
+6. `git fetch origin <base> milestone/<slug>`, `git worktree add --detach "$RUN/orchestrator" origin/milestone/<slug>`, then the `install` command there. Every command below runs in `$RUN/orchestrator` unless it names another worktree.
 
 Renew the lease with the same `lease` command (same `--run` and `--holder`) at the start of steps 6, 7, 8 and 9. It is one cheap git push and posts nothing. When a renewal exits 3, stop starting work, wait for running subagents and go to step 12.
 
@@ -109,14 +121,16 @@ Renew the lease with the same `lease` command (same `--run` and `--holder`) at t
 - Clean merge: run `gate`. If it passes, `git push origin HEAD:milestone/<slug>`. A rejected push means the branch moved: `git fetch origin milestone/<slug>`, `git checkout --detach origin/milestone/<slug>` and redo this step once.
 - Conflict, or a gate failure the merge caused: `git merge --abort`. One implementer subagent creates `chore/<slug>-sync-base` from `origin/milestone/<slug>`, merges the base in, resolves it and opens a pull request into `milestone/<slug>` whose body starts with `<!-- jmr-pr {"milestone":"<slug>","id":"SYNC"} -->`. That pull request is the only item this cycle.
 
-**2. Release stale claims.** `$CYCLE release-stale --milestone <slug> --run $RUN_ID`.
+**2. Repair and release.** `$CYCLE repair --milestone <slug>` closes every ticket whose pull request merged before a crashed run could close it. Then `$CYCLE release-stale --milestone <slug> --run $RUN_ID` releases claims with no progress in 24 hours.
 
 **3. Read state.** `$CYCLE status --milestone <slug> --json > "$RUN/status.json"`. It gives each ticket's `state`, the `frontier`, `busySerials`, owner items and scenario coverage.
 - `phase` `empty`: run `$CYCLE publish --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`, then read state again.
 - `phase` `closeout`: go to step 9.
 - `status` mode: go to step 10.
 
-**4. Choose and claim.** Walk the frontier in order until `--max` tickets are claimed this cycle. Skip a ticket whose `serial` is in `busySerials` or matches a ticket already claimed this cycle. Otherwise run `$CYCLE claim --milestone <slug> --ticket <id> --run $RUN_ID`. Exit 0 means it is yours: note the `branch` it prints and `resumeBranch` when that exists on `origin`. Exit 3 or 4 means skip it and keep walking.
+**4. Choose and claim.** Every claim runs `$CYCLE claim --milestone <slug> --ticket <id> --run $RUN_ID --holder "$HOLDER"`. Exit 0 means it is yours: note the `branch` it prints and `resumeBranch` when that exists on `origin`. Exit 3 or 4 means skip it and keep walking.
+1. Adopt first. Run `claim` for each ticket in state `building`. `result` `adopted` means a crashed run from this checkout held it (`previousRun`): it is yours now and counts toward `--max`. Claims from other holders exit 3.
+2. Then walk the frontier in order until `--max` tickets are claimed this cycle. Skip a ticket whose `serial` is in `busySerials` or matches a ticket already claimed this cycle.
 
 **5. Fix requested changes.** For each open pull request into `milestone/<slug>`, run `$CYCLE marks --pr <n>`. When `needsFix` is true, start an implementer subagent on its branch with the step 6 contract and the newest review comment as its task.
 
@@ -124,12 +138,13 @@ Renew the lease with the same `lease` command (same `--run` and `--holder`) at t
 
 - The owner's approval for this run covers your commits, pushes and pull request: do not stop to ask. Anything in "Escalate" comes back to the orchestrator in your report.
 - `git worktree add -b <branch> "$RUN/<id>" origin/milestone/<slug>`, or check out `resumeBranch` or the pull request branch you were given. Run `install` there.
+- When you were given a `resumeBranch`, an earlier run stopped partway through this ticket. Before writing code, read `git log` and `git diff origin/milestone/<slug>...HEAD` on it and run its tests. Keep what works and carry on from there. Start over only when the branch does not build. Say so in your report.
 - Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and ADRs, the issue with its comments (Trust says whose comments count) and the spec sections it names. Apply every skill in Standards that matches your files.
 - Build test-first with `tdd`. Each scenario id on the ticket gets a test whose title starts with the id and says what it checks, on the same line as the test call: `it('PAY-003 refunds a captured charge in full', ...)`. Only test titles count toward status. Add other tests only where the feature can't be trusted without them. A test must not depend on files git does not track; when one has to, report `needs_owner` with why.
 - Build the whole feature, including the helpers, types and small refactors it needs. Report `needs_ticket` only when the milestone cannot ship without work that belongs to another feature; anything nice to have goes under "Follow-ups" in the pull request body. A migration is written, never applied: report `needs_migration`.
 - Done is when the feature works and the gate passes. Open the pull request then; don't keep polishing.
 - When the code shows the spec is wrong or silent, fix `spec.md` in the same pull request and add a dated row to `decisions.md`.
-- Run typecheck and the touched tests while working. Before committing, run `fix`, then the full `gate`. Commit with `jmr-commit`.
+- Run typecheck and the touched tests while working. Commit with `jmr-commit` and push the branch (`git push -u origin <branch>`) each time a scenario test passes, after running `fix`. A crash then loses only work since the last push. Run the full `gate` before the pull request.
 - Merge `origin/milestone/<slug>` into your branch, rerun `gate` and push. Open the pull request into `milestone/<slug>` unless one exists. Its body starts with `<!-- jmr-pr {"milestone":"<slug>","id":"<id>"} -->`, then a plain-language summary, the scenarios now tested, decisions made and `Ticket: #<issue>`. Never `Closes #n`: closing keywords fire only on the default branch.
 - Report only: verdict, pull request URL, head sha, scenarios tested, decisions, `needs_ticket`, `needs_migration` or `needs_owner` if any.
 
@@ -169,14 +184,14 @@ After a merge that frees new frontier tickets, go back to step 3 while `--max` a
 2. Gate. Skip this when `gatePass` from `$CYCLE marks --milestone <slug>` holds the current tip sha. Otherwise run `gate` and every `testReports` command (with `JMR_RESULTS=$RUN/results`). A pass gets a `jmr-cycle gate pass <sha>` comment. A failure becomes a fix ticket and a `jmr-cycle gate fail <sha>` comment. When `gateFail` already holds two entries, this third failure escalates (rule 5).
 3. Land. `$CYCLE landing --milestone <slug>`. With `state` `none`, open the pull request from `milestone/<slug>` into the base branch. Its body starts with `<!-- jmr-land {"milestone":"<slug>"} -->`, then the outcome, the tickets merged, decisions, follow-ups and the status issue link. Then `$CYCLE checks --pr <n> --wait` must say `pass` or `none`.
    - `land` `merge`: `gh pr merge <n> --merge`, or `--squash` when the repository refuses merge commits. When branch protection refuses both, escalate (rule 7).
-   - `land` `pr`: escalate (rule 7) and go to step 10. Each later cycle reaches step 0.4 and finishes once the owner merges.
-4. Done. Run each `deploy` command from the orchestrator and check it. A failure escalates (rule 9) and ends the cycle with `waiting`; the next cycle retries from step 0.4. When every deploy passed, `$CYCLE finish --milestone <slug> --pr <landing pr>` closes the status issue and `git push origin --delete milestone/<slug>` removes the branch when it still exists. Skip steps 10 and 11.
+   - `land` `pr`: escalate (rule 7) and go to step 10. Each later cycle reaches step 0.5 and finishes once the owner merges.
+4. Done. Run `$CYCLE deploy --milestone <slug> --pr <landing pr>` from the orchestrator. It posts a mark on the status issue before and after each step, so a rerun skips the steps already done. Exit 1 means a step failed: escalate (rule 9). Exit 4 means a `once` step was cut off and may have run: escalate (rule 9) and ask the owner to check it, then comment `jmr-cycle deploy done <pr> <index>` when it finished or `jmr-cycle deploy fail <pr> <index>` to run it again. Either exit ends the cycle with `waiting`; the next cycle retries from step 0.5. When every step is done, `$CYCLE finish --milestone <slug> --pr <landing pr>` closes the status issue and `git push origin --delete milestone/<slug>` removes the branch when it still exists. Skip steps 10 and 11.
 
 **10. Publish status.** Run each `testReports` command with `JMR_RESULTS=$RUN/results` unless step 9 already did, then `$CYCLE status --milestone <slug> --write --run $RUN_ID --results-dir "$RUN/results"`.
 
 **11. Escalate** everything steps 1 to 9 surfaced, as described above.
 
-**12. Clean up and report.** Wait for any subagent still running. Remove every worktree this run created with `git worktree remove --force`, then `git worktree prune`. Unless this was `status` mode, run `$CYCLE unlease --milestone <slug> --run $RUN_ID`. Delete `$RUN`. Reply in at most five lines: pull requests merged (numbers and titles), pull requests in review, owner items with links and the status issue link. The last line is exactly one of:
+**12. Clean up and report.** Wait for any subagent still running. Remove every worktree this run created with `git worktree remove --force`, then `git worktree prune`. A run that dies before this step leaves them behind; the next run's step 0.4 removes them. Unless this was `status` mode, run `$CYCLE unlease --milestone <slug> --run $RUN_ID`. Delete `$RUN`. Reply in at most five lines: pull requests merged (numbers and titles), pull requests in review, owner items with links and the status issue link. The last line is exactly one of:
 
 - `CYCLE_RESULT: continue`: the frontier or the review queue has work an agent can do now.
 - `CYCLE_RESULT: waiting`: everything left waits on the owner, on CI or on another run's lease or claim.
@@ -197,7 +212,12 @@ For runs with no session open, create a cloud routine with the `schedule` skill 
 | Mistake | Fix |
 |---|---|
 | Working in the owner's checkout | Step 0: everything runs in `$RUN/orchestrator` or a subagent worktree |
-| Adding labels, claims or leases by hand | Use `$CYCLE claim`, `lease`, `close`, `escalate` and `release-stale` |
+| Adding labels, claims or leases by hand | Use `$CYCLE claim`, `lease`, `close`, `repair`, `escalate` and `release-stale` |
+| Claiming without `--holder` | The next run cannot adopt the claim after a crash, so the ticket waits 24 hours |
+| Starting a ticket over when it has a `resumeBranch` | Read the branch first; keep the work an earlier run pushed |
+| Pushing a ticket branch only once, at the end | Push after each passing scenario so a crash loses little |
+| Running deploy commands by hand | `$CYCLE deploy` marks each step so a retry never repeats a finished one |
+| Reopening a ticket whose pull request merged | `repair` closes it again; add a `fix` ticket for the rework |
 | Reading review or gate verdicts from comments yourself | `$CYCLE marks` drops verdicts from accounts without write access |
 | Reading progress from an agent's report | Read `$CYCLE status`: it counts scenario ids in test titles and results in test reports |
 | Moving to review or cleanup while builders still run | Wait for every subagent at the end of steps 6 and 7 and in step 12 |
