@@ -34,6 +34,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
 - `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
 - `jmr-generate-video`: narrated promo video from a URL, images, PDF, code or brief, rendered locally; `/jmr-generate-video`.
+- `jmr-survey-form`: customer discovery survey as a Google Form, built in your own Google account; `/jmr-survey-form`.
 
 **Companion:**
 
@@ -48,6 +49,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.
 - `jmr-image` — `/jmr-image` — Unsplash then Pexels photography search + download.
 - `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local promo video with voiceover via audited, pinned brag + Hyperframes.
+- `jmr-survey-form`: `/jmr-survey-form`: 10-question discovery survey and pilot sign-up form, with the promo video on top.
 
 **Slash commands (Claude Code):**
 
@@ -62,6 +64,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
 - `/jmr-generate-video` or `/generate-video`: narrated promo video, portrait or landscape, female or male voice.
+- `/jmr-survey-form`: build a customer discovery survey as a Google Form.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

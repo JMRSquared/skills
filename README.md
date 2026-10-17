@@ -59,6 +59,7 @@ Two tiers.
 | `gltf-assets` | Searching or downloading glTF/GLB (Sketchfab + Poly Haven) and HDRIs for R3F / `/premium-web-design` |
 | `jmr-image` | Searching or downloading photography — Unsplash then Pexels (commercial-safe), pngimg fallback for cutouts |
 | `jmr-generate-video` | Asking for a promo, launch or explainer video with a voiceover |
+| `jmr-survey-form` | Asking for a customer discovery survey, pilot sign-up form or Google Form about your product |
 
 **Companion:**
 
@@ -76,6 +77,7 @@ Two tiers.
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
 | `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a narrated promo video made on your machine from a website, images, a PDF, source code, a brief or an idea with nothing built yet. Female or male voice, portrait or landscape. Runs [brag](https://github.com/latent-spaces/brag) pinned to an audited commit with telemetry off |
+| `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
 
 ---
 
@@ -106,7 +108,7 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 |---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
 | **30** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
-| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video` slash commands | Y |: | Y |: |: |: |: |
+| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y |: |: |: |: |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -225,6 +227,7 @@ In any Claude Code session once installed:
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
 - `/jmr-generate-video` (or `/generate-video`): make a promo video. Example: `/generate-video for https://example.com, portrait, upbeat female voice, don't rush the screenshots`. Point it at images, a business profile PDF or a code folder in place of a URL. Needs Node 22+, FFmpeg and git; the Hyperframes CLI and the Kokoro voice model download on first run.
+- `/jmr-survey-form`: build a customer discovery survey as a Google Form. You sign in to Google and approve its permissions yourself; the agent never does either for you.
 - `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; without either the script falls back to pngimg, which is CC BY-NC.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.
