@@ -2,8 +2,16 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+  briefStatus,
   buildIssueBody,
+  cyclePlan,
+  loopDelay,
+  parseCycleResult,
   checksVerdict,
+  claimLine,
+  deployPlan,
+  deploySteps,
+  latestClaim,
   leaseDecision,
   reviewState,
   statusMarks,
@@ -62,6 +70,12 @@ describe('validateMilestone', () => {
   it('requires the milestone branch to be milestone/<slug>', () => {
     const errors = validateMilestone({ ...milestone, branch: 'feature/payments' })
     assert.ok(errors.some((e) => e.includes('milestone/payments')))
+  })
+
+  it('accepts deploy steps as commands or once objects and rejects anything else', () => {
+    assert.deepEqual(validateMilestone({ ...milestone, deploy: ['yarn deploy', { run: 'yarn seed', once: true }] }), [])
+    assert.equal(validateMilestone({ ...milestone, deploy: [{ once: true }] }).length, 1)
+    assert.equal(validateMilestone({ ...milestone, deploy: [{ run: 'x', once: 'yes' }] }).length, 1)
   })
 
   it('accepts fix commands and rejects a fix that is not a list', () => {
@@ -212,6 +226,27 @@ describe('computeStatus', () => {
     assert.equal(status.tickets[0].state, 'ready')
   })
 
+  it('counts a ticket whose pull request merged as done while its issue is still open', () => {
+    const pr = {
+      number: 9,
+      url: 'u',
+      state: 'MERGED',
+      body: '<!-- jmr-pr {"milestone":"payments","id":"T01"} -->',
+    }
+    const claimed = { labels: [{ name: 'milestone:payments' }, { name: 'jmr:in-progress' }] }
+    const status = computeStatus({ milestone, issues: [issue(t1, claimed), issue(t2)], prs: [pr], titles: {}, results: null })
+    const states = Object.fromEntries(status.tickets.map((t) => [t.id, t.state]))
+    assert.deepEqual(states, { T01: 'done', T02: 'ready' })
+    assert.deepEqual(status.unclosed, [{ id: 'T01', number: 101, pr: 9 }])
+    assert.equal(status.tickets[0].pr, null)
+  })
+
+  it('does not list a closed ticket with a merged pull request as unclosed', () => {
+    const pr = { number: 9, url: 'u', state: 'MERGED', body: '<!-- jmr-pr {"milestone":"payments","id":"T01"} -->' }
+    const status = computeStatus({ milestone, issues: [issue(t1, { state: 'CLOSED' })], prs: [pr], titles: {}, results: null })
+    assert.deepEqual(status.unclosed, [])
+  })
+
   it('sorts the frontier by ticket number, not string order', () => {
     const issues = [issue(ticket('T10')), issue(ticket('T09'))]
     const status = computeStatus({ milestone, issues, prs: [], titles: {}, results: null })
@@ -242,6 +277,67 @@ describe('decideClaim', () => {
   it('breaks a same-second tie by comment id', () => {
     const comments = [claim('b', 1, 12), claim('a', 1, 11)]
     assert.equal(decideClaim(comments, 'a', NOW).won, true)
+  })
+
+  const held = (run, holder, hours, id) => ({
+    body: claimLine(run, 'feature/payments-t01-x', holder),
+    createdAt: ago(hours),
+    url: `https://github.com/o/r/issues/1#issuecomment-${id}`,
+  })
+
+  it('lets a later run with the same holder adopt the claim and keep its comments', () => {
+    const comments = [held('crashed', 'mac:/my repo', 2, 10)]
+    const decision = decideClaim(comments, 'next', NOW, 'mac:/my repo')
+    assert.deepEqual([decision.won, decision.adopted, decision.winner.run, decision.mine], [false, true, 'crashed', []])
+  })
+
+  it('refuses adoption to another holder and to claims that name no holder', () => {
+    assert.equal(decideClaim([held('a', 'mac:/repo', 1, 10)], 'b', NOW, 'pc:/repo').adopted, false)
+    assert.equal(decideClaim([claim('a', 1, 10)], 'b', NOW, 'mac:/repo').adopted, false)
+    assert.equal(decideClaim([held('a', 'mac:/repo', 1, 10)], 'b', NOW).adopted, false)
+  })
+
+  it('reads the holder back from the newest claim', () => {
+    const comments = [held('a', 'mac:/my repo', 3, 10), held('b', 'mac:/my repo', 1, 11)]
+    assert.deepEqual(latestClaim(comments), { run: 'b', branch: 'feature/payments-t01-x', holder: 'mac:/my repo', at: Date.parse(ago(1)) })
+  })
+})
+
+describe('deployPlan', () => {
+  const steps = deploySteps({ deploy: ['yarn deploy:web', { run: 'yarn db:seed', once: true }, { run: 'yarn notify' }] })
+  const mark = (body, minutes, id) => ({
+    body,
+    createdAt: new Date(NOW - minutes * 60e3).toISOString(),
+    url: `https://github.com/o/r/issues/1#issuecomment-${id}`,
+  })
+  const actions = (comments) => deployPlan(steps, comments, 50).map((s) => s.action)
+
+  it('reads plain and once steps from milestone.json', () => {
+    assert.deepEqual(steps.map((s) => s.once), [false, true, false])
+  })
+
+  it('runs every step of a landing with no marks', () => {
+    assert.deepEqual(actions([]), ['run', 'run', 'run'])
+  })
+
+  it('skips finished steps, reruns a failed or cut-off plain step and holds a cut-off once step', () => {
+    const comments = [
+      mark('jmr-cycle deploy start 50 0', 9, 1),
+      mark('jmr-cycle deploy done 50 0', 8, 2),
+      mark('jmr-cycle deploy start 50 1', 7, 3),
+      mark('jmr-cycle deploy start 50 2', 6, 4),
+    ]
+    assert.deepEqual(actions(comments), ['skip', 'unknown', 'run'])
+  })
+
+  it('lets the owner settle a cut-off once step with a done or fail mark', () => {
+    const cut = [mark('jmr-cycle deploy start 50 1', 9, 1)]
+    assert.equal(actions([...cut, mark('jmr-cycle deploy done 50 1', 1, 2)])[1], 'skip')
+    assert.equal(actions([...cut, mark('jmr-cycle deploy fail 50 1', 1, 2)])[1], 'run')
+  })
+
+  it('ignores marks from another landing pull request', () => {
+    assert.deepEqual(actions([mark('jmr-cycle deploy done 49 0', 1, 1)]), ['run', 'run', 'run'])
   })
 })
 
@@ -407,5 +503,73 @@ describe('renderStatusMarkdown', () => {
     assert.match(md, /0 of 1 scenarios have a test/)
     assert.match(md, /r1/)
     assert.match(md, /"base":"main"/)
+  })
+})
+
+describe('briefStatus', () => {
+  it('keeps only what a cycle acts on', () => {
+    const t1 = ticket('T01', { scenarios: ['PAY-001'] })
+    const t2 = ticket('T02', { scenarios: ['PAY-002'] })
+    const t3 = ticket('T03')
+    const pr = { number: 7, url: 'u', state: 'OPEN', body: '<!-- jmr-pr {"milestone":"payments","id":"T03"} -->' }
+    const issues = [issue(t1), issue(t2, { labels: [{ name: 'milestone:payments' }, { name: 'jmr:in-progress' }] }), issue(t3)]
+    const status = computeStatus({ milestone, issues, prs: [pr], titles: {}, results: { 'PAY-002': 'failed' } })
+    const brief = briefStatus({ ...status, statusIssue: { number: 1, url: 'https://github.com/o/r/issues/1' } })
+    assert.deepEqual(brief, {
+      phase: 'build',
+      counts: status.counts,
+      frontier: ['T01'],
+      busySerials: [],
+      building: ['T02'],
+      review: [{ id: 'T03', pr: 7 }],
+      owner: [],
+      unclosed: [],
+      scenarios: { total: 2, tested: 1, failing: ['PAY-002'] },
+      statusIssue: 'https://github.com/o/r/issues/1',
+    })
+  })
+})
+
+describe('cyclePlan', () => {
+  const brief = (extra = {}) => ({ phase: 'build', frontier: [], building: [], review: [], ...extra })
+  const steps = (input) => cyclePlan({ mode: 'cycle', landing: 'none', syncOpen: false, ...input }).steps
+
+  it('reads every build step when tickets are ready', () => {
+    assert.deepEqual(steps({ brief: brief({ frontier: ['T01'], review: [{ id: 'T02', pr: 5 }] }) }), [
+      'sync', 'repair', 'claim', 'fix', 'build', 'review', 'merge', 'report',
+    ])
+  })
+
+  it('leaves out claim and build when nothing is ready or held', () => {
+    assert.deepEqual(steps({ brief: brief({ review: [{ id: 'T02', pr: 5 }] }) }), ['sync', 'repair', 'fix', 'review', 'merge', 'report'])
+  })
+
+  it('adopts held tickets even with an empty frontier', () => {
+    assert.ok(steps({ brief: brief({ building: ['T03'] }) }).includes('claim'))
+  })
+
+  it('reads only sync, review and merge while a sync pull request is open', () => {
+    assert.deepEqual(steps({ syncOpen: true, brief: brief({ frontier: ['T01'] }) }), ['sync', 'review', 'merge', 'report'])
+  })
+
+  it('routes close-out, a merged landing, status mode and an empty milestone', () => {
+    assert.deepEqual(steps({ brief: brief({ phase: 'closeout' }) }), ['repair', 'closeout', 'report'])
+    assert.deepEqual(cyclePlan({ mode: 'cycle', landing: 'merged', brief: brief({ phase: 'closeout' }) }), { phase: 'landed', steps: ['closeout', 'report'] })
+    assert.deepEqual(steps({ mode: 'status', brief: brief({ frontier: ['T01'] }) }), ['report'])
+    assert.equal(cyclePlan({ mode: 'cycle', landing: 'none', brief: brief({ phase: 'empty' }) }).publish, true)
+  })
+})
+
+describe('loop pacing', () => {
+  it('reads the last CYCLE_RESULT line of a report', () => {
+    assert.equal(parseCycleResult('merged #4\nCYCLE_RESULT: continue\n'), 'continue')
+    assert.equal(parseCycleResult('CYCLE_RESULT: waiting\nnotes\nCYCLE_RESULT: complete'), 'complete')
+    assert.equal(parseCycleResult('crashed half way'), null)
+    assert.equal(parseCycleResult('CYCLE_RESULT: maybe'), null)
+  })
+
+  it('waits by result and retries a cycle that printed none', () => {
+    const delays = { continueMs: 1, waitMs: 2, retryMs: 3 }
+    assert.deepEqual(['continue', 'waiting', null].map((r) => loopDelay(r, delays)), [1, 2, 3])
   })
 })

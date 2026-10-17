@@ -14,6 +14,7 @@ const CLAIM_TTL_MS = 24 * 3600 * 1000
 const LAND_MODES = ['merge', 'pr']
 const TICKET_ID = /^T\d{2,3}$/
 const SLUG = /^[a-z0-9][a-z0-9-]{1,40}$/
+export const isSlug = (value) => typeof value === 'string' && SLUG.test(value)
 
 const ticketNumber = (id) => Number(id.slice(1))
 const byTicketNumber = (a, b) => ticketNumber(a) - ticketNumber(b)
@@ -52,7 +53,12 @@ export const validateMilestone = (m) => {
     errors.push('gate must list at least one command')
   }
   if (!LAND_MODES.includes(m.land)) errors.push(`land must be one of ${LAND_MODES.join(', ')}`)
-  for (const key of ['testReports', 'deploy', 'fix']) {
+  const isDeployStep = (d) =>
+    isNonEmptyString(d) || (d !== null && typeof d === 'object' && isNonEmptyString(d.run) && [undefined, true, false].includes(d.once))
+  if (m.deploy !== undefined && !(Array.isArray(m.deploy) && m.deploy.every(isDeployStep))) {
+    errors.push('deploy must list commands, each a string or { "run": "<command>", "once": true }')
+  }
+  for (const key of ['testReports', 'fix']) {
     if (m[key] !== undefined && !(Array.isArray(m[key]) && m[key].every(isNonEmptyString))) {
       errors.push(`${key} must be a list of commands`)
     }
@@ -156,8 +162,10 @@ export const buildIssueBody = (slug, t) => {
   ].join('\n')
 }
 
-const ticketState = ({ closed, labels, openPr, blockedBy, doneIds }) => {
-  if (closed) return 'done'
+// A merged pull request makes its ticket done even while the issue is open: a
+// run that died between the merge and `close` must not hand it out again.
+const ticketState = ({ closed, merged, labels, openPr, blockedBy, doneIds }) => {
+  if (closed || merged) return 'done'
   if (labels.includes(LABELS.owner)) return 'owner'
   if (openPr) return 'review'
   if (labels.includes(LABELS.claim)) return 'building'
@@ -168,24 +176,34 @@ const ticketState = ({ closed, labels, openPr, blockedBy, doneIds }) => {
 const resultRank = { failed: 3, passed: 2, skipped: 1 }
 const mergeResult = (a, b) => ((resultRank[b] ?? 0) > (resultRank[a] ?? 0) ? b : a)
 
+export const ticketPrs = (slug, prs) => {
+  const open = new Map()
+  const merged = new Map()
+  for (const pr of prs) {
+    const data = parseMarker('jmr-pr', pr.body)
+    // A fork can carry a copied marker; only branches in this repo count.
+    if (data?.milestone !== slug || pr.isCrossRepository) continue
+    if (pr.state === 'OPEN') open.set(data.id, pr)
+    if (pr.state === 'MERGED') merged.set(data.id, pr)
+  }
+  return { open, merged }
+}
+
 export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
   const slug = milestone.slug
   const found = issues
     .map((issue) => ({ issue, data: parseMarker('jmr-ticket', issue.body) }))
     .filter(({ data }) => data?.milestone === slug && TICKET_ID.test(data.id ?? ''))
 
-  const openPrs = new Map()
-  for (const pr of prs) {
-    const data = parseMarker('jmr-pr', pr.body)
-    // A fork can carry a copied marker; only branches in this repo count.
-    if (data?.milestone === slug && pr.state === 'OPEN' && !pr.isCrossRepository) openPrs.set(data.id, pr)
-  }
-
-  const doneIds = new Set(found.filter(({ issue }) => issue.state === 'CLOSED').map(({ data }) => data.id))
+  const { open: openPrs, merged: mergedPrs } = ticketPrs(slug, prs)
+  const doneIds = new Set(
+    found.filter(({ issue, data }) => issue.state === 'CLOSED' || mergedPrs.has(data.id)).map(({ data }) => data.id),
+  )
   const tickets = found
     .map(({ issue, data }) => {
       const labels = labelNames(issue)
       const openPr = openPrs.get(data.id)
+      const mergedPr = mergedPrs.get(data.id)
       const blockedBy = data.blockedBy ?? []
       return {
         id: data.id,
@@ -198,7 +216,9 @@ export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
         serial: data.serial ?? null,
         pr: openPr?.number ?? null,
         prUrl: openPr?.url ?? null,
-        state: ticketState({ closed: issue.state === 'CLOSED', labels, openPr, blockedBy, doneIds }),
+        mergedPr: mergedPr?.number ?? null,
+        unclosed: issue.state === 'OPEN' && Boolean(mergedPr),
+        state: ticketState({ closed: issue.state === 'CLOSED', merged: Boolean(mergedPr), labels, openPr, blockedBy, doneIds }),
       }
     })
     .sort((a, b) => byTicketNumber(a.id, b.id))
@@ -220,6 +240,7 @@ export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
     frontier: tickets.filter((t) => t.state === 'ready').map((t) => t.id),
     busySerials: [...new Set(tickets.filter((t) => ['building', 'review'].includes(t.state) && t.serial).map((t) => t.serial))],
     owner: tickets.filter((t) => t.state === 'owner').map((t) => ({ id: t.id, number: t.number, url: t.url })),
+    unclosed: tickets.filter((t) => t.unclosed).map((t) => ({ id: t.id, number: t.number, pr: t.mergedPr })),
     scenarios: {
       total: scenarioList.length,
       tested: scenarioList.filter((s) => s.tested).length,
@@ -233,22 +254,103 @@ export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
   }
 }
 
-const CLAIM_LINE = /^jmr-cycle claim (\S+) (\S+)/
+// Only what an orchestrator acts on, so a cycle's context holds a few lines in
+// place of every ticket and scenario.
+export const briefStatus = (status) => ({
+  phase: status.phase,
+  counts: status.counts,
+  frontier: status.frontier,
+  busySerials: status.busySerials,
+  building: status.tickets.filter((t) => t.state === 'building').map((t) => t.id),
+  review: status.tickets.filter((t) => t.state === 'review').map((t) => ({ id: t.id, pr: t.pr })),
+  owner: status.owner.map((o) => ({ id: o.id, number: o.number })),
+  unclosed: status.unclosed,
+  scenarios: {
+    total: status.scenarios.total,
+    tested: status.scenarios.tested,
+    failing: status.scenarios.failing.map((s) => s.id),
+  },
+  ...(status.statusIssue ? { statusIssue: status.statusIssue.url } : {}),
+})
+
+// Which step files a cycle reads, from GitHub state alone. Steps that cannot
+// apply this cycle are left out, so their text never enters the context.
+export const cyclePlan = ({ mode, landing, syncOpen, brief }) => {
+  if (mode === 'status') return { phase: brief.phase, steps: ['report'] }
+  if (landing === 'merged') return { phase: 'landed', steps: ['closeout', 'report'] }
+  if (brief.phase === 'empty') return { phase: 'empty', steps: [], publish: true }
+  if (brief.phase === 'closeout') return { phase: 'closeout', steps: ['repair', 'closeout', 'report'] }
+  if (syncOpen) return { phase: 'build', steps: ['sync', 'review', 'merge', 'report'] }
+  const canBuild = brief.frontier.length > 0 || brief.building.length > 0
+  const hasPrs = brief.review.length > 0
+  const steps = [
+    'sync',
+    'repair',
+    ...(canBuild ? ['claim'] : []),
+    ...(hasPrs ? ['fix'] : []),
+    ...(canBuild ? ['build'] : []),
+    ...(canBuild || hasPrs ? ['review', 'merge'] : []),
+    'report',
+  ]
+  return { phase: 'build', steps }
+}
+
+const CYCLE_RESULT = /^CYCLE_RESULT: (continue|waiting|complete)\s*$/
+export const parseCycleResult = (output) => {
+  const lines = String(output ?? '').trim().split('\n').reverse()
+  for (const line of lines) {
+    const m = CYCLE_RESULT.exec(line.trim())
+    if (m) return m[1]
+  }
+  return null
+}
+
+// A cycle that printed no result line crashed or was cut off; it retries soon
+// because GitHub already holds whatever it finished.
+export const loopDelay = (result, { continueMs, waitMs, retryMs }) => {
+  if (result === 'continue') return continueMs
+  if (result === 'waiting') return waitMs
+  return retryMs
+}
+
+const CLAIM_LINE = /^jmr-cycle claim (\S+) (\S+)(?: holder=(\S+))?/
 const commentId = (c) => /issuecomment-(\d+)/.exec(c.url ?? '')?.[1] ?? '0'
+
+// The holder is URI-encoded because a checkout path can hold spaces.
+export const claimLine = (runId, branch, holder) =>
+  `jmr-cycle claim ${runId} ${branch}${holder ? ` holder=${encodeURIComponent(holder)}` : ''}`
+
+const decodeHolder = (raw) => {
+  if (!raw) return null
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return null
+  }
+}
+
+const parseClaim = (c) => {
+  const m = CLAIM_LINE.exec((c.body ?? '').trim())
+  if (!m) return null
+  return { run: m[1], branch: m[2], holder: decodeHolder(m[3]), at: Date.parse(c.createdAt), id: commentId(c) }
+}
 
 const freshClaims = (comments, now) =>
   comments
-    .map((c) => ({ c, m: CLAIM_LINE.exec((c.body ?? '').trim()) }))
-    .filter(({ c, m }) => m && now - Date.parse(c.createdAt) < CLAIM_TTL_MS)
-    .map(({ c, m }) => ({ run: m[1], branch: m[2], at: Date.parse(c.createdAt), id: commentId(c) }))
+    .map(parseClaim)
+    .filter((claim) => claim && now - claim.at < CLAIM_TTL_MS)
     .sort((a, b) => a.at - b.at || Number(a.id) - Number(b.id))
 
-export const decideClaim = (comments, runId, now) => {
+// A run keeps its holder across a /loop, so a later run with the same holder
+// adopts the claims of one that crashed in place of waiting out the TTL. The
+// lease already guarantees one live run per holder.
+export const decideClaim = (comments, runId, now, holder = null) => {
   const claims = freshClaims(comments, now)
   const winner = claims[0] ?? null
   const won = winner?.run === runId
-  const mine = claims.filter((c) => c.run === runId && !(won && c === winner)).map((c) => c.id)
-  return { won, winner, mine }
+  const adopted = !won && Boolean(holder) && winner?.holder === holder
+  const mine = adopted ? [] : claims.filter((c) => c.run === runId && !(won && c === winner)).map((c) => c.id)
+  return { won, adopted, winner, mine }
 }
 
 // The lease lives on a git ref, so a run in the same checkout (the same /loop)
@@ -289,6 +391,34 @@ export const statusMarks = (comments) => {
   return { finalReview: shas('final review')[0] ?? null, gatePass: shas('gate pass'), gateFail: shas('gate fail') }
 }
 
+export const deploySteps = (milestone) =>
+  (milestone.deploy ?? []).map((d) => (typeof d === 'string' ? { run: d, once: false } : { run: d.run, once: d.once === true }))
+
+const DEPLOY_LINE = /^jmr-cycle deploy (start|done|fail) (\d+) (\d+)\b/
+export const deployMark = (kind, pr, index) => `jmr-cycle deploy ${kind} ${pr} ${index}`
+
+// Each step posts `start` before it runs and `done` or `fail` after. A step
+// whose newest mark is `start` was cut off: it reruns unless it is `once`,
+// which leaves it `unknown` for the owner to settle with a done or fail mark.
+export const deployPlan = (steps, comments, pr) => {
+  const latest = new Map()
+  const marks = comments
+    .map((c) => ({ m: DEPLOY_LINE.exec((c.body ?? '').trim()), at: Date.parse(c.createdAt), id: Number(commentId(c)) }))
+    .filter(({ m }) => m && Number(m[2]) === Number(pr))
+    .sort((a, b) => a.at - b.at || a.id - b.id)
+  for (const { m } of marks) latest.set(Number(m[3]), m[1])
+  return steps.map((step, index) => {
+    const mark = latest.get(index) ?? null
+    return { index, run: step.run, once: step.once, mark, action: deployAction(mark, step.once) }
+  })
+}
+
+const deployAction = (mark, once) => {
+  if (mark === 'done') return 'skip'
+  if (mark === 'start' && once) return 'unknown'
+  return 'run'
+}
+
 const CHECK_FAIL = new Set(['fail', 'cancel'])
 export const checksVerdict = (rows) => {
   if (rows.length === 0) return 'none'
@@ -299,10 +429,11 @@ export const checksVerdict = (rows) => {
 
 export const latestClaim = (comments) => {
   const claims = comments
-    .map((c) => ({ c, m: CLAIM_LINE.exec((c.body ?? '').trim()) }))
-    .filter(({ m }) => m)
-    .sort((a, b) => Date.parse(b.c.createdAt) - Date.parse(a.c.createdAt))
-  return claims[0] ? { run: claims[0].m[1], branch: claims[0].m[2], at: Date.parse(claims[0].c.createdAt) } : null
+    .map(parseClaim)
+    .filter(Boolean)
+    .sort((a, b) => b.at - a.at)
+  const latest = claims[0]
+  return latest ? { run: latest.run, branch: latest.branch, holder: latest.holder, at: latest.at } : null
 }
 
 export const isStaleClaim = ({ comments, lastCommitAt, hasOpenPr, now }) => {

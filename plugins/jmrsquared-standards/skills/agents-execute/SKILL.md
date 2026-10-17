@@ -12,7 +12,7 @@ disable-model-invocation: true
 |---|---|
 | `/agents-execute` (this skill) | Mission, spec, tickets, the milestone branch, starting the loop |
 | `/jmr-cycle` | Claims, parallel builders, a reviewer for every pull request, merges into the milestone branch, close-out, landing |
-| `/loop` | Repeating `/jmr-cycle` until it reports `complete` |
+| `$CYCLE loop` or `/loop` | Repeating `/jmr-cycle` in a fresh context each time until it reports `complete` |
 
 ## Contract
 
@@ -82,7 +82,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    - `gate` is the repo's own build, test and lint commands, in forms that check without rewriting files. `fix` holds the rewriting forms (formatters, `lint:fix`) that implementers run before committing. In a jmrsquared repo the two together are `jmr-build-test-lint-gate`.
    - `testReports` writes JSON (Jest, Vitest) or JUnit XML (pytest `--junitxml`, gotestsum and most other runners) into `$JMR_RESULTS`, so status can show pass and fail per scenario.
    - `land` is `merge` unless the prompt says the owner merges it, which makes it `pr`.
-   - `deploy` lists only deploy commands the prompt asked for, run after landing.
+   - `deploy` lists only deploy commands the prompt asked for, run after landing. Write a step that must never run twice (a seed, a one-off data fix, a release notification) as `{ "run": "<command>", "once": true }`: if a crash cuts it off, the owner decides whether it ran.
 
 7. **Publish.** Run `git fetch origin <base>`, then `git worktree add -b milestone/<slug> "${TMPDIR:-/tmp}/agents-execute/<slug>/wt" origin/<base>` and work inside that worktree. Write `docs/milestones/<slug>/` with `milestone.json`, `spec.md`, `tickets.json` and `decisions.md` (from `notes/decisions.md`, plus the mission's outcomes). From the worktree root:
    1. `$CYCLE validate --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. Fix every error.
@@ -90,11 +90,12 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    3. `$CYCLE publish --milestone <slug> --tickets docs/milestones/<slug>/tickets.json`. It is safe to rerun; on failure, fix the cause and run it again before going on.
    4. `git worktree remove` the worktree.
 
-8. **Run.** Load `jmr-cycle` and run one full cycle for `<slug>` in this session. Then keep it going until done:
-   - Claude Code: invoke the `loop` skill with `/jmr-cycle <slug>` and no interval, so it paces itself by each cycle's `CYCLE_RESULT` line and ends on `complete`.
-   - A harness with no loop: tell the user to repeat `/jmr-cycle <slug>` or schedule it (the `jmr-cycle` "Running unattended" section).
+8. **Run.** Keep every cycle out of this session's context: each one starts empty and reads its state from GitHub.
+   - Claude Code with a shell: start `$CYCLE loop --milestone <slug>` in the background (Bash `run_in_background`). It runs each cycle as a fresh `claude -p "/jmr-cycle <slug>"` process and stops on `complete`. When headless permissions would block the cycle's `git`, `gh` or `node` calls, put the agent command after `--` (see the `jmr-cycle` "Running unattended" section).
+   - Claude Code without a background shell: invoke the `loop` skill with no interval and the subagent prompt from that section, so each cycle runs in its own subagent and this session keeps only the reports.
+   - A harness with no loop: tell the user to run `$CYCLE loop --milestone <slug>` in a terminal, repeat `/jmr-cycle <slug>` or schedule it.
 
-9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, what the first cycle merged or started, the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
+9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, how the loop runs, the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
 
 ## Skills to reach for
 

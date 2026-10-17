@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawn, spawnSync } from 'node:child_process'
-import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { after, before, describe, it } from 'node:test'
@@ -321,5 +321,217 @@ describe('cycle CLI', () => {
     writeState(teammate)
     const after = cli(['status', '--milestone', 'payments', '--json'])
     assert.equal(after.out.tickets.find((t) => t.id === 'T03').pr, 60)
+  })
+})
+
+// A run can die between any two side effects. These replay the gaps that
+// matter and check that the next run picks up from GitHub state alone.
+describe('crash recovery', () => {
+  it('finishes a ticket whose pull request merged before close ran', () => {
+    const s = readState()
+    s.prs.find((p) => p.number === 60).state = 'MERGED'
+    s.issues.find((i) => i.body.includes('"id":"T03"')).labels.push('jmr:in-progress')
+    writeState(s)
+
+    const status = cli(['status', '--milestone', 'payments', '--json'])
+    assert.equal(status.out.tickets.find((t) => t.id === 'T03').state, 'done')
+    assert.deepEqual(status.out.unclosed.map((u) => [u.id, u.pr]), [['T03', 60]])
+
+    const repaired = cli(['repair', '--milestone', 'payments'])
+    assert.deepEqual(repaired.out.closed.map((c) => [c.id, c.pr]), [['T03', 60]])
+    assert.equal(issueById('T03').state, 'CLOSED')
+    assert.ok(!issueById('T03').labels.includes('jmr:in-progress'))
+    assert.deepEqual(cli(['repair', '--milestone', 'payments']).out.closed, [])
+  })
+
+  it('lets the next run from the same checkout adopt a crashed run claim at once', () => {
+    const t04 = { id: 'T04', title: 'Receipts', body: 'Email a receipt.', scenarios: ['PAY-004'] }
+    writeFileSync(path.join(dir, 'more.json'), JSON.stringify({ tickets: [...tickets, t04] }))
+    assert.equal(cli(['publish', '--milestone', 'payments', '--tickets', 'more.json']).code, 0)
+    const claim = (run, holder) => cli(['claim', '--milestone', 'payments', '--ticket', 'T04', '--run', run, '--holder', holder])
+
+    assert.equal(claim('run-a', 'mac:/my repo').out.result, 'won')
+    const adopted = claim('run-b', 'mac:/my repo')
+    assert.equal(adopted.code, 0)
+    assert.deepEqual(
+      [adopted.out.result, adopted.out.previousRun, adopted.out.resumeBranch],
+      ['adopted', 'run-a', 'feature/payments-t04-receipts'],
+    )
+    const lines = readState().comments.filter((c) => c.issue === issueById('T04').number).map((c) => c.body)
+    assert.deepEqual(lines, [
+      'jmr-cycle claim run-a feature/payments-t04-receipts holder=mac%3A%2Fmy%20repo',
+      'jmr-cycle claim run-b feature/payments-t04-receipts holder=mac%3A%2Fmy%20repo',
+    ])
+    assert.equal(claim('run-c', 'pc:/repo').code, 3)
+  })
+
+  describe('deploy', () => {
+    let deployDir
+    let log
+    const writeDeploy = (deploy) =>
+      writeFileSync(path.join(deployDir, 'docs/milestones/payments/milestone.json'), JSON.stringify({ ...milestone, deploy }))
+    const deploy = (pr) => cli(['deploy', '--milestone', 'payments', '--pr', String(pr), '--dir', deployDir])
+    const logged = () => (existsSync(log) ? readFileSync(log, 'utf8').trim().split('\n') : [])
+    const ownerMark = (body) => {
+      const s = readState()
+      // The T04 publish above opened a fresh status issue; deploy reads the open one.
+      const statusIssue = s.issues.find((i) => i.labels.includes('jmr:status') && i.state === 'OPEN')
+      s.comments.push({ id: ++s.commentCounter, issue: statusIssue.number, author: 'owner', body, createdAt: new Date().toISOString() })
+      writeState(s)
+    }
+
+    before(() => {
+      deployDir = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-deploy-'))
+      log = path.join(deployDir, 'deploy.log')
+      mkdirSync(path.join(deployDir, 'docs/milestones/payments'), { recursive: true })
+      writeDeploy([`echo web >> "${log}"`, { run: `echo seed >> "${log}"`, once: true }])
+    })
+    after(() => rmSync(deployDir, { recursive: true, force: true }))
+
+    it('runs each step once per landing and skips finished steps on a rerun', () => {
+      const first = deploy(50)
+      assert.equal(first.code, 0)
+      assert.deepEqual(first.out.steps.map((s) => s.result), ['done', 'done'])
+      assert.deepEqual(deploy(50).out.steps.map((s) => s.result), ['skipped', 'skipped'])
+      assert.deepEqual(logged(), ['web', 'seed'])
+    })
+
+    it('reruns a cut-off step but stops at a cut-off once step until the owner settles it', () => {
+      ownerMark('jmr-cycle deploy start 51 0')
+      ownerMark('jmr-cycle deploy start 51 1')
+      const held = deploy(51)
+      assert.equal(held.code, 4)
+      assert.deepEqual(held.out.steps.map((s) => s.result), ['done', 'unknown'])
+      assert.deepEqual(logged(), ['web', 'seed', 'web'])
+
+      ownerMark('jmr-cycle deploy fail 51 1')
+      const settled = deploy(51)
+      assert.equal(settled.code, 0)
+      assert.deepEqual(settled.out.steps.map((s) => s.result), ['skipped', 'done'])
+      assert.deepEqual(logged(), ['web', 'seed', 'web', 'seed'])
+    })
+
+    it('stops at a failing step and marks it failed', () => {
+      writeDeploy(['exit 3', `echo never >> "${log}"`])
+      const r = deploy(52)
+      assert.equal(r.code, 1)
+      assert.deepEqual([r.out.result, r.out.steps[0].exitCode, r.out.steps.length], ['failed', 3, 1])
+      assert.ok(!logged().includes('never'))
+      assert.ok(readState().comments.some((c) => c.body === 'jmr-cycle deploy fail 52 0'))
+    })
+  })
+
+  it('prunes worktrees and folders left by earlier runs of the same holder only', () => {
+    const repo = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-prune-'))
+    const runs = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-tmp-'))
+    const git = (...args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', ...args], { cwd: repo, encoding: 'utf8' })
+    git('init', '-q')
+    git('commit', '-q', '--allow-empty', '-m', 'start')
+    const workspace = (holder, run, extra = []) =>
+      cli(['workspace', '--milestone', 'payments', '--holder', holder, '--run', run, ...extra], { TMPDIR: runs }, repo)
+
+    const crashed = workspace('mac:/repo', 'old').out.runDir
+    const other = workspace('pc:/repo', 'live').out.runDir
+    git('worktree', 'add', '-q', '--detach', path.join(crashed, 'orchestrator'), 'HEAD')
+    git('worktree', 'add', '-q', '--detach', path.join(other, 'orchestrator'), 'HEAD')
+
+    const next = workspace('mac:/repo', 'new', ['--prune'])
+    assert.equal(next.code, 0)
+    assert.ok(existsSync(path.join(next.out.runDir, 'results')))
+    assert.ok(!existsSync(crashed))
+    assert.ok(existsSync(path.join(other, 'orchestrator')))
+    const listed = git('worktree', 'list', '--porcelain')
+    assert.ok(!listed.includes(path.join(realpathSync(path.dirname(crashed)), 'old')))
+    assert.ok(listed.includes(realpathSync(path.join(other, 'orchestrator'))))
+    assert.equal(workspace('mac:/repo', '../escape').code, 2)
+
+    rmSync(repo, { recursive: true, force: true })
+    rmSync(runs, { recursive: true, force: true })
+  })
+})
+
+describe('context budget', () => {
+  it('prints a brief status with no ticket bodies or scenario lists', () => {
+    const r = cli(['status', '--milestone', 'payments', '--brief'])
+    assert.equal(r.code, 0)
+    assert.deepEqual(Object.keys(r.out).sort(), ['building', 'busySerials', 'counts', 'frontier', 'owner', 'phase', 'review', 'scenarios', 'statusIssue', 'unclosed'])
+    assert.ok(JSON.stringify(r.out).length < 1000)
+  })
+
+  it('plans the cycle with step files that exist', () => {
+    const r = cli(['next', '--milestone', 'payments'])
+    assert.equal(r.code, 0)
+    // The landing pull request merged in an earlier test, so only close-out is left.
+    assert.equal(r.out.phase, 'landed')
+    assert.deepEqual(r.out.read.map((f) => path.basename(f)), ['9-closeout.md', '10-report.md'])
+    for (const file of r.out.read) assert.ok(existsSync(file), `${file} is missing`)
+    assert.deepEqual(r.out.state.building, ['T04'])
+    assert.deepEqual(cli(['next', '--milestone', 'payments', '--status']).out.read.map((f) => path.basename(f)), ['10-report.md'])
+  })
+
+  it('names every step file the plan can list', () => {
+    const steps = path.join(HERE, '..', 'steps')
+    for (const name of ['1-sync', '2-repair', '4-claim', '5-fix', '6-build', '7-review', '8-merge', '9-closeout', '10-report', 'adding-tickets']) {
+      assert.ok(existsSync(path.join(steps, `${name}.md`)), name)
+    }
+    for (const name of ['implementer', 'reviewer', 'standards']) assert.ok(existsSync(path.join(HERE, '..', 'briefs', `${name}.md`)), name)
+  })
+
+  describe('loop', () => {
+    let agentDir
+    let agent
+    const loop = (extra = []) =>
+      spawnSync('node', [CLI, 'loop', '--milestone', 'payments', '--continue-seconds', '0', '--wait-minutes', '0', '--retry-minutes', '0', ...extra, '--', 'node', agent], {
+        cwd: dir, env, encoding: 'utf8',
+      })
+    const lines = (r) => r.stdout.trim().split('\n').map((l) => JSON.parse(l))
+
+    before(() => {
+      agentDir = mkdtempSync(path.join(tmpdir(), 'jmr-cycle-agent-'))
+      agent = path.join(agentDir, 'agent.mjs')
+      // A stand-in agent: each run is a new process, like a fresh session. It
+      // logs the prompt it got and prints the next scripted result.
+      writeFileSync(agent, `
+import { appendFileSync, existsSync, readFileSync } from 'node:fs'
+const dir = ${JSON.stringify(agentDir)}
+const script = JSON.parse(readFileSync(dir + '/script.json', 'utf8'))
+const n = existsSync(dir + '/runs.log') ? readFileSync(dir + '/runs.log', 'utf8').split('\\n').filter(Boolean).length : 0
+appendFileSync(dir + '/runs.log', process.argv.at(-1) + '\\n')
+const out = script[Math.min(n, script.length - 1)]
+console.log('merged #' + n)
+if (out) console.log('CYCLE_RESULT: ' + out)
+`)
+    })
+    after(() => rmSync(agentDir, { recursive: true, force: true }))
+
+    const script = (results) => {
+      writeFileSync(path.join(agentDir, 'script.json'), JSON.stringify(results))
+      rmSync(path.join(agentDir, 'runs.log'), { force: true })
+    }
+    const prompts = () => readFileSync(path.join(agentDir, 'runs.log'), 'utf8').trim().split('\n')
+
+    it('runs one fresh process per cycle until a cycle reports complete', () => {
+      script(['continue', null, 'waiting', 'complete'])
+      const r = loop()
+      assert.equal(r.status, 0)
+      assert.deepEqual(lines(r).map((l) => l.result), ['continue', null, 'waiting', 'complete'])
+      assert.deepEqual(lines(r)[0].report, ['merged #0', 'CYCLE_RESULT: continue'])
+      assert.deepEqual(prompts(), Array(4).fill('/jmr-cycle payments'))
+    })
+
+    it('stops after too many cycles end without a result line', () => {
+      script([null])
+      const r = loop(['--max-failures', '2'])
+      assert.equal(r.status, 1)
+      assert.equal(lines(r).length, 2)
+      assert.match(r.stderr, /2 cycles in a row ended without a CYCLE_RESULT line/)
+    })
+
+    it('stops at --max-cycles and passes a custom prompt', () => {
+      script(['continue'])
+      const r = loop(['--max-cycles', '2', '--prompt', 'run the cycle'])
+      assert.equal(r.status, 0)
+      assert.deepEqual(prompts(), ['run the cycle', 'run the cycle'])
+    })
   })
 })
