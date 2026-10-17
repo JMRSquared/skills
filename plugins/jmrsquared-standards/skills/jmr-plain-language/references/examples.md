@@ -130,3 +130,75 @@ Before:
 After:
 
 > The worker reads the queue, retries failed jobs and logs each attempt. It stops after five tries.
+
+## Reply that re-explains what the reader knows
+
+Before:
+
+> Yeah, this works around the issue rather than fixing it. The real fix is in `MergeService`: when we move a child under a new parent, it should update `pipeline_id` along with `parent_id`. We can backfill the bad rows from the audit log with `Change.where(field: "pipeline_id", source: "merge")`. I checked QA: 123 past merges, only 6 rows wrong now, so the cleanup is small.
+>
+> Since `MergeService` is shared and not specific to this account, I'd rather open a separate ticket than widen this PR. The fallback here is fine to keep until then.
+
+After:
+
+> Agreed, this is a workaround. Fixing it properly in `MergeService` would widen this ticket well past its scope: it's shared code, so it means checking the merge flow for every account, plus a backfill for the rows that are already wrong.
+>
+> I'd rather keep this PR account-specific and open a separate ticket for the `MergeService` fix and the backfill. Let me know if that works.
+
+## Arguing with no one
+
+Before:
+
+> Session tokens are rotated every 24 hours. A tempting approach would be to rotate them by restarting the auth service on a cron job, but that would drop every active session. Rotation happens in place, and clients refresh transparently.
+
+After:
+
+> Session tokens are rotated every 24 hours, in place. Clients refresh transparently.
+
+## Vague connection
+
+Before:
+
+> He is associated with the Rajhans Orchestra, which he founded and conducts. The concerts were organised in connection with the celebrations of Pakistan's 50th anniversary.
+
+After:
+
+> He founded and conducts the Rajhans Orchestra. The concerts were part of the celebrations of Pakistan's 50th anniversary.
+
+## Heading repeated in the first sentence
+
+Before:
+
+> ## Performance
+>
+> Speed matters.
+>
+> When users hit a slow page, they leave.
+
+After:
+
+> ## Performance
+>
+> When users hit a slow page, they leave.
+
+## Knowledge-cutoff disclaimer left in the prose
+
+Before:
+
+> While specific details about the company's founding are not extensively documented in readily available sources, it appears to have been established sometime in the 1990s.
+
+After:
+
+> The company's founding date is not in the public sources we have.
+
+## Bold-as-decoration labeled list
+
+Before:
+
+> - **User Experience:** The user experience has been significantly improved with a new interface.
+> - **Performance:** Performance has been enhanced through optimized algorithms.
+> - **Security:** Security has been strengthened with end-to-end encryption.
+
+After:
+
+> The update improves the interface, speeds up load times through optimized algorithms, and adds end-to-end encryption.

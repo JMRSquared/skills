@@ -10,6 +10,7 @@ What goes wrong:
 - Verbal tics. A Hacker News thread on Claude's habits named "load-bearing", "honest take", "key insight", "smoking gun" and "it's not X, it's Y".
 - Claimed success that didn't happen. Agents report "all tests pass" without running them or say a file was written when it wasn't.
 - Recap blocks and recap files. Cursor staff call SUMMARY.md and REPORT.md creation a known issue with Claude models.
+- Re-explaining the user's message. The reply restates the question, replays the diagnosis or proves the plan works before the decision arrives. The reader already has the context, so the rebuild buries the answer.
 - Length. Studies of RLHF found that a reward for length alone reproduces most of the measured gains (Singhal et al. 2023). Raters also prefer lists, bold and emoji (Zhang et al. 2024). Models learn to pad.
 
 Rules:
@@ -17,6 +18,7 @@ Rules:
 - Put the answer first. Microsoft's style guide says "get to the point fast".
 - Report what you ran and what it printed. When you skipped a check, say which one and why.
 - Keep the report to what changed, what you verified and what is left. Leave out the play-by-play of how you got there unless it explains a decision.
+- Don't replay the user's message. In a thread, lead with the decision and keep only the one fact the reader lacks plus the link they need to act.
 - Don't open with praise or agreement. If the user is right, act on it. If they're wrong, say so and give the reason.
 - Avoid "let's", exclamation points, "please note", "simply" and "easy" (Google developer style guide, tone).
 - Use headers only when a reply has several distinct parts that the reader will jump between.
@@ -50,6 +52,7 @@ Rules:
 - Write a title that stands on its own as a short imperative summary (Google eng-practices, CL descriptions). "Fix bug" and "Phase 1" don't qualify.
 - Use the body for the problem, the approach and its limits. Put the reasoning for any choice a reviewer might question here.
 - List only tests you ran, with the command. Put anything you didn't verify under a plain "Not tested" line.
+- Don't narrate the diff. Cut "I modified X. I added Y." The diff already shows what changed.
 - Re-read the description before merge. The change drifts during review and the description has to follow it.
 
 ## Code comments
@@ -68,6 +71,7 @@ Rules:
 - Put history in the commit, not the comment.
 - Leave out docstrings that add nothing beyond the signature.
 - Comment regexes, non-obvious algorithms, workarounds with a link to the bug and constraints the code can't express.
+- Don't describe the diff in a comment ("// Added to replace the old loop"). Describe the code's job.
 - Match the comment density of the surrounding file.
 
 ## Docs, READMEs and changelogs
@@ -85,6 +89,9 @@ Rules:
 - Keep sentences under about 25 words and paragraphs to five sentences or fewer (GOV.UK writing guidelines).
 - Use active voice and plain verbs. "We analyze the data", not "We conduct an analysis of the data" (US Federal Plain Language Guidelines).
 - Write headings in sentence case with no trailing period (Microsoft Writing Style Guide).
+- Headings carry the section. Don't restate the heading as the first sentence ("## Performance" followed by "Speed matters.").
+- Don't describe the page. Skip "this section compares...", "the table below shows...", "this guide will cover...". State the subject.
+- Decorative emoji on headings ("🚀 Features", "✨ Highlights") read as AI. Drop them.
 - Write changelogs for humans. Group entries by Added, Changed, Deprecated, Removed, Fixed and Security. Date them in ISO 8601 and call out breaking changes (Keep a Changelog).
 - Create a new doc file only when the user asks for one or the project already has a place for it.
 

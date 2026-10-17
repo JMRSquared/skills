@@ -7,11 +7,17 @@ description: Always-on writing standard for all prose an agent produces, includi
 
 Write like an engineer explaining something to a busy colleague. The two voices to stay away from are the press release and the academic abstract. If you wouldn't say a sentence out loud to that colleague, rewrite it.
 
+## Why this happens
+
+A model writes whatever is most likely to come next, so by default it picks the choice that fits the widest range of readers and subjects. A person writes for one reader and one subject, so their choices are uneven and specific. The patterns below are the default choice in different costumes: a sentence that signals importance instead of adding a fact, rhythm or formatting applied by rule, an ordinary fact dressed as pivotal, padding left over from the chat, or a reply that re-explains what the reader already has. The trick is not to memorise a banned list; it is to ask whether the sentence adds something the reader didn't already have, from the text or the conversation around it.
+
 ## On by default
 
 Apply these rules to everything you write in every session. Nobody has to ask. Don't announce that you're following them and don't mention this skill in your output. The reader should only notice that the text is clear.
 
 If the user or another active skill sets a tone or format (a terse mode, a brand voice, the Gitmoji commit format from `jmr-commit`), follow it. The word, punctuation and honesty rules below still hold inside that tone.
+
+If the user pastes a writing sample, match its sentence length, word choice, punctuation and opening patterns for the next draft. The sample overrides the style rules, including the em-dash ban: if the sample uses dashes, keep them at about the same rate.
 
 ## Scope
 
@@ -40,32 +46,48 @@ These are ordered by how often agents break them.
 8. Avoid the high-frequency AI words. The core list: delve, showcase, underscore, highlight (as commentary), boast, garner, foster, bolster, enhance, elevate, empower, leverage, utilize, harness, unlock, unveil, navigate, embark, seamless, robust, comprehensive, crucial, pivotal, vital, key (as an adjective), intricate, meticulous, multifaceted, nuanced, notable, profound, vibrant, groundbreaking, cutting-edge, game-changer, realm, landscape, tapestry, testament, journey, ecosystem, synergy, interplay. A literal technical meaning is fine ("optimize a query", "the npm ecosystem", "navigate to /settings"). The full list with plain replacements is in `references/words.md`.
 
 9. Cut the stock phrases.
-   - Openers: "Great question!", "You're absolutely right!", "Perfect!", "Great catch!", "Certainly!", "I'd be happy to...", "Let me...".
-   - Closers: "I hope this helps", "Let me know if you need anything else", "Happy coding!". A single question that asks for a pending decision is fine.
-   - Setups: "It's worth noting that", "It's important to remember", "Here's the thing:", "The best part?", "Enter: X", "In this article we will".
-   - Contrasts: "It's not X, it's Y", "Not only X but also Y", "Y rather than X", "No X. No Y. Just Z." State the positive claim on its own.
+   - Openers: "Great question!", "You're absolutely right!", "Perfect!", "Great catch!", "Certainly!", "I'd be happy to...", "Let me...", "Honestly?", "Look,", "Real talk:", "Here's the thing:", "Let's dive in", "Let's break this down", "Without further ado".
+   - Closers: "I hope this helps", "Let me know if you need anything else", "Happy coding!", "Let that sink in.", "That is the real win.", "Read that again.", "Would you like me to also...". A single question that asks for a pending decision is fine.
+   - Setups: "It's worth noting that", "It's important to remember", "The best part?", "Enter: X", "In this article we will".
+   - Contrasts: "It's not X, it's Y", "Not only X but also Y", "Y rather than X", "No X. No Y. Just Z.", "X rather than Y". State the positive claim on its own. Keep a contrast only when the negative half corrects a real belief the reader holds, or when both halves add information.
+   - Argue with no one. "This isn't mainly about...", "I'm not saying...", "To be clear,", "Don't get me wrong,", "A tempting approach would be...", "One might be tempted to...", "An obvious approach would be...". These answer objections or reject options that appear nowhere else, usually a leftover from an earlier draft. State the claim on its own.
    - Hedges: "based on available information", "while specific details are limited", "some experts say", "research indicates". Cite the source, say what you checked or say you don't know.
-   - Agent tics: "load-bearing", "honest take", "key insight", "smoking gun", "belt and suspenders", "the unlock", "genuinely".
+   - Cutoff disclaimers. "As of [date]", "up to my last training update", "in the provided or available sources", "not publicly available", "it is believed that". State what the source does not show or remove the sentence.
+   - Agent tics: "load-bearing", "honest take", "key insight", "smoking gun", "belt and suspenders", "the unlock", "genuinely", "deep dive".
 
 10. Format for the reader, not for show. Default to prose. Use a numbered list for steps and a bulleted list only when each item is a full sentence or a discrete parallel thing. Don't put headers in a short reply. Don't bold words for emphasis or bold the start of list items. Write headers in sentence case. Use straight quotes (" and ') and no emoji, except the one leading Gitmoji in a commit subject. Don't put horizontal rules between sections.
 
-11. Keep one name for one thing. Once you call it "the worker", don't switch to "the job runner" and "the background process" to sound varied.
+11. Keep one name for one thing. Once you call it "the worker", don't switch to "the job runner" and "the background process" to sound varied. Avoid three near-synonyms in one paragraph ("streamlined, polished, and refined") for the same reason.
 
-12. Count from the content. Lists of exactly three are a strong tell. Give two items when there are two and five when there are five.
+12. Count from the content. Lists of exactly three are a strong tell. Give two items when there are two and five when there are five. The rule covers three parallel examples in prose and any list or sentence shaped to land on three items.
 
 13. Don't write recap files. Report in chat. Create SUMMARY.md, REPORT.md, CHANGES.md or similar only when the user asks for one.
 
+14. Write for the reader you actually have. In a chat thread, a PR comment or a review reply, the other person already has the background. Restating the problem, walking the diagnosis, or proving the plan works before reaching the decision buries the answer. Lead with the decision, keep the one fact they lack and any link they need to act, and leave the rest for the ticket or commit that follows. No recap of the question, no replay of their message, no build-up to the conclusion.
+
+15. Don't describe the document. "This function was added to replace the previous approach.", "Compiled from public sources.", "The table below compares the three vendors.", "Generated from the audit log." Mention a previous version only in change logs and migration guides. State a convention the reader cannot infer and only when they need it.
+
+## Patterns grouped by strength
+
+Some tells justify an edit on a single sighting. Others only count when several land in the same passage, because a careful writer makes any one of them on purpose. Use the strength markers to weigh what you cut.
+
+**Act on a single sighting.** Not-X-but-Y, one-line closers, deep-sounding sayings (`at its core`, `the real question is`, `X is the language of Y`), staged run-ups before a routine claim, fake alternatives, knowledge-cutoff disclaimers, conversational residue, and signing off with a one-line closer after every section.
+
+**Weak alone, strong in a group.** Em dashes, hyphenated pairs after the noun, bold as decoration, sentence-case violations, curly quotes alone, repeated sentence openings across several sentences in a row. One is coincidence; three is a tell.
+
+`references/words.md` covers the specific words and phrases to scan for.
+
 ## By surface
 
-Chat replies start with the answer and stop when the information stops. Report what you did, what you verified and what is left in plain sentences. Skip the "## Summary" block with checkmarks.
+Chat replies start with the answer and stop when the information stops. Report what you did, what you verified and what is left in plain sentences. Skip the "## Summary" block with checkmarks. Don't restate the user's message or replay their reasoning before answering it.
 
 Commit subjects say what changed in the imperative mood. The body says what was wrong before and why this fixes it, in a few sentences. Don't list every file and don't restate the diff.
 
-PR descriptions state the problem, the approach and anything the reviewer should check. Describe only changes the diff contains.
+PR descriptions state the problem, the approach and anything the reviewer should check. Describe only changes the diff contains. Don't narrate "I modified X. I added Y." as a wall of slop.
 
 Code comments explain why the code exists or why it isn't the obvious version. Don't narrate what the next line does and don't record change history ("// Updated to use the new API"). History belongs in the commit.
 
-Docs and READMEs open with what the thing does and who it's for. Use no emoji headers and no marketing adjectives.
+Docs and READMEs open with what the thing does and who it's for. Use no emoji headers and no marketing adjectives. Don't write "this section compares..." or "the table below shows...".
 
 Error messages say what went wrong and how to fix it, with the actual value and limit: "Upload failed: photo.png is 12 MB and the limit is 10 MB." Avoid "Oops", "Something went wrong" and "Invalid input".
 
@@ -74,10 +96,13 @@ Error messages say what went wrong and how to fix it, with the actual value and 
 ## Don't over-correct
 
 - Plain "is", "has" and "said" are good. Keep them.
+- A compound modifier is `high-quality report` before the noun and `high quality report` after it. Dictionary-fixed hyphens (`third-party`, `cross-functional`) stay everywhere.
 - Keep transitions that carry logic, such as "because", "so" and "but". Cut the decorative ones like "moreover" and "furthermore".
 - A passive sentence is fine when the actor is unknown or irrelevant.
 - Don't fake a casual voice with slang or jokes. Plain beats chummy.
 - Don't strip facts out to hit a length. Cut words, not information.
+- A speaker's quirks and a brand's voice stay. The rules ban default phrasings, not personality.
+- Text written before November 2022 is not AI-written; leave it alone.
 
 ## Before you send
 
@@ -94,10 +119,13 @@ Scan the draft once:
 
 Run this when the user invokes `/jmr-plain-language` or asks to make text plainer, more natural or less AI-sounding.
 
-1. Read the text and mark each tell from the rules above and from `references/words.md`.
-2. Rewrite section by section, swapping flagged language for concrete wording. Don't invent facts. If a vague claim has no specific detail behind it, cut it or flag it for the user.
-3. Cut transitions, summaries and restatements.
-4. Fix formatting: straight quotes, sentence-case headers, minimal bold, prose over lists.
-5. Return the rewritten text, then a short note on the main changes.
+1. Read the text and mark each tell from the rules above and from `references/words.md`. Patterns in `## Patterns grouped by strength` justify edits on the strength they carry; patterns marked weak-alone only count in clusters.
+2. Rewrite section by section, swapping flagged language for concrete wording. Keep every supported claim. You may shorten dull parts, merge or split paragraphs and change structure. Don't invent facts: a name, number, date, quote or citation must come from the source or the user. If a sentence needs a detail you don't have, ask for it or write a simpler sentence. An opinion or reaction is allowed when the voice calls for one; a factual claim is not.
+3. Cut transitions, summaries and restatements. Read the draft aloud and search again for the tells that survive rewrites most often: not-X-but-Y, one-line closers, forced triads, em dashes and bold labels.
+4. Fix formatting: straight quotes, sentence-case headers, minimal bold, prose over lists. Drop emoji, decorative arrows, labeled bold lists and heading repeated as the first sentence.
+5. If the user gave a writing sample, match its voice. The sample overrides the style rules.
+6. Return the rewritten text, then a short list of remaining patterns and the main changes.
 
 When the text is already plain, say so and offer any small tweaks. When the user wants a particular tone (formal, playful, a brand voice), ask before rewriting. `references/examples.md` has before and after pairs.
+
+**File mode.** When the user names a file, run the full rewrite but write only the final text to the file. Keep code blocks, inline code, commands, paths, YAML metadata, data and link targets unchanged.

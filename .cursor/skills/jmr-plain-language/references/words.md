@@ -31,13 +31,14 @@ Sources: Kobak et al. 2025 (Science Advances, arXiv 2406.07016), Liang et al. 20
 
 ## Vocabulary by model era
 
-Wikipedia's AI Cleanup editors track which words each model generation overuses.
+Wikipedia's AI Cleanup editors track which words each model generation overuses. Refresh the list every few months; the named words shift but the structural habits do not.
 
 - GPT-4 era (2023 to mid-2024): additionally, boasts, bolstered, crucial, delve, emphasizing, enduring, garner, intricate, interplay, key, landscape, meticulous, pivotal, underscore, tapestry, testament, valuable, vibrant.
 - GPT-4o era (mid-2024 to mid-2025): align with, bolstered, crucial, emphasizing, enhance, enduring, fostering, highlighting, pivotal, showcasing, underscore, vibrant.
 - GPT-5 era (mid-2025 on): emphasizing, enhance, highlighting, showcasing, plus media-coverage phrasing ("featured in prominent outlets", "independent coverage").
+- Models broadly in 2025 to 2026: quietly (as a hedge), deep dive (noun and verb), valuable (adjective), gate / gated / gating when used figuratively, "rich tapestry", "navigate the complexities of".
 - Grok: pseudo-scientific words such as causal, empirical and correlate.
-- Claude in coding sessions (developer reports): load-bearing, honest take, genuine/genuinely, key insight, smoking gun, belt and suspenders, the unlock, "You're absolutely right!".
+- Claude in coding sessions (developer reports): load-bearing, honest take, genuine/genuinely, key insight, smoking gun, belt and suspenders, the unlock, the deep dive, "You're absolutely right!".
 
 "Delve" dropped sharply in 2025 once people noticed it. The newer words replace it, so watch the current list as well as the famous one.
 
@@ -162,6 +163,31 @@ Say what you checked, cite the source or say you don't know.
 - industry reports suggest / research indicates (with no citation)
 - several sources (backed by one source)
 - has generated debate / prompted broader reflection
+- experts believe / it is widely recognized that / broadly speaking
+
+## Knowledge-cutoff disclaimers
+
+A different tell from a hedge. These expose the model's training cap in the prose. State what the source does not show or remove the sentence. They never belong in a doc or commit.
+
+- as of [date] / as of my last update
+- up to my last training update / based on my knowledge cutoff
+- in the provided or available sources
+- not publicly available / not widely documented or disclosed
+- in the available sources (when no source is actually available)
+- it is believed that (followed by a guess)
+
+## Borrowed authority
+
+A name or unnamed authority stands in for what was said. Unnamed experts prop up a claim. A list of prestige outlets props up a person. When the source text names the real source and what it said, use that. Otherwise cut the unsupported claim or the list.
+
+- experts argue / researchers suggest / observers note
+- cited in [list of outlets] when the list does the work for the sentence
+- active social media presence / over N followers
+- featured or profiled in [outlet], [outlet] and [outlet]
+
+## Vague connection or association
+
+"Associated with", "in connection with", "linked to", "tied to" say two things are connected without saying how. "He was associated with the leadership of ExampleCorp" hides whether he was the CEO, a board member or a consultant. Name the relationship the source gives. If the source does not say, keep the vague wording rather than inventing a role.
 
 ## Edit-summary and change-report formulas
 
