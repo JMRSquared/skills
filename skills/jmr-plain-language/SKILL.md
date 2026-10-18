@@ -1,6 +1,7 @@
 ---
 name: jmr-plain-language
 description: Always-on writing standard for all prose an agent produces, including chat replies, commit messages, PR titles and bodies, issue comments, docs, READMEs, changelogs, code comments, error messages and UI copy. Applies by default in every session without being asked. Bans the measured tells of AI writing such as puffery words (delve, showcase, underscore, seamless), em dashes, a comma before "and", "not X but Y" contrasts, gerund significance tails, sycophantic openers, recap summaries and over-formatting. Also rewrites user-supplied text on /jmr-plain-language or "rewrite this in plain language", "make this sound less like AI", "make this more natural" or "de-AI this text". Code, identifiers and quoted material are exempt.
+version: 1.0.0
 ---
 
 # Plain language
