@@ -242,7 +242,7 @@ across the whole catalogue.
 Do this, in order:
 
 1. Read **≥3 studies**, at least two from different origins
-2. **Look at their frames** with the Read tool — the studies are measurements,
+2. **Look at their frames** by opening the study's JPEG / PNG files — the studies are measurements,
    the frames are the design
 3. Name, in chat, the specific things you are taking and from where. Three to
    six lines is enough:
@@ -827,7 +827,7 @@ result, prints every finding, and exits non-zero while any FAIL stands.
 
 Every pass, do both:
 
-1. **Read the frames** with the Read tool. The measurements catch contrast and
+1. **Read the frames** by opening the desktop and phone JPEGs your audit produced. The measurements catch contrast and
    sizing; only your eyes catch a bad crop, a collision, a limp hero, or a
    composition with nothing to look at.
 2. **Clear the findings.** FAILs reach zero. Each WARN gets a fix or one line
@@ -923,7 +923,7 @@ linter and not the bar.
 - [ ] Type role table posted (six roles, 390 and 1440 sizes), every text element mapped to a role, ≤4 sizes per screen, one `h2` size, and no `type-levels` WARN
 - [ ] Tier declared, with the answer to "what ships if the risky moment fails"
 - [ ] `audit-page.mjs` exits 0 at desktop and phone
-- [ ] Every desktop and phone frame read with the Read tool
+- [ ] Every desktop and phone frame viewed (open the JPEGs the audit produced)
 - [ ] `reduced-motion.jpg` still reads as art-directed, with nothing stranded invisible
 - [ ] No console errors in `audit.json`
 - [ ] Composition variety rules met (≥4 layout families, ≤2 consecutive splits)

@@ -1,6 +1,7 @@
 ---
 name: premium-web-design
 description: Build customer-facing websites with a strong art direction, fast. Default mode builds one committed brand world in a single page: a characterful display face, a highlighted headline word, a drawn or product hero object, sticker callouts carrying in-world details, plain HTML and CSS. `--full` runs the Awwwards workflow (measured site studies, art-direction contract, scroll choreography, WebGL tiers, Playwright auditor). Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
+version: 1.0.0
 ---
 
 # /premium-web-design
@@ -218,8 +219,7 @@ in `<head>`. `kind=world` tells the auditor this is default mode. Clear every
 **FAIL**. SPARSE, CRAFT, and WARNs that cite `typographic-hierarchy.md` or tier
 rules measure the `--full` bar; read them, act on any that point at a real
 flaw, and move on. If a FAIL is the auditor's mistake, say so in one line with
-the measured evidence rather than redesigning around it. Then read the desktop and phone frames with the Read
-tool and fix what you see: collisions, a headline breaking into four lines, a
+the measured evidence rather than redesigning around it. Then read the desktop and phone frames (open the JPEG / PNG files your audit produced) and fix what you see: collisions, a headline breaking into four lines, a
 sticker covering the face of the drawing, a drawing that reads as clip art.
 Two passes is normal.
 
