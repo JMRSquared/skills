@@ -40,6 +40,13 @@ Anti-references matter most. "Not a generic pink dating app" or "no AI gradient
 blobs, no hero plus three feature cards" closes the default exits before you
 reach them.
 
+If the brief has beats (recognition, tension, turn, substance, range,
+commitment), add a **feeling curve** to `PRODUCT.md` before any markup. One
+line per section: the emotion, then what on screen causes it. Name the
+**peak** in the same file as the sentence a visitor would say to a friend.
+`references/feeling-curve.md` carries the spec, worked curves, the
+peak-end rule, and the feel check.
+
 ## 2. The world
 
 Write one sentence that names a place and a moment, the palette by the objects
@@ -96,6 +103,13 @@ One `:root` block. Name colours after things in the world, never `--primary`.
 The hero fills one screen and does five things: names the product, lands the
 personality, shows the product or its world, gives one action, and makes the
 frame postable.
+
+For premium marketing sites, **layering is part of the baseline, not optional
+polish**. A beautiful photograph with one parallax transform still reads flat.
+Plan independent background, subject, foreground, and atmospheric planes
+before requesting any assets, with each plane moving at a slightly different
+rate. The full recipe, traps and the phone art-direction pass live in
+`references/hero-depth.md`.
 
 ```
 nav:   brand mark (a small drawn badge or logo) · 2 links · pill CTA
@@ -219,6 +233,7 @@ Without Playwright, say so in one line and offer the install:
 - [ ] Display face has character; text and mono faces each do one job
 - [ ] One highlighted word in the headline
 - [ ] Hero object made for this page: drawing, product UI, or owner photo, plus stickers carrying in-world data
+- [ ] Hero has independent depth planes (background, subject, foreground) that move at visibly different rates
 - [ ] Every section reveals a new layer of the world; no two layouts repeat back to back
 - [ ] Motion is CSS, tied to objects, off under reduced motion
 - [ ] No banned words; every claim about a real business traced to the brief
@@ -233,4 +248,9 @@ Without Playwright, say so in one line and offer the install:
 | `references/no-slop.md` | Writing any visible string |
 | `references/imagery.md` | Sourcing and cropping owner or stock photography |
 | `references/color-and-light.md` | More palettes and contrast fixes |
+| `references/hero-depth.md` | Layered hero recipe, five depth tools, phone art direction |
+| `references/feeling-curve.md` | Feeling curve, engineered peak, feel check (default mode uses one peak + the curve, no scoring table) |
+| `references/structure-axis.md` | Page grammars, signature move, fingerprint gate (read when the brief has a clear structure) |
+| `references/worlds.md` | Eight photography preambles, the high-key canvas flips, composition rules, cohesion checks |
+| `references/browser-surfaces.md` | Selection, caret, focus, scrollbar, underline, tabular numerals, the squint test |
 | `full.md` | The Awwwards workflow: studies, contract, tiers, scroll choreography, full audit |

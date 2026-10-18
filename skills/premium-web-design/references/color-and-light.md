@@ -142,6 +142,37 @@ that orange is a fill and a large-type colour only — never small text.
 Check every text/ground pairing you invent hits 4.5:1 (3:1 for type ≥24px).
 `--ink-muted` is the one that usually fails — verify it, do not assume it.
 
+### The subtree ink trap (silent ground-flip fail)
+
+`color` is inherited as a **computed value**, not a token reference. When a
+section redefines `--ink` on its subtree, the token updates for elements
+that resolve `color` from then on, but text whose `color` already resolved
+on a parent (most often `<body>`) keeps the parent's ink and renders
+invisible against the new ground.
+
+Every page that flips a ground mid-page hits this once. It fails silently:
+the auditor classifies the line by the new ground and grades it in the
+wrong direction, reporting a contrast failure that looks like a typo.
+
+The fix is one declaration on the same subtree: restate `color` wherever
+you restate the token.
+
+```css
+.section--inverse {
+  --sc-ink: #14110C;
+  --sc-ink-muted: #4A443A;
+  --sc-edge: #B6A99A;
+  color: var(--sc-ink);            /* the fix: re-resolve color here */
+  background: var(--sc-ink);       /* the new surface */
+}
+.section--inverse * { color: inherit; }   /* belt and braces for descendants */
+```
+
+The same rule applies to any other inherited property driven from a token
+on a subtree (caret, selection, fill on SVG text). Redefine the token,
+then restate `color` (or the property) on the same subtree in the same
+declaration block.
+
 ## Colour as a field
 
 The formula above forecloses the loudest site in the corpus, so here is the other
