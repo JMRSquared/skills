@@ -1,6 +1,7 @@
 ---
 name: react-tsx-component
 description: Use when editing any .tsx component. Enforces function-component form, Props interface conventions, early returns, handler naming, Tailwind-only styling, and React 19 idioms.
+version: 1.0.0
 ---
 
 # React TSX Component Standards

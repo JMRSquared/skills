@@ -1,6 +1,7 @@
 ---
 name: supabase
 description: Use when editing Supabase client usage, Postgres/RLS policies, database SQL in Supabase projects, Storage buckets, Realtime channels, Edge Functions, or server-only service-role access. Applies to files importing `@supabase/supabase-js`, Supabase CLI config, or `.sql` migrations targeting Supabase-hosted Postgres. Not the primary skill for Supabase Auth UI flows—pair with `supabase-auth` when auth and data overlap.
+version: 1.0.0
 ---
 
 # Supabase Platform Standards

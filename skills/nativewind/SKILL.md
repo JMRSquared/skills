@@ -1,6 +1,7 @@
 ---
 name: nativewind
 description: Use when editing React Native components that use NativeWind — `className` props on RN primitives, `tailwind.config.js` with the NativeWind preset, `global.css`, or `nativewind-env.d.ts`. Enforces className-only styling, design-token usage, and dark / platform variant patterns.
+version: 1.0.0
 ---
 
 # NativeWind Standards
