@@ -1,6 +1,7 @@
 ---
 name: react-native-skia
 description: Use when editing code that imports from `@shopify/react-native-skia` — `Canvas`, `Group`, `Path`, `Image`, `Circle`, `useImage`, `useClock`, `useValue`, or Reanimated-driven Skia animations. Enforces Canvas hierarchy, off-thread animation patterns, memoized paths / shaders, and proper asset loading.
+version: 1.0.0
 ---
 
 # React Native Skia Standards

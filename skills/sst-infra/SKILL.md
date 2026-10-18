@@ -1,6 +1,7 @@
 ---
 name: sst-infra
 description: Use when editing infra/**, sst.config.ts, or adding SST resources. Enforces stage-based configuration, SST secret management, single-region consistency, and defers to jmr-standing-rules for deployment safety.
+version: 1.0.0
 ---
 
 # SST Infra Standards

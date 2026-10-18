@@ -1,6 +1,7 @@
 ---
 name: react-native
 description: Use when editing React Native code — files importing from `react-native` or `expo-*`, Expo Router screens under `app/`, or any `.tsx` in mobile app directories. Enforces function-component form, `Props` at bottom, FlatList perf hygiene, Expo Router file-based routing, and EAS / OTA discipline.
+version: 1.0.0
 ---
 
 # React Native Standards (Expo-first)
