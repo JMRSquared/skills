@@ -1,6 +1,7 @@
 ---
 name: jmr-build-test-lint-gate
-description: Enforces the jmrsquared "done" bar. Always-on rule requiring yarn build, yarn test, and yarn lint:fix (or the relevant subset) to pass before any change can be considered complete. Blocks lazy "disable the check" fixes.
+description: Enforces the jmrsquared "done" bar. Always-on rule requiring yarn build, yarn test, and yarn lint:fix (or the relevant subset for the project) to pass before any change can be considered complete. Blocks lazy "disable the check" fixes.
+version: 1.0.0
 ---
 
 # Build / Test / Lint Gate
