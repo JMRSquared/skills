@@ -1,6 +1,7 @@
 ---
 name: kysley-db
 description: Use when editing files that use Kysely query builder patterns (e.g. importing from `kysely`, using `Kysely`, `sql`, or `Transaction`). Ensures type-safe queries, safe parameter binding, correct transaction usage, and avoids unsafe raw SQL.
+version: 1.0.0
 ---
 
 # Kysely DB Standards
