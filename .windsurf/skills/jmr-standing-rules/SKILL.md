@@ -1,6 +1,7 @@
 ---
 name: jmr-standing-rules
-description: Always-applicable session rules for any AI assistant working in a project that uses jmrsquared-standards. Enforces deployment safety, worktree context tracking, and branch-merge confirmation. Loaded on every SessionStart by the Claude Code hook; injected as always-on rules into Cursor, Windsurf, Cline, Copilot, Codex, and Gemini.
+description: Always-applicable session rules for any AI coding assistant working in a project that uses jmrsquared-standards. Enforces deployment safety, worktree context tracking, and branch-merge confirmation. Loaded on every session start in Claude Code via the SessionStart hook; injected as always-on rules into Cursor, Windsurf, Cline, Copilot, Codex, Gemini CLI, OpenCode, and other agents via their equivalent always-on surfaces.
+version: 1.0.0
 ---
 
 # Standing Rules
