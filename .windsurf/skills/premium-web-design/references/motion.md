@@ -501,6 +501,17 @@ auditor reports it as FAIL `hover-image`. If you build one:
 - Lerp toward the pointer at ~0.15 per frame; instant tracking feels cheap,
   heavy lag feels broken
 
+### The magnet-cue transform conflict
+
+`data-sc-magnet`, `data-sc-parallax` and `data-sc-cue` all write `transform`.
+They cannot share an element. The magnet writes every frame in its own rAF
+loop, so it silently wins and the cue's entrance rise is discarded.
+
+On a magnetic CTA, set `data-sc-rise="0"` so the cue writes a no-op instead
+of losing a visible animation to a race. A cued element that wants its own
+continuous transform should drive an inner wrapper from `--sc-p` in CSS
+rather than stacking a second device on the same node.
+
 ## Reduced motion
 
 Ship this in the same commit as the motion:

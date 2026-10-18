@@ -106,13 +106,14 @@ Reading this as: <page kind> for <audience>, selling <the actual thing>.
 Vibe:            <1–6>
 Hero:            <1–6>
 Section system:  <1–6>
+Grammar:         <one of eight in structure-axis.md §1, plus one line on why>
 Signature moments (exactly 3):
   1. <moment> → section, and the asset it needs
   2. <moment> → section, and the asset it needs
   3. <moment> → section, and the asset it needs
 ```
 
-The three numbered lists in this skill are **independent axes, not a matched
+The four numbered lists in this skill are **independent axes, not a matched
 set**. Vibe *n* points at palette *n* in `color-and-light.md`, deliberately. The
 twelve typography pairings are a separate axis and any pairing may sit under any
 vibe: cross them on feeling, not on number.
@@ -131,6 +132,16 @@ behemoth, the display *is* the hero. Shapes in `references/layout-archetypes.md`
 3 poster-stacked chapters · 4 gallery-led cadence · 5 Swiss grid · 6 horizontal
 chapter driven by vertical scroll.
 
+**Grammar** — the page's organising logic, what each section is, what the
+chrome is for, how the visitor knows where they are, and what the ending is.
+Eight defined grammars in `references/structure-axis.md`: filmic one-shot,
+chaptered editorial, live surface, continuous world, typographic poster,
+gallery / catalog, split stage, rhythmic cutlist. Each one forbids what the
+others require, so two builds cannot quietly converge. Filmic one-shot now
+carries a burden of proof: it was the first build's default, so choosing it
+again means saying in the report why the other seven did not fit the brief.
+The grammar, not the vibe, decides nav, hero treatment, and close pattern.
+
 Composition variety is mechanical, not a matter of taste:
 
 - An 8-section page uses **≥4 different layout families** — a family is one row
@@ -147,6 +158,45 @@ Composition variety is mechanical, not a matter of taste:
   near 13 screens without a word of padding. That is correct and the auditor
   does not check the ceiling. Do not shave section spacing to chase the number.
 - Don't reuse the display face or the vibe from your last build
+
+---
+
+## Step 1b — Feeling curve and the engineered peak
+
+Aesthetic and structure decide what a page looks like and what it is. This
+step decides what it does to somebody. The aesthetic and grammar can be
+right and the page can still be forgettable, because no feeling curve
+arrived before the device list did.
+
+Write the curve in the brief before any markup. One line per act: the
+emotion, then the thing on screen that causes it. The emotion column is
+the constraint. The cause column is the only place a device name may
+appear, and it appears second.
+
+```
+1  Recognition   their own kitchen counter at 7am, shot at eye height
+2  Fatigue       the two containers, the mess, held still while copy names it
+3  Delight       a wipe, and the whole frame is one cold can, condensation running
+4  Trust         macro texture at a scale the eye cannot get in a shop
+5  Appetite      the flavours travelling sideways, each one landing whole
+6  Resolve       everything stops, one can, one line, one place to buy it
+```
+
+Then name the **peak**: one sentence a visitor would say to a friend after
+the page closed, phrased from their side. The peak gets the asset budget,
+the silence before it, and the largest `data-sc-span` on the page. A page
+with three peaks has none.
+
+Finish the **tell-someone sentence** for the brief and place it next to the
+peak: "it's the site where ___". If the blank only makes sense to a
+reader of the build folder, the page has no hook yet. The signature move
+from Step 4d usually lives inside it.
+
+Full spec, four worked curves (canned drink, infrastructure, landscape,
+festival), the peak-end rule, the pacing-as-emotion table, and the feel
+check that runs after the audit: `references/feeling-curve.md`. Two
+adjacent acts producing the same feeling means one is filler; cut it
+here rather than after the assets exist.
 
 ---
 
@@ -638,15 +688,56 @@ mentions a fallback, and `tier-unmet` says so when nothing was.
 
 ---
 
+## Step 4d — Signature move and fingerprint gate
+
+The signature **device** in Step 4b is a repeating branded object: same
+shape, different scale, four or more placements. The signature **move** is
+the opposite: one bespoke interaction that lives on this site alone, coded
+in the page, not a parameter change to any kit device. Every build needs
+one. It is the only part that cannot be arrived at by following rules, and
+it is the part the visitor remembers after they close the tab.
+
+What counts: a scroll-as-playhead trace rail, a wordmark the pointer pulls
+apart and snaps back, a line drawing that builds itself from
+`stroke-dashoffset`, a running receipt that accumulates real figures, one
+control that regrades every ground and accent at once. What does not count:
+a recoloured spotlight, a different kit parameter, a different easing
+curve, more of any device. The test is simple: describe the move to someone
+who has seen the other builds, and if they cannot tell it apart from
+something the kit already does, it is not a signature move. Full worked
+counts and no-counts in `references/structure-axis.md` §2.
+
+Once the move exists, run the **fingerprint gate** against every prior row
+in `FINGERPRINTS.md` on these six dimensions: grammar, nav
+treatment, hero device, act-sequence shape, close pattern, signature move.
+A new build must differ from every existing row on at least 4 of 6,
+individually. The signature move counts for one, so the gate really asks
+for three more out of the remaining five against each row. If the planned
+build fails the gate, change the plan, not the log. After shipping,
+append one row.
+
+The first build from this skill has nothing in the registry, and that is
+correct. The gate exists to stop builds repeating themselves, so a first
+build clears it by construction.
+
+---
+
 ## Step 5 — Build in this order
 
 ```
 1. Type, colour, spacing on a still page      ← ~70% of perceived quality
 2. Composition: crop, scale contrast, negative space
 3. Real imagery at real resolution
-4. Motion — last, and only what earns it
-5. Copy pass: references/no-slop.md on every visible string
-6. Audit loop until zero FAILs
+   (references/imagery.md). Generated assets: pick a world preamble from
+   references/worlds.md and paste it verbatim into every prompt.
+4. Hero depth as baseline: independent planes at different rates
+   (references/hero-depth.md). The five tools and the recipe live there.
+5. Motion — last, and only what earns it
+6. Copy pass: references/no-slop.md on every visible string
+7. Browser surfaces pass: selection, caret, focus, scrollbar, underline,
+   tabular numerals, form resets. references/browser-surfaces.md.
+8. Audit loop until zero FAILs
+9. Feel check: scroll cold, write one word per act, diff against the curve
 ```
 
 Motion cannot rescue an ugly still page. Screenshot with animation disabled: if
@@ -687,6 +778,12 @@ querying, rejection criteria, treatments, crops, resolution — in
 `references/imagery.md`. The copy standard, banned words and the decode test:
 `references/no-slop.md`. Conversion placement, placeholders, and the label and
 marquee budgets: `references/content-and-copy.md`.
+
+For generated assets, pick a world preamble from `references/worlds.md` and
+paste it verbatim at the top of every image and video prompt. The preamble
+is what makes six separately generated frames look like one shoot. The
+`browser-surfaces.md` pass (selection, caret, focus, scrollbar, underline,
+tabular numerals, form resets) runs once, near the end of this step.
 
 ---
 
@@ -738,6 +835,14 @@ Every pass, do both:
 
 Two or three passes is normal. One pass means you did not look. What each
 finding means and how to fix it: `references/build-loop.md`.
+
+After the auditor is green, run the **feel check**
+(`references/feeling-curve.md` §6). Scroll the page top to bottom once at a
+normal reading pace, write one word per act for what you felt before
+opening the brief, then diff against the intended curve. Where they
+disagree, the page is wrong, not the brief. A build that reports the two
+curves as identical on the first pass either got lucky or did not do the
+check cold.
 
 ---
 
@@ -810,7 +915,9 @@ never touch it, by design, and the auditor now says so on the last line when
 either stands. A page that exits 0 with six ambition findings has passed the
 linter and not the bar.
 
-- [ ] Direction lock posted before code — vibe, hero, section system, 3 moments
+- [ ] Direction lock posted before code — vibe, hero, section system, grammar, 3 moments
+- [ ] Feeling curve and engineered peak written into the brief before any markup
+- [ ] Tell-someone sentence complete and the signature move lives inside it
 - [ ] ≥3 studies read, their frames viewed, and the take-list posted with sources
 - [ ] Art Direction Contract posted before component code, with literal values
 - [ ] Type role table posted (six roles, 390 and 1440 sizes), every text element mapped to a role, ≤4 sizes per screen, one `h2` size, and no `type-levels` WARN
@@ -823,7 +930,11 @@ linter and not the bar.
 - [ ] Real photography carries any physical product, place, or service
 - [ ] Every image is a local file. Nothing hotlinks a third-party host
 - [ ] Verified by blocking the image hosts and reloading
-- [ ] Signature device named, and repeating at least four times
+- [ ] Generated assets share one world preamble pasted verbatim from `worlds.md` into every prompt; the set passes the cohesion checks
+- [ ] Browser surfaces themed: selection, caret, focus-visible, scrollbar, underline offset and thickness, tabular numerals on counts and prices, form and button resets (`browser-surfaces.md`)
+- [ ] Signature device named and repeating at least four times
+- [ ] Signature move invented, coded in the page and described in one phrase
+- [ ] Fingerprint gate run against every row in the project `FINGERPRINTS.md`; the new row appended after shipping
 - [ ] The largest type on the page is not in the hero
 - [ ] Motion budget stated: slowest, fastest, and the one element moving at a rate the reader did not ask for
 - [ ] No four easing curves or durations copied unchanged out of this skill
@@ -848,10 +959,12 @@ linter and not the bar.
 - [ ] Local business: bottom action bar, what-happens-next line, FAQ, a named human
 - [ ] Copy pass run: headings listed alone in page order, each one passes the decode test, and the list describes the business
 - [ ] Hero passes the five-second test: the `h1` names what you sell and where or for whom, and the first screen shows how to start
+- [ ] Hero has independent depth planes (background, subject, foreground) at visibly different rates, with the phone art-directed separately
 - [ ] No word, phrase or structure from the `no-slop.md` banned lists, no em dashes, every button verb + object
 - [ ] No-slop scorecard posted: six checks per section, every fail rewritten
 - [ ] Every number, client, year and claim traced to the brief, or left out
 - [ ] One thing named that you fixed because you looked at a frame, not because the linter flagged it
+- [ ] Feel check run cold: one word per act, diff against the curve, intended vs felt reported
 
 ## Reference map
 
@@ -869,6 +982,11 @@ linter and not the bar.
 | `references/content-and-copy.md` | Conversion placement, placeholders, fake precision, and the micro-label and marquee budgets |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
 | `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
+| `references/structure-axis.md` | Eight page grammars, signature move, fingerprint gate, aesthetic range |
+| `references/feeling-curve.md` | Feeling curve, engineered peak, tell-someone test, feel check |
+| `references/hero-depth.md` | Hero depth as baseline: five depth tools, layered planes recipe, phone art direction |
+| `references/worlds.md` | Eight photography preambles, high-key canvas flips, composition rules, cohesion checks, pipeline |
+| `references/browser-surfaces.md` | Selection, caret, focus, scrollbar, underline, tabular numerals, form resets, squint test |
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |

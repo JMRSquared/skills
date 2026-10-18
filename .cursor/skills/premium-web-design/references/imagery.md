@@ -277,6 +277,20 @@ the desktop case and letting the phone upscale.
   entirely. Two or more candidates with real `w`/`x` descriptors, or a
   `<picture>` carrying at least one `<source>`. Anything less is not measured as
   responsive because it is not responsive.
+- **`width` and `height` attributes come as a pair, and they win.** They are
+  presentational hints. Override both or neither, usually `width: 100%;
+  height: auto`, or an explicit height with `object-fit: cover` when the
+  frame's shape is the design. The common bug is overriding only `width` in
+  CSS and leaving `height` to resolve to the attribute's raw pixel value, so
+  `width: 100%` on a 1920x1080 image inside a narrow column renders it 1080px
+  tall and pushes everything under it off the fold. It looks like a layout
+  bug three elements away from its cause. The same trap fires when
+  `aspect-ratio` disagrees with the attribute ratio: the attribute wins.
+- **The scrim uses `width` and `height` too.** A scrim is a `::before` or a
+  sibling element, not a child of the text it protects, so it can be measured
+  against the same frame the auditor photographs. A scrim placed inside the
+  text block hides with the text and never gets graded. Place it as a
+  sibling of the copy and give it the same width/height pair treatment.
 
 ## Drawing beats sourcing, when the subject is technical
 

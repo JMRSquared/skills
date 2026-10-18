@@ -1,8 +1,8 @@
 # No slop: the copy standard
 
-Read this before you write a single visible string, and again in the copy pass
+Read this before you write a single visible string and again in the copy pass
 (SKILL.md, Step 5b). It applies to every word a visitor can see: headings, body,
-buttons, labels, captions, alt text, marquees, FAQ answers, the footer, and the
+buttons, labels, captions, alt text, marquees, FAQ answers, the footer and the
 `<title>`.
 
 ## Why this file exists
@@ -17,7 +17,7 @@ and this line under one of them:
 > Book one, or run several on one brief.
 
 The owner called them "too ugly and cryptic". He was right. Each heading needs
-the section around it to make sense, and none of them tells a stranger what the
+the section around it to make sense and none of them tells a stranger what the
 company sells. A business owner reading his own site could not say what "Five
 formats." meant without scrolling. A buyer at a procurement desk never will.
 
@@ -75,8 +75,8 @@ The brochure voice. Big words standing in for facts the writer did not have.
 
 ### Family B: cryptic and clipped
 
-The ad-agency voice, imitated. Short, cool, and undecodable. This is the
-failure the Kagiso page shipped, and the one older versions of this skill
+The ad-agency voice, imitated. Short, cool and undecodable. This is the
+failure the Kagiso page shipped and the one older versions of this skill
 encouraged by asking for 2–6 word heroes.
 
 - **Fragment headlines that need context.** "Already booked." "Five formats."
@@ -89,18 +89,18 @@ encouraged by asking for 2–6 word heroes.
 - **Stacked fragments.** "Seen. Remembered. Booked." Three words, three full
   stops, no information.
 - **Puns and wordplay.** "Sign of the times." "Board meeting." Puns need the
-  reader to already know what you sell, and a stranger does not.
+  reader to already know what you sell and a stranger does not.
 - **Insider jargon.** "OOH", "DOOH", "flighting", "one brief", "formats",
   "placements", "inventory". Industry words a buyer at a spaza shop or a
   municipal office does not use.
 - **Clever for its own sake.** Metaphors, poetic inversions, abstract nouns
-  ("Presence.", "The craft."), and lines that read well aloud and mean
+  ("Presence.", "The craft.") and lines that read well aloud and mean
   nothing on the screen.
 - **Teaser questions.** "Ready?" "Who's watching?"
 - **Bare imperatives.** "Book." "Start." "Talk to us." Book what? Start what?
 
 Nielsen Norman Group's guidance on web headings sums up why Family B fails:
-headings have to work out of context, front-load the keywords, and pick
+headings have to work out of context, front-load the keywords and pick
 clarity over cute vocabulary. Visitors scanning a page read the first two or
 three words of a heading and decide. "Five formats." spends both words on
 nothing.
@@ -115,7 +115,7 @@ These show up in both families and give a page away before anyone reads it:
 - **Bolded lead-ins.** on every paragraph or list item.
 - Colon headings: "Billboards: Big Impact." "Speed: Delivered."
 - Exclamation marks in headings.
-- Three-item lists everywhere, and three-card grids of icon + two words + one
+- Three-item lists everywhere and three-card grids of icon + two words + one
   vague line.
 - Full stops on noun-phrase headings ("Our clients.").
 - Em dashes anywhere in the copy.
@@ -140,7 +140,7 @@ not be a fragment that only makes sense after you read the section.
 
 **Length follows meaning.** Most good headings run 4 to 12 words. Use the words
 the meaning needs, then cut the ones it does not. NN/g measured BBC headlines
-at about five words, and those five words always named the subject. If the
+at about five words and those five words always named the subject. If the
 display size cannot hold a plain sentence in two or three lines, change the
 size or the measure. Do not clip the sentence.
 
@@ -169,7 +169,7 @@ with facts from the brief:
 
 A brand name alone is not a hero headline. If the design sets the name huge,
 the next line down is the plain statement, set large enough to read in the
-first screen, and it is the `<h1>`.
+first screen and it is the `<h1>`.
 
 **Display type and the decode test.** A giant decorative word is allowed when
 it is a concrete noun from the business (a place, a service, a product name)
@@ -212,7 +212,7 @@ generic label still beats a cryptic one.
 - **One idea per sentence.** Average 12 to 20 words. Split anything over 25
   words (the GOV.UK limit).
 - **Reading age about 12, grade 6 to 8.** GOV.UK writes for a reading age of
-  9 for the general public; a business buyer can take slightly more, and no
+  9 for the general public; a business buyer can take slightly more and no
   more than that. Short common words win: "use" over "utilise", "help" over
   "facilitate", "about" over "approximately".
 - **Front-load.** Put the most useful words at the start of each sentence,
@@ -240,13 +240,31 @@ The label says what happens when you press it.
 Under the primary button, one line says what happens next, if the brief
 supports it: "We reply on WhatsApp within a working day."
 
+**One label per intent, used everywhere.** "Get in touch" in the nav and
+"Let's talk" in the footer are the same button with two names. Pick one and
+use it across the nav, hero, mid-page and footer. A reader who sees two
+names for the same action assumes there is a difference and clicks both to
+find out.
+
+**Primary placement.** The primary action appears in the nav, once in the
+first screen, once mid-page at the moment of highest intent and in the
+footer. Four times, not eleven. Each placement earns its slot. The mid-page
+placement is the moment of highest intent, not the moment of highest
+impression: a price list earns one, a contact form does not (the form
+*is* the placement).
+
+**Trust lives at the end of the hero, not in a dedicated testimonial
+carousel halfway down.** A reviewer block at the bottom of the first screen
+is what the corpus ships. A carousel with three reviews is what an
+e-commerce template ships. They are not the same device.
+
 ### 6. Facts you do not have
 
 **Leave them out.** Never invent a number, a client, a quote, a year, an award,
 a certification, a rating or a review. Write the sentence without the fact,
 or leave a clearly marked slot and list it in `NOTES.md` for the owner to fill.
 A plausible fake fact is worse than a missing one. The placeholder rules in
-`content-and-copy.md` (Names, faces, and facts) still apply.
+`content-and-copy.md` (Names, faces and facts) still apply.
 
 ### 7. Labels, captions and micro-copy follow the same rules
 
@@ -262,7 +280,7 @@ it. Find the fact or delete the sentence.
 Sources: Wikipedia's *Signs of AI writing* (WikiProject AI Cleanup), Kobak et
 al. 2024/2025 on excess vocabulary in 15 million PubMed abstracts ("delves"
 rose 28x, "underscores" 13.8x, "showcasing" 10.7x), the GOV.UK words-to-avoid
-list, Mailchimp's content style guide, and the stop-slop skill.
+list, Mailchimp's content style guide and the stop-slop skill.
 
 ### Words (106)
 
@@ -272,7 +290,7 @@ list, Mailchimp's content style guide, and the stop-slop skill.
 | unlock, unleash | get, use, start |
 | seamless, seamlessly, effortless, hassle-free | say the actual step: "one quote covers all five formats" |
 | empower, empowerment | help, let, give |
-| revolutionise, revolutionize, transform, transformative | change, replace, and say what changed |
+| revolutionise, revolutionize, transform, transformative | change, replace and say what changed |
 | reimagine, redefine | (delete) say what you do differently |
 | next-gen, cutting-edge, state-of-the-art, innovative | name the technology: "LED screen", "3D printer" |
 | world-class, best-in-class, premier, leading, top-tier | name the proof: clients, years, certificates |
@@ -287,7 +305,7 @@ list, Mailchimp's content style guide, and the stop-slop skill.
 | pivotal, crucial, vital, key (as an adjective) | important, or say why it matters |
 | underscore, highlight (as a verb), showcase | show |
 | foster, cultivate, nurture (outside gardening and childcare) | build, grow, help |
-| enhance, amplify, supercharge, boost (vague) | improve, increase, and say by how much |
+| enhance, amplify, supercharge, boost (vague) | improve, increase and say by how much |
 | leverage, utilise, utilize, harness | use |
 | facilitate, streamline, optimise (vague) | help, simplify, speed up |
 | robust, comprehensive, holistic, end-to-end | complete, full, or list what is included |
@@ -375,6 +393,41 @@ list, Mailchimp's content style guide, and the stop-slop skill.
 | Teaser question | "Ready?" | The CTA |
 | Title Case Heading | "Our Advertising Formats" | Sentence case |
 
+## Banned placeholders, fake precision and furniture
+
+These are not style choices; they are lies the page tells on first read.
+
+### Placeholders that survived
+
+Acme, Nexus, NovaCore, Quantum-anything, Jane Doe, John Smith, lorem ipsum,
+`hello@example.com`, `+1 (555) 123-4567`. The auditor fails any of them as
+`copy-placeholder`. A real build substitutes the brief's name, number, and
+email. A placeholder build substitutes a clearly marked slot and notes what
+goes there in `NOTES.md`.
+
+### Fake precision
+
+`99.99% uptime`, `10x faster`, `$100.00`, three identical stat columns,
+"trusted by thousands", star ratings with no source. A round number
+("10,000+ happy clients", "99% satisfaction") reads as invented whether it is
+or not. Use real numbers from the brief. Where the brief has no number, write
+the sentence without one.
+
+A **search URL is not a source.** Linking `4.8 / 214 reviews` to a Google
+Maps search query passes the letter of the rule and hands the reader the
+verification you claimed to have done. The link has to land on the listing
+itself: a place page, a profile, a Trustpilot page. The auditor rejects
+`href="#"`, a bare host, any `/search` path and any `?q=`-style query.
+
+### Furniture
+
+`SECTION 01` eyebrows on every block, `Scroll ↓` cues, decorative status
+dots, live counters, an intro paragraph explaining how good the site is.
+One `<summary>` per three sections earns its keep; four earns a `WARN`
+(`eyebrow-density`) the same way the eye loses them. A `Scroll ↓` cue is the
+most copied tell on the modern web: it is what a page adds when the writer
+trusts the reader less than the reader trusts the page. Cut it.
+
 ## The decode test
 
 Run it on every heading, label and button. It takes two minutes.
@@ -419,7 +472,7 @@ SARS, Mukuru, PSiRA and the Gauteng Provincial Government.
 
 The rewrites are longer. That is fine. Each one survives being read alone, and
 a procurement officer who reads only the headings now knows the company sells
-outdoor advertising in Gauteng, has government clients, and earns them B-BBEE
+outdoor advertising in Gauteng, has government clients and earns them B-BBEE
 points.
 
 ### Family A rewrites
@@ -446,6 +499,69 @@ points.
 | OOH that moves. | Taxi and bus branding that travels Gauteng's main routes |
 | Talk to us. | WhatsApp us your area and dates for a quote |
 
+## Practical expansions
+
+The rules above name what to avoid. These name what to do instead, in the
+places agents reach for a default and ship the default.
+
+**Be specific.** "Open until 8pm on weekdays" beats "convenient hours".
+"£64 for a consultation" beats "affordable pricing". "Fourteen years on
+Bath Road" beats "trusted local experts". Specificity is what a real
+business has and a generated page does not.
+
+**Use real numbers and let them be odd.** `47.2%`, `1,284 appointments
+last year`, `£64`, `+44 117 924 8106`. Odd numbers read as measured; round
+numbers read as invented. That cuts both ways: an odd number you made up is
+still made up. Use the numbers in the brief. Where the brief has none,
+write the sentence without one.
+
+**Make the hero a plain statement.** The `<h1>` says what the business sells
+and where or for whom, in words a stranger understands without scrolling:
+"Billboard, taxi and ATM-screen advertising across Gauteng". Most land
+between 4 and 12 words. The supporting line beneath adds the detail in at
+most 25 words. Rule 2 carries the formula; this carries the discipline:
+when the support line is longer than the headline, the headline was the
+wrong line.
+
+**Write like the business talks.** A veterinary clinic does not say "pet
+wellness solutions". It says "we look after your dog". A barber does not
+say "grooming experiences". A plumber does not say "plumbing solutions".
+Read the words back aloud: if no human would say them, rewrite. Use the
+owner's own words from the brief, WhatsApp messages or social posts where
+you have them. Local terms the customer uses ("taxi rank", "spaza",
+"trainers") are plain language to them and shorthand for the page.
+
+**One idea per section.** Six sections each making one clear point beats
+three sections making eighteen. A section that earns its place on the
+page carries one fact the reader could not have guessed from the heading.
+Sections without that fact get cut.
+
+**Length per section.** One headline, one supporting line and if the
+section earns it, one short paragraph of 30 to 60 words. Short means few
+sentences, not clipped ones: every headline and line is still a complete,
+plain statement. Anything longer belongs on an inner page. The exception
+is the section that sells the thing itself: a menu, a service list, a
+price list. Those want detail and detail is what makes them credible.
+
+**Price, hours, address and phone number are text on the page.** People
+come to a local service site for exactly these and they are not buried
+in an image or a PDF. The phone number is tappable (`tel:`), formatted
+the way locals write it (with the dialling code, without the international
+format unless the business is genuinely international).
+
+**A marquee carries the page's most interesting string.** A marquee is the
+largest type on the page moving under its own clock. It is the loudest
+thing you own and an address is what a footer is for. Run the thing the
+reader came for through it: the services, the locations, the prices, the
+client names. Every word in a marquee must be a fact the reader would
+recognise. A two-fragment slogan on a business a stranger has never heard
+of fails the decode test and a marquee is the last place to make a
+reader decode anything. Mark the **duplicate** track `aria-hidden="true"`
+and leave the first one readable, so a screen reader hears the line once.
+Hiding the whole marquee and naming the section with `aria-label` also
+works; hiding both tracks with no accessible name means the loudest
+string on the page reaches nobody using assistive tech.
+
 ## Copy review checklist
 
 Run this in the copy pass, after the page renders and before the audit loop.
@@ -462,7 +578,7 @@ Run this in the copy pass, after the page renders and before the audit loop.
 - [ ] Zero words or phrases from the banned lists (search the source)
 - [ ] Zero banned structures, zero em dashes
 - [ ] Sentence case on every heading and button
-- [ ] Every button reads verb + object, and none says "Learn more",
+- [ ] Every button reads verb + object and none says "Learn more",
       "Get started" or "Submit"
 - [ ] One line after the primary button says what happens next
 - [ ] Average sentence 12–20 words, none over 25
