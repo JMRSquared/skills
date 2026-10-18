@@ -4138,7 +4138,7 @@ console.log(`\nhero paint\n  ${heroLine('desktop', report.desktopHero)}\n  ${her
 if (report.console.length) console.log(`\nconsole errors: ${report.console.length}\n  ${report.console.slice(0, 5).join('\n  ')}`);
 if (report.capability.length) console.log(`\ncapability notes the page logged: ${report.capability.length}\n  ${report.capability.slice(0, 6).join('\n  ')}`);
 if (report.error) console.log(`\nERROR: ${report.error}`);
-console.log(`\nframes → ${outDir}  (LOOK AT THEM with the Read tool before you claim done)`);
+console.log(`\nframes → ${outDir}  (OPEN the desktop and phone JPEGs the auditor wrote before you claim done)`);
 
 const totalFails = (report.desktop?.findings || []).filter((f) => f.level === 'fail').length + (report.mobile?.findings || []).filter((f) => f.level === 'fail').length;
 const totalAmbition = [...(report.desktop?.findings || []), ...(report.mobile?.findings || [])].filter((f) => f.level === 'sparse' || f.level === 'craft').length;
