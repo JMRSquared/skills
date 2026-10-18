@@ -1,6 +1,7 @@
 ---
 name: jmr-review
 description: Use when the user asks to review a diff, PR, or branch, or runs /jmr-review. Audits the diff against every jmrsquared standards skill and returns a punch list of blockers and suggestions.
+version: 1.0.0
 ---
 
 # PR Review

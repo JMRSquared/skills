@@ -1,6 +1,6 @@
 # Standards for implementers and reviewers
 
-Apply the jmrsquared skills that match your files. Load model-invoked skills through the Skill tool. Load user-invoked ones by reading their `SKILL.md` from `~/.agents/skills/` or `~/.claude/skills/`.
+Apply the jmrsquared skills that match your files. Load auto-invoked skills through whichever skill-loading mechanism your agent exposes (the Skill tool in Claude Code, the skill catalogue in OpenCode, the `/skill` picker in Cursor, etc.). Load user-invoked ones by reading their `SKILL.md` from the agent's installed skills directory (e.g. `~/.agents/skills/`, `~/.claude/skills/`, `~/.config/opencode/skills/`).
 
 | Applies to | Skills |
 |---|---|

@@ -1,6 +1,7 @@
 ---
 name: jmr-commit
 description: Use when the user asks to generate a commit message, runs /jmr-commit, or after staging changes. Produces Gitmoji + Conventional Commit messages (see https://gitmoji.dev/), plain-language clarity, and echoes the branch/stage confirmation from jmr-standing-rules before committing.
+version: 1.0.0
 ---
 
 # Commit Workflow
