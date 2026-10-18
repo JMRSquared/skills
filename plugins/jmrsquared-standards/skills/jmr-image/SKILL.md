@@ -1,6 +1,7 @@
 ---
 name: jmr-image
 description: Search and download images from Unsplash, Pexels, and pngimg.com. Favours Unsplash then Pexels (commercial-safe) and falls back to pngimg for transparent cutouts. Triggers on "find an image of X", "download a photo", "get an image", "jmr-image", "/jmr-image". Unsplash uses UNSPLASH_ACCESS_KEY; Pexels uses PEXELS_API_KEY; pngimg needs no key.
+version: 1.0.0
 ---
 
 # jmr-image — Unified Image Asset Skill

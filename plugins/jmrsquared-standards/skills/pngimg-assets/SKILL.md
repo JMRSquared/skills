@@ -1,6 +1,7 @@
 ---
 name: pngimg-assets
 description: Search and download transparent PNG cutouts from pngimg.com for mockups, decks, prototypes, or non-commercial sites. Triggers on "find a png of X", "download a transparent png", "get a cutout image", "pngimg", or /pngimg-assets. Enforces the CC BY-NC 4.0 licence gate before any asset lands in a repo.
+version: 1.0.0
 ---
 
 # pngimg.com Asset Search + Download

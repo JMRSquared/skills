@@ -1,6 +1,7 @@
 ---
 name: npm-local-publish
 description: Publish npm packages locally when CI Trusted Publishing fails or the user asks to release/publish to npm with 2FA. Use Dia browser + TTY expect flow. Triggers on "publish to npm", "npm publish", "release package", ENEEDAUTH/EOTP, or /npm-local-publish. Do not scrape redacted auth/cli URLs or use macOS OTP dialogs.
+version: 1.0.0
 ---
 
 # npm Local Publish (Dia + TTY)

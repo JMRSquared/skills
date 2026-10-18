@@ -1,6 +1,7 @@
 ---
 name: gltf-assets
 description: Search and download glTF/GLB models and HDRIs for React Three Fiber and /premium-web-design. Poly Haven (photoreal CC0, no key) plus Sketchfab (broad CC catalogue, SKETCHFAB_TOKEN to download). Triggers on "find a 3d model", "download a gltf", "sketchfab", "polyhaven", "hdri", useGLTF, or /gltf-assets. Companion to pngimg-assets (2D cutouts).
+version: 1.0.0
 ---
 
 # glTF / GLB Asset Search + Download
