@@ -60,7 +60,7 @@ It searches Unsplash and Pexels in a real browser, needs no API key, writes
 filenames is a hero chosen at random, and the contact sheet is the only way to
 choose by eye.
 
-**Read the contact sheet with the Read tool and choose by eye.** Picking from a
+**Open the contact sheet (`photos/contact-sheet.jpg`) and choose by eye.** Picking from a
 filename is picking at random, and one wrong hero image undoes every other
 decision on the page.
 

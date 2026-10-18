@@ -5,8 +5,8 @@ gets every component right and leaves the browser chrome at default reads as
 half-finished and it is the cheapest signal that a page was built rather
 than assembled. It is also the step that gets skipped most reliably.
 
-Audit these once, near the end of `Step 5`. Read each visible state with the
-Read tool after the change.
+Audit these once, near the end of `Step 5`. Read each visible state (open the
+desktop and phone JPEGs the audit produced) after the change.
 
 ## 1. Selection
 

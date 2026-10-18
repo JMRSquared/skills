@@ -52,7 +52,7 @@ problem. `file://` is fine for Tier A and Tier B pages that ship no such assets.
 
 Then, every pass, both of these:
 
-1. **Read the frames.** Use the Read tool on the desktop and mobile JPEGs. Look
+1. **Read the frames.** Open the desktop and mobile JPEGs your audit produced and look
    at them the way a stranger would. This is not optional — the measurements
    catch contrast and sizing, but only your eyes catch a bad crop, a collision,
    a hero that reads as empty, or type that is technically fine and visually
@@ -237,7 +237,7 @@ If the honest answer to #1 is no, stop adding features and fix the page.
 ## Before you claim done
 
 - [ ] `audit-page.mjs` exits 0 on desktop and mobile
-- [ ] You read every desktop frame and every mobile frame with the Read tool
+- [ ] You read every desktop frame and every mobile frame (open each JPEG the audit produced)
 - [ ] `reduced-motion.jpg` still looks art-directed
 - [ ] No console errors in `audit.json`
 - [ ] You named the one thing you fixed on the last pass because you looked at it, not because the linter said so
