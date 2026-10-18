@@ -57,6 +57,9 @@ jobs:
           echo "$BODY" > AGENTS.md
           echo "$BODY" > GEMINI.md
 
+          mkdir -p .opencode
+          echo "$BODY" > .opencode/AGENTS.md
+
           rm -f .cursor/rules/wonderhire.mdc .windsurf/rules/wonderhire.md .clinerules/wonderhire.md
 
       - name: Sync skills into plugin bundle + agent skill dirs

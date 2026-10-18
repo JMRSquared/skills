@@ -94,6 +94,7 @@ Pick your agent. One command. Done.
 | **Windsurf** | `npx skills add jmrsquared/skills -a windsurf` |
 | **Copilot** | `npx skills add jmrsquared/skills -a github-copilot` |
 | **Cline** | `npx skills add jmrsquared/skills -a cline` |
+| **OpenCode** | `npx skills add jmrsquared/skills -a opencode` |
 | **Any other** | `npx skills add jmrsquared/skills` |
 
 Install once. Use in every session after that.
@@ -104,15 +105,17 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**29** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
-| Feature | Claude Code | Codex | Gemini CLI | Cursor | Windsurf | Cline | Copilot |
-|---------|:-----------:|:-----:|:----------:|:------:|:--------:|:-----:|:-------:|
-| **30** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y |
-| Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y² | Y² | Y² |
-| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y |: |: |: |: |
-| Statusline badge `[JMR: branch@stage]` | Y | — | — | — | — | — | — |
+| Feature | Claude Code | Codex | Gemini CLI | OpenCode | Cursor | Windsurf | Cline | Copilot |
+|---------|:-----------:|:-----:|:----------:|:--------:|:------:|:--------:|:-----:|:-------:|
+| **30** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y | Y |
+| Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y³ | Y³ | Y³ | Y³ |
+| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y | Y |: |: |: |: |
+| Statusline badge `[JMR: branch@stage]` | Y | — | — | Y⁴ | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
-² Cursor/Windsurf/Cline/Copilot: rule files (`.cursor/rules/jmrsquared.mdc`, etc.) ship in this repo and ARE copied into the target project when `npx skills add` runs — but verify after install that your agent picks them up. See per-agent detail section below.
+² OpenCode reads the project's `.opencode/AGENTS.md` as the always-on surface. The file ships in this repo's `.opencode/AGENTS.md` and is picked up when `npx skills add jmrsquared/skills -a opencode` runs.
+³ Cursor/Windsurf/Cline/Copilot: rule files (`.cursor/rules/jmrsquared.mdc`, etc.) ship in this repo and ARE copied into the target project when `npx skills add` runs — but verify after install that your agent picks them up. See per-agent detail section below.
+⁴ OpenCode statusline badge requires the bash helper in `hooks/jmr-statusline.sh`. The plugin surfaces it when running through the marketplace install.
 
 <details>
 <summary><strong>Claude Code — full details</strong></summary>
@@ -184,7 +187,22 @@ Uninstall: `npx skills remove jmrsquared-standards`
 </details>
 
 <details>
-<summary><strong>Any other agent (opencode, Roo, Amp, Goose, Kiro, 40+ more)</strong></summary>
+<summary><strong>OpenCode — full details</strong></summary>
+
+OpenCode reads the project-local `.opencode/AGENTS.md` for always-on rules and `~/.config/opencode/skills/` for the skill catalogue.
+
+```bash
+npx skills add jmrsquared/skills -a opencode
+```
+
+The install copies all **30** skills to `~/.config/opencode/skills/jmr-*/` and the always-on rule body to `.opencode/AGENTS.md` in your project. Slash commands (`/jmr-commit`, `/jmr-review`, `/premium-web-design`, etc.) are first-class in OpenCode and work the same as in Claude Code.
+
+If you maintain a hand-curated set of skills, mirror changes between `~/.claude/skills/` and `~/.config/opencode/skills/` to keep both agents in sync.
+
+</details>
+
+<details>
+<summary><strong>Any other agent (Roo, Amp, Goose, Kiro, 40+ more)</strong></summary>
 
 [npx skills](https://github.com/vercel-labs/skills) supports 40+ agents:
 
