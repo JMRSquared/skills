@@ -1,6 +1,7 @@
 ---
 name: code-quality
 description: Use on any code change. Enforces DRY, single responsibility, early returns, one step per line, lookup objects over if-chains, strict TypeScript (no any, no unchecked indexing, explicit return types), one intermediate representation, escaping in generated code, Zod at every runtime boundary, minimal comments.
+version: 1.0.0
 ---
 
 # Code Quality Principles

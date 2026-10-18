@@ -1,6 +1,7 @@
 ---
 name: naming-imports-exports
 description: Use on any TypeScript/JavaScript file edit. Enforces naming conventions (camelCase variables, PascalCase components, kebab-case directories, boolean prefixes) and import/export rules (named exports, ~ alias, barrel re-exports).
+version: 1.0.0
 ---
 
 # Naming, Imports, Exports
