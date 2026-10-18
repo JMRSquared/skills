@@ -1,7 +1,7 @@
 ---
 name: agents-execute
-description: "Use when the owner runs /agents-execute to hand off a mission, or the repo's own spec (\"/agents-execute lets build\"), for unattended parallel building on a GitHub repository until a milestone branch is merged into main."
-disable-model-invocation: true
+description: "Use when the owner runs /agents-execute to hand off a mission, or the repo's own spec (\"/agents-execute lets build\"), for unattended parallel building on a GitHub repository until a milestone branch is merged into main. Slash-command only; agents without slash support should load this file directly and follow the same steps."
+version: 1.0.0
 ---
 
 # /agents-execute: Autonomous Mission Execution
@@ -28,11 +28,11 @@ The run's authority is the `/jmr-cycle` Authority section: it replaces the confi
 
 - **A GitHub repository you can push to.** Tickets, claims, reviews and status live in GitHub issues and pull requests. Without one, `/agents-execute` stops; there is no local fallback.
 - **`gh`**, signed in.
-- **`jmr-cycle`**, which ships with jmrsquared-standards. Set `CYCLE="node <jmr-cycle skill directory>/scripts/cycle.mjs"`. The directory is `~/.agents/skills/jmr-cycle`, `~/.claude/skills/jmr-cycle` or the plugin's `skills/jmr-cycle`.
+- **`jmr-cycle`**, which ships with jmrsquared-standards. Set `CYCLE="node <jmr-cycle skill directory>/scripts/cycle.mjs"`. The directory is `~/.agents/skills/jmr-cycle`, `~/.claude/skills/jmr-cycle`, `~/.config/opencode/skills/jmr-cycle` or the plugin's `skills/jmr-cycle`.
 
 ## Loading the chain skills
 
-`to-spec`, `to-tickets` and `jmr-cycle` are user-invoked (`disable-model-invocation: true`), so a Skill tool call cannot fire them. Load one by reading its `SKILL.md` from `~/.agents/skills/<name>/`, `~/.claude/skills/<name>/` or your harness's equivalent. Run its steps with the overrides below. The Contract wins every conflict. When `to-spec` or `to-tickets` is missing, the step's own text is the full procedure. Install them with:
+`to-spec`, `to-tickets` and `jmr-cycle` are slash-command-only skills, so an auto-loader cannot fire them. Load one by reading its `SKILL.md` from the agent's installed skills directory (`~/.agents/skills/<name>/`, `~/.claude/skills/<name>/`, `~/.config/opencode/skills/<name>/`, or your harness's equivalent). Run its steps with the overrides below. The Contract wins every conflict. When `to-spec` or `to-tickets` is missing, the step's own text is the full procedure. Install them with:
 
 ```bash
 npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --skill code-review --skill tdd -g
@@ -92,7 +92,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
 
 8. **Run.** Keep every cycle out of this session's context: each one starts empty and reads its state from GitHub.
    - Claude Code with a shell: start `$CYCLE loop --milestone <slug>` in the background (Bash `run_in_background`). It runs each cycle as a fresh `claude -p "/jmr-cycle <slug>"` process and stops on `complete`. When headless permissions would block the cycle's `git`, `gh` or `node` calls, put the agent command after `--` (see the `jmr-cycle` "Running unattended" section).
-   - Claude Code without a background shell: invoke the `loop` skill with no interval and the subagent prompt from that section, so each cycle runs in its own subagent and this session keeps only the reports.
+   - Claude Code without a background shell, or any other agent: invoke your agent's loop mechanism with no interval and the subagent prompt from that section, so each cycle runs in its own subagent and this session keeps only the reports. The `loop` skill in Claude Code, `/loop` in OpenCode, and equivalent subagent schedulers in Cursor / Windsurf / Codex / Gemini CLI all fit.
    - A harness with no loop: tell the user to run `$CYCLE loop --milestone <slug>` in a terminal, repeat `/jmr-cycle <slug>` or schedule it.
 
 9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, how the loop runs, the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
