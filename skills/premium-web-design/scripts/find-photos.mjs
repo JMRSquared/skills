@@ -4,7 +4,7 @@
  *
  * "Use real photography" is unreachable advice if the agent has no way to find
  * any. This searches free-licence libraries in a real browser, writes a contact
- * sheet the agent can open with the Read tool, and prints ready-to-use URLs
+ * sheet the agent can open (open the JPEG the script wrote), and prints ready-to-use URLs
  * with attribution.
  *
  * Usage:
