@@ -1,6 +1,7 @@
 ---
 name: jmr-survey-form
 description: Build a customer discovery survey for the product in the current project as a Google Form, to find out whether companies need it and to recruit pilot users. Reads the project, drafts 10 neutral questions for the user's approval, builds the form with a Google Apps Script run in the user's own browser session, puts the promo video on top and checks that anyone with the link can answer. Use when the user runs /jmr-survey-form or asks for a customer discovery survey, market validation survey, pilot sign-up form or a Google Form about their product. Not for general-purpose forms unrelated to product discovery.
+version: 1.0.0
 ---
 
 # /jmr-survey-form
@@ -9,7 +10,7 @@ Turn the product in this project into a 5-minute Google Form that qualifies the 
 
 `<skill-dir>` below is the directory holding this `SKILL.md`. The templates are `<skill-dir>/scripts/create-form.gs` and `<skill-dir>/scripts/add-video.gs`.
 
-**Browser.** Use the gstack `/browse` skill when it is installed. Otherwise use any browser tool this agent has that can click, take screenshots and run JavaScript in the page. Work in a browser the user can see, because they sign in and approve permissions themselves.
+**Browser.** Use whatever browser automation this agent exposes (Playwright, Puppeteer, the agent's built-in browser tool, or the gstack `/browse` skill in Claude Code) that can click, take screenshots and run JavaScript in the page. Work in a browser the user can see, because they sign in and approve permissions themselves.
 
 **Never** type the user's Google password, approve OAuth scopes for them or click Run more than once per script. Each run creates another form or another video.
 

@@ -1,6 +1,7 @@
 ---
 name: jmr-generate-video
 description: Generate a narrated promo or explainer video, fully on this machine, from any context the user gives - a website URL, images, a business profile PDF, a source-code folder, a written brief or just an idea with no product yet. Runs the open-source brag skill (latent-spaces/brag) pinned to an audited commit with telemetry off, plus a local Kokoro voiceover. Use when the user runs /jmr-generate-video or /generate-video, or asks for a promo video, launch video, explainer video or video ad with a voiceover, portrait or landscape. Not for editing existing footage.
+version: 1.0.0
 ---
 
 # /jmr-generate-video
