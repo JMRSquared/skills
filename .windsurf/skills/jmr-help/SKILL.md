@@ -1,6 +1,7 @@
 ---
 name: jmr-help
 description: Use when the user runs /jmr-help or asks for a quick-reference of jmrsquared standards skills. One-shot display — not a persistent mode.
+version: 1.0.0
 ---
 
 # jmrsquared Standards — Quick Reference
@@ -51,7 +52,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local promo video with voiceover via audited, pinned brag + Hyperframes.
 - `jmr-survey-form`: `/jmr-survey-form`: 10-question discovery survey and pilot sign-up form, with the promo video on top.
 
-**Slash commands (Claude Code):**
+**Slash commands (where the agent supports them):**
 
 - `/jmr-help` — this card.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
@@ -66,5 +67,7 @@ description: Use when the user runs /jmr-help or asks for a quick-reference of j
 - `/jmr-generate-video` or `/generate-video`: narrated promo video, portrait or landscape, female or male voice.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
+
+Slash commands are native to Claude Code and OpenCode. In agents without slash-command support (Cursor, Windsurf, Cline, Copilot, Codex, Gemini CLI), invoke the underlying skill by loading `skills/<name>/SKILL.md` or asking the agent to apply the skill's behaviour.
 
 **Stop:** `stop jmrsquared` or `normal mode` clears session activation.

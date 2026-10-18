@@ -1,7 +1,7 @@
 ---
 name: jmr-cycle
-description: Use when the owner runs /jmr-cycle, or /loop or a scheduled routine runs it, to move a milestone that /agents-execute published one cycle forward or to refresh its build status.
-disable-model-invocation: true
+description: Use when the owner runs /jmr-cycle, or /loop or a scheduled routine runs it, to move a milestone that /agents-execute published one cycle forward or to refresh its build status. Slash-command only; agents without slash support should run `node <this skill's directory>/scripts/cycle.mjs loop --milestone <slug>` or invoke the underlying commands directly.
+version: 1.0.0
 ---
 
 # /jmr-cycle
@@ -78,7 +78,7 @@ Only accounts with write access to the repository speak for the owner. `cycle.mj
 
 ## Escalate
 
-Escalating means: write the question, the options and your recommendation to a file and run `$CYCLE escalate --milestone <slug> --ticket <id> --question-file <f>` (`--status` in place of `--ticket` for milestone-wide questions). When it prints `escalated`, send one push notification (PushNotification tool when available) with one line and the issue link. Then carry on with other tickets. Escalate only when:
+Escalating means: write the question, the options and your recommendation to a file and run `$CYCLE escalate --milestone <slug> --ticket <id> --question-file <f>` (`--status` in place of `--ticket` for milestone-wide questions). When it prints `escalated`, send one push notification (use whichever notification tool your agent exposes, or any web push API) with one line and the issue link. Then carry on with other tickets. Escalate only when:
 
 1. a step costs money, creates an outside account or needs a credential the run does not have;
 2. a migration must be applied to a shared or remote database;
@@ -120,9 +120,9 @@ Renew the lease with the same `lease` command (same `--run` and `--holder`) at t
 
 Start every cycle with an empty context. A cycle reads state from GitHub, so it needs nothing from the cycle before it. Carrying earlier cycles in one conversation only fills it up.
 
-- **Terminal or background shell.** `$CYCLE loop --milestone <slug>` runs each cycle as a new `claude -p "/jmr-cycle <slug>"` process and paces itself by the `CYCLE_RESULT` line: 2 minutes after `continue`, an hour after `waiting`, done after `complete`. A cycle that prints no result line retries in 5 minutes; three in a row stop the loop. It prints one JSON line per cycle with the last lines of that cycle's report. Headless sessions follow the project's permission settings and a denied tool call does not stop them, so allow `git`, `gh`, `node` and the milestone's commands in `.claude/settings.json`, or put the agent command with its flags after `--`: `$CYCLE loop --milestone <slug> -- claude -p --permission-mode acceptEdits`. Tune pacing with `--continue-seconds`, `--wait-minutes`, `--retry-minutes` and `--max-cycles`.
-- **Inside an open Claude Code session.** Run `/loop` with this prompt: "Start one general-purpose subagent in the foreground. It reads `<this skill's directory>/SKILL.md` and runs one full cycle of `/jmr-cycle <slug>`. Reply with its report only." The session keeps only each report. Pace by the report's last line as above. The orchestrator subagent starts implementers one level down; Claude Code lets subagents nest three levels deep.
-- **No session open.** Create a cloud routine with the `schedule` skill whose prompt is `/jmr-cycle <slug>`. Each run is a fresh session already. Its environment needs this plugin installed and `gh` signed in with push access.
+- **Terminal or background shell.** `$CYCLE loop --milestone <slug>` runs each cycle as a new `claude -p "/jmr-cycle <slug>"` process (or any equivalent non-interactive agent invocation, e.g. `codex exec -- "/jmr-cycle <slug>"`, `gemini -p "/jmr-cycle <slug>"`) and paces itself by the `CYCLE_RESULT` line: 2 minutes after `continue`, an hour after `waiting`, done after `complete`. A cycle that prints no result line retries in 5 minutes; three in a row stop the loop. It prints one JSON line per cycle with the last lines of that cycle's report. Headless sessions follow the project's permission settings and a denied tool call does not stop them, so allow `git`, `gh`, `node` and the milestone's commands in the project's agent settings, or put the agent command with its flags after `--`: `$CYCLE loop --milestone <slug> -- claude -p --permission-mode acceptEdits`. Tune pacing with `--continue-seconds`, `--wait-minutes`, `--retry-minutes` and `--max-cycles`.
+- **Inside an open session.** Run your agent's loop with this prompt: "Start one general-purpose subagent in the foreground. It reads `<this skill's directory>/SKILL.md` and runs one full cycle of `/jmr-cycle <slug>`. Reply with its report only." The session keeps only each report. Pace by the report's last line as above. The orchestrator subagent starts implementers one level down; subagent nesting depth depends on the agent (Claude Code lets subagents nest three levels deep).
+- **No session open.** Create a cloud routine with your agent's scheduler (the `schedule` skill in Claude Code, or equivalent elsewhere) whose prompt is `/jmr-cycle <slug>`. Each run is a fresh session already. Its environment needs the jmrsquared-standards plugin installed and `gh` signed in with push access.
 
 Run one loop per milestone: a second loop only waits on the lease.
 
