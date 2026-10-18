@@ -1,6 +1,7 @@
 ---
 name: supabase-auth
 description: Use when editing Supabase Auth–based app flows: session handling, route guards (`*ProtectedRoute`), or React auth context in your auth domain. For RLS, Storage, Realtime, service-role clients, or SQL policies, use `supabase`; for Better Auth stack, use `better-auth`. Enforces Supabase session + React Context + tRPC profile patterns where that stack applies.
+version: 1.0.0
 ---
 
 # Supabase Auth (application integration)

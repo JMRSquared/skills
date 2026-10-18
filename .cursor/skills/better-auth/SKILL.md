@@ -1,6 +1,7 @@
 ---
 name: better-auth
 description: Use when editing Better Auth configuration, session/API routes, client (`authClient`), plugins (OAuth, 2FA, organization), database adapters (Drizzle/Prisma/Mongo), or framework integration (Next.js, Nuxt, SvelteKit). Activates for files importing from `better-auth` or `@/lib/auth` patterns tied to the official Better Auth setup.
+version: 1.0.0
 ---
 
 # Better Auth Standards
