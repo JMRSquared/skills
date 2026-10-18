@@ -1,6 +1,7 @@
 ---
 name: trpc-procedure
 description: Use when editing or adding tRPC procedures. Enforces modular router-per-feature layout, Zod input validation, consistent error patterns, named exports, and strict types. Pairs with bdd-router-tests.
+version: 1.0.0
 ---
 
 # tRPC Procedure Standards

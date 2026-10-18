@@ -1,6 +1,7 @@
 ---
 name: tanstack-trpc-query
 description: Use when editing frontend queries or mutations that use TanStack Query + tRPC. Enforces useQuery/useMutation patterns, explicit loading/error states, and correct cache invalidation after writes.
+version: 1.0.0
 ---
 
 # TanStack Query + tRPC Patterns

@@ -1,6 +1,7 @@
 ---
 name: knex-migration
 description: Use when editing Knex migrations. Enforces ULID primary keys, snake_case columns, created_at/updated_at timestamps, and explicit foreign-key constraints.
+version: 1.0.0
 ---
 
 # Knex Migration Standards

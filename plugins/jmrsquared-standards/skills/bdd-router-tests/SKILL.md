@@ -1,6 +1,7 @@
 ---
 name: bdd-router-tests
-description: Use whenever you add or change a tRPC procedure. Enforces a colocated BDD test pair — .feature file plus .steps.ts — in __tests__/ next to the procedure. Blocks "done" until yarn test passes.
+description: Use whenever you add or change a tRPC procedure. Enforces a colocated BDD test pair — .feature file plus .steps.ts — in __tests__/ next to the procedure. Blocks "done" until the project's test command passes.
+version: 1.0.0
 ---
 
 # BDD Router Tests
