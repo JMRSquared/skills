@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** `premium-web-design` scroll story is default on every harness (activate rule + SKILL.md Dispatch + `kit/`). Kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Also `jmr-cycle` / `/agents-execute`. Canonical edits in `skills/` and `rules/` only.
+- **Notes:** `/premium-web-design` is one workflow (no `--full` split): SKILL.md + `full.md` + `kit/`. Kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Canonical edits in `skills/` and `rules/` only.
 
 ## Purpose
 

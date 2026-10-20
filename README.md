@@ -43,7 +43,7 @@ Two tiers.
 | `knex-migration` | Knex migration edits |
 | `kysley-db` | Kysely DB/repository/query code |
 | `react-tsx-component` | `.tsx` component edits |
-| `premium-web-design` | Marketing / product / landing pages. Default: one art-directed brand world in plain HTML and CSS, told as a scroll story (the hero object stays on screen and changes chapter by chapter). `--full`: the Awwwards SOTD workflow (also `/premium-web-design`) |
+| `premium-web-design` | Marketing / product / landing pages. One workflow every time: art-directed brand world, scroll story (`kit/story.js`), and the audit in `full.md` (also `/premium-web-design`) |
 | `better-auth` | Better Auth config, routes, adapters, client |
 | `supabase` | Supabase client, RLS, SQL policies, Storage, Realtime |
 | `supabase-auth` | Supabase Auth flows, guards, session + profile loading |
@@ -67,7 +67,7 @@ Two tiers.
 |-------|-----|
 | `agents-execute` | `/agents-execute`: hand off a mission, or just `/agents-execute lets build` to build the repo's own spec. Writes the spec and tickets, opens them as GitHub issues on a new `milestone/<slug>` branch, then runs `/jmr-cycle` on a loop until that branch is merged into main. Needs a GitHub repository |
 | `jmr-cycle` | `/jmr-cycle <slug>`: moves a milestone forward one step: parallel agents build ready tickets on their own branches, a separate reviewer agent checks that each feature works before it merges into `milestone/<slug>`. Style suggestions never block a merge. Status is posted to a GitHub issue. Safe to repeat: its loop runner starts every cycle in a fresh session, so a long build never fills one agent's memory. If a run crashes, the next one picks up its tickets, branches and deploy steps where it stopped |
-| `premium-web-design` | `/premium-web-design` — art-directed landing pages as a scroll story (`kit/story.js` in every default build); `--full` for WebGL, 3D or photo/video frame sequences (also Tier 2 auto-fire). References cover the scroll story (`scroll-story.md`: storyboard, scene patterns, transitions, pacing, kit runtime and storyboard capture), grammars, signature move and fingerprint gate (`structure-axis.md`), feeling curve and engineered peak (`feeling-curve.md`), hero depth as baseline (`hero-depth.md`), eight photography preambles (`worlds.md`), and browser surfaces (`browser-surfaces.md`) |
+| `premium-web-design` | `/premium-web-design` — one workflow on every run: art direction, scroll story (`kit/story.js`) and `full.md` (studies, contract, audit). WebGL and 3D are extra tools inside that workflow when the brief needs them (also Tier 2 auto-fire). References cover the scroll story (`scroll-story.md`), grammars and signature move (`structure-axis.md`), feeling curve (`feeling-curve.md`), hero depth (`hero-depth.md`), photography preambles (`worlds.md`) and browser surfaces (`browser-surfaces.md`) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
