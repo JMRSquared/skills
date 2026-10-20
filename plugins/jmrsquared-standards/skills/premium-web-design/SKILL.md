@@ -1,6 +1,6 @@
 ---
 name: premium-web-design
-description: Build customer-facing websites with a strong art direction, fast. Default mode builds one committed brand world in a single page: a characterful display face, a highlighted headline word, a drawn or product hero object, sticker callouts carrying in-world details, plain HTML and CSS. `--full` runs the Awwwards workflow (measured site studies, art-direction contract, scroll choreography, WebGL tiers, Playwright auditor). Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
+description: Build customer-facing websites with a strong art direction, fast. Default mode builds one committed brand world in a single page told as a scroll story: a characterful display face, a highlighted headline word, a drawn or product hero object that stays on screen and changes as the reader scrolls, sticker callouts carrying in-world details, plain HTML and CSS plus a small dependency-free scroll runtime. `--full` runs the Awwwards workflow (measured site studies, art-direction contract, scroll choreography, WebGL tiers, Playwright auditor). Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
 version: 1.0.0
 ---
 
@@ -8,7 +8,9 @@ version: 1.0.0
 
 You build one page that looks like a studio made it for this brand alone. Pick
 a world, commit to it in every token, draw the thing, and let the details carry
-the personality. Any frozen frame of the page should be worth posting.
+the personality. Then tell its story with the scroll: the thing you drew stays
+on screen and changes, one beat at a time. Any frozen frame of the page should
+be worth posting. The frames in order should tell the story.
 
 ## Dispatch (do this first)
 
@@ -16,7 +18,7 @@ Read `<skill-dir>/full.md` and follow it **instead of this file** when any of
 these hold:
 
 - the invocation says `--full`, "full workflow", Awwwards, Site of the Day, or cinematic
-- the brief asks for scroll storytelling, pinned chapters, scrubbed sequences, WebGL or 3D
+- the brief asks for WebGL, 3D, or a scrubbed photo or video frame sequence
 - the user names a site from `references/site-studies/` as the target
 
 Otherwise stay here. Tell the user in one line which mode you took and that
@@ -41,12 +43,14 @@ Anti-references matter most. "Not a generic pink dating app" or "no AI gradient
 blobs, no hero plus three feature cards" closes the default exits before you
 reach them.
 
-If the brief has beats (recognition, tension, turn, substance, range,
-commitment), add a **feeling curve** to `PRODUCT.md` before any markup. One
-line per section: the emotion, then what on screen causes it. Name the
-**peak** in the same file as the sentence a visitor would say to a friend.
-`references/feeling-curve.md` carries the spec, worked curves, the
-peak-end rule, and the feel check.
+Then add the **storyboard** to `PRODUCT.md`, before any markup: a `## Story`
+block naming the protagonist, its change from top to bottom of the page, the
+spine, the peak and the ending, plus a scene table with one row per scene
+(pattern, span, the one change, the copy beat and the transition into the
+next). Finish with a **feeling curve**: one line per scene, the emotion, then
+what on screen causes it. The format, the vocabulary and a worked example are
+in `references/scroll-story.md` and `demos/scroll-story/PRODUCT.md`;
+`references/feeling-curve.md` carries the peak-end rule and the feel check.
 
 ## 2. The world
 
@@ -157,8 +161,10 @@ Keep stickers off the drawing's face.
 
 ## 5. Sections
 
-Four to six after the hero. The page runs 4–7 screens. Each section reveals a
-new layer of the same world rather than a new template block.
+Four to six after the hero. Each section reveals a new layer of the same world
+rather than a new template block. The sections are the scenes of the
+storyboard: the held ones carry the protagonist, the rest breathe between
+them (section 6).
 
 | Section | What it holds | Make it this brand's |
 |---|---|---|
@@ -174,9 +180,36 @@ reading as one long sheet. Two section layouts may not repeat back to back.
 Fewer than six bordered boxes that hold only text on the whole page, stickers
 included: give steps and prices a drawing, a photo or a hairline row instead.
 
-## 6. Motion
+## 6. Scroll story
 
-Plain CSS, no libraries. Motion belongs to the world:
+Every page tells its story with the scroll. The runtime is `kit/story.js` and
+`kit/story.css` (no dependencies, about 5 KB gzipped): copy both next to the
+page. Markup attributes say what is a scene, a stage, a step, a track or a
+reveal; the motion itself stays in your CSS. `references/scroll-story.md` has
+the attribute table, the gotchas and the recipes. Read it before wiring.
+
+- **The protagonist is the hero object.** It sits in a sticky `data-stage`
+  across one held run of 2–4 chapter scenes (`data-scene`, `--span` in
+  screens). Each chapter changes one thing about it with a `data-track`:
+  the tyre fills, the wheel spins true, the cab pulls up.
+- **Name every transition.** Carry the subject across, match-cut to a shape
+  in the same place, or wipe the ground at a chapter break. Pick one wipe and
+  use it at every chapter break. A section that only fades in its own content
+  is a non-sequitur; cut it or connect it.
+- **Breathe between held runs.** Prices, proof and coffee scroll normally,
+  with reveals: headlines by line, body lifts, drawings draw, figures count.
+- **Show progress.** A spine (ticket, rail, odometer) records each chapter,
+  and `data-chapters` on the nav marks the current one.
+- **Pay off the opening.** The hero object comes back changed at the close,
+  next to the one action.
+- **Phone.** Subject in the bottom half of the stage, copy on opaque plates
+  in the top half; drop the spine before you shrink the subject.
+- **Reduced motion and no JS** fall back to the finished state of every
+  scene. Keep each track's base style equal to its rest state.
+
+## 7. Motion
+
+CSS, no libraries beyond the kit. Motion belongs to the world:
 
 - **One load-in** on the hero object: rise and settle, 700–900ms, ease-out-expo.
 - **Ambient loops tied to objects:** stars twinkle, the route line's dashes flow,
@@ -184,11 +217,11 @@ Plain CSS, no libraries. Motion belongs to the world:
   0.5–30s, no two at the same duration.
 - **Hover and press:** buttons lift 2px and the shadow grows, then press flat;
   links underline. Nothing else moves on hover.
-- `@media (prefers-reduced-motion: reduce)` stops every animation.
+- `@media (prefers-reduced-motion: reduce)` stops every animation. Exclude
+  `[data-track]` from any blanket `animation: none` rule; the kit already
+  parks tracks at their rest state.
 
-Scroll-scrubbed choreography belongs to `--full`.
-
-## 7. Copy
+## 8. Copy
 
 - Sincere, specific, in-world. The layout plays it straight and the humour
   lives in details: "Download on the Hay Store." "No surge for tired vehicles."
@@ -200,9 +233,23 @@ Scroll-scrubbed choreography belongs to `--full`.
   the `full.md` steps it cites.
 - Real business: trace every number, name and claim to the brief, or cut it.
 
-## 8. Build and look
+## 9. Build and look
 
-Files: `index.html` (120–220 lines) and `styles.css` (300–550 lines). Fonts from
+Files: `index.html` (140–260 lines), `styles.css` (300–600 lines) and the two
+kit files. In `<head>`, set the story mode before first paint, then link the
+kit before your stylesheet:
+
+```html
+<script>
+  document.documentElement.dataset.story =
+    matchMedia('(prefers-reduced-motion: reduce)').matches ? 'static' : 'live';
+</script>
+<link rel="stylesheet" href="kit/story.css">
+<link rel="stylesheet" href="styles.css">
+<script src="kit/story.js" defer></script>
+```
+
+Fonts from
 Google Fonts with `display=swap`. Semantic landmarks, a skip link, visible focus
 rings in the accent, AA contrast on all body text. Hero stacks to one column
 under 900px; the hero object moves below the copy and stays big.
@@ -212,7 +259,14 @@ Then render it and look. With Playwright available:
 ```bash
 PW_DIR=<dir containing node_modules/playwright> \
   node <skill-dir>/scripts/audit-page.mjs "file://$PWD/index.html" ./.audit
+PW_DIR=… node <skill-dir>/scripts/story-frames.mjs "file://$PWD/index.html" ./.story
+PW_DIR=… node <skill-dir>/scripts/story-frames.mjs "file://$PWD/index.html" ./.story-phone 390 844
 ```
+
+`story-frames.mjs` writes `storyboard.jpg`: every scene at the start, middle
+and end of its scroll, one row per scene. Cover the copy and read it as a
+comic strip. If the pictures alone do not tell the story, the page does not
+either. Add `?story-debug` to the URL when a track does not move.
 
 Declare `<!-- premium-web-design: tier=A kind=world because="<one line>" -->`
 in `<head>`. `kind=world` tells the auditor this is default mode. Clear every
@@ -220,8 +274,8 @@ in `<head>`. `kind=world` tells the auditor this is default mode. Clear every
 rules measure the `--full` bar; read them, act on any that point at a real
 flaw, and move on. If a FAIL is the auditor's mistake, say so in one line with
 the measured evidence rather than redesigning around it. Then read the desktop and phone frames (open the JPEG / PNG files your audit produced) and fix what you see: collisions, a headline breaking into four lines, a
-sticker covering the face of the drawing, a drawing that reads as clip art.
-Two passes is normal.
+sticker covering the face of the drawing, a drawing that reads as clip art,
+a plate covering the subject it describes. Two passes is normal.
 
 Without Playwright, say so in one line and offer the install:
 `mkdir -p ~/.pw && cd ~/.pw && npm i playwright && npx playwright install chromium`.
@@ -235,7 +289,12 @@ Without Playwright, say so in one line and offer the install:
 - [ ] Hero object made for this page: drawing, product UI, or owner photo, plus stickers carrying in-world data
 - [ ] Hero has independent depth planes (background, subject, foreground) that move at visibly different rates
 - [ ] Every section reveals a new layer of the world; no two layouts repeat back to back
-- [ ] Motion is CSS, tied to objects, off under reduced motion
+- [ ] `PRODUCT.md` has the storyboard: protagonist, change, spine, peak, ending, scene table, feeling curve
+- [ ] The hero object is held on a stage through at least one run and changes once per chapter
+- [ ] Every scene boundary names what carries across; one wipe for every chapter break
+- [ ] The close pays off the opening, next to the one action
+- [ ] `storyboard.jpg` read on desktop and phone with the copy covered; the pictures tell the story
+- [ ] Motion is CSS, tied to objects; under reduced motion every scene shows its finished state
 - [ ] No banned words; every claim about a real business traced to the brief
 - [ ] Desktop and phone frames read with your own eyes, and one thing fixed because you looked
 
@@ -243,8 +302,10 @@ Without Playwright, say so in one line and offer the install:
 
 | Open | When |
 |---|---|
+| `references/scroll-story.md` | Storyboard format, scene patterns, transitions, pacing, the `kit/` API and the story check. Read before wiring any scroll |
+| `demos/scroll-story/` | The bike shop told as one morning on the workstand: storyboard in PRODUCT.md, held run, tracks, steps, stagger. Read it before your first build |
 | `references/brand-world.md` | Pairings, highlight-word, sticker, button, band and SVG-character recipes |
-| `demos/brand-world/` | A finished default-mode page (fictional Cape Town bike shop): PRODUCT.md, index.html, styles.css. Read it before your first build |
+| `demos/brand-world/` | The same bike shop as a static world page: tokens, stickers, band, prices. The scroll-story demo builds on its stylesheet |
 | `references/no-slop.md` | Writing any visible string |
 | `references/imagery.md` | Sourcing and cropping owner or stock photography |
 | `references/color-and-light.md` | More palettes and contrast fixes |

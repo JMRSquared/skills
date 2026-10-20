@@ -1,5 +1,9 @@
 # Directing a scroll story
 
+DOM-only pages wire their story with `kit/story.js` (`scroll-story.md`). This
+file is for R3F and WebGL stories, and the storyboard in `scroll-story.md`
+still comes first.
+
 `scroll-storytelling.md` covers what a scroll narrative is made of: beat lengths,
 the rect maths, pinning that survives, DPR caps, legibility, the load. Read it
 first. This is the layer above it, the architecture that turns correctly wired

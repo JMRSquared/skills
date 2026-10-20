@@ -93,7 +93,7 @@ The peak gets three things and it gets them at the expense of other acts:
 |---|---|
 | The asset budget | The best generated frames or the only real footage go here, not to act two |
 | The silence before it | An act of quiet, or an empty viewport, so the change has something to be a change from |
-| The most scroll room | The largest `data-sc-span` on the page and the `data-sc-dwell` that makes the camera settle exactly on it |
+| The most scroll room | The largest `--span` on the page, and a flat keyframe segment (`45%, 70% { … }`) so the subject settles exactly on it |
 
 **A page with three peaks has none.** Three impressive acts flatten each
 other and the visitor leaves able to say the site was nice and unable to say
@@ -149,8 +149,8 @@ Concrete techniques, in plain language:
   lean.
 - **Dwell-triggered detail.** Hold still on an act and something further
   arrives: a caption, a second line, a small annotation. Reward for stopping.
-  Read `--sc-p` staying constant across a few frames, in the page's own JS,
-  and reveal something that was never needed for comprehension.
+  Read the scene's `--p` staying constant across a few frames in the page's
+  own JS, then reveal something that was never needed for comprehension.
 - **Scroll velocity shaping intensity.** Fast scrolling raises grain, blur,
   chromatic offset, ground saturation. Slow scrolling settles it. The page
   feels like it is being driven rather than played back and it costs one
@@ -175,15 +175,15 @@ desktop cannot be the thing that carries the page's meaning.
 
 Scroll distance is emotional time. It is the only clock this medium has, and
 it is fully under your control, which makes it the cheapest emotional
-instrument in the kit and the one most often left at default.
+instrument you have and the one most often left at default.
 
 | Pacing | Reads as | Built with |
 |---|---|---|
-| Short acts, hard cuts | Adrenaline, pulse, impatience | Acts under 1.4vh, no pin, dwell at 0 |
-| A long pin | Held breath, pressure, attention | `data-sc-span` 3+, overlapping cues, one idea |
+| Short acts, hard cuts | Adrenaline, pulse, impatience | Acts under 1.4 screens, no pin, no keyframe holds |
+| A long pin | Held breath, pressure, attention | `--span` 3+ on a held scene, one change, one idea |
 | An empty viewport before a reveal | Silence before the drop | A ground-only act, no cue until the next one |
-| A slow settle mid-act | The shot landing | `data-sc-dwell` 0.35 to 0.6 with the cue peak on the settle |
-| A fast cue with a long plateau | Confidence, arrival | `data-sc-cue="0.1 0.9 0.08 0.4"` |
+| A slow settle mid-act | The shot landing | A track whose keyframes hold flat from 35% to 60%, with the change landing on the hold |
+| A fast cue with a long plateau | Confidence, arrival | `data-range="0 0.2"` on the track, so it finishes early and holds for the rest of the scene |
 | A slow ramp in | Hesitation, dawning | Long `rampIn` and use it once, because it is close to feeling broken |
 
 Three rules follow.

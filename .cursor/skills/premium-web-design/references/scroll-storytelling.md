@@ -5,6 +5,10 @@ you how the thing was wired. This file is the wiring. Every number was
 measured in a real browser on 2026-08-15 at 1440x900, or it is marked
 `unverified`. The studies stay the source for what those pages look like.
 
+For story structure (protagonist, storyboard, transitions, pacing) and the
+`kit/story.js` runtime that DOM pages use, read `scroll-story.md` first. This
+file covers what sits under a 3D or frame-sequence story.
+
 ## 1. The beat sheet, before any code
 
 A scroll narrative is a list of beats, each with a length in viewport heights
