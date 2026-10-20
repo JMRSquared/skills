@@ -209,11 +209,14 @@ protagonist, the copy beat that causes it and the transition into the next
 scene. Every row names what crosses its boundary; a blank cell is a section
 that fades in on its own, and that is the failure this step exists to stop.
 
-Wire it with `kit/story.js` and `kit/story.css`. The R3F act director
-(`references/scroll-direction.md`) and GSAP are for the WebGL and 3D tiers.
-Format, scene patterns, transitions, pacing numbers, the kit API and the
-story check: `references/scroll-story.md`. Worked example:
-`demos/scroll-story/PRODUCT.md`.
+Wire it with `kit/story.js` and `kit/story.css` only. Do not invent
+`useStory`, ScrollTrigger, Framer scroll or IntersectionObserver chapter
+machines in default mode. Copy the kit into the project (`kit/` or
+`public/kit/`), then put the story in `data-scene` / `data-stage` /
+`data-track` markup. The R3F act director (`references/scroll-direction.md`)
+and GSAP are for the WebGL and 3D tiers. Format, scene patterns,
+transitions, pacing numbers, the kit API and the story check:
+`references/scroll-story.md`. Worked example: `demos/scroll-story/PRODUCT.md`.
 
 ---
 
