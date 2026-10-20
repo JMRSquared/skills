@@ -67,7 +67,7 @@ Two tiers.
 |-------|-----|
 | `agents-execute` | `/agents-execute`: hand off a mission, or just `/agents-execute lets build` to build the repo's own spec. Writes the spec and tickets, opens them as GitHub issues on a new `milestone/<slug>` branch, then runs `/jmr-cycle` on a loop until that branch is merged into main. Needs a GitHub repository |
 | `jmr-cycle` | `/jmr-cycle <slug>`: moves a milestone forward one step: parallel agents build ready tickets on their own branches, a separate reviewer agent checks that each feature works before it merges into `milestone/<slug>`. Style suggestions never block a merge. Status is posted to a GitHub issue. Safe to repeat: its loop runner starts every cycle in a fresh session, so a long build never fills one agent's memory. If a run crashes, the next one picks up its tickets, branches and deploy steps where it stopped |
-| `premium-web-design` | `/premium-web-design` — art-directed landing pages, fast; `--full` for Awwwards-caliber scroll craft (also Tier 2 auto-fire). References cover the scroll story (`scroll-story.md`: storyboard, scene patterns, transitions, pacing, a small dependency-free scroll runtime in `kit/` and a storyboard capture script), grammars, signature move and fingerprint gate (`structure-axis.md`), feeling curve and engineered peak (`feeling-curve.md`), hero depth as baseline (`hero-depth.md`), eight photography preambles (`worlds.md`), and browser surfaces (`browser-surfaces.md`) |
+| `premium-web-design` | `/premium-web-design` — art-directed landing pages as a scroll story (`kit/story.js` in every default build); `--full` for WebGL, 3D or photo/video frame sequences (also Tier 2 auto-fire). References cover the scroll story (`scroll-story.md`: storyboard, scene patterns, transitions, pacing, kit runtime and storyboard capture), grammars, signature move and fingerprint gate (`structure-axis.md`), feeling curve and engineered peak (`feeling-curve.md`), hero depth as baseline (`hero-depth.md`), eight photography preambles (`worlds.md`), and browser surfaces (`browser-surfaces.md`) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
@@ -180,6 +180,8 @@ Auto-activates via `GEMINI.md` context file every session.
 | Cline | `npx skills add jmrsquared/skills -a cline` | `.clinerules/jmrsquared.md` |
 | Copilot | `npx skills add jmrsquared/skills -a github-copilot` | `.github/copilot-instructions.md` + `AGENTS.md` |
 
+Each install copies the whole skill folder, including `premium-web-design/kit/`. Re-run after upgrading so default-mode scroll stories keep the runtime. The always-on rule body states that `/premium-web-design` defaults to a `kit/story.js` scroll story on every harness.
+
 Uninstall: `npx skills remove jmrsquared-standards`
 
 > **Windows note:** `npx skills` uses symlinks by default. If symlinks fail, add `--copy`.
@@ -195,7 +197,7 @@ OpenCode reads the project-local `.opencode/AGENTS.md` for always-on rules and `
 npx skills add jmrsquared/skills -a opencode
 ```
 
-The install copies all **30** skills to `~/.config/opencode/skills/jmr-*/` and the always-on rule body to `.opencode/AGENTS.md` in your project. Slash commands (`/jmr-commit`, `/jmr-review`, `/premium-web-design`, etc.) are first-class in OpenCode and work the same as in Claude Code.
+The install copies the full skill folders (including `premium-web-design/kit/`) into `~/.config/opencode/skills/<name>/` and the always-on rule body to `.opencode/AGENTS.md` in your project. Slash commands (`/jmr-commit`, `/jmr-review`, `/premium-web-design`, etc.) are first-class in OpenCode and work the same as in Claude Code. Re-run the install after pulling this repo so `kit/story.js` stays current.
 
 If you maintain a hand-curated set of skills, mirror changes between `~/.claude/skills/` and `~/.config/opencode/skills/` to keep both agents in sync.
 
@@ -238,7 +240,7 @@ In any Claude Code session once installed:
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
-- `/premium-web-design` — apply the premium interactive website design bar.
+- `/premium-web-design` — art-directed landing page as a scroll story (`kit/story.js`).
 - `/agents-execute`: hand off a mission and walk away. Type an objective, or `/agents-execute lets build` to build the spec already in the repo. The agent writes a spec, splits it into a few feature or bug-fix tickets, opens each ticket as a GitHub issue and creates a `milestone/<slug>` branch. It then runs `/jmr-cycle` on a loop until that branch is merged into main. It only asks you about money, migrations on shared databases, legal questions and work that would contradict the spec. The project must be on GitHub; anywhere else it stops and says so. It follows Matt Pocock's `/to-spec` and `/to-tickets` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets -g`.
 - `/jmr-cycle <slug>`: one step of a milestone: claim ready tickets, build them in parallel on their own branches, review every pull request with a separate agent, merge approved ones into `milestone/<slug>` and update the status issue. When every ticket is in, it runs a final review and the full test gate, then merges the milestone into main. `/agents-execute` starts it for you; run it by hand to nudge a milestone along.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.

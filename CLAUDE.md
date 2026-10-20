@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `jmr-cycle` and the reworked `/agents-execute` (GitHub-only milestones built by looped cycles). `jmr-cycle` tests: `node --test skills/jmr-cycle/scripts/*.test.mjs`. Also: `premium-web-design` scroll story (`references/scroll-story.md`, `kit/story.js`, `demos/scroll-story/`); kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Canonical edits in `skills/` only.
+- **Notes:** `premium-web-design` scroll story is default on every harness (activate rule + SKILL.md Dispatch + `kit/`). Kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Also `jmr-cycle` / `/agents-execute`. Canonical edits in `skills/` and `rules/` only.
 
 ## Purpose
 
