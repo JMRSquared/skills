@@ -135,7 +135,7 @@ job that photography would have done.
   the smallest type on the site, the CTA as a plain underlined link, quiet
   after all that volume.
 - **Leans on:** kinetic (this is the one grammar where character splitting can
-  be right), pin with scale driven from `--sc-p`, reveal as a wipe across
+  be right), pin with scale driven from the scene's `--p`, reveal as a wipe across
   letterforms, drift doing heavy lifting because the ground is most of the
   frame.
 
@@ -182,7 +182,7 @@ Two columns held in tension for the whole page, resolved by scroll.
   edge, one column takes the full width and the CTA lives in the winning
   column. That collapse is the ending and it should be the single most
   satisfying moment on the page.
-- **Leans on:** pin with divider position driven from `--sc-p`, reveal per
+- **Leans on:** pin with divider position driven from the scene's `--p`, reveal per
   side, count for the comparison figures if they are real.
 
 ### Rhythmic cutlist
@@ -220,9 +220,9 @@ Short hard-cut acts at speed. No pinning, no dwell, no crossfades.
 ## 2. The signature move
 
 Every build must invent **one bespoke interaction that exists on that site
-alone**. Not in the device kit, not in any prior build, not a parameter change.
-Coded in the page, with `data-sc-*` attributes of your own naming or plain
-inline JS reading `--sc-p`. The engine stays untouched.
+alone**. Not a `kit/` preset, not in any prior build, not a parameter change.
+Coded in the page: CSS keyframes driven by `data-track`, or plain inline JS
+reading a scene's `--p`. `kit/story.js` stays untouched.
 
 This is the thing that makes a page memorable after the visitor closes the tab,
 and it is the only part of a build that cannot be arrived at by following rules.
@@ -239,7 +239,7 @@ and it is the only part of a build that cannot be arrived at by following rules.
   lockup when released. Only on the hero, only once and the settle has to be
   exact.
 - **A line drawing that builds itself.** An SVG technical illustration whose
-  `stroke-dashoffset` is driven from `--sc-p`, so scrolling literally draws
+  `stroke-dashoffset` is a track on the scene's `--p`, so scrolling literally draws
   the object, then the dimension lines arrive, then the callouts. Pairs with
   the drawing worlds in `brand-world.md`.
 - **A running receipt.** A small fixed panel that accumulates a line every
@@ -254,12 +254,12 @@ and it is the only part of a build that cannot be arrived at by following rules.
 ### What does not count
 
 - A recoloured spotlight. A spotlight at a different radius. Two spotlights.
-- `data-sc-tilt="9"` instead of `6`. Any parameter change to any kit device.
+- `data-range="0 0.6"` instead of `0 0.4`, or a `--span` of 3 instead of 2. Any parameter change to a kit attribute or reveal preset.
 - A different easing curve on kinetic lines.
 - Five cards in the rail instead of three, or the rail scrolling the other
   way.
 - A third scrub act. More of a device is not a new device.
-- Something the engine already does, given a project-specific class name.
+- Something `kit/` already does, given a project-specific class name.
 
 **The test:** describe the move to someone who has seen the other builds. If
 they cannot tell it apart from something the kit already does, it is not a

@@ -1,0 +1,95 @@
+/* story.css: layout and reveal presets for story.js.
+   Pins and hidden states exist only under html[data-story="live"]. With no JS,
+   or under reduced motion, every scene flows as a plain section and every
+   var() falls back to its finished state. */
+
+[data-story="live"] [data-scene] {
+  position: relative;
+  min-height: calc(var(--span, 2.5) * 100svh);
+}
+
+/* The stage holds for as long as its parent lasts. Whatever follows it
+   (steps, nested chapter scenes) is pulled up to scroll over it. A negative
+   margin on the stage itself would keep it stuck a screen past its parent. */
+[data-story="live"] [data-stage] {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  height: 100svh;
+  overflow: clip;
+}
+
+[data-story="live"] [data-stage] + * { margin-top: -100svh; }
+
+[data-story="live"] [data-stage] ~ * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Only the step's children take clicks, so the stage underneath stays usable. */
+[data-story="live"] [data-steps] {
+  padding-block: 70svh 40svh;
+  pointer-events: none;
+}
+
+[data-story="live"] [data-step] { min-height: var(--step, 85svh); }
+[data-story="live"] [data-step] > * { pointer-events: auto; }
+
+/* Tracks: the element's own @keyframes, paused and scrubbed by --t. Author
+   with animation-name only; the shorthand would reset the delay below. */
+[data-track] {
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-play-state: paused;
+  animation-delay: calc(var(--t, var(--rest, 1)) * -1s);
+}
+
+[data-reveal="lines"] .line {
+  display: block;
+  overflow: clip;
+  padding-block: 0.12em 0.06em;
+  margin-block: -0.12em -0.06em;
+}
+
+[data-reveal="lines"] .line > span { display: block; }
+
+[data-story="live"] [data-reveal="lines"] .line > span {
+  transform: translate3d(0, calc((1 - var(--e, 1)) * 110%), 0);
+}
+
+[data-story="live"] [data-reveal="lift"] {
+  opacity: var(--e, 1);
+  transform: translate3d(0, calc((1 - var(--e, 1)) * 2.25rem), 0);
+}
+
+[data-story="live"] [data-reveal="lift"][data-stagger] {
+  opacity: 1;
+  transform: none;
+}
+
+[data-story="live"] [data-reveal="lift"][data-stagger] > * {
+  opacity: var(--e, 1);
+  transform: translate3d(0, calc((1 - var(--e, 1)) * 2.25rem), 0);
+}
+
+[data-story="live"] [data-reveal="rule"] {
+  transform: scaleX(var(--e, 1));
+  transform-origin: left center;
+}
+
+/* Every stroke inside needs pathLength="1". */
+[data-story="live"] [data-reveal="draw"] :is(path, line, polyline, circle, ellipse, rect) {
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--e, 1));
+}
+
+[data-story="live"] [data-reveal="unmask"] {
+  clip-path: inset(calc((1 - var(--e, 1)) * 100%) 0 0 0);
+}
+
+[data-story="live"] [data-reveal="unmask"] img {
+  transform: scale(calc(1 + (1 - var(--e, 1)) * 0.15));
+}
+
+[data-reveal="count"] { font-variant-numeric: tabular-nums; }

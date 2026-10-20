@@ -184,7 +184,7 @@ appear, and it appears second.
 
 Then name the **peak**: one sentence a visitor would say to a friend after
 the page closed, phrased from their side. The peak gets the asset budget,
-the silence before it, and the largest `data-sc-span` on the page. A page
+the silence before it, and the largest `--span` on the page. A page
 with three peaks has none.
 
 Finish the **tell-someone sentence** for the brief and place it next to the
@@ -197,6 +197,23 @@ festival), the peak-end rule, the pacing-as-emotion table, and the feel
 check that runs after the audit: `references/feeling-curve.md`. Two
 adjacent acts producing the same feeling means one is filler; cut it
 here rather than after the assets exist.
+
+---
+
+## Step 1c — Storyboard
+
+Turn the curve into scenes before any markup. Add a `## Story` block to the
+brief (protagonist, change, spine, peak, ending) and a scene table: one row
+per scene with its pattern, span in screens, the one change it makes to the
+protagonist, the copy beat that causes it and the transition into the next
+scene. Every row names what crosses its boundary; a blank cell is a section
+that fades in on its own, and that is the failure this step exists to stop.
+
+Wire it with `kit/story.js` and `kit/story.css`. The R3F act director
+(`references/scroll-direction.md`) and GSAP are for the WebGL and 3D tiers.
+Format, scene patterns, transitions, pacing numbers, the kit API and the
+story check: `references/scroll-story.md`. Worked example:
+`demos/scroll-story/PRODUCT.md`.
 
 ---
 
@@ -732,7 +749,8 @@ build clears it by construction.
    references/worlds.md and paste it verbatim into every prompt.
 4. Hero depth as baseline: independent planes at different rates
    (references/hero-depth.md). The five tools and the recipe live there.
-5. Motion — last, and only what earns it
+5. Motion — last, and only what earns it. Scroll motion follows the
+   Step 1c storyboard through kit/story.js
 6. Copy pass: references/no-slop.md on every visible string
 7. Browser surfaces pass: selection, caret, focus, scrollbar, underline,
    tabular numerals, form resets. references/browser-surfaces.md.
@@ -836,6 +854,19 @@ Every pass, do both:
 Two or three passes is normal. One pass means you did not look. What each
 finding means and how to fix it: `references/build-loop.md`.
 
+Then capture the storyboard at both widths and read it with the copy
+covered:
+
+```bash
+PW_DIR=… node scripts/story-frames.mjs "<url>" ./.story
+PW_DIR=… node scripts/story-frames.mjs "<url>" ./.story-phone 390 844
+```
+
+Each row is one scene at the start, middle and end of its scroll. If a row
+does not show the change its table row names, or you cannot say what
+carried across a boundary, fix the page before the feel check
+(`references/scroll-story.md` §10).
+
 After the auditor is green, run the **feel check**
 (`references/feeling-curve.md` §6). Scroll the page top to bottom once at a
 normal reading pace, write one word per act for what you felt before
@@ -917,6 +948,8 @@ linter and not the bar.
 
 - [ ] Direction lock posted before code — vibe, hero, section system, grammar, 3 moments
 - [ ] Feeling curve and engineered peak written into the brief before any markup
+- [ ] Storyboard in the brief: protagonist, change, spine, peak, ending, and a scene table naming every transition
+- [ ] `storyboard.jpg` read at desktop and phone with the copy covered; every row shows its change
 - [ ] Tell-someone sentence complete and the signature move lives inside it
 - [ ] ≥3 studies read, their frames viewed, and the take-list posted with sources
 - [ ] Art Direction Contract posted before component code, with literal values
@@ -981,6 +1014,7 @@ linter and not the bar.
 | `references/no-slop.md` | Writing any visible string: the AI-slop definition, headline rules, banned lists, the decode test, the copy-pass scorecard |
 | `references/content-and-copy.md` | Conversion placement, placeholders, fake precision, and the micro-label and marquee budgets |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |
+| `references/scroll-story.md` | Storyboard, scene patterns, transitions, pacing, the `kit/` runtime, the story check, lessons from animejs.com |
 | `references/scroll-storytelling.md` | Beat sheets, scroll-to-value maths, pinning that survives, 3D |
 | `references/structure-axis.md` | Eight page grammars, signature move, fingerprint gate, aesthetic range |
 | `references/feeling-curve.md` | Feeling curve, engineered peak, tell-someone test, feel check |
@@ -990,15 +1024,17 @@ linter and not the bar.
 | `references/build-loop.md` | The audit loop and what each finding means |
 | `references/site-studies/*.md` | What real award sites actually do, measured |
 | `demos/*.html` | Runnable implementations of each pattern |
+| `demos/scroll-story/` | A complete scroll story on `kit/`: storyboard, held run, tracks, steps, stagger |
 
 ## Demos
 
-Eleven self-contained pages, each a different palette and pairing, each
+Twelve self-contained pages, each a different palette and pairing, each
 exiting 0 from the auditor. Open the one nearest your brief and read it before you
 write the pattern yourself.
 
 | Demo | Pattern | Stack |
 |---|---|---|
+| `scroll-story/` | A whole page as one story: a held protagonist changed by four chapters, a chat played by steps, a payoff exit | `kit/story.js` + CSS keyframes |
 | `pinned-stage.html` | Archetype C — subject held while copy chapters cycle | sticky + IntersectionObserver |
 | `index-list.html` | Archetype E — the card-grid replacement, a photograph inline in every row at every width | CSS only |
 | `editorial-split.html` | Archetype B — sticky type column, ground shift, masked reveals | sticky + IO |

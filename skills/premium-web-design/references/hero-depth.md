@@ -115,7 +115,7 @@ How to build it:
 ### Mark-up skeleton
 
 ```html
-<section class="hero" data-sc-snap>
+<section class="hero" data-scene style="--span: 1">
   <div class="hero__stage" aria-hidden="true">
     <img class="hero__plane hero__plane--back"     src="..." alt="" />
     <img class="hero__plane hero__plane--mid"      src="..." alt="" />
@@ -139,11 +139,11 @@ How to build it:
                object-fit: cover; will-change: transform; }
 
 /* Plane rates: small differences between adjacent layers. Copy stays at 0. */
-.hero__plane--back    { transform: translate3d(0, calc(var(--sc-p, 0) * -90px), 0); }
-.hero__plane--mid     { transform: translate3d(0, calc(var(--sc-p, 0) * -45px), 0); }
-.hero__plane--subject { transform: translate3d(0, calc(var(--sc-p, 0) * -30px), 0)
-                                   scale(calc(1 + var(--sc-p, 0) * 0.04)); }
-.hero__plane--front   { transform: translate3d(0, calc(var(--sc-p, 0) *  20px), 0); }
+.hero__plane--back    { transform: translate3d(0, calc(var(--leave, 0) * -90px), 0); }
+.hero__plane--mid     { transform: translate3d(0, calc(var(--leave, 0) * -45px), 0); }
+.hero__plane--subject { transform: translate3d(0, calc(var(--leave, 0) * -30px), 0)
+                                   scale(calc(1 + var(--leave, 0) * 0.04)); }
+.hero__plane--front   { transform: translate3d(0, calc(var(--leave, 0) *  20px), 0); }
 
 /* Plane-specific horizontal nudge so the foreground overtakes the subject. */
 .hero__plane--front   { left: -8%; width: 116%; }
@@ -153,9 +153,11 @@ How to build it:
 }
 ```
 
-Drive `--sc-p` from a scroll listener on the hero section (or use a R3F /
-GSAP rig per the engine in `scroll-direction.md`). Under reduced motion,
-freeze every plane in its starting position.
+`kit/story.js` writes `--leave` on the hero because it is a `data-scene`:
+0 while the hero fills the screen, 1 once it has scrolled away
+(`references/scroll-story.md`). A WebGL hero takes the same value from the
+R3F act director in `scroll-direction.md`. Under reduced motion the kit
+leaves `--leave` unset, so every plane sits at its starting position.
 
 ## 5. Three traps that cost rounds
 

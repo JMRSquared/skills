@@ -501,16 +501,16 @@ auditor reports it as FAIL `hover-image`. If you build one:
 - Lerp toward the pointer at ~0.15 per frame; instant tracking feels cheap,
   heavy lag feels broken
 
-### The magnet-cue transform conflict
+### The transform conflict
 
-`data-sc-magnet`, `data-sc-parallax` and `data-sc-cue` all write `transform`.
-They cannot share an element. The magnet writes every frame in its own rAF
-loop, so it silently wins and the cue's entrance rise is discarded.
+A magnetic CTA, a `data-reveal` preset and a `data-track` keyframe all write
+`transform`. They cannot share an element. The magnet writes every frame in
+its own rAF loop, so it silently wins and the reveal's rise is discarded.
 
-On a magnetic CTA, set `data-sc-rise="0"` so the cue writes a no-op instead
-of losing a visible animation to a race. A cued element that wants its own
-continuous transform should drive an inner wrapper from `--sc-p` in CSS
-rather than stacking a second device on the same node.
+Give each writer its own node: the reveal on a wrapper, the magnet on the
+button inside it. For a tilt or nudge that has to sit on the same node, use
+the individual `rotate` and `translate` properties, which compose with
+`transform` instead of replacing it (`references/scroll-story.md`, Tracks).
 
 ## Reduced motion
 

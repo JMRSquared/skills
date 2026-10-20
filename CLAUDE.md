@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** Shipping `jmr-cycle` and the reworked `/agents-execute` (GitHub-only milestones built by looped cycles). `jmr-cycle` tests: `node --test skills/jmr-cycle/scripts/*.test.mjs`. Canonical edits in `skills/` only.
+- **Notes:** Shipping `jmr-cycle` and the reworked `/agents-execute` (GitHub-only milestones built by looped cycles). `jmr-cycle` tests: `node --test skills/jmr-cycle/scripts/*.test.mjs`. Also: `premium-web-design` scroll story (`references/scroll-story.md`, `kit/story.js`, `demos/scroll-story/`); kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Canonical edits in `skills/` only.
 
 ## Purpose
 
