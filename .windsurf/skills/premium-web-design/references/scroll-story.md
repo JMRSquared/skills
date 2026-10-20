@@ -368,7 +368,7 @@ Do not copy: at 390px the first frame painted the next chapter's heading
 over the hero headline before the page settled. Check the phone storyboard
 at scroll 0 for exactly this.
 
-When a `--full` build needs what CSS cannot do (shape morphing, motion
+When the page needs what CSS cannot do (shape morphing, motion
 along a path, springs, dragging), anime.js v4 is MIT licensed and modular
 (about 24.5 KB for everything, less when you import only `animate` and
 `onScroll`). Its `onScroll({ sync: 0.25 })` smooths the same way the kit

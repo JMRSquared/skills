@@ -13,8 +13,7 @@ Step 4.
 
 ## 1. The feeling curve
 
-Write the curve as its own artifact, in `PRODUCT.md` (default mode) or the
-brief (`full.md` Step 0), before a single act exists. One line per act: the
+Write the curve in `PRODUCT.md` before a single act exists. One line per act: the
 emotion, then the thing on screen that causes it.
 
 The emotion column is the constraint. The cause column is the only place a

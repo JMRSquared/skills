@@ -1,8 +1,7 @@
 <!--
-  The full premium-web-design workflow, loaded only on `--full`, Awwwards /
-  Site of the Day / cinematic, WebGL / 3D, a scrubbed photo or video frame
-  sequence, or a named site-study target. DOM scroll stories stay in default
-  mode (SKILL.md + kit/story.js). SKILL.md dispatches here.
+  Required on every /premium-web-design run, together with SKILL.md.
+  There is no lighter path. WebGL, 3D and frame sequences are tools inside
+  this same workflow when the brief needs them.
   Paths below are relative to the skill directory, same as SKILL.md.
   When references/ or the auditor cite "SKILL.md" steps (Step 4c, Step 5b,
   the Done checklist), they mean this file.
@@ -213,7 +212,7 @@ that fades in on its own, and that is the failure this step exists to stop.
 
 Wire it with `kit/story.js` and `kit/story.css` only. Do not invent
 `useStory`, ScrollTrigger, Framer scroll or IntersectionObserver chapter
-machines in default mode. Copy the kit into the project (`kit/` or
+machines. Copy the kit into the project (`kit/` or
 `public/kit/`), then put the story in `data-scene` / `data-stage` /
 `data-track` markup. The R3F act director (`references/scroll-direction.md`)
 and GSAP are for the WebGL and 3D tiers. Format, scene patterns,

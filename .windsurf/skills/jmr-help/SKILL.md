@@ -19,7 +19,7 @@ version: 1.0.0
 - `knex-migration` — ULID PKs, snake_case, timestamps, FKs.
 - `kysley-db` — Kysely query builder usage, typed schema, safe raw SQL, transactions.
 - `react-tsx-component` — function components, Props at bottom, Tailwind-only.
-- `premium-web-design` — marketing / landing / product pages as a scroll story (`kit/story.js`); `/premium-web-design`.
+- `premium-web-design` — marketing / landing / product pages: brand world, `kit/story.js` and `full.md` together; `/premium-web-design`.
 - `better-auth` — Better Auth config, adapters, server vs client, session APIs.
 - `supabase` — RLS, keys, client vs service role, Storage, Realtime, Edge.
 - `supabase-auth` — Supabase Auth + React context, guards, OAuth callback.
@@ -42,7 +42,7 @@ version: 1.0.0
 - `jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm.
 - `jmr-review` — audit current diff against every skill above.
 - `jmr-plain-language`: `/jmr-plain-language` rewrites user-supplied text in plain language (also Tier 1).
-- `premium-web-design` — `/premium-web-design` — scroll-story landing pages via `kit/story.js`; `--full` for WebGL/3D (also Tier 2).
+- `premium-web-design` — `/premium-web-design` — one workflow: brand world, `kit/story.js` scroll story, and `full.md` (also Tier 2).
 - `agents-execute`: unattended mission execution on a GitHub repo: spec → tickets as GitHub issues → `milestone/<slug>` branch → `/jmr-cycle` on `/loop` until the milestone is merged into main. `/agents-execute lets build` builds the repo's own spec.
 - `jmr-cycle`: one step of a milestone: claim, build in parallel, review every pull request, merge into `milestone/<slug>`, publish status; lands the milestone when every ticket is in.
 - `npm-local-publish` — `/npm-local-publish` — Dia + expect local npm release path.
@@ -58,7 +58,7 @@ version: 1.0.0
 - `/jmr-commit` — generate a Gitmoji + Conventional Commit message for staged changes.
 - `/jmr-review` — review current branch / staged diff.
 - `/jmr-plain-language`: rewrite pasted text in plain language.
-- `/premium-web-design` — build the page as a scroll story with `kit/story.js`.
+- `/premium-web-design` — one workflow: brand world, `kit/story.js` and `full.md`.
 - `/agents-execute`: hand off a mission for unattended execution until its milestone is merged.
 - `/jmr-cycle <slug>`: move a milestone forward one step. `node <jmr-cycle dir>/scripts/cycle.mjs loop --milestone <slug>` repeats it, one fresh session per cycle.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.

@@ -1,6 +1,6 @@
 # Brand world recipes
 
-Recipes for the default mode of `/premium-web-design`. Each one is taken from the
+Recipes for `/premium-web-design`. Each one is taken from the
 example sites in [latent-spaces/brag](https://github.com/latent-spaces/brag)
 (MIT, © 2026 Shunit Haviv Hakimi), measured from their CSS. Retune values to
 your world; copy the structure.

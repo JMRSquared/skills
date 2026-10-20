@@ -1,7 +1,7 @@
 ---
 name: premium-web-design
-description: Build customer-facing websites with a strong art direction, fast. Default mode builds one committed brand world in a single page told as a scroll story: a characterful display face, a highlighted headline word, a drawn or product hero object that stays on screen and changes as the reader scrolls, sticker callouts carrying in-world details, plain HTML and CSS plus a small dependency-free scroll runtime. `--full` runs the Awwwards workflow (measured site studies, art-direction contract, scroll choreography, WebGL tiers, Playwright auditor). Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
-version: 1.1.0
+description: Build customer-facing websites with a strong art direction. Every run uses the whole skill: a committed brand world, a scroll story (storyboard, held protagonist, kit/story.js), highlighted headline, drawn or product hero, stickers, copy rules, and the audit in full.md (studies, art-direction contract, Playwright). WebGL or 3D is an extra tool inside that same workflow when the brief needs it. Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
+version: 1.2.0
 ---
 
 # /premium-web-design
@@ -12,44 +12,38 @@ the personality. Then tell its story with the scroll: the thing you drew stays
 on screen and changes, one beat at a time. Any frozen frame of the page should
 be worth posting. The frames in order should tell the story.
 
-**Default mode is a scroll story.** A page of sections that only fade in is a
-fail, even if it looks art-directed. Scroll storytelling, pinned chapters and
-scrubbed sequences belong here, not in `--full`. `--full` is only for WebGL,
-3D, photo/video frame sequences, named site studies, or an explicit `--full`.
+There is one workflow. A page of sections that only fade in is a fail. WebGL,
+3D and photo or video frame sequences are extra tools inside this same workflow
+when the brief needs them. They are not a second mode.
 
 ## Dispatch (do this first)
 
 `<skill-dir>` is the directory that contains this `SKILL.md`. That is true for
 Claude Code, Cursor, Windsurf, Cline, Copilot, Codex, Gemini CLI, OpenCode and
-any host that installs from `jmrsquared/skills`. It must also contain `kit/`
-and `references/`. If `kit/story.js` is missing, stop and reinstall the skill
-from the repo — do not invent a replacement runtime.
+any host that installs from `jmrsquared/skills`. It must also contain `kit/`,
+`references/` and `full.md`. If `kit/story.js` is missing, stop and reinstall
+the skill from the repo. Do not invent a replacement runtime.
 
 Hosts sometimes inline this file and say not to open others. Ignore that for
-the reads below. Without them the build invents a fake scroll engine or skips
-the story.
+the reads below. This file and `full.md` apply together. Do not follow one and
+skip the other.
 
-1. Tell the user in one line: `default mode (scroll story via kit/story.js);
-   --full switches`.
-2. **Required reads before any markup** (open the files; do not rely on memory):
-   - `<skill-dir>/references/scroll-story.md`
-   - `<skill-dir>/demos/scroll-story/PRODUCT.md`
-   - `<skill-dir>/demos/scroll-story/index.html` (how the kit is wired)
-3. Copy `<skill-dir>/kit/story.js` and `<skill-dir>/kit/story.css` into the
-   project before writing page CSS. Paths: next to a static `index.html` as
-   `kit/`, or for Vite/Next/Expo-web as `public/kit/` (or the app's static
-   folder) and link them from the document head.
-4. Only then write `PRODUCT.md` (brief + storyboard) and markup.
+**Required reads before any markup** (open the files; do not rely on memory):
 
-Read `<skill-dir>/full.md` and follow it **instead of this file** when any of
-these hold:
+- `<skill-dir>/full.md`
+- `<skill-dir>/references/scroll-story.md`
+- `<skill-dir>/references/brand-world.md`
+- `<skill-dir>/references/no-slop.md`
+- `<skill-dir>/references/hero-depth.md`
+- `<skill-dir>/demos/scroll-story/PRODUCT.md`
+- `<skill-dir>/demos/scroll-story/index.html`
+- `<skill-dir>/demos/brand-world/index.html`
 
-- the invocation says `--full`, "full workflow", Awwwards, Site of the Day, or cinematic
-- the brief asks for WebGL, 3D, or a scrubbed photo or video frame sequence
-- the user names a site from `references/site-studies/` as the target
-
-Otherwise stay here. Do **not** open `full.md` just because the brief mentions
-scroll, story, pin, scrub or reveal.
+Then copy `<skill-dir>/kit/story.js` and `<skill-dir>/kit/story.css` into the
+project before writing page CSS. Paths: next to a static `index.html` as
+`kit/`, or for Vite/Next/Expo-web as `public/kit/` (or the app's static
+folder) and link them from the document head. Only then write `PRODUCT.md`
+and markup.
 
 ## 1. Brief
 
@@ -209,7 +203,7 @@ included: give steps and prices a drawing, a photo or a hairline row instead.
 
 ## 6. Scroll story (mandatory, non-negotiable)
 
-Every default-mode page is a scroll story wired with **`kit/story.js`**. Do
+Every page is a scroll story wired with **`kit/story.js`**. Do
 not write `useStory`, `useChoreography`, ScrollTrigger, Framer Motion scroll,
 IntersectionObserver chapter machines, or any other scroll runtime. Copy the
 kit; put story in markup and CSS.
@@ -316,14 +310,13 @@ and end of its scroll, one row per scene. Cover the copy and read it as a
 comic strip. If the pictures alone do not tell the story, the page does not
 either. Add `?story-debug` to the URL when a track does not move.
 
-Declare `<!-- premium-web-design: tier=A kind=world because="<one line>" -->`
-in `<head>`. `kind=world` tells the auditor this is default mode. Clear every
-**FAIL**. SPARSE, CRAFT, and WARNs that cite `typographic-hierarchy.md` or tier
-rules measure the `--full` bar; read them, act on any that point at a real
-flaw, and move on. If a FAIL is the auditor's mistake, say so in one line with
-the measured evidence rather than redesigning around it. Then read the desktop and phone frames (open the JPEG / PNG files your audit produced) and fix what you see: collisions, a headline breaking into four lines, a
-sticker covering the face of the drawing, a drawing that reads as clip art,
-a plate covering the subject it describes. Two passes is normal.
+Declare `<!-- premium-web-design: tier=B because="<one line>" -->` in `<head>`.
+Do not add `kind=world`. Clear every **FAIL**, and do not stop while SPARSE or
+CRAFT findings remain. If a finding is the auditor's mistake, say so in one
+line with the measured evidence. Then open the desktop and phone JPEGs and fix
+what you see: collisions, a headline breaking into four lines, a sticker
+covering the face of the drawing, a drawing that reads as clip art, a plate
+covering the subject it describes. Two passes is normal.
 
 Without Playwright, say so in one line and offer the install:
 `mkdir -p ~/.pw && cd ~/.pw && npm i playwright && npx playwright install chromium`.
@@ -337,7 +330,7 @@ Without Playwright, say so in one line and offer the install:
 - [ ] Hero object made for this page: drawing, product UI, or owner photo, plus stickers carrying in-world data
 - [ ] Hero has independent depth planes (background, subject, foreground) that move at visibly different rates
 - [ ] Every section reveals a new layer of the world; no two layouts repeat back to back
-- [ ] Required reads done: `references/scroll-story.md` and `demos/scroll-story/` PRODUCT + index
+- [ ] Required reads done: `full.md`, scroll-story, brand-world, no-slop, hero-depth, both demos
 - [ ] `PRODUCT.md` has the storyboard: protagonist, change, spine, peak, ending, scene table, feeling curve
 - [ ] Copied `kit/story.js` + `kit/story.css` are in the project; no custom scroll runtime
 - [ ] Markup uses `data-scene` / `data-stage` / `data-track`; console shows `[story] live`
@@ -347,6 +340,7 @@ Without Playwright, say so in one line and offer the install:
 - [ ] `storyboard.jpg` read on desktop and phone with the copy covered; the pictures tell the story
 - [ ] Motion is CSS + kit; under reduced motion every scene shows its finished state
 - [ ] No banned words; every claim about a real business traced to the brief
+- [ ] Auditor reports zero FAIL, zero SPARSE and zero CRAFT, or each leftover is named with measured evidence
 - [ ] Desktop and phone frames read with your own eyes, and one thing fixed because you looked
 
 ## References
@@ -361,8 +355,8 @@ Without Playwright, say so in one line and offer the install:
 | `references/imagery.md` | Sourcing and cropping owner or stock photography |
 | `references/color-and-light.md` | More palettes and contrast fixes |
 | `references/hero-depth.md` | Layered hero recipe, five depth tools, phone art direction |
-| `references/feeling-curve.md` | Feeling curve, engineered peak, feel check (default mode uses one peak + the curve, no scoring table) |
+| `references/feeling-curve.md` | Feeling curve, engineered peak, feel check |
 | `references/structure-axis.md` | Page grammars, signature move, fingerprint gate (read when the brief has a clear structure) |
 | `references/worlds.md` | Eight photography preambles, the high-key canvas flips, composition rules, cohesion checks |
 | `references/browser-surfaces.md` | Selection, caret, focus, scrollbar, underline, tabular numerals, the squint test |
-| `full.md` | The Awwwards workflow: studies, contract, tiers, scroll choreography, full audit |
+| `full.md` | Required on every run: studies, contract, tiers, audit, Done list |

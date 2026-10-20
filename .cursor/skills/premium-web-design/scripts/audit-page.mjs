@@ -4142,14 +4142,8 @@ console.log(`\nframes → ${outDir}  (OPEN the desktop and phone JPEGs the audit
 
 const totalFails = (report.desktop?.findings || []).filter((f) => f.level === 'fail').length + (report.mobile?.findings || []).filter((f) => f.level === 'fail').length;
 const totalAmbition = [...(report.desktop?.findings || []), ...(report.mobile?.findings || [])].filter((f) => f.level === 'sparse' || f.level === 'craft').length;
-/* Exit 0 is not the Done bar and never was. SKILL.md's checklist asks for zero
-   SPARSE and zero CRAFT as well, and an exit code that ignores both is easy to
-   read as permission to stop. Say it out loud instead of changing it. */
-/* kind=world is SKILL.md's default mode: a short single-world page held to
-   FAILs only. SPARSE and CRAFT measure full.md's bar and stay informational. */
-const worldMode = [report.desktop, report.mobile].some((p) => p?.craft?.kind === 'world');
-if (totalFails === 0 && totalAmbition > 0 && worldMode)
-  console.log(`\nexit 0: done for default mode (kind=world). ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} measure the --full bar (full.md) and are informational here.`);
-else if (totalFails === 0 && totalAmbition > 0)
-  console.log(`\nexit 0, but NOT done: ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} stand. SKILL.md's Done checklist asks for zero of both — the exit code only tracks FAILs.`);
+/* Exit 0 is not the Done bar. The checklist asks for zero SPARSE and zero
+   CRAFT as well. kind=world used to excuse those findings. It does not. */
+if (totalFails === 0 && totalAmbition > 0)
+  console.log(`\nexit 0, but NOT done: ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} stand. The Done checklist asks for zero of both. The exit code only tracks FAILs.`);
 process.exit(totalFails > 0 ? 1 : 0);
