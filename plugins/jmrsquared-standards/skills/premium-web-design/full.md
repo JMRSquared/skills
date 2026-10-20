@@ -1,6 +1,8 @@
 <!--
-  The full premium-web-design workflow, loaded only on `--full` or an
-  Awwwards / cinematic / scroll-story / WebGL brief. SKILL.md dispatches here.
+  The full premium-web-design workflow, loaded only on `--full`, Awwwards /
+  Site of the Day / cinematic, WebGL / 3D, a scrubbed photo or video frame
+  sequence, or a named site-study target. DOM scroll stories stay in default
+  mode (SKILL.md + kit/story.js). SKILL.md dispatches here.
   Paths below are relative to the skill directory, same as SKILL.md.
   When references/ or the auditor cite "SKILL.md" steps (Step 4c, Step 5b,
   the Done checklist), they mean this file.
