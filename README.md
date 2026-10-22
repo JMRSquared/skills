@@ -33,6 +33,7 @@ Two tiers.
 | `jmr-standing-rules` | No silent deploy. Worktree context (branch + stage). Confirm before merge. |
 | `jmr-build-test-lint-gate` | `yarn build && yarn test && yarn lint:fix` before "done". No `@ts-ignore`, no `.skip`, no `--no-verify`. |
 | `jmr-plain-language` | Plain-language prose in every reply, commit, PR, doc and comment, applied without being asked. Bans measured AI tells: words like "delve" and "showcase", em dashes, a comma before "and", "not X but Y" contrasts, "Great question!" openers and unverified "all tests pass" claims. |
+| `jmr-herdr` | Only when the agent runs inside [Herdr](https://herdr.dev). Work the agent would hand to a hidden subagent runs as a real agent in a pane beside it, so you can watch it, talk to it or stop it. Dev servers, watchers and the build/test/lint gate get their own labelled panes. Parallel code changes get separate worktrees. Helpers report back through a file and the agent closes the panes it opened. Works for Claude Code, pi, Cursor, Codex, OpenCode and every other agent Herdr hosts. |
 
 **Tier 2 — task-scoped (activated by context):**
 

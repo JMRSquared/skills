@@ -45,6 +45,14 @@ function checkStatuslineConfigured() {
   if (standing) parts.push(standing);
   if (gate) parts.push(gate);
   if (plain) parts.push(plain);
+  // Only sessions running in a Herdr pane can use it, so others skip the text.
+  if (process.env.HERDR_ENV === '1') {
+    const herdr = readSkill('jmr-herdr');
+    if (herdr) {
+      const dir = path.join(__dirname, '..', 'skills', 'jmr-herdr');
+      parts.push(herdr.split('<this skill\'s directory>').join(dir).split('<dir>').join(dir));
+    }
+  }
   parts.push(
     [
       '## Stack-scoped skills available on demand',

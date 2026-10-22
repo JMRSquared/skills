@@ -11,6 +11,7 @@ version: 1.0.0
 - `jmr-standing-rules` — no silent deploy; maintain worktree context; confirm before merge.
 - `jmr-build-test-lint-gate` — `yarn build && yarn test && yarn lint:fix` before "done".
 - `jmr-plain-language`: plain-language prose everywhere; no puffery words, em dashes, or sycophantic openers.
+- `jmr-herdr`: inside Herdr only. Helpers run as visible agents in panes beside you; servers and the gate get their own panes. `node <jmr-herdr dir>/scripts/helper.mjs spawn|run|wait|read|list|close`.
 
 **Tier 2 — description-activated (task-scoped):**
 
