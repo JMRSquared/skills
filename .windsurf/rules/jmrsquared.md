@@ -66,6 +66,20 @@ Apply these rules by default to all prose you write: chat replies, commit messag
 
 ---
 
+## Inside Herdr (`jmr-herdr`)
+
+Applies only when `HERDR_ENV=1`, which means you run in a [Herdr](https://herdr.dev) pane. Outside Herdr, skip this section.
+
+- The user can see every pane. Work you would hand to a hidden subagent runs as a real agent in a pane beside yours. The only exception is a quick read-only lookup you need for the current step.
+- Load the built-in `herdr` skill for command syntax. Installing jmrsquared-standards counts as the user asking you to use Herdr.
+- Use `node <jmr-herdr skill dir>/scripts/helper.mjs`: `whoami` (your pane, kind and other agents in this checkout), `spawn --role <role> --brief-file <file>` (same agent kind as you, inherits your permission flags), `wait` (exit 3 means a helper is blocked: ask the user, never answer for it), `run --label <text> -- <command>` for dev servers, watchers and the build gate, then `close` for every pane you opened.
+- At most 4 helpers. Helpers never start helpers. Two helpers that edit code get separate worktrees (`spawn --worktree <branch>`).
+- Never touch, prompt or close panes you did not create. Never install or change Herdr plugins without asking. Never run `herdr server stop`.
+
+Full playbooks: `skills/jmr-herdr/SKILL.md`.
+
+---
+
 ## Stack-scoped skills available on demand
 
 The following task-scoped skills activate when the relevant files are edited. They live in `skills/` and are discovered by the agent's skill system:
