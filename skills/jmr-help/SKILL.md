@@ -37,6 +37,7 @@ version: 1.0.0
 - `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
 - `jmr-generate-video`: narrated promo video from a URL, images, PDF, code or brief, rendered locally; `/jmr-generate-video`.
 - `jmr-survey-form`: customer discovery survey as a Google Form, built in your own Google account; `/jmr-survey-form`.
+- `jmr-file-share`: copy files into mounted shared storage (`JMR_SHARE_ROOT`, default `/mnt/tank/media/herdr`) so other devices can open them; on demand only.
 
 **Companion:**
 

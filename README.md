@@ -61,6 +61,7 @@ Two tiers.
 | `jmr-image` | Searching or downloading photography — Unsplash then Pexels (commercial-safe), pngimg fallback for cutouts |
 | `jmr-generate-video` | Asking for a promo, launch or explainer video with a voiceover |
 | `jmr-survey-form` | Asking for a customer discovery survey, pilot sign-up form or Google Form about your product |
+| `jmr-file-share` | Asking to put a file "on the NAS", "on tank" or "on the share", or to open something from another device. Copies it into your mounted shared storage (default `/mnt/tank/media/herdr`, set with `JMR_SHARE_ROOT`), keeping its place in the project. Leaves out `.git`, `node_modules`, build output, `.env` files and keys. Asks before copying more than 5 GB. Never moves or deletes. Machine-specific rules go in `~/.config/jmr-file-share/notes.md`, outside the repo |
 
 **Companion:**
 
