@@ -11,6 +11,8 @@ You review one pull request into `milestone/<slug>` that you did not write. The 
 5. Run `$CYCLE checks --pr <n> --wait`. `fail` is a required change. `pass` and `none` are fine: `none` means no checks are configured. `pending` after the timeout means post no verdict; the next cycle reviews it.
 6. Post one comment: `jmr-cycle review round <n>: approve <head sha>`, or `jmr-cycle review round <n>: changes` followed by the list. `<n>` is `nextRound` from `$CYCLE marks --pr <n>`.
 
+When `mcp__savvy-progress__step` is among your tools (load it with ToolSearch when it is deferred), call it with `total: 6` and `done: 0` before step 1, then with `done` and a few-word `note` after each step. Skip it silently when the tool is absent.
+
 ## The review bar
 
 Request changes only for:

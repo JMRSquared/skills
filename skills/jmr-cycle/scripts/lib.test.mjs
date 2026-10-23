@@ -6,6 +6,7 @@ import {
   buildIssueBody,
   cyclePlan,
   loopDelay,
+  parseCycleProgress,
   parseCycleResult,
   checksVerdict,
   claimLine,
@@ -518,6 +519,7 @@ describe('briefStatus', () => {
     assert.deepEqual(brief, {
       phase: 'build',
       counts: status.counts,
+      total: 3,
       frontier: ['T01'],
       busySerials: [],
       building: ['T02'],
@@ -566,6 +568,14 @@ describe('loop pacing', () => {
     assert.equal(parseCycleResult('CYCLE_RESULT: waiting\nnotes\nCYCLE_RESULT: complete'), 'complete')
     assert.equal(parseCycleResult('crashed half way'), null)
     assert.equal(parseCycleResult('CYCLE_RESULT: maybe'), null)
+  })
+
+  it('reads the last progress line a cycle printed', () => {
+    assert.deepEqual(parseCycleProgress('CYCLE_PROGRESS: 2/5 build\nCYCLE_RESULT: continue'), { done: 2, total: 5, phase: 'build' })
+    assert.deepEqual(parseCycleProgress('CYCLE_PROGRESS: 1/5\nCYCLE_PROGRESS: 5/5 closeout'), { done: 5, total: 5, phase: 'closeout' })
+    assert.deepEqual(parseCycleProgress('CYCLE_PROGRESS: 0/3'), { done: 0, total: 3, phase: null })
+    assert.equal(parseCycleProgress('CYCLE_RESULT: continue'), null)
+    assert.equal(parseCycleProgress('CYCLE_PROGRESS: lots'), null)
   })
 
   it('waits by result and retries a cycle that printed none', () => {

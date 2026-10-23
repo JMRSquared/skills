@@ -78,7 +78,7 @@ Only accounts with write access to the repository speak for the owner. `cycle.mj
 
 ## Escalate
 
-Escalating means: write the question, the options and your recommendation to a file and run `$CYCLE escalate --milestone <slug> --ticket <id> --question-file <f>` (`--status` in place of `--ticket` for milestone-wide questions). When it prints `escalated`, send one push notification (use whichever notification tool your agent exposes, or any web push API) with one line and the issue link. Then carry on with other tickets. Escalate only when:
+Escalating means: write the question, the options and your recommendation to a file and run `$CYCLE escalate --milestone <slug> --ticket <id> --question-file <f>` (`--status` in place of `--ticket` for milestone-wide questions). When it prints `escalated`, send one push notification (use whichever notification tool your agent exposes, or any web push API) with one line and the issue link. Inside Herdr that is `herdr notification show "<slug>: owner needed" --body "<one line> <issue link>" --sound request`. Then carry on with other tickets. Escalate only when:
 
 1. a step costs money, creates an outside account or needs a credential the run does not have;
 2. a migration must be applied to a shared or remote database;
@@ -95,6 +95,25 @@ The owner answers in the issue thread and removes `needs:owner`. The next cycle 
 ## Implementers and reviewers
 
 Subagents read their own brief. Pass the file path, never the text: `briefs/implementer.md` for builders and fixers, `briefs/reviewer.md` for reviewers. Both point to `briefs/standards.md` for the skills to apply. The orchestrator never needs to read them.
+
+**Inside Herdr** (`HERDR_ENV=1`), every implementer and reviewer runs as a helper in a visible pane instead of a hidden subagent, so the owner can watch each one. `JH` is `node <jmr-herdr skill directory>/scripts/helper.mjs`.
+
+- Start: write the pointers you would give a subagent to a file under `$RUN`, then `$JH spawn --role <ticket id, or review-<n>> --cwd "$RUN/orchestrator" --brief-file <file>`. Never pass `--worktree`: the brief makes its own git worktree under `$RUN`. A reviewer gets `--kind <another agent>` when one is installed (the `jmr-herdr` "Pick the right helper" rules).
+- Wait: where a step waits for subagents, run `$JH wait` and read each report path it prints. Then `$JH close --all`.
+- A helper stuck on a dialog (`wait` exits 3) is the owner's to answer, never yours. Send one `herdr notification show` naming its pane, wait on the other helpers by name, then check it with `$JH read <name>`. When it is still stuck, close it and go on: its claim and pushed branch carry over to the next cycle.
+- Herdr holds at most 4 helpers per pane, so `--parallel` stays at 4 or below.
+- When `spawn` refuses because this cycle is itself a helper, use built-in subagents as usual.
+
+## Progress bar
+
+When the tool `mcp__savvy-progress__progress` is among your tools (load it with ToolSearch when it is deferred), keep the bar above the prompt current. Skip this silently when the tool is absent. Each call takes `title` (the milestone title), `total` (tickets), `done` (tickets done) and `phase`:
+
+- after step 3: `phase: "delegate"`, with `total` and `done` from `next` (`state.total`, `state.counts.done`);
+- at the start of step 7: `phase: "review"`;
+- after each merge in step 8: the new `done`;
+- when the landing pull request merges: `finished: true`.
+
+The tool ignores calls from subagents, so only a cycle that runs as a top-level session (a Herdr pane, or a session the owner opened) shows a bar. Implementers and reviewers report their own steps through `mcp__savvy-progress__step` (their briefs say how).
 
 ## How a cycle runs
 
@@ -120,7 +139,16 @@ Renew the lease with the same `lease` command (same `--run` and `--holder`) at t
 
 Start every cycle with an empty context. A cycle reads state from GitHub, so it needs nothing from the cycle before it. Carrying earlier cycles in one conversation only fills it up.
 
-- **Terminal or background shell.** `$CYCLE loop --milestone <slug>` runs each cycle as a new `claude -p "/jmr-cycle <slug>"` process (or any equivalent non-interactive agent invocation, e.g. `codex exec -- "/jmr-cycle <slug>"`, `gemini -p "/jmr-cycle <slug>"`) and paces itself by the `CYCLE_RESULT` line: 2 minutes after `continue`, an hour after `waiting`, done after `complete`. A cycle that prints no result line retries in 5 minutes; three in a row stop the loop. It prints one JSON line per cycle with the last lines of that cycle's report. Headless sessions follow the project's permission settings and a denied tool call does not stop them, so allow `git`, `gh`, `node` and the milestone's commands in the project's agent settings, or put the agent command with its flags after `--`: `$CYCLE loop --milestone <slug> -- claude -p --permission-mode acceptEdits`. Tune pacing with `--continue-seconds`, `--wait-minutes`, `--retry-minutes` and `--max-cycles`.
+- **Inside Herdr.** Run the loop in a labelled pane and each cycle as its own agent pane, so the owner watches the cycle and the helpers it starts beside it. `once` starts the agent in a pane, waits for its report, prints it for the loop and closes the pane. `--orchestrator` lets that agent start helpers of its own:
+
+  ```bash
+  $JH run --label "cycle <slug>" -- "$CYCLE loop --milestone <slug> -- $JH once --role cycle --orchestrator --kind <your agent> -- <its flags> 2>&1 | tee <log file>"
+  ```
+
+  The quotes keep the pipe for the pane's shell. The log gets the loop's JSON lines, which a session can follow.
+
+  `<its flags>` are the permission flags the cycle needs to run `git`, `gh`, `node` and the milestone's commands without asking (for Claude Code, the flags this session runs with or `--permission-mode acceptEdits` plus the project's allow rules). Helpers the cycle starts inherit them. A dialog in a cycle pane raises one Herdr notification and waits for the owner.
+- **Terminal or background shell.** `$CYCLE loop --milestone <slug>` runs each cycle as a new `claude -p "/jmr-cycle <slug>"` process (or any equivalent non-interactive agent invocation, e.g. `codex exec -- "/jmr-cycle <slug>"`, `gemini -p "/jmr-cycle <slug>"`) and paces itself by the `CYCLE_RESULT` line: 2 minutes after `continue`, an hour after `waiting`, done after `complete`. A cycle that prints no result line retries in 5 minutes; three in a row stop the loop. It prints one JSON line per cycle with the last lines of that cycle's report and `progress` (`done`, `total` and `phase` from the report's `CYCLE_PROGRESS` line). Headless sessions follow the project's permission settings and a denied tool call does not stop them, so allow `git`, `gh`, `node` and the milestone's commands in the project's agent settings, or put the agent command with its flags after `--`: `$CYCLE loop --milestone <slug> -- claude -p --permission-mode acceptEdits`. Tune pacing with `--continue-seconds`, `--wait-minutes`, `--retry-minutes` and `--max-cycles`.
 - **Inside an open session.** Run your agent's loop with this prompt: "Start one general-purpose subagent in the foreground. It reads `<this skill's directory>/SKILL.md` and runs one full cycle of `/jmr-cycle <slug>`. Reply with its report only." The session keeps only each report. Pace by the report's last line as above. The orchestrator subagent starts implementers one level down; subagent nesting depth depends on the agent (Claude Code lets subagents nest three levels deep).
 - **No session open.** Create a cloud routine with your agent's scheduler (the `schedule` skill in Claude Code, or equivalent elsewhere) whose prompt is `/jmr-cycle <slug>`. Each run is a fresh session already. Its environment needs the jmrsquared-standards plugin installed and `gh` signed in with push access.
 

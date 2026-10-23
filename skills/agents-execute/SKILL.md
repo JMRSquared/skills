@@ -29,6 +29,8 @@ The run's authority is the `/jmr-cycle` Authority section: it replaces the confi
 - **A GitHub repository you can push to.** Tickets, claims, reviews and status live in GitHub issues and pull requests. Without one, `/agents-execute` stops; there is no local fallback.
 - **`gh`**, signed in.
 - **`jmr-cycle`**, which ships with jmrsquared-standards. Set `CYCLE="node <jmr-cycle skill directory>/scripts/cycle.mjs"`. The directory is `~/.agents/skills/jmr-cycle`, `~/.claude/skills/jmr-cycle`, `~/.config/opencode/skills/jmr-cycle` or the plugin's `skills/jmr-cycle`.
+- **Optional: Herdr.** Inside a Herdr pane (`HERDR_ENV=1`), set `JH="node <jmr-herdr skill directory>/scripts/helper.mjs"` from the same skills directory. Exploration helpers, the loop and every cycle then run in panes the owner can watch.
+- **Optional: the savvy-progress mod** for Claude Code. When `mcp__savvy-progress__progress` is among your tools (load it with ToolSearch when it is deferred), report the mission to the bar above the prompt as the steps below say. Skip every progress call silently when the tool is absent.
 
 ## Loading the chain skills
 
@@ -47,8 +49,9 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    - A prompt with no objective ("lets build", "build it", "go") means: build what the repo already specifies. First run `$CYCLE milestones`. Resume every open milestone it lists: go to step 8 for each slug. Then check `git ls-remote --heads origin 'milestone/*'` for a branch with no status issue, open or closed (`gh issue list --label jmr:status --label milestone:<slug> --state all`): its publish failed, so rerun step 7's `publish` from a worktree of it and resume it too. When anything was resumed, stop there. Otherwise find the spec: a PRD, spec, roadmap or design doc under `docs/`, the README's roadmap, or GitHub issues that describe planned work. Pick the most complete unbuilt one and record why in `notes/decisions.md`. When no spec or objective exists, stop and say so: nothing can be built from nothing.
    - Choose a short kebab-case `<slug>` with no `milestone/<slug>` branch on `origin`. Pick a 2 to 6 letter uppercase scenario prefix (`PAY`).
    - The mission folder is `${TMPDIR:-/tmp}/agents-execute/<slug>/`. Write the mission and its outcomes as checkable statements in its `notes/mission.md`. `notes/decisions.md` collects dated decisions until step 7 commits it.
+   - Progress: call the progress tool with `title` (the milestone title, a few words) and `phase: "plan"`.
 
-3. **Explore.** Spawn exploration subagents in parallel: the code the mission touches, prior art for tests, external docs (`research`). Each writes markdown into the `notes/` folder. Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and `docs/adr/` and use their vocabulary (`domain-modeling`). Done when every area the mission touches has a notes file an implementer could start from.
+3. **Explore.** Start exploration helpers in parallel, as `$JH spawn --role explore-<area>` panes inside Herdr (the `jmr-herdr` research fan-out) and as subagents elsewhere: the code the mission touches, prior art for tests, external docs (`research`). Each writes markdown into the `notes/` folder. Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and `docs/adr/` and use their vocabulary (`domain-modeling`). Done when every area the mission touches has a notes file an implementer could start from.
 
 4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. A scenario is something a user or caller sees ("a captured charge can be refunded in full"), never an internal detail ("`refund()` returns a `Refund`"). Aim for one to three scenarios per user story. Leave file paths and code out. Put polish, nice-to-haves and cleanup under out of scope. Done when every outcome maps to a user story and every user story to at least one scenario.
 
@@ -65,6 +68,8 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    - Every scenario sits on exactly one ticket. Every user story is covered.
    - Two tickets that edit one shared file get a blocking edge, a shared `serial` or exact names pinned in the ticket bodies.
    - Each edge gates real work. Drop any that only reflect writing order.
+
+   Progress, once the graph is final: `total` (ticket count), `done: 0`, `phase: "delegate"`.
 
 6. **Milestone file.** Write `milestone.json`:
 
@@ -91,11 +96,13 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    4. `git worktree remove` the worktree.
 
 8. **Run.** Keep every cycle out of this session's context: each one starts empty and reads its state from GitHub.
+   - Inside Herdr: start the loop in its own pane, with each cycle as an agent pane beside it, as the `jmr-cycle` "Running unattended" section shows. Write its log to `${TMPDIR:-/tmp}/agents-execute/<slug>/loop.log`. Give the cycle `--kind` set to your own agent kind and the permission flags this session runs with.
    - Claude Code with a shell: start `$CYCLE loop --milestone <slug>` in the background (Bash `run_in_background`). It runs each cycle as a fresh `claude -p "/jmr-cycle <slug>"` process and stops on `complete`. When headless permissions would block the cycle's `git`, `gh` or `node` calls, put the agent command after `--` (see the `jmr-cycle` "Running unattended" section).
    - Claude Code without a background shell, or any other agent: invoke your agent's loop mechanism with no interval and the subagent prompt from that section, so each cycle runs in its own subagent and this session keeps only the reports. The `loop` skill in Claude Code, `/loop` in OpenCode, and equivalent subagent schedulers in Cursor / Windsurf / Codex / Gemini CLI all fit.
    - A harness with no loop: tell the user to run `$CYCLE loop --milestone <slug>` in a terminal, repeat `/jmr-cycle <slug>` or schedule it.
+   - **Keep the bar moving** (only with the progress tool). The loop prints one JSON line per cycle. Follow that output (the Herdr log, or the background command's output) with a watcher that wakes you once per line, such as Claude Code's Monitor on `tail -f`. For each line with `progress`, call the progress tool with its `done` and `total` and `phase` `"delegate"` for `build` or `"review"` for `closeout`. On `"result": "complete"`, call it with `finished: true` and stop watching. A wake-up does nothing else: the cycles own the work.
 
-9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, how the loop runs, the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
+9. **Report.** In at most six lines: the milestone branch, the status issue link, ticket and scenario counts, how the loop runs (name the pane inside Herdr), the decisions that shape the build. Say that the loop runs until `milestone/<slug>` is merged into `<base>`.
 
 ## Skills to reach for
 
