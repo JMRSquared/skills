@@ -1,6 +1,8 @@
 // Pure logic for jmr-herdr. Everything here is deterministic so it can be
 // tested; helper.mjs owns every call to herdr and the filesystem.
 
+import path from 'node:path'
+
 export const MAX_HELPERS = 4
 // Helpers 1-3 stack in a column beside the parent. A fourth would leave each
 // pane too short to read, so overflow goes to a tab of its own.
@@ -27,6 +29,25 @@ const KIND_LETTERS = {
 const LABEL_TO_KIND = { antigravity: 'agy' }
 export const kindFromAgentLabel = (label) =>
   typeof label === 'string' && label ? LABEL_TO_KIND[label] ?? label : null
+
+// When a pane's foreground process is not an agent (a loop runner, or a
+// `claude -p` started by one), the agent that called this script is one of
+// its ancestors. `chain` lists them nearest first, each as its command line.
+// A node or bun shim counts by the script it runs (`node …/bin/claude`), and
+// a versioned install by its folder (`~/.local/share/claude/versions/2.1.308`).
+const SHIMS = new Set(['node', 'bun', 'deno'])
+const VERSIONED = /\/([a-z]+)\/versions\/[^/]+$/
+const commandName = (word) => VERSIONED.exec(word ?? '')?.[1] ?? path.basename(word ?? '').replace(/\.(c|m)?js$/, '')
+export const agentFromAncestors = (chain) => {
+  for (const args of chain ?? []) {
+    const argv = String(args).trim().split(/\s+/).filter(Boolean)
+    const head = commandName(argv[0])
+    const name = SHIMS.has(head) ? commandName(argv[1]) : head
+    const kind = kindFromAgentLabel(name)
+    if (kind && Object.hasOwn(KIND_LETTERS, kind)) return { kind, argv }
+  }
+  return null
+}
 
 const NAME = /^[a-z][a-z0-9_-]{0,31}$/
 export const isAgentName = (value) => typeof value === 'string' && NAME.test(value)
@@ -93,7 +114,7 @@ export const placement = ({ parentRect, liveSplitHelpers, lastHelperPane, helper
 // The protocol every helper follows, appended to whatever the parent wrote.
 // The marker file is the completion signal because screen scraping is not
 // reliable across agent UIs.
-export const briefWithProtocol = ({ brief, name, reportPath, donePath, depth }) =>
+export const briefWithProtocol = ({ brief, name, reportPath, donePath, depth, mayNest = false }) =>
   [
     brief.trim(),
     '',
@@ -108,7 +129,7 @@ export const briefWithProtocol = ({ brief, name, reportPath, donePath, depth }) 
     '3. Reply in this pane with one line: `JMR-DONE` followed by the report path.',
     '',
     'Do not commit, push, merge or deploy unless the task above says to. If you need a decision from the user, write the question in the report and finish.',
-    depth >= 1
+    depth >= 1 && !mayNest
       ? 'Do not start helper agents of your own. Use your built-in subagents if you must split this work further.'
       : '',
   ]
@@ -118,3 +139,26 @@ export const briefWithProtocol = ({ brief, name, reportPath, donePath, depth }) 
 
 export const kickoffPrompt = (briefPath) =>
   `Read your brief at ${briefPath} and carry it out. Follow its reporting steps exactly.`
+
+// `once` hands an agent one task, often a slash command such as
+// `/jmr-cycle payments`. The brief says how to run it, and that the report is
+// the final reply, so a caller that parses the reply's last lines (the
+// `jmr-cycle` loop reads `CYCLE_RESULT`) can parse the report the same way.
+export const onceBrief = (task) =>
+  [
+    `Your task: ${task.trim()}`,
+    '',
+    task.trim().startsWith('/')
+      ? 'That is a slash command: run the skill it names with the arguments after it, exactly as if the user had typed it.'
+      : '',
+    'Your report is your final reply, word for word, including its last lines.',
+  ]
+    .filter(Boolean)
+    .join('\n')
+
+// The task is the last argument, which is where `$CYCLE loop` appends its
+// prompt. Anything between `--` and the task is passed to the agent as flags.
+export const splitOnceArgs = ({ positional, rest }) => {
+  if (rest?.length) return { task: rest.at(-1), agentFlags: rest.slice(0, -1) }
+  return { task: positional?.at(-1) ?? null, agentFlags: [] }
+}

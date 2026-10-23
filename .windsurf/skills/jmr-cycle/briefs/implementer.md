@@ -18,6 +18,7 @@ The ticket is done when its feature works: the gate passes, its scenario tests p
 - When the code shows the spec is wrong or silent, fix `spec.md` in the same pull request and add a dated row to `decisions.md`.
 - Run typecheck and the touched tests while working. Commit with `jmr-commit` and push the branch (`git push -u origin <branch>`) each time a scenario test passes, after running the `fix` commands. A crash then loses only work since the last push. Run the full `gate` before the pull request.
 - Merge `origin/milestone/<slug>` into your branch, rerun `gate` and push. Open the pull request into `milestone/<slug>` unless one exists. Its body starts with `<!-- jmr-pr {"milestone":"<slug>","id":"<id>"} -->`, then a plain-language summary, the scenarios now tested, decisions made and `Ticket: #<issue>`. Never `Closes #n`: closing keywords fire only on the default branch.
+- When `mcp__savvy-progress__step` is among your tools (load it with ToolSearch when it is deferred), report progress for the owner's agents panel: right after reading the ticket call it with `total` (one step per scenario, plus the gate and the pull request) and `done: 0`, then again with `done` and a few-word `note` as each step finishes. Skip it silently when the tool is absent.
 
 ## Report
 

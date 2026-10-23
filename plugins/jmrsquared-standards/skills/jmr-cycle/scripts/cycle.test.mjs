@@ -454,7 +454,7 @@ describe('context budget', () => {
   it('prints a brief status with no ticket bodies or scenario lists', () => {
     const r = cli(['status', '--milestone', 'payments', '--brief'])
     assert.equal(r.code, 0)
-    assert.deepEqual(Object.keys(r.out).sort(), ['building', 'busySerials', 'counts', 'frontier', 'owner', 'phase', 'review', 'scenarios', 'statusIssue', 'unclosed'])
+    assert.deepEqual(Object.keys(r.out).sort(), ['building', 'busySerials', 'counts', 'frontier', 'owner', 'phase', 'review', 'scenarios', 'statusIssue', 'total', 'unclosed'])
     assert.ok(JSON.stringify(r.out).length < 1000)
   })
 
@@ -499,6 +499,7 @@ const n = existsSync(dir + '/runs.log') ? readFileSync(dir + '/runs.log', 'utf8'
 appendFileSync(dir + '/runs.log', process.argv.at(-1) + '\\n')
 const out = script[Math.min(n, script.length - 1)]
 console.log('merged #' + n)
+if (out) console.log('CYCLE_PROGRESS: ' + n + '/4 build')
 if (out) console.log('CYCLE_RESULT: ' + out)
 `)
     })
@@ -515,7 +516,9 @@ if (out) console.log('CYCLE_RESULT: ' + out)
       const r = loop()
       assert.equal(r.status, 0)
       assert.deepEqual(lines(r).map((l) => l.result), ['continue', null, 'waiting', 'complete'])
-      assert.deepEqual(lines(r)[0].report, ['merged #0', 'CYCLE_RESULT: continue'])
+      assert.deepEqual(lines(r)[0].report, ['merged #0', 'CYCLE_PROGRESS: 0/4 build', 'CYCLE_RESULT: continue'])
+      assert.deepEqual(lines(r).map((l) => l.progress?.done ?? null), [0, null, 2, 3])
+      assert.deepEqual(lines(r)[3].progress, { done: 3, total: 4, phase: 'build' })
       assert.deepEqual(prompts(), Array(4).fill('/jmr-cycle payments'))
     })
 

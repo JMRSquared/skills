@@ -35,6 +35,7 @@ import {
   marker,
   mergeResults,
   milestoneLabel,
+  parseCycleProgress,
   parseCycleResult,
   parseMarker,
   parseResults,
@@ -472,8 +473,9 @@ const commands = {
       const r = spawnSync(agent, [...agentArgs, prompt], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 64 * 1024 * 1024 })
       if (r.error) die(`${agent} could not start: ${r.error.message}. Pass the agent command after --.`)
       const result = parseCycleResult(r.stdout)
+      const progress = parseCycleProgress(r.stdout)
       const report = r.stdout.trim().split('\n').slice(-6)
-      print(JSON.stringify({ cycle, result, exitCode: r.status, at: new Date().toISOString(), report }))
+      print(JSON.stringify({ cycle, result, progress, exitCode: r.status, at: new Date().toISOString(), report }))
       if (result === 'complete') return
       failures = result ? 0 : failures + 1
       if (failures >= maxFailures) die(`${failures} cycles in a row ended without a CYCLE_RESULT line; read their report above and run /jmr-cycle ${flags.milestone} by hand.`)

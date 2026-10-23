@@ -2,6 +2,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
   MAX_SPLIT_HELPERS,
+  agentFromAncestors,
+  onceBrief,
+  splitOnceArgs,
   briefWithProtocol,
   helperName,
   inheritedFlags,
@@ -82,4 +85,46 @@ test('briefWithProtocol appends the report and done-marker steps', () => {
 test('briefWithProtocol lets a top-level helper delegate', () => {
   const out = briefWithProtocol({ brief: 'Do X.', name: 'c-a-b', reportPath: '/r.md', donePath: '/r.done', depth: 0 })
   assert.doesNotMatch(out, /Do not start helper agents/)
+})
+
+test('agentFromAncestors finds the nearest agent above a loop runner', () => {
+  const chain = [
+    'node /home/u/.claude/skills/jmr-cycle/scripts/cycle.mjs loop --milestone pay',
+    'claude -p --permission-mode acceptEdits /jmr-cycle pay',
+    'claude --dangerously-skip-permissions',
+  ]
+  assert.deepEqual(agentFromAncestors(chain.slice(1)), {
+    kind: 'claude',
+    argv: ['claude', '-p', '--permission-mode', 'acceptEdits', '/jmr-cycle', 'pay'],
+  })
+  assert.equal(agentFromAncestors(chain).kind, 'claude')
+  assert.equal(agentFromAncestors(chain).argv[2], '--permission-mode')
+})
+
+test('agentFromAncestors reads node shims by their script and ignores shells', () => {
+  assert.equal(agentFromAncestors(['bash -c x', 'node /usr/lib/node_modules/@openai/codex/bin/codex.js --full-auto']).kind, 'codex')
+  assert.equal(agentFromAncestors(['/home/u/.local/share/claude/versions/2.1.308 --dangerously-skip-permissions']).kind, 'claude')
+  assert.equal(agentFromAncestors(['/usr/bin/zsh', 'herdr', 'node server.js']), null)
+  assert.equal(agentFromAncestors([]), null)
+})
+
+test('briefWithProtocol lets an orchestrator start helpers of its own', () => {
+  const base = { brief: 'Run it.', name: 'c-x-cycle', reportPath: '/r.md', donePath: '/r.done', depth: 1 }
+  assert.match(briefWithProtocol(base), /Do not start helper agents/)
+  assert.doesNotMatch(briefWithProtocol({ ...base, mayNest: true }), /Do not start helper agents/)
+})
+
+test('onceBrief runs a slash command as a skill and keeps the reply as the report', () => {
+  assert.match(onceBrief('/jmr-cycle payments'), /slash command/)
+  assert.match(onceBrief('/jmr-cycle payments'), /final reply, word for word/)
+  assert.doesNotMatch(onceBrief('fix the build'), /slash command/)
+})
+
+test('splitOnceArgs takes the task from the end, where the cycle loop puts it', () => {
+  assert.deepEqual(splitOnceArgs({ positional: [], rest: ['--permission-mode', 'acceptEdits', '/jmr-cycle pay'] }), {
+    task: '/jmr-cycle pay',
+    agentFlags: ['--permission-mode', 'acceptEdits'],
+  })
+  assert.deepEqual(splitOnceArgs({ positional: ['/jmr-cycle pay'] }), { task: '/jmr-cycle pay', agentFlags: [] })
+  assert.deepEqual(splitOnceArgs({ positional: [] }), { task: null, agentFlags: [] })
 })

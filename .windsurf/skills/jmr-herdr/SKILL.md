@@ -39,6 +39,8 @@ The loop:
 5. Read the report and check its claims before you build on them. A helper's "tests pass" is a claim until you see the command output.
 6. Close what you started: `helper.mjs close <name>` or `close --all`. Leave a helper open only when the user wants to keep talking to it. Say so when you do.
 
+**One task, start to finish.** `helper.mjs once --role <role> [--kind k] [-- <agent flags>] <task>` starts an agent in a pane, waits for its report, prints the report on stdout and closes the pane. The task is the last argument, and a slash command such as `/jmr-cycle payments` runs as that skill. It is built to be the agent command for a loop runner, so each run of the loop is an agent the user can watch. `--orchestrator` lets that agent start helpers of its own. When nobody answers a dialog in its pane, it sends one notification and waits, up to `--timeout` (4 hours by default).
+
 Limits: at most 4 helper agents at once. The first three stack in a column beside you; more go to a `jmr helpers` tab. A helper never starts helpers of its own (the script refuses at depth 1). It uses its built-in subagents instead.
 
 ## Pick the right helper
@@ -78,7 +80,7 @@ Never install, update, enable, disable or configure a plugin without the user as
 
 ## Other jmr skills inside Herdr
 
-Any jmr skill that delegates uses these panes when it runs inside Herdr: `/jmr-cycle` implementers and reviewers, `/agents-execute` and `/jmr-review`. Each implementer gets a worktree helper and each reviewer gets a helper of a different kind where one is installed.
+Any jmr skill that delegates uses these panes when it runs inside Herdr. `/agents-execute` runs its exploration helpers here, and starts the `/jmr-cycle` loop in a pane with each cycle as an agent pane (`once --orchestrator`). Each cycle starts its implementers and reviewers as helpers beside it, with a reviewer of a different kind where one is installed. The `jmr-cycle` SKILL.md has the commands.
 
 ## Never
 

@@ -259,6 +259,7 @@ export const computeStatus = ({ milestone, issues, prs, titles, results }) => {
 export const briefStatus = (status) => ({
   phase: status.phase,
   counts: status.counts,
+  total: status.tickets.length,
   frontier: status.frontier,
   busySerials: status.busySerials,
   building: status.tickets.filter((t) => t.state === 'building').map((t) => t.id),
@@ -301,6 +302,18 @@ export const parseCycleResult = (output) => {
   for (const line of lines) {
     const m = CYCLE_RESULT.exec(line.trim())
     if (m) return m[1]
+  }
+  return null
+}
+
+// `CYCLE_PROGRESS: 3/5 build`: tickets done of the total, then the phase.
+// Progress bars read it from the loop's output; a cycle without one is null.
+const CYCLE_PROGRESS = /^CYCLE_PROGRESS: (\d+)\/(\d+)(?: ([a-z]+))?\s*$/
+export const parseCycleProgress = (output) => {
+  const lines = String(output ?? '').trim().split('\n').reverse()
+  for (const line of lines) {
+    const m = CYCLE_PROGRESS.exec(line.trim())
+    if (m) return { done: Number(m[1]), total: Number(m[2]), phase: m[3] ?? null }
   }
   return null
 }
