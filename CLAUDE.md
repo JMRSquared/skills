@@ -37,7 +37,7 @@ README = product front door. Non-technical engineers read it to decide if jmrsqu
 |------|-----------------|
 | `skills/<name>/SKILL.md` | Skill behaviour + frontmatter. Edit here. |
 | `rules/jmrsquared-activate.md` | Always-on body for Cursor, Windsurf, Cline, Copilot, Codex, Gemini. |
-| `hooks/jmr-session-start.js` | Claude Code SessionStart hook — injects tier-1 skills as system context. |
+| `hooks/jmr-session-start.js` | Claude Code (and Cursor, with `--cursor`) SessionStart hook — injects the always-on rule body as system context. |
 | `hooks/jmr-statusline.sh` / `.ps1` | `[JMR: <branch>@<stage>]` badge. |
 | `hooks/jmr-config.js` | Shared helpers — `safeWriteFlag`, worktree resolver. |
 | `.claude-plugin/marketplace.json` | Claude Code marketplace manifest. |
@@ -72,7 +72,7 @@ Overwritten by CI on push to `main` when sources change. Edits here will be lost
 
 Two hooks, not three (there are no modes to track):
 
-- `hooks/jmr-session-start.js` — SessionStart hook. Resolves `(branch, stage)` and writes `$CLAUDE_CONFIG_DIR/.jmr-active`, then emits the concatenated tier-1 skill bodies to stdout for Claude Code to inject as system context. Silent-fails on any filesystem error.
+- `hooks/jmr-session-start.js` — SessionStart hook. Resolves `(branch, stage)` and writes `$CLAUDE_CONFIG_DIR/.jmr-active`, then emits `rules/jmrsquared-activate.md` to stdout for Claude Code to inject as system context. That is the condensed body every other agent gets: Claude Code keeps only about 10k characters of hook output, and the full tier-1 skill bodies run past 25k. The Herdr section is dropped unless `HERDR_ENV=1`. `--cursor` wraps the same text as `{"additional_context": ...}` for Cursor's `sessionStart` hook. Silent-fails on any filesystem error.
 - `hooks/jmr-statusline.sh` / `.ps1` — reads the flag file and renders `[JMR: <branch>@<stage>]`, falling back to `[JMR]` when the flag is missing.
 
 Flag file: `$CLAUDE_CONFIG_DIR/.jmr-active` (falls back to `~/.claude/.jmr-active`). Plain-text format `branch@stage`. Written via `safeWriteFlag` (symlink-safe, atomic rename, 0600).

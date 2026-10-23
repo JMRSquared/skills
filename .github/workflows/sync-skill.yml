@@ -91,6 +91,9 @@ jobs:
           set -euo pipefail
           mkdir -p plugins/jmrsquared-standards/hooks
           rsync -a --delete hooks/ plugins/jmrsquared-standards/hooks/
+          # The SessionStart hook injects this body and reads it from ../rules.
+          mkdir -p plugins/jmrsquared-standards/rules
+          cp rules/jmrsquared-activate.md plugins/jmrsquared-standards/rules/
 
       - name: Commit + push if anything changed
         run: |
