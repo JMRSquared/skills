@@ -12,6 +12,7 @@ cp "$SRC/jmr-session-start.js" "$TARGET/"
 cp "$SRC/jmr-statusline.sh"    "$TARGET/"
 cp "$SRC/jmr-statusline.ps1"   "$TARGET/"
 cp "$SRC/package.json"         "$TARGET/"
+cp "$SRC/../rules/jmrsquared-activate.md" "$TARGET/"
 chmod +x "$TARGET/jmr-statusline.sh"
 
 echo "Installed jmrsquared-standards hooks to $TARGET"

@@ -10,14 +10,34 @@ const {
   resolveWorktreeContext,
 } = require('./jmr-config.js');
 
-function readSkill(name) {
-  try {
-    const p = path.join(__dirname, '..', 'skills', name, 'SKILL.md');
-    const raw = fs.readFileSync(p, 'utf8');
-    return raw.replace(/^---[\s\S]*?---\n/, '').trim();
-  } catch (_) {
-    return '';
+// Claude Code keeps only about 10k characters of hook output, and the full
+// tier-1 skill bodies run past 25k. Inject the condensed rule body every
+// other agent gets; the full skills stay available on demand. The repo and
+// plugin keep it in ../rules; the standalone install copies it alongside.
+function readRules() {
+  const candidates = [
+    path.join(__dirname, '..', 'rules', 'jmrsquared-activate.md'),
+    path.join(__dirname, 'jmrsquared-activate.md'),
+  ];
+  for (const p of candidates) {
+    try {
+      return fs.readFileSync(p, 'utf8').trim();
+    } catch (_) { /* try the next location */ }
   }
+  return '';
+}
+
+function herdrSkillDir() {
+  const dir = path.join(__dirname, '..', 'skills', 'jmr-herdr');
+  return fs.existsSync(dir) ? dir : null;
+}
+
+// Outside a Herdr pane the section only costs context, so it is dropped.
+function adaptHerdrSection(body) {
+  const section = /## Inside Herdr[\s\S]*?\n---\n\n/;
+  if (process.env.HERDR_ENV !== '1') return body.replace(section, '');
+  const dir = herdrSkillDir();
+  return dir ? body.split('<jmr-herdr skill dir>').join(dir) : body;
 }
 
 function checkStatuslineConfigured() {
@@ -37,46 +57,23 @@ function checkStatuslineConfigured() {
     safeWriteFlag(getFlagPath(), `${ctx.branch}@${ctx.stage}`);
   } catch (_) { /* silent-fail */ }
 
-  const standing = readSkill('jmr-standing-rules');
-  const gate = readSkill('jmr-build-test-lint-gate');
-  const plain = readSkill('jmr-plain-language');
-
+  const rules = readRules();
   const parts = [];
-  if (standing) parts.push(standing);
-  if (gate) parts.push(gate);
-  if (plain) parts.push(plain);
-  // Only sessions running in a Herdr pane can use it, so others skip the text.
-  if (process.env.HERDR_ENV === '1') {
-    const herdr = readSkill('jmr-herdr');
-    if (herdr) {
-      const dir = path.join(__dirname, '..', 'skills', 'jmr-herdr');
-      parts.push(herdr.split('<this skill\'s directory>').join(dir).split('<dir>').join(dir));
-    }
-  }
-  parts.push(
-    [
-      '## Stack-scoped skills available on demand',
-      '',
-      'Task-scoped skills activate when the relevant files are edited:',
-      '- `trpc-procedure`, `bdd-router-tests` — API procedures.',
-      '- `knex-migration` — DB migrations.',
-      '- `kysley-db` — Kysely query builder / repository code.',
-      '- `react-tsx-component`, `premium-web-design`, `better-auth`, `supabase`, `supabase-auth`, `tanstack-trpc-query` — web.',
-      '- `react-native`, `nativewind`, `react-native-skia` — mobile (Expo + Skia).',
-      '- `sst-infra` — infrastructure.',
-      '- `naming-imports-exports`, `code-quality` — everything.',
-      '',
-      'Run `/jmr-help` for the full catalogue.',
-    ].join('\n')
-  );
+  if (rules) parts.push(adaptHerdrSection(rules));
 
-  if (!checkStatuslineConfigured()) {
+  if (!process.argv.includes('--cursor') && !checkStatuslineConfigured()) {
     parts.push(
       '\n_Tip: the jmrsquared-standards statusline shows `[JMR: <branch>@<stage>]`. Add `hooks/jmr-statusline.sh` to your Claude Code `settings.json` `statusLine.command` to enable it._'
     );
   }
 
-  process.stdout.write(parts.join('\n\n'));
-  process.stdout.write('\n');
+  // Cursor's sessionStart hook takes JSON and injects `additional_context`;
+  // Claude Code injects plain stdout.
+  if (process.argv.includes('--cursor')) {
+    process.stdout.write(JSON.stringify({ additional_context: parts.join('\n\n') }));
+  } else {
+    process.stdout.write(parts.join('\n\n'));
+    process.stdout.write('\n');
+  }
   process.exit(0);
 })();
