@@ -290,9 +290,14 @@ describe('cycle CLI', () => {
 
   it('tracks the landing pull request and finishes the milestone once it merges', () => {
     assert.equal(cli(['landing', '--milestone', 'payments']).out.state, 'none')
+    const early = readState()
+    early.prs.push({ number: 49, url: 'u49', state: 'MERGED', baseRefName: 'main', headRefName: 'milestone/payments', headRefOid: 'part', isCrossRepository: false, body: 'ship the landing page early' })
+    writeState(early)
+    assert.equal(cli(['landing', '--milestone', 'payments']).out.state, 'none')
+    const land = '<!-- jmr-land {"milestone":"payments"} -->'
     const s = readState()
-    s.prs.push({ number: 50, url: 'u50', state: 'OPEN', baseRefName: 'main', headRefName: 'milestone/payments', headRefOid: 'abc', isCrossRepository: false })
-    s.prs.push({ number: 51, url: 'u51', state: 'OPEN', baseRefName: 'main', headRefName: 'milestone/payments', headRefOid: 'evil', isCrossRepository: true })
+    s.prs.push({ number: 50, url: 'u50', state: 'OPEN', baseRefName: 'main', headRefName: 'milestone/payments', headRefOid: 'abc', isCrossRepository: false, body: land })
+    s.prs.push({ number: 51, url: 'u51', state: 'OPEN', baseRefName: 'main', headRefName: 'milestone/payments', headRefOid: 'evil', isCrossRepository: true, body: land })
     writeState(s)
     assert.deepEqual(cli(['landing', '--milestone', 'payments']).out.number, 50)
     const merged = readState()

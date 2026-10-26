@@ -301,9 +301,12 @@ const landingState = (slug) => {
   const data = parseMarker('jmr-status', statusIssueBySlug(slug).body)
   data.base ??= ghJson(['repo', 'view', '--json', 'defaultBranchRef']).defaultBranchRef.name
   const prs = ghJson([
-    'pr', 'list', '--head', data.branch, '--base', data.base, '--state', 'all', '--limit', '20',
-    '--json', 'number,url,state,headRefOid,isCrossRepository',
-  ]).filter((pr) => !pr.isCrossRepository)
+    'pr', 'list', '--head', data.branch, '--base', data.base, '--state', 'all', '--limit', '100',
+    '--json', 'number,url,state,headRefOid,isCrossRepository,body',
+  ])
+    // The owner may merge the milestone branch into the base early to ship part of it, so only
+    // the close-out pull request (the one with the jmr-land marker) counts as the landing.
+    .filter((pr) => !pr.isCrossRepository && parseMarker('jmr-land', pr.body)?.milestone === slug)
   const pr = prs.find((p) => p.state === 'OPEN') ?? prs.find((p) => p.state === 'MERGED') ?? null
   return { state: pr ? pr.state.toLowerCase() : 'none', number: pr?.number ?? null, url: pr?.url ?? null, headSha: pr?.headRefOid ?? null, base: data.base, branch: data.branch }
 }

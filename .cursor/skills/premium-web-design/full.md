@@ -746,6 +746,8 @@ build clears it by construction.
 ## Step 5 — Build in this order
 
 ```
+0. Brand mark settled (SKILL.md section 2): the supplied logo, or the
+   jmr-logo-design concept the user picked, with its web icons in brand/
 1. Type, colour, spacing on a still page      ← ~70% of perceived quality
 2. Composition: crop, scale contrast, negative space
 3. Real imagery at real resolution
@@ -966,6 +968,7 @@ linter and not the bar.
 - [ ] Composition variety rules met (≥4 layout families, ≤2 consecutive splits)
 - [ ] Real photography carries any physical product, place, or service
 - [ ] Every image is a local file. Nothing hotlinks a third-party host
+- [ ] Favicon, `apple-touch-icon` and `site.webmanifest` come from the brand mark (`export_variants.py --web-icons`), linked in the head
 - [ ] Verified by blocking the image hosts and reloading
 - [ ] Generated assets share one world preamble pasted verbatim from `worlds.md` into every prompt; the set passes the cohesion checks
 - [ ] Browser surfaces themed: selection, caret, focus-visible, scrollbar, underline offset and thickness, tabular numerals on counts and prices, form and button resets (`browser-surfaces.md`)
@@ -1015,6 +1018,7 @@ linter and not the bar.
 | `references/drawn-lines-and-formations.md` | Lines that draw themselves (diagrams, traverses, maps, rules), point-cloud formations, and the owner's rule that dot effects stay separate from images |
 | `references/ambition-tiers.md` | Tier choice, GSAP and R3F landing checklists |
 | `references/imagery.md` | Sourcing, the subject gate, treating, and cropping photography |
+| `../jmr-logo-design/SKILL.md` | The brand has no usable logo: concepts, tests, the chosen mark and its favicon and web icons |
 | `references/no-slop.md` | Writing any visible string: the AI-slop definition, headline rules, banned lists, the decode test, the copy-pass scorecard |
 | `references/content-and-copy.md` | Conversion placement, placeholders, fake precision, and the micro-label and marquee budgets |
 | `references/density-and-devices.md` | How much to put on the page, and the device that repeats |

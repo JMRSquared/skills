@@ -88,7 +88,7 @@ The following task-scoped skills activate when the relevant files are edited. Th
 - `knex-migration` — DB migrations.
 - `kysley-db` — Kysely query builder / repository code.
 - `react-tsx-component`, `better-auth`, `supabase`, `supabase-auth`, `tanstack-trpc-query` — web.
-- `premium-web-design` — marketing / product / landing pages. One workflow, every time: brand world, scroll story via `kit/story.js`, and `full.md` (studies, contract, audit). Do not invent `useStory`, ScrollTrigger or Framer scroll. Do not skip `full.md`. WebGL and 3D are extra tools inside that workflow when the brief needs them.
+- `premium-web-design` — marketing / product / landing pages. One workflow, every time: brand world, scroll story via `kit/story.js`, and `full.md` (studies, contract, audit). Do not invent `useStory`, ScrollTrigger or Framer scroll. Do not skip `full.md`. WebGL and 3D are extra tools inside that workflow when the brief needs them. A brand with no logo gets one from `jmr-logo-design` first.
 - `react-native`, `nativewind`, `react-native-skia` — mobile (Expo + Skia).
 - `sst-infra` — infrastructure.
 - `naming-imports-exports`, `code-quality` — everything.
