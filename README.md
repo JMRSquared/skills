@@ -59,6 +59,7 @@ Two tiers.
 | `pngimg-assets` | Searching or downloading transparent PNG assets from pngimg.com (CC BY-NC gate) |
 | `gltf-assets` | Searching or downloading glTF/GLB (Sketchfab + Poly Haven) and HDRIs for R3F / `/premium-web-design` |
 | `jmr-image` | Searching or downloading photography — Unsplash then Pexels (commercial-safe), pngimg fallback for cutouts |
+| `jmr-logo-design` | Asking for a logo, wordmark, monogram, app icon or favicon, or a critique or redesign of one. `/premium-web-design` also runs it when the brand has no logo |
 | `jmr-generate-video` | Asking for a promo, launch or explainer video with a voiceover |
 | `jmr-survey-form` | Asking for a customer discovery survey, pilot sign-up form or Google Form about your product |
 | `jmr-file-share` | Asking to put a file "on the NAS", "on tank" or "on the share", or to open something from another device. Copies it into your mounted shared storage (default `/mnt/tank/media/herdr`, set with `JMR_SHARE_ROOT`), keeping its place in the project. Leaves out `.git`, `node_modules`, build output, `.env` files and keys. Asks before copying more than 5 GB. Never moves or deletes. Machine-specific rules go in `~/.config/jmr-file-share/notes.md`, outside the repo |
@@ -78,6 +79,7 @@ Two tiers.
 | `pngimg-assets` | `/pngimg-assets` — search + download transparent PNG cutouts (CC BY-NC gate) |
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
+| `jmr-logo-design` | `/jmr-logo-design`: designs a logo from brief to production SVG files. Shows three tested concepts and waits for your pick before it builds the kit (lockups, one-colour and reversed versions, favicon, app and web icons, guidelines). Adapted from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill) (MIT). Its library of 1,432 real logos is for study only and downloads on first use from a pinned commit. Needs Python 3 and git |
 | `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a narrated promo video made on your machine from a website, images, a PDF, source code, a brief or an idea with nothing built yet. Female or male voice, portrait or landscape. Runs [brag](https://github.com/latent-spaces/brag) pinned to an audited commit with telemetry off |
 | `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
 
@@ -105,13 +107,13 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 ### What You Get
 
-Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**29** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**34** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
 | Feature | Claude Code | Codex | Gemini CLI | OpenCode | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:--------:|:------:|:--------:|:-----:|:-------:|
-| **30** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y | Y |
+| **34** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y³ | Y³ | Y³ | Y³ |
-| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y | Y |: |: |: |: |
+| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-logo-design`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y | Y |: |: |: |: |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | Y⁴ | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -242,7 +244,8 @@ In any Claude Code session once installed:
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
-- `/premium-web-design` — art-directed landing page as a scroll story (`kit/story.js`).
+- `/premium-web-design` — art-directed landing page as a scroll story (`kit/story.js`). If the brand has no logo, it designs one with `/jmr-logo-design` first.
+- `/jmr-logo-design`: design a logo. Example: `/jmr-logo-design for Loafwright, a sourdough bakery, warm and a little nerdy`. It shows three concepts as one image and builds the full kit only for the one you pick.
 - `/agents-execute`: hand off a mission and walk away. Type an objective, or `/agents-execute lets build` to build the spec already in the repo. The agent writes a spec, splits it into a few feature or bug-fix tickets, opens each ticket as a GitHub issue and creates a `milestone/<slug>` branch. It then runs `/jmr-cycle` on a loop until that branch is merged into main. It only asks you about money, migrations on shared databases, legal questions and work that would contradict the spec. The project must be on GitHub; anywhere else it stops and says so. It follows Matt Pocock's `/to-spec` and `/to-tickets` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets -g`.
 - `/jmr-cycle <slug>`: one step of a milestone: claim ready tickets, build them in parallel on their own branches, review every pull request with a separate agent, merge approved ones into `milestone/<slug>` and update the status issue. When every ticket is in, it runs a final review and the full test gate, then merges the milestone into main. `/agents-execute` starts it for you; run it by hand to nudge a milestone along.
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.

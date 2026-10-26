@@ -95,6 +95,16 @@ A world is concrete. "Modern and clean" is not a world. "A launch site that
 brags: one burnt-orange field, 200px lowercase black type, one word knocked out
 of a dark block" is.
 
+**The brand mark.** The nav, the favicon and often the close carry the mark, so
+settle it here, before tokens. If the brief supplies a usable logo (SVG, or a
+clean PNG at 512px or more), use it and trace its colours into the palette. If
+there is none, or only a placeholder, an unmodified stock-font monogram or clip
+art, design one with `<skill-dir>/../jmr-logo-design/SKILL.md`: read its
+"Inside /premium-web-design" section and follow it. It takes the brief from
+`PRODUCT.md` and the world sentence, stops once to show three concepts and
+writes the chosen mark to `brand/`. A mark drawn from scratch in the nav
+without that skill's tests is a fail.
+
 ## 3. Tokens
 
 One `:root` block. Name colours after things in the world, never `--primary`.
@@ -138,7 +148,7 @@ rate. The full recipe, traps and the phone art-direction pass live in
 `references/hero-depth.md`.
 
 ```
-nav:   brand mark (a small drawn badge or logo) · 2 links · pill CTA
+nav:   brand mark (supplied, or from jmr-logo-design) · 2 links · pill CTA
 left:  mono eyebrow with one specific fact    CAB-TO-CAB DISPATCH · LIVE IN 12 METROS
        display headline, 2–3 lines            WHEN YOUR TAXI NEEDS A [TAXI.]
        lede, 1–3 short sentences, 30–36ch     We route the nearest cab to your tired cab. Yes, really.
@@ -325,6 +335,7 @@ Without Playwright, say so in one line and offer the install:
 
 - [ ] `PRODUCT.md` exists, with anti-references
 - [ ] World sentence heads the stylesheet, and the palette, faces and object trace to it
+- [ ] Brand mark is the supplied logo or a `jmr-logo-design` mark the user picked; favicon and web icons come from it
 - [ ] Display face has character; text and mono faces each do one job
 - [ ] One highlighted word in the headline
 - [ ] Hero object made for this page: drawing, product UI, or owner photo, plus stickers carrying in-world data
@@ -352,6 +363,7 @@ Without Playwright, say so in one line and offer the install:
 | `references/brand-world.md` | Pairings, highlight-word, sticker, button, band and SVG-character recipes |
 | `demos/brand-world/` | The same bike shop as a static world page: tokens, stickers, band, prices. The scroll-story demo builds on its stylesheet |
 | `references/no-slop.md` | Writing any visible string |
+| `../jmr-logo-design/SKILL.md` | The brand has no usable logo: design the mark, favicon and web icons (section 2) |
 | `references/imagery.md` | Sourcing and cropping owner or stock photography |
 | `references/color-and-light.md` | More palettes and contrast fixes |
 | `references/hero-depth.md` | Layered hero recipe, five depth tools, phone art direction |
