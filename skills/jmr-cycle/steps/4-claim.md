@@ -7,5 +7,5 @@ Every claim runs `$CYCLE claim --milestone <slug> --ticket <id> --run $RUN_ID --
 
 Watch for:
 
-- Claiming without `--holder`: the next run cannot adopt the claim after a crash, so the ticket waits 24 hours.
+- Claiming without `--holder`: the next run cannot adopt the claim after a crash, so the ticket waits 30 minutes for `release-stale`.
 - Naming a ticket branch `milestone/<slug>/...`: git cannot hold both refs. Use the branch `claim` prints.

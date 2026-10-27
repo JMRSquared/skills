@@ -9,5 +9,5 @@ Apply the jmrsquared skills that match your files. Load auto-invoked skills thro
 | Files of a stack | the matching skill: `trpc-procedure`, `bdd-router-tests`, `react-tsx-component`, `tanstack-trpc-query`, `kysley-db`, `knex-migration`, `supabase`, `supabase-auth`, `better-auth`, `sst-infra`, `react-native`, `nativewind` and the rest of `jmr-review`'s table |
 | Commits | `jmr-commit` |
 | Prose: docs, pull request bodies, comments, UI copy | `jmr-plain-language` |
-| Before a pull request | `jmr-build-test-lint-gate` plus `milestone.json` `fix` then `gate` |
+| Before a pull request | `milestone.json` `fix` then `check` and the ticket's tests; the orchestrator runs `jmr-build-test-lint-gate` (`gate`) once per wave |
 | Review | `jmr-review`, `code-review`, read through the review bar in `briefs/reviewer.md`: only blockers block |

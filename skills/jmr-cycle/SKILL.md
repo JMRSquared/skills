@@ -25,9 +25,11 @@ A run can die between any two steps. The next run recovers from GitHub alone:
 
 ## Done means it works
 
-The goal is to land the milestone in as few cycles as possible. A ticket is done when its feature works: the gate passes, its scenario tests pass and it does what the ticket says. Then it merges. Cleaner code, extra tests, nicer names and refactors nobody asked for are not reasons to hold a ticket open or to add new ones. Every agent in a cycle follows this:
+The goal is to land the milestone in as few cycles as possible. A ticket is done when its feature works: `check` passes, its scenario tests pass and it does what the ticket says. Then it merges. Cleaner code, extra tests, nicer names and refactors nobody asked for are not reasons to hold a ticket open or to add new ones. Every agent in a cycle follows this:
 
-- Implementers open the pull request as soon as the feature works and the gate passes. No polishing after that.
+- Implementers open the pull request as soon as the feature works and `check` passes. No polishing after that.
+- Nothing waits for the slowest builder. Each pull request is reviewed when it opens and merged when it is approved, and a freed slot takes the next ticket (step 6).
+- The full `gate` runs once per wave on the milestone branch (step 8), not on every pull request.
 - Reviewers check that the feature works, not that the code matches their taste (the review bar in `briefs/reviewer.md`).
 - New tickets are only for broken features, failing scenarios or work the mission cannot ship without. Everything else is a follow-up note in a pull request body.
 
@@ -36,14 +38,14 @@ The goal is to land the milestone in as few cycles as possible. A ticket is done
 | Where | What |
 |---|---|
 | `milestone/<slug>` | The milestone branch. Every ticket merges here. It lands on the base branch at close-out |
-| `docs/milestones/<slug>/milestone.json` | Base branch, scenario prefix and the `install`, `gate`, `fix`, `testReports` and `deploy` commands, plus the `land` mode. A `deploy` entry is a command or `{ "run": "<command>", "once": true }` for a step that must never run twice |
+| `docs/milestones/<slug>/milestone.json` | Base branch, scenario prefix and the `install`, `check`, `gate`, `fix`, `testReports` and `deploy` commands, plus the `land` mode. A `deploy` entry is a command or `{ "run": "<command>", "once": true }` for a step that must never run twice |
 | `docs/milestones/<slug>/spec.md` | The spec. Implementers read the sections their ticket names |
 | `docs/milestones/<slug>/tickets.json` | The ticket graph. `publish` turns it into GitHub issues |
 | `docs/milestones/<slug>/decisions.md` | Decisions made during the build, with dates |
 | GitHub issues labelled `milestone:<slug>` | One per ticket plus one status issue (`jmr:status`) |
 | `<type>/<slug>-tNN-<title>` | Ticket branches. `claim` prints the name |
 
-`gate` commands check without rewriting files. `fix` commands (formatters, `lint:fix`) rewrite files; implementers run them before committing.
+`gate` commands check without rewriting files. `check` is the fast subset (typecheck, lint, the touched tests) that implementers and reviewers run on each pull request; without it they run typecheck, lint and the ticket's tests. `fix` commands (formatters, `lint:fix`) rewrite files; implementers run them before committing. In a Turborepo, `check` and `gate` set one shared `TURBO_CACHE_DIR` so worktrees reuse each other's results.
 
 ## The tool
 
@@ -56,7 +58,7 @@ Every tracker, claim, lease, CI, status and loop action goes through `cycle.mjs`
 | `/jmr-cycle <slug>` | One full cycle: step 0, then the steps `next` lists |
 | `/jmr-cycle` | Uses the only open milestone from `$CYCLE milestones`. With none, says so and stops. With several, lists them and stops |
 | `/jmr-cycle <slug> status` | Steps 0.1, 0.2, 0.4 without `--prune` and 0.6, then `next --status` (no lease, no unlease) |
-| `--parallel N` | Tickets built at once. Default 3 |
+| `--parallel N` | Implementers and reviewers running at once. Default 4 |
 | `--max N` | Tickets started in this cycle. Default 6 |
 
 ## Authority
@@ -99,7 +101,7 @@ Subagents read their own brief. Pass the file path, never the text: `briefs/impl
 **Inside Herdr** (`HERDR_ENV=1`), every implementer and reviewer runs as a helper in a visible pane instead of a hidden subagent, so the owner can watch each one. `JH` is `node <jmr-herdr skill directory>/scripts/helper.mjs`.
 
 - Start: write the pointers you would give a subagent to a file under `$RUN`, then `$JH spawn --role <ticket id, or review-<n>> --cwd "$RUN/orchestrator" --brief-file <file>`. Never pass `--worktree`: the brief makes its own git worktree under `$RUN`. A reviewer gets `--kind <another agent>` when one is installed (the `jmr-herdr` "Pick the right helper" rules).
-- Wait: where a step waits for subagents, run `$JH wait` and read each report path it prints. Then `$JH close --all`.
+- Wait: in the step 6 pipeline, `$JH wait --any` returns when the first helper ends; act on its report and wait again. Close each helper once its report is read, and `$JH close --all` at step 12.
 - A helper stuck on a dialog (`wait` exits 3) is the owner's to answer, never yours. Send one `herdr notification show` naming its pane, wait on the other helpers by name, then check it with `$JH read <name>`. When it is still stuck, close it and go on: its claim and pushed branch carry over to the next cycle.
 - Herdr holds at most 4 helpers per pane, so `--parallel` stays at 4 or below.
 - When `spawn` refuses because this cycle is itself a helper, use built-in subagents as usual.
@@ -123,7 +125,7 @@ The tool ignores calls from subagents, so only a cycle that runs as a top-level 
 3. Run `$CYCLE lease --milestone <slug> --run $RUN_ID --holder "$HOLDER"`. Exit 3 means another loop is working this milestone: reply with `CYCLE_RESULT: waiting` and stop.
 4. From the owner's checkout run `$CYCLE workspace --milestone <slug> --holder "$HOLDER" --run $RUN_ID --prune` and set `RUN` to the `runDir` it prints. It creates `$RUN/results` and removes the folders and worktrees that this holder's crashed runs left behind. Only run `--prune` while holding the lease.
 5. `$CYCLE landing --milestone <slug>`. When `state` is `merged`, create the orchestrator from `origin/<base>` in place of the milestone branch in 0.6 (it may be deleted; the milestone's files are on the base now).
-6. `git fetch origin <base> milestone/<slug>`, `git worktree add --detach "$RUN/orchestrator" origin/milestone/<slug>`, then the `install` command there. Every command below runs in `$RUN/orchestrator` unless it names another worktree.
+6. `git fetch origin <base> milestone/<slug>`, `git worktree add --detach "$RUN/orchestrator" origin/milestone/<slug>`, then `$CYCLE install --milestone <slug> --to "$RUN/orchestrator"`. Implementer and reviewer worktrees later link their packages from this one. Every command below runs in `$RUN/orchestrator` unless it names another worktree.
 
 **3. Plan the cycle.** Run `$CYCLE next --milestone <slug>` (add `--status` in status mode). It prints:
 
@@ -131,9 +133,9 @@ The tool ignores calls from subagents, so only a cycle that runs as a top-level 
 - `read`: the step files this cycle needs, in order. Read each one and do it. Files it leaves out do not apply this cycle, so do not read them;
 - `publish`, only when no tickets exist yet: run that command, then `next` again.
 
-Steps keep their numbers across files: 1 sync, 2 repair, 4 claim, 5 fix, 6 build, 7 review, 8 merge, 9 close-out, 10 to 12 report. `steps/adding-tickets.md` is read only when a step says to add a ticket.
+Steps keep their numbers across files: 1 sync, 2 repair, 4 claim, 5 fix, 6 build, 7 review, 8 merge and the wave gate, 9 close-out, 10 to 12 report. Steps 6 to 8 run as one pipeline, driven from `steps/6-build.md`. `next` also prints `actions`, the order to act in. `steps/adding-tickets.md` is read only when a step says to add a ticket.
 
-Renew the lease with the same `lease` command (same `--run` and `--holder`) at the start of steps 6, 7, 8 and 9. It is one cheap git push and posts nothing. When a renewal exits 3, stop starting work, wait for running subagents and go to `steps/10-report.md`.
+Renew the lease with the same `lease` command (same `--run` and `--holder`) each time a helper finishes in the step 6 pipeline and at the start of step 9. It is one cheap git push and posts nothing. When a renewal exits 3, stop starting work, wait for running subagents and go to `steps/10-report.md`.
 
 ## Running unattended
 
@@ -165,5 +167,8 @@ Run one loop per milestone: a second loop only waits on the lease.
 | Adding labels, claims or leases by hand | Use `$CYCLE claim`, `lease`, `close`, `repair`, `escalate` and `release-stale` |
 | Reading review or gate verdicts from comments yourself | `$CYCLE marks` drops verdicts from accounts without write access |
 | Reading progress from an agent's report | `next` and `status` count scenario ids in test titles and results in test reports |
-| Moving to review or cleanup while builders still run | Wait for every subagent at the end of steps 6 and 7 and in step 12 |
+| Waiting for every builder before the first review | Review each pull request when it opens and merge it when approved (step 6) |
+| Running the full gate on every pull request | Implementers and reviewers run `check`; the gate runs once per wave (step 8) |
+| Sending a pull request back for a clashing decision number or version | The orchestrator renumbers it at merge (step 8) |
+| Cleaning up while helpers still run | Wait for every helper in step 12 |
 | Calling the milestone done when tickets close | Done is the landing pull request merged into the base branch |

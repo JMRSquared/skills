@@ -195,7 +195,7 @@ describe('cycle CLI', () => {
     assert.equal(r.out.branch, 'fix/payments-t03-refunds')
   })
 
-  it('releases a claim with no progress in 24 hours', () => {
+  it('releases a claim with no progress in 30 minutes', () => {
     const s = readState()
     const t03 = s.issues.find((i) => i.body.includes('"id":"T03"'))
     for (const c of s.comments) if (c.issue === t03.number) c.createdAt = new Date(Date.now() - 30 * 3600e3).toISOString()
@@ -541,5 +541,41 @@ if (out) console.log('CYCLE_RESULT: ' + out)
       assert.equal(r.status, 0)
       assert.deepEqual(prompts(), ['run the cycle', 'run the cycle'])
     })
+  })
+})
+
+describe('install', () => {
+  const checkout = (root, name, lock) => {
+    const d = path.join(root, name)
+    mkdirSync(path.join(d, 'docs', 'milestones', 'payments'), { recursive: true })
+    mkdirSync(path.join(d, 'packages', 'a'), { recursive: true })
+    writeFileSync(
+      path.join(d, 'docs', 'milestones', 'payments', 'milestone.json'),
+      JSON.stringify({ ...milestone, install: 'mkdir -p node_modules && echo ran > node_modules/ran' }),
+    )
+    writeFileSync(path.join(d, 'yarn.lock'), lock)
+    return d
+  }
+  const inode = (p) => execFileSync('stat', ['-c', '%i', p], { encoding: 'utf8' }).trim()
+
+  it('links node_modules from a checkout with the same lockfile, then skips until the lockfile changes', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'jmr-install-'))
+    const from = checkout(root, 'from', 'lock-a')
+    mkdirSync(path.join(from, 'node_modules', 'left-pad'), { recursive: true })
+    writeFileSync(path.join(from, 'node_modules', 'left-pad', 'index.js'), 'x')
+    mkdirSync(path.join(from, 'packages', 'a', 'node_modules'), { recursive: true })
+    writeFileSync(path.join(from, 'packages', 'a', 'node_modules', 'dep.js'), 'y')
+    const to = checkout(root, 'to', 'lock-a')
+
+    const linked = cli(['install', '--milestone', 'payments', '--to', to, '--from', from], {}, root)
+    assert.equal(linked.out.install, 'linked')
+    assert.equal(inode(path.join(to, 'node_modules', 'left-pad', 'index.js')), inode(path.join(from, 'node_modules', 'left-pad', 'index.js')))
+    assert.ok(existsSync(path.join(to, 'packages', 'a', 'node_modules', 'dep.js')))
+    assert.equal(cli(['install', '--milestone', 'payments', '--to', to, '--from', from], {}, root).out.install, 'skip')
+
+    writeFileSync(path.join(to, 'yarn.lock'), 'lock-b')
+    assert.equal(cli(['install', '--milestone', 'payments', '--to', to, '--from', from], {}, root).out.install, 'ran')
+    assert.ok(existsSync(path.join(to, 'node_modules', 'ran')))
+    rmSync(root, { recursive: true, force: true })
   })
 })

@@ -4,7 +4,7 @@ You review one pull request into `milestone/<slug>` that you did not write. The 
 
 ## Steps
 
-1. `git worktree add --detach "$RUN/review-<n>" origin/<branch>`, so the branch stays free to merge and delete. Run `install` and `gate` there.
+1. `git worktree add --detach "$RUN/review-<n>" origin/<branch>`, so the branch stays free to merge and delete. Run `$CYCLE install --milestone <slug> --to "$RUN/review-<n>" --from "$RUN/orchestrator"`, then the `check` commands from `milestone.json` and the ticket's scenario tests there. The full `gate` runs once per wave on the milestone branch, not here.
 2. Check the feature works as the ticket describes: run it where you can (the app, a script, a request) and read the scenario tests.
 3. Confirm every scenario id on the ticket has a titled test that passes. A skipped scenario test is a failure.
 4. Run `jmr-review` and `code-review` to look for blockers.
@@ -17,13 +17,13 @@ When `mcp__savvy-progress__step` is among your tools (load it with ToolSearch wh
 
 Request changes only for:
 
-- the gate or a required check fails;
+- `check` or a required CI check fails;
 - a scenario test is missing, skipped or failing;
 - the feature does not do what the ticket says;
 - a bug that loses data, breaks an existing feature or opens a security hole;
 - a rule in `jmr-review`'s signal bar.
 
-Everything else (style, naming, structure, `code-quality` preferences, extra test ideas) is a suggestion. Approve and list suggestions under "Notes (not blocking)" below the approve line. Suggestions never become changes or tickets. When in doubt, approve.
+A branch that is behind `milestone/<slug>` or conflicts with it is never a blocker, and neither is a clash of numbered entries with another pull request (decision ids, prompt or schema versions): the orchestrator merges and renumbers when it merges. Everything else (style, naming, structure, `code-quality` preferences, extra test ideas) is a suggestion. Approve and list suggestions under "Notes (not blocking)" below the approve line. Suggestions never become changes or tickets. When in doubt, approve.
 
 ## Report
 

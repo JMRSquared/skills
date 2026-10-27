@@ -18,6 +18,8 @@ import {
   statusMarks,
   computeStatus,
   decideClaim,
+  installDecision,
+  lockKey,
   findScenarioTitles,
   isStaleClaim,
   parseMarker,
@@ -263,20 +265,20 @@ describe('decideClaim', () => {
   })
 
   it('gives the claim to the earliest fresh comment', () => {
-    const comments = [claim('b', 1, 20), claim('a', 2, 10)]
+    const comments = [claim('b', 0.1, 20), claim('a', 0.2, 10)]
     assert.equal(decideClaim(comments, 'a', NOW).won, true)
     const lost = decideClaim(comments, 'b', NOW)
     assert.equal(lost.won, false)
     assert.deepEqual(lost.mine, ['20'])
   })
 
-  it('ignores claims older than 24 hours', () => {
-    const comments = [claim('old', 30, 5), claim('new', 1, 6)]
+  it('ignores claims older than 30 minutes', () => {
+    const comments = [claim('old', 1, 5), claim('new', 0.1, 6)]
     assert.equal(decideClaim(comments, 'new', NOW).won, true)
   })
 
   it('breaks a same-second tie by comment id', () => {
-    const comments = [claim('b', 1, 12), claim('a', 1, 11)]
+    const comments = [claim('b', 0.05, 12), claim('a', 0.05, 11)]
     assert.equal(decideClaim(comments, 'a', NOW).won, true)
   })
 
@@ -287,15 +289,15 @@ describe('decideClaim', () => {
   })
 
   it('lets a later run with the same holder adopt the claim and keep its comments', () => {
-    const comments = [held('crashed', 'mac:/my repo', 2, 10)]
+    const comments = [held('crashed', 'mac:/my repo', 0.2, 10)]
     const decision = decideClaim(comments, 'next', NOW, 'mac:/my repo')
     assert.deepEqual([decision.won, decision.adopted, decision.winner.run, decision.mine], [false, true, 'crashed', []])
   })
 
   it('refuses adoption to another holder and to claims that name no holder', () => {
-    assert.equal(decideClaim([held('a', 'mac:/repo', 1, 10)], 'b', NOW, 'pc:/repo').adopted, false)
-    assert.equal(decideClaim([claim('a', 1, 10)], 'b', NOW, 'mac:/repo').adopted, false)
-    assert.equal(decideClaim([held('a', 'mac:/repo', 1, 10)], 'b', NOW).adopted, false)
+    assert.equal(decideClaim([held('a', 'mac:/repo', 0.1, 10)], 'b', NOW, 'pc:/repo').adopted, false)
+    assert.equal(decideClaim([claim('a', 0.1, 10)], 'b', NOW, 'mac:/repo').adopted, false)
+    assert.equal(decideClaim([held('a', 'mac:/repo', 0.1, 10)], 'b', NOW).adopted, false)
   })
 
   it('reads the holder back from the newest claim', () => {
@@ -415,7 +417,7 @@ describe('isStaleClaim', () => {
   })
 
   it('keeps a claim whose branch has a recent commit', () => {
-    assert.equal(isStaleClaim({ comments, lastCommitAt: ago(2), hasOpenPr: false, now: NOW }), false)
+    assert.equal(isStaleClaim({ comments, lastCommitAt: ago(0.1), hasOpenPr: false, now: NOW }), false)
   })
 
   it('keeps a claim with an open pull request', () => {
@@ -542,21 +544,27 @@ describe('cyclePlan', () => {
     ])
   })
 
-  it('leaves out claim and build when nothing is ready or held', () => {
-    assert.deepEqual(steps({ brief: brief({ review: [{ id: 'T02', pr: 5 }] }) }), ['sync', 'repair', 'fix', 'review', 'merge', 'report'])
+  it('leaves out claim when nothing is ready or held, but keeps the pipeline for open pull requests', () => {
+    assert.deepEqual(steps({ brief: brief({ review: [{ id: 'T02', pr: 5 }] }) }), ['sync', 'repair', 'fix', 'build', 'review', 'merge', 'report'])
   })
 
   it('adopts held tickets even with an empty frontier', () => {
     assert.ok(steps({ brief: brief({ building: ['T03'] }) }).includes('claim'))
   })
 
-  it('reads only sync, review and merge while a sync pull request is open', () => {
-    assert.deepEqual(steps({ syncOpen: true, brief: brief({ frontier: ['T01'] }) }), ['sync', 'review', 'merge', 'report'])
+  it('keeps building while a sync pull request is open', () => {
+    assert.deepEqual(steps({ syncOpen: true, brief: brief({ frontier: ['T01'] }) }), [
+      'sync', 'repair', 'claim', 'build', 'review', 'merge', 'report',
+    ])
   })
 
   it('routes close-out, a merged landing, status mode and an empty milestone', () => {
     assert.deepEqual(steps({ brief: brief({ phase: 'closeout' }) }), ['repair', 'closeout', 'report'])
-    assert.deepEqual(cyclePlan({ mode: 'cycle', landing: 'merged', brief: brief({ phase: 'closeout' }) }), { phase: 'landed', steps: ['closeout', 'report'] })
+    assert.deepEqual(cyclePlan({ mode: 'cycle', landing: 'merged', brief: brief({ phase: 'closeout' }) }), {
+      phase: 'landed',
+      steps: ['closeout', 'report'],
+      actions: [{ do: 'closeout-fix' }, { do: 'gate' }, { do: 'land' }],
+    })
     assert.deepEqual(steps({ mode: 'status', brief: brief({ frontier: ['T01'] }) }), ['report'])
     assert.equal(cyclePlan({ mode: 'cycle', landing: 'none', brief: brief({ phase: 'empty' }) }).publish, true)
   })
@@ -581,5 +589,26 @@ describe('loop pacing', () => {
   it('waits by result and retries a cycle that printed none', () => {
     const delays = { continueMs: 1, waitMs: 2, retryMs: 3 }
     assert.deepEqual(['continue', 'waiting', null].map((r) => loopDelay(r, delays)), [1, 2, 3])
+  })
+})
+
+describe('install reuse', () => {
+  it('skips install when the lock key matches and modules are present', () => {
+    const key = lockKey([{ name: 'yarn.lock', body: 'a' }, { name: 'README.md', body: 'no' }])
+    assert.equal(key, lockKey([{ name: 'yarn.lock', body: 'a' }]))
+    assert.notEqual(key, lockKey([{ name: 'yarn.lock', body: 'b' }]))
+    assert.equal(lockKey([]), 'none')
+    assert.equal(installDecision({ previousKey: key, currentKey: key, hasModules: true }), 'skip')
+    assert.equal(installDecision({ previousKey: key, currentKey: key, hasModules: false }), 'run')
+    assert.equal(installDecision({ previousKey: '', currentKey: key, hasModules: true }), 'run')
+  })
+
+  it('plans a review as soon as a pull request exists, a merge as each one is approved and a sync that blocks nothing', () => {
+    const brief = { frontier: ['T02'], building: ['T01'], review: [{ id: 'T03', pr: 9 }] }
+    const plan = cyclePlan({ mode: 'cycle', landing: 'none', syncOpen: true, brief })
+    assert.deepEqual(plan.actions.find((action) => action.do === 'review'), { do: 'review', prs: [9], when: 'as-each-pr-opens' })
+    assert.deepEqual(plan.actions.find((action) => action.do === 'merge'), { do: 'merge', prs: [9], when: 'as-each-review-approves' })
+    assert.deepEqual(plan.actions.find((action) => action.do === 'sync'), { do: 'sync', blocks: 'nothing', open: true })
+    assert.equal(plan.actions.at(-1).do, 'wave-gate')
   })
 })
