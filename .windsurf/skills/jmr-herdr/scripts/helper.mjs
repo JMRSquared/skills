@@ -368,7 +368,7 @@ const cmdOnce = async ({ flags, positional }) => {
   // Nobody may be watching, so a dialog is announced once and then waited
   // out: the user answers it in the pane, or the timeout closes the pane and
   // the caller's next run starts over.
-  const end = Date.now() + Number(flags.timeout || 4 * 3600 * 1000)
+  const end = Date.now() + Number(flags.timeout || 12 * 3600 * 1000)
   let state = 'working'
   let announced = false
   while (Date.now() < end) {
@@ -433,6 +433,8 @@ const cmdWait = async ({ flags, positional }) => {
   const end = Date.now() + timeout
   const pending = new Set(targets.map((h) => h.name))
   const results = {}
+  // --any returns as soon as one helper ends, so the caller can act on it while the rest keep working.
+  const any = flags.any === true
   while (pending.size && Date.now() < end) {
     for (const h of targets.filter((t) => pending.has(t.name))) {
       const state = helperState(h)
@@ -441,7 +443,12 @@ const cmdWait = async ({ flags, positional }) => {
         pending.delete(h.name)
       }
     }
+    if (any && Object.keys(results).length) break
     if (pending.size) await sleep(2000)
+  }
+  if (any && Object.keys(results).length) {
+    for (const n of pending) results[n] = { state: 'working', pane: findHelper(ledger, n).pane }
+    pending.clear()
   }
   for (const n of pending) results[n] = { state: 'timeout', pane: findHelper(ledger, n).pane }
   console.log(JSON.stringify(results, null, 2))

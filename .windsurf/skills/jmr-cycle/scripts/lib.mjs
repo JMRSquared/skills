@@ -1,6 +1,8 @@
 // Pure logic for jmr-cycle. Everything here is deterministic so it can be
 // tested; cycle.mjs owns every call to git and gh.
 
+import { createHash } from 'node:crypto'
+
 export const LABELS = {
   ticket: 'jmr:ticket',
   claim: 'jmr:in-progress',
@@ -10,7 +12,9 @@ export const LABELS = {
 
 export const milestoneLabel = (slug) => `milestone:${slug}`
 
-const CLAIM_TTL_MS = 24 * 3600 * 1000
+// A claim with no new commit returns to the frontier after 30 minutes.
+export const CLAIM_TTL_MS = 30 * 60 * 1000
+export const CLAIM_TTL_LABEL = '30 minutes'
 const LAND_MODES = ['merge', 'pr']
 const TICKET_ID = /^T\d{2,3}$/
 const SLUG = /^[a-z0-9][a-z0-9-]{1,40}$/
@@ -58,7 +62,7 @@ export const validateMilestone = (m) => {
   if (m.deploy !== undefined && !(Array.isArray(m.deploy) && m.deploy.every(isDeployStep))) {
     errors.push('deploy must list commands, each a string or { "run": "<command>", "once": true }')
   }
-  for (const key of ['testReports', 'fix']) {
+  for (const key of ['testReports', 'fix', 'check']) {
     if (m[key] !== undefined && !(Array.isArray(m[key]) && m[key].every(isNonEmptyString))) {
       errors.push(`${key} must be a list of commands`)
     }
@@ -274,14 +278,58 @@ export const briefStatus = (status) => ({
   ...(status.statusIssue ? { statusIssue: status.statusIssue.url } : {}),
 })
 
+// Lockfiles that decide whether two checkouts can share installed packages.
+export const LOCKFILE_NAMES = [
+  'yarn.lock',
+  'pnpm-lock.yaml',
+  'package-lock.json',
+  'bun.lock',
+  'Cargo.lock',
+  'go.sum',
+  'poetry.lock',
+]
+
+export const lockKey = (files) => {
+  const present = files
+    .filter((file) => LOCKFILE_NAMES.includes(file.name))
+    .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+  if (present.length === 0) return 'none'
+  return createHash('sha256')
+    .update(present.map((file) => `${file.name}\0${file.body}`).join('\n'))
+    .digest('hex')
+}
+
+export const installDecision = ({ previousKey, currentKey, hasModules }) =>
+  hasModules && previousKey && previousKey === currentKey ? 'skip' : 'run'
+
+// The order a cycle acts in, for the orchestrator to follow without rereading
+// every step file. Syncing blocks nothing, each pull request is reviewed when
+// it opens and merged when approved, and the full gate runs once per wave.
+export const actionPlan = ({ brief, syncOpen, steps }) => {
+  const review = brief.review ?? []
+  const actions = []
+  if (steps.includes('sync')) actions.push({ do: 'sync', blocks: 'nothing', open: syncOpen })
+  if (steps.includes('repair')) actions.push({ do: 'repair' })
+  if (steps.includes('claim')) actions.push({ do: 'claim', adopt: brief.building ?? [], frontier: brief.frontier ?? [] })
+  if (steps.includes('fix')) actions.push({ do: 'fix', prs: review.map((row) => row.pr) })
+  if (steps.includes('build')) actions.push({ do: 'build', tickets: [...(brief.building ?? []), ...(brief.frontier ?? [])] })
+  if (steps.includes('review')) actions.push({ do: 'review', prs: review.map((row) => row.pr), when: 'as-each-pr-opens' })
+  if (steps.includes('merge')) actions.push({ do: 'merge', prs: review.map((row) => row.pr), when: 'as-each-review-approves' }, { do: 'wave-gate' })
+  if (steps.includes('closeout')) actions.push({ do: 'closeout-fix' }, { do: 'gate' }, { do: 'land' })
+  return actions
+}
+
 // Which step files a cycle reads, from GitHub state alone. Steps that cannot
 // apply this cycle are left out, so their text never enters the context.
 export const cyclePlan = ({ mode, landing, syncOpen, brief }) => {
-  if (mode === 'status') return { phase: brief.phase, steps: ['report'] }
-  if (landing === 'merged') return { phase: 'landed', steps: ['closeout', 'report'] }
-  if (brief.phase === 'empty') return { phase: 'empty', steps: [], publish: true }
-  if (brief.phase === 'closeout') return { phase: 'closeout', steps: ['repair', 'closeout', 'report'] }
-  if (syncOpen) return { phase: 'build', steps: ['sync', 'review', 'merge', 'report'] }
+  const finish = (plan) => ({
+    ...plan,
+    actions: actionPlan({ brief, syncOpen, steps: plan.steps }),
+  })
+  if (mode === 'status') return finish({ phase: brief.phase, steps: ['report'] })
+  if (landing === 'merged') return finish({ phase: 'landed', steps: ['closeout', 'report'] })
+  if (brief.phase === 'empty') return finish({ phase: 'empty', steps: [], publish: true })
+  if (brief.phase === 'closeout') return finish({ phase: 'closeout', steps: ['repair', 'closeout', 'report'] })
   const canBuild = brief.frontier.length > 0 || brief.building.length > 0
   const hasPrs = brief.review.length > 0
   const steps = [
@@ -289,11 +337,11 @@ export const cyclePlan = ({ mode, landing, syncOpen, brief }) => {
     'repair',
     ...(canBuild ? ['claim'] : []),
     ...(hasPrs ? ['fix'] : []),
-    ...(canBuild ? ['build'] : []),
+    ...(canBuild || hasPrs ? ['build'] : []),
     ...(canBuild || hasPrs ? ['review', 'merge'] : []),
     'report',
   ]
-  return { phase: 'build', steps }
+  return finish({ phase: 'build', steps })
 }
 
 const CYCLE_RESULT = /^CYCLE_RESULT: (continue|waiting|complete)\s*$/

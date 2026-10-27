@@ -4,7 +4,7 @@
 
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -45,6 +45,10 @@ import {
   ticketPrs,
   validateMilestone,
   validateTickets,
+  CLAIM_TTL_LABEL,
+  LOCKFILE_NAMES,
+  installDecision,
+  lockKey,
 } from './lib.mjs'
 
 const GH = process.env.JMR_CYCLE_GH || 'gh'
@@ -101,7 +105,10 @@ const HELP = `node cycle.mjs <command> [flags]
                                                exit 0 won or adopted (a crashed run with the same holder had it),
                                                3 taken or lost, 4 closed or waiting on the owner
   repair    --milestone <slug>                   close tickets whose pull request merged before close ran
-  release-stale --milestone <slug> --run <id>    release claims with no progress in 24 hours
+  release-stale --milestone <slug> --run <id>    release claims with no progress in 30 minutes
+  install   --milestone <slug> --to <dir> [--from <dir>]
+                                               install packages in a worktree: hard-link node_modules from
+                                               --from when its lockfiles match, otherwise run milestone.json install
   close     --milestone <slug> --ticket T03 --pr <n>
   escalate  --milestone <slug> (--ticket T03 | --status) --question-file f
   deploy    --milestone <slug> --pr <landing pr>  run the milestone.json deploy steps not yet done for this
@@ -155,6 +162,44 @@ const loadMilestone = (flags) => {
   if (milestone.slug !== flags.milestone) errors.push(`slug "${milestone.slug}" does not match --milestone ${flags.milestone}`)
   if (errors.length) die(`invalid ${file}:\n- ${errors.join('\n- ')}`, EXIT.invalid)
   return milestone
+}
+
+// Written into node_modules so a worktree that was installed or linked once is
+// not installed again until its lockfiles change.
+const INSTALL_STAMP = path.join('node_modules', '.jmr-install-key')
+
+const readLockfiles = (dir) =>
+  LOCKFILE_NAMES.filter((name) => existsSync(path.join(dir, name))).map((name) => ({ name, body: readFileSync(path.join(dir, name), 'utf8') }))
+
+// Every node_modules folder that is not inside another one, relative to dir.
+const moduleDirs = (dir) => {
+  const found = []
+  const walk = (rel) => {
+    for (const entry of readdirSync(path.join(dir, rel), { withFileTypes: true })) {
+      if (!entry.isDirectory() || entry.name === '.git') continue
+      const child = path.join(rel, entry.name)
+      if (entry.name === 'node_modules') found.push(child)
+      else walk(child)
+    }
+  }
+  walk('')
+  return found
+}
+
+// Hard links make a 2 GB node_modules appear in seconds. Workspace links in it
+// are relative, so they resolve inside the new worktree. Where cp cannot link
+// (another filesystem, BSD cp), the caller installs instead.
+const linkModules = (from, to) => {
+  for (const rel of moduleDirs(from)) {
+    const target = path.join(to, rel)
+    if (!existsSync(path.dirname(target))) continue
+    rmSync(target, { recursive: true, force: true })
+    if (run('cp', ['-al', path.join(from, rel), target], { allowFail: true }).status !== 0) {
+      rmSync(path.join(to, 'node_modules'), { recursive: true, force: true })
+      return false
+    }
+  }
+  return true
 }
 
 const ticketList = (parsed) => (Array.isArray(parsed) ? parsed : parsed?.tickets) ?? []
@@ -454,7 +499,7 @@ const commands = {
     })
     const read = plan.steps.map((step) => path.join(SKILL_DIR, STEP_FILES[step]))
     const publish = plan.publish ? { publish: `$CYCLE publish --milestone ${milestone.slug} --tickets docs/milestones/${milestone.slug}/tickets.json, then run next again` } : {}
-    print({ phase: plan.phase, read, ...publish, state: brief })
+    print({ phase: plan.phase, read, actions: plan.actions, ...publish, state: brief })
   },
 
   loop: (flags, rest) => {
@@ -528,6 +573,31 @@ const commands = {
     process.exit(EXIT.lost)
   },
 
+  install: (flags) => {
+    need(flags, 'to')
+    const to = path.resolve(flags.to)
+    const milestone = loadMilestone({ ...flags, dir: flags.dir ?? to })
+    const currentKey = lockKey(readLockfiles(to))
+    const stamp = path.join(to, INSTALL_STAMP)
+    const ownKey = existsSync(stamp) ? readFileSync(stamp, 'utf8').trim() : ''
+    if (installDecision({ previousKey: ownKey, currentKey, hasModules: existsSync(path.join(to, 'node_modules')) }) === 'skip') {
+      return print({ install: 'skip', key: currentKey })
+    }
+    const from = flags.from && flags.from !== true ? path.resolve(flags.from) : null
+    const fromKey = from ? lockKey(readLockfiles(from)) : ''
+    const canLink =
+      from && currentKey !== 'none' && installDecision({ previousKey: fromKey, currentKey, hasModules: existsSync(path.join(from, 'node_modules')) }) === 'skip'
+    if (canLink && linkModules(from, to)) {
+      writeFileSync(stamp, currentKey)
+      return print({ install: 'linked', from, key: currentKey })
+    }
+    if (!milestone.install) return print({ install: 'none' })
+    const r = spawnSync(milestone.install, { shell: true, cwd: to, stdio: ['ignore', 'inherit', 'inherit'] })
+    if (r.status !== 0) die(`${milestone.install} failed in ${to}`)
+    if (currentKey !== 'none' && existsSync(path.join(to, 'node_modules'))) writeFileSync(stamp, currentKey)
+    print({ install: 'ran', key: currentKey })
+  },
+
   'release-stale': (flags) => {
     need(flags, 'run')
     const milestone = loadMilestone(flags)
@@ -544,7 +614,7 @@ const commands = {
       }
       if (!isStaleClaim({ comments, lastCommitAt, hasOpenPr: prIds.has(id), now: Date.now() })) continue
       gh(['issue', 'edit', String(issue.number), '--remove-label', LABELS.claim])
-      gh(['issue', 'comment', String(issue.number), '--body', `jmr-cycle release ${flags.run}: no progress in 24 hours`])
+      gh(['issue', 'comment', String(issue.number), '--body', `jmr-cycle release ${flags.run}: no progress in ${CLAIM_TTL_LABEL}`])
       released.push({ id, number: issue.number, branch: branch ?? null })
     }
     print({ released })
