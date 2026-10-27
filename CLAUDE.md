@@ -4,7 +4,7 @@
 
 - **Branch:** `main`
 - **Stage:** n/a (standards distribution; no app deploy stage)
-- **Notes:** `/premium-web-design` is one workflow (no `--full` split): SKILL.md + `full.md` + `kit/`. Kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Canonical edits in `skills/` and `rules/` only.
+- **Notes:** `/jmr-cycle` runs fast: steps 6 to 8 are one pipeline (review as each pull request opens, merge as each is approved), pull requests run `milestone.json` `check` and the full gate runs once per wave, worktrees hard-link `node_modules` through `cycle.mjs install`, and claims expire after 30 minutes. Canonical edits in `skills/` and `rules/` only. Kit tests: `node --test skills/premium-web-design/kit/*.test.mjs`. Cycle tests: `node --test skills/jmr-cycle/scripts/*.test.mjs`.
 
 ## Purpose
 

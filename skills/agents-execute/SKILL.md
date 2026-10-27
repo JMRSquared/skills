@@ -77,6 +77,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    { "version": 1, "slug": "payments", "title": "Card payments",
      "base": "main", "branch": "milestone/payments", "scenarioPrefix": "PAY",
      "install": "yarn install",
+     "check": ["yarn typecheck", "yarn lint"],
      "gate": ["yarn build", "yarn test", "yarn lint"],
      "fix": ["yarn lint:fix"],
      "testReports": ["yarn vitest run --reporter=json --outputFile=$JMR_RESULTS/vitest.json"],
@@ -84,7 +85,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    ```
 
    - `base` is `defaultBranch` unless the prompt names another.
-   - `gate` is the repo's own build, test and lint commands, in forms that check without rewriting files. `fix` holds the rewriting forms (formatters, `lint:fix`) that implementers run before committing. In a jmrsquared repo the two together are `jmr-build-test-lint-gate`.
+   - `gate` is the repo's own build, test and lint commands, in forms that check without rewriting files. It runs once per wave on the milestone branch. `check` is the fast subset each pull request runs (typecheck and lint, scoped to what changed when the repo can); implementers and reviewers add the ticket's own tests. Leave out anything slower than a few minutes. `fix` holds the rewriting forms (formatters, `lint:fix`) that implementers run before committing. In a jmrsquared repo `fix` and `gate` together are `jmr-build-test-lint-gate`.
    - `testReports` writes JSON (Jest, Vitest) or JUnit XML (pytest `--junitxml`, gotestsum and most other runners) into `$JMR_RESULTS`, so status can show pass and fail per scenario.
    - `land` is `merge` unless the prompt says the owner merges it, which makes it `pr`.
    - `deploy` lists only deploy commands the prompt asked for, run after landing. Write a step that must never run twice (a seed, a one-off data fix, a release notification) as `{ "run": "<command>", "once": true }`: if a crash cuts it off, the owner decides whether it ran.
