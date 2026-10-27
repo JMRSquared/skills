@@ -45,7 +45,7 @@ The goal is to land the milestone in as few cycles as possible. A ticket is done
 | GitHub issues labelled `milestone:<slug>` | One per ticket plus one status issue (`jmr:status`) |
 | `<type>/<slug>-tNN-<title>` | Ticket branches. `claim` prints the name |
 
-`gate` commands check without rewriting files. `check` is the fast subset (typecheck, lint, the touched tests) that implementers and reviewers run on each pull request; without it they run typecheck, lint and the ticket's tests. `fix` commands (formatters, `lint:fix`) rewrite files; implementers run them before committing.
+`gate` commands check without rewriting files. `check` is the fast subset (typecheck, lint, the touched tests) that implementers and reviewers run on each pull request; without it they run typecheck, lint and the ticket's tests. `fix` commands (formatters, `lint:fix`) rewrite files; implementers run them before committing. In a Turborepo, `check` and `gate` set one shared `TURBO_CACHE_DIR` so worktrees reuse each other's results.
 
 ## The tool
 
