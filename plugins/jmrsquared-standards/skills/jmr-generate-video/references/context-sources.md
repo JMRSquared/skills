@@ -2,6 +2,8 @@
 
 The video is only as specific as this step. A promo built from the homepage alone sounds like every other promo. Read everything the user pointed at, then keep only what earns screen time.
 
+A code folder or a website on its own goes straight to brag (SKILL.md step 2). brag reads and reuses the real thing better than screenshots can. Use this file for images, PDFs, briefs and ideas. Use it for a website only when the site comes with them.
+
 Everything lands in `<out>/context/`. Never copy secrets, real customer names, emails or phone numbers of private people into it (a business's own public contact details are fine).
 
 ## Website URL
@@ -14,20 +16,20 @@ Everything lands in `<out>/context/`. Never copy secrets, real customer names, e
    npx hyperframes capture <url> --skip-vision -o <out>/context/capture
    ```
 
-   Then take screenshots of the other important pages (pricing, product, services, about, contact, any page with a strong visual) with whatever headless browser or screenshot tool the agent has. Match the viewport to the format:
-   - portrait: 430x932 at device scale 2 or 3, so UI text stays readable full-frame;
+   Then take screenshots of the other important pages (pricing, product, services, about, contact, any page with a strong visual) with whatever headless browser or screenshot tool the agent has. They are reference for layout and facts; the video reuses the site's real markup and CSS where it can. Match the viewport to the format:
+   - vertical: 430x932 at device scale 2 or 3, so UI text stays readable full-frame;
    - landscape: 1440x900 at scale 2;
    - square: 1080x1080.
 
    Capture the hero above the fold, then one screenshot per section worth showing. Dismiss cookie banners by declining non-essential cookies. Save to `<out>/context/screens/<page-slug>-<nn>.png`.
-4. **Strip trackers.** The capture keeps the site's own scripts. Before any captured HTML is reused in the composition, delete analytics, ad and session-replay code: Google Analytics / Tag Manager (`gtag`, `googletagmanager`), Meta pixel (`fbq`, `connect.facebook.net`), Hotjar, Microsoft Clarity, Segment, PostHog, Plausible, Umami, Mixpanel, TikTok and LinkedIn pixels, chat widgets and cookie-consent loaders. Keep fonts, images and CSS.
+4. **Strip trackers** from captured HTML before it is reused (the list is in SKILL.md, local-only rules).
 5. **Brand.** Pull logo (SVG first), CSS custom properties for colors, font families and the favicon. Note the photography style.
 
 ## Images (photos, screenshots, logos, flyers)
 
 1. Copy each into `<out>/context/images/` with a descriptive name.
 2. Look at every image. Record what it shows, any text in it, its orientation and pixel size (`ffprobe -v error -show_entries stream=width,height <file>`).
-3. Mark which ones work full-frame in the requested format and which need a crop, a device frame or a blurred-fill background. Never stretch.
+3. Mark which ones work full-frame in the requested format and which need a crop, a device frame or a blurred-fill background. Never stretch. Cut out logos and products cleanly so scenes can move them as layers.
 4. A logo image goes in the brand section; a flyer or menu gets its text transcribed into the fact sheet.
 
 ## PDF (business profile, deck, brochure, menu)
@@ -37,12 +39,6 @@ Everything lands in `<out>/context/`. Never copy secrets, real customer names, e
 3. Look at every page image. Note pages with product photos, team or premises photos, charts, the logo and the brand colors.
 4. Crop strong visuals out of pages (`ffmpeg -i page.png -vf "crop=w:h:x:y" out.png`) rather than showing a whole PDF page, which is unreadable on a phone.
 5. Business profiles often have registration numbers, BEE levels, client lists and certifications. Use only what the user would want public. Quote them exactly.
-
-## Source code (a project folder or repo)
-
-1. Follow brag's `references/step-1-inspect.md` as written, including its skip list and its no-secrets rule. Never open `.env*` or key files.
-2. If the project runs locally with a documented dev command and the user's message or the README makes it plain how, start it, take screenshots of the real screens (entry, key action, result) at the format viewport and stop the server afterwards. Do not install or run anything the README does not describe.
-3. When it cannot run, build scenes from the real markup and styles instead of inventing UI.
 
 ## Written brief or pasted text
 
@@ -56,7 +52,7 @@ The user's words are the only source. Describe the product in the present tense 
 2. **No name given:** use a plain descriptive working title and flag it in the defaults note ("working title: ..., tell me the real name").
 3. **No call to action given:** use an invitation that needs no link ("Spaza shop owners, it's time to buy together") plus whatever handle, email or site the user did give. "Coming soon" only in prelaunch mode. Never make up a URL, phone number, store listing, price or launch date.
 4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font, a wordmark of the working name set in the display font. Pick fonts Hyperframes bundles so the render needs no font download: Archivo Black, Montserrat, Oswald, League Gothic, Space Mono, IBM Plex Mono or JetBrains Mono (see `hyperframes-creative` → `references/typography.md`). Reuse any logo, colors or fonts the user did provide.
-5. Write the shot list as **planned visuals**, one per idea in the script, chosen from section 9 of brag-overrides.md. Note which ones need a stock photo.
+5. Write the shot list as **planned visuals**, one per beat, chosen from section 4 of brag-overrides.md. Note which ones need a stock photo.
 
 ## Several sources at once
 

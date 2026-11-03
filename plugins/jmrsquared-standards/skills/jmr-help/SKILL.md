@@ -36,7 +36,7 @@ version: 1.0.0
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
 - `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
 - `jmr-logo-design`: logo, wordmark, app icon or favicon from brief to SVG kit, with a concept checkpoint; `/premium-web-design` uses it when the brand has no logo; `/jmr-logo-design`.
-- `jmr-generate-video`: narrated promo video from a URL, images, PDF, code or brief, rendered locally; `/jmr-generate-video`.
+- `jmr-generate-video`: narrated portrait launch video from code, a URL, images, a PDF or a brief, directed by audited brag and rendered locally; `/jmr-generate-video`.
 - `jmr-survey-form`: customer discovery survey as a Google Form, built in your own Google account; `/jmr-survey-form`.
 - `jmr-file-share`: copy files into mounted shared storage (`JMR_SHARE_ROOT`, default `/mnt/tank/media/herdr`) so other devices can open them; on demand only.
 
@@ -53,7 +53,7 @@ version: 1.0.0
 - `gltf-assets` — `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs.
 - `jmr-image` — `/jmr-image` — Unsplash then Pexels photography search + download.
 - `jmr-logo-design`: `/jmr-logo-design`: three tested logo concepts, then the kit for the one you pick.
-- `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local promo video with voiceover via audited, pinned brag + Hyperframes.
+- `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local launch video via audited, pinned brag + Hyperframes, portrait with a Kokoro voiceover by default.
 - `jmr-survey-form`: `/jmr-survey-form`: 10-question discovery survey and pilot sign-up form, with the promo video on top.
 
 **Slash commands (where the agent supports them):**
@@ -68,7 +68,7 @@ version: 1.0.0
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com.
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
-- `/jmr-generate-video` or `/generate-video`: narrated promo video, portrait or landscape, female or male voice.
+- `/jmr-generate-video` or `/generate-video`: catchy narrated launch video, portrait by default; say landscape, male voice or no voice to change it.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form.
 - `/jmr-logo-design`: design a logo, favicon and web icons.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
