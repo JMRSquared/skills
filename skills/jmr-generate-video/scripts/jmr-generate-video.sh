@@ -3,7 +3,7 @@
 #
 #   jmr-generate-video.sh setup [--no-voice]
 #                                      fetch + verify + audit brag, disable telemetry, build the
-#                                      local Kokoro voice env, print export lines for eval
+#                                      local Kokoro voice env (skipped with --no-voice), print export lines for eval
 #   jmr-generate-video.sh env          print the export lines again (no fetch); use in each new shell
 #   jmr-generate-video.sh audit [DIR]  re-run the audit on a brag checkout
 #   jmr-generate-video.sh doctor       check node, ffmpeg, git, hyperframes, pdftoppm
@@ -179,7 +179,7 @@ cmd_doctor() {
   else echo "FAIL  hyperframes CLI not runnable via npx"; ok=0; fi
   if voice_ready; then echo "ok    kokoro voice env ($VOICE_VENV)"
   elif command -v uv >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then echo "warn  kokoro voice env not built yet; setup builds it"
-  else echo "FAIL  no uv or python3; voiceover needs one"; ok=0; fi
+  else echo "warn  no uv or python3; only a voiceover needs one"; fi
   [ "$ok" = 1 ] || exit 1
 }
 

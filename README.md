@@ -60,7 +60,7 @@ Two tiers.
 | `gltf-assets` | Searching or downloading glTF/GLB (Sketchfab + Poly Haven) and HDRIs for R3F / `/premium-web-design` |
 | `jmr-image` | Searching or downloading photography — Unsplash then Pexels (commercial-safe), pngimg fallback for cutouts |
 | `jmr-logo-design` | Asking for a logo, wordmark, monogram, app icon or favicon, or a critique or redesign of one. `/premium-web-design` also runs it when the brand has no logo |
-| `jmr-generate-video` | Asking for a promo, launch or explainer video with a voiceover |
+| `jmr-generate-video` | Asking for a promo, launch or explainer video |
 | `jmr-survey-form` | Asking for a customer discovery survey, pilot sign-up form or Google Form about your product |
 | `jmr-file-share` | Asking to put a file "on the NAS", "on tank" or "on the share", or to open something from another device. Copies it into your mounted shared storage (default `/mnt/tank/media/herdr`, set with `JMR_SHARE_ROOT`), keeping its place in the project. Leaves out `.git`, `node_modules`, build output, `.env` files and keys. Asks before copying more than 5 GB. Never moves or deletes. Machine-specific rules go in `~/.config/jmr-file-share/notes.md`, outside the repo |
 
@@ -80,7 +80,7 @@ Two tiers.
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
 | `jmr-logo-design` | `/jmr-logo-design`: designs a logo from brief to production SVG files. Shows three tested concepts and waits for your pick before it builds the kit (lockups, one-colour and reversed versions, favicon, app and web icons, guidelines). Adapted from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill) (MIT). Its library of 1,432 real logos is for study only and downloads on first use from a pinned commit. Needs Python 3 and git |
-| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a narrated promo video made on your machine from a website, images, a PDF, source code, a brief or an idea with nothing built yet. Female or male voice, portrait or landscape. Runs [brag](https://github.com/latent-spaces/brag) pinned to an audited commit with telemetry off |
+| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a short, catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. About 20 seconds with music by default; ask for a voiceover or a longer explainer when you want one |
 | `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
 
 ---
@@ -251,7 +251,7 @@ In any Claude Code session once installed:
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
-- `/jmr-generate-video` (or `/generate-video`): make a promo video. Example: `/generate-video for https://example.com, portrait, upbeat female voice, don't rush the screenshots`. Point it at images, a business profile PDF or a code folder in place of a URL. Needs Node 22+, FFmpeg and git; the Hyperframes CLI and the Kokoro voice model download on first run.
+- `/jmr-generate-video` (or `/generate-video`): make a launch video. Run it with nothing else in a project folder, or point it at a URL, images, a business profile PDF or an idea. Add direction in plain words: `/generate-video vertical, chaotic tone` or `/generate-video for https://example.com as a 45-second explainer with a female voiceover`. Needs Node 22+, FFmpeg and git; the Hyperframes CLI downloads on first run, plus the Kokoro voice model if you ask for a voiceover.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form. You sign in to Google and approve its permissions yourself; the agent never does either for you.
 - `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; without either the script falls back to pngimg, which is CC BY-NC.
 

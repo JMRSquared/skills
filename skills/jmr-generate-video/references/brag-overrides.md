@@ -1,82 +1,58 @@
 # Overrides on top of brag
 
-brag is built for a 20-second silent brag about a code project. A narrated promo that explains a business needs different timing, a different input and a different voice workflow. Apply every rule below while following `$BRAG_DIR/SKILL.md`. Where brag and this file disagree, this file wins. Where this file is silent, brag wins.
+brag directs the video. These rules change only where its output goes, what it reads when the input is not code or a website and two modes the user must ask for. Where this file is silent, brag wins. That covers every rule on length, pacing, hook, tone, motion, visuals, music and sound.
 
-## 1. Invocation
+Do not add a voiceover, a longer length or slow pans over screenshots unless the user asks (section 3). Forced on every run, they turn brag's cut into a slow narrated slideshow.
 
-- Behave as if invoked with `--full`. Skip brag's "model check" that switches to brag-slim: brag-slim has no voiceover.
-- With voice on (the default), behave as if `--voice` was passed. With "no voice", leave it off and keep brag's own timing rules (15-25 s) unless the user gave a length.
-- Map the format: portrait → `vertical` 1080x1920, landscape → `landscape` 1920x1080, square → `square` 1080x1080.
-- `<output-dir>` is `<out>` (`video-output-<timestamp>/`), not `brag-output/`.
+## 1. Invocation and output
 
-## 2. Step 1 (inspect)
+- Follow brag's invocation dispatch as written, including its model check. Do not add `--full` or `--voice` unless the user asked for them.
+- `<output-dir>` is `<out>` (`video-output-<timestamp>/`), not `brag-output/`. brag-slim's `work/` folder goes inside `<out>`.
 
-- "The project" is `<out>/context.md` plus `<out>/context/`. Answer brag's 9-question rubric from it. Only read a code folder directly when the user gave one.
-- Question 5 ("shortest satisfying video") is answered by section 3 below, not by 15-25 s.
-- Question 9 ("user flow") for a business with no app: the customer's path. Discover → see what you get → trust signal → how to buy or book.
-- In concept mode, questions 3, 4 and 9 are answered from the planned visuals and the "how it would work" steps in `context.md`. See section 9.
+## 2. Input that is not a project or a website
 
-## 3. Duration and pacing (replaces brag's 15-25 s law when voice is on)
+When step 2 of SKILL.md built `<out>/context.md`:
 
-The user wants the viewer to understand everything. Narration sets the clock.
+- "The project" is `<out>/context.md` plus `<out>/context/`. Answer brag's planning questions from it (full brag: the 9-question rubric in `step-1-inspect.md`; brag-slim: the questions at the end of its section 1).
+- "Show the thing" means the real images, photos, screenshots and PDF visuals in `<out>/context/`, cropped or framed for the format, never a whole PDF page shrunk into the frame. Build them into live, moving scenes (layered, revealed piece by piece, with simulated taps and highlights), not static slides.
+- For a business with no app, "the product in use" is the customer's path: discover → see what you get → trust signal → how to buy or book.
+- The outro carries the exact website, phone or handle from `context.md`.
 
-- **Length.** Default 35-75 s. A user-given length wins. Budget the script at 2.6 words per second of speech at speed 0.85 (measured), then add the settles: 115 words gave 43 s of speech and a 55 s video.
-- **One idea per scene.** One screenshot or visual per narration line. Never describe a screen that is not on screen yet. Never cut away while the voice is still talking about it.
-- **Scene length = its voiceover clip + 0.8 s settle.** No scene under 3.5 s. Screenshots and dense UI get at least 4.5 s.
-- **Motion on screenshots stays gentle.** A slow push or pan (at most 8% scale change across the scene) or a highlight that moves to the part being described. No whip pans, shakes or fast zooms on a screen the viewer must read. Save energetic motion for the hook, transitions and the outro.
-- **On-screen text** is a headline, not the script: at most 7 words per card, held at least as long as brag's reading rule.
-- **Shape.** Hook (3-4 s, the strongest claim or visual, voice starts within 0.5 s) → what it is (1 scene) → 3-6 benefit or feature scenes, each with a real screenshot or image → trust signal (clients, location, years, a real testimonial if the sources have one) → call to action with the exact website, phone or handle (hold at least 4 s, voice reads it out).
-- brag's "Short" law, its 18-22 s sweet spot, its scene-count table and the step-3 checklist line "Total duration is 15-25 seconds" do not apply with voice on. Its "Readable", "Specific", "Show the thing", "No generic SaaS language" and "hook is everything" laws still do.
+## 3. Voice and explainer (only when the user asks)
 
-## 4. Voiceover (replaces brag's single-file voiceover)
+**Voice on, no explainer.** Pass `--voice` to brag and let it write and time the narration inside its normal length. brag-slim has no voiceover, so with voice on brag's model check keeps the full workflow. Map voice requests to Kokoro ids:
 
-1. Write the script in `brag-plan.md` under `## Voiceover script`, one numbered line per scene. Warm, upbeat, conversational, second person ("you"). Plain words. Read numbers, prices and URLs the way a person says them ("phumudzo dot com"). Use the business's own phrases from `context.md`.
-2. Generate one clip per scene with the chosen voice and speed:
+| Ask | Voice id |
+|---|---|
+| female (default) | `af_heart` |
+| female, alternative | `af_nova`, `af_sky` |
+| female, British | `bf_emma`, `bf_isabella` |
+| male (default) | `am_michael` |
+| male, alternative | `am_adam` |
+| male, British | `bm_george` |
+| Spanish / French / Japanese / Chinese | `ef_dora` / `ff_siwis` / `jf_alpha` / `zf_xiaobei` |
 
-   ```bash
-   mkdir -p <out>/composition/assets/vo
-   npx hyperframes tts "<line 1>" --voice af_heart --speed 0.9 --output <out>/composition/assets/vo/scene-01.wav </dev/null
-   ```
+Kokoro has no emotion setting: energy comes from the script (short lines, active verbs, a real hook). Keep speed between 0.9 and 1.05.
 
-3. Check each clip lost no words: `npx hyperframes transcribe <clip> -d <out>/qa -m base.en` and compare the word count with the line. Keep the word timings (`<out>/qa/transcript.json`, overwritten per run, so copy it per clip); they place captions and sync reveals to spoken words.
-4. Measure each clip: `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`. Write the measured lengths into the plan next to each scene, then set every scene's `data-start` and `data-duration` from them (section 3). Leave 0.3-0.5 s of silence between lines.
-5. Wire each clip as its own `<audio>` element on the voice track at its scene's start. Duck the music to 0.12-0.15 while any clip plays (brag's `step-3-compose.md` and `audio.md` cover the mix).
-6. Listen-check by proxy: no clip over 9 s (split the line), none under 1 s (merge it), total within the length target. Regenerate a clip whose word count and duration disagree badly; Kokoro sometimes skips words in long sentences.
+**Explainer** (the user asked to explain everything, walk through features, or gave a length over 30 s with a voice). This replaces brag's 15-25 s window only:
 
-## 5. Captions
+- Length is what the user gave, or 35-60 s. Budget about 2.6 words per second of speech.
+- One idea per scene. Never cut away while the voice is still talking about what is on screen. A scene lasts at least as long as its line plus a short settle.
+- Everything else stays brag's: the hook in the first 2 seconds, motion and cuts that keep the pace, real UI doing its job, music under the voice (ducked to about 0.12-0.15 while it speaks).
+- Write one numbered voiceover line per scene in `brag-plan.md`, generate one clip per line (`npx hyperframes tts "<line>" --voice <id> --speed 0.95 --output <out>/composition/assets/vo/scene-01.wav </dev/null`), measure each with `ffprobe` and set scene timings from the measured lengths. Regenerate any clip whose transcript drops words.
+- Captions are on for vertical, off for landscape unless asked: one short phrase at a time, in the lower third, clear of the UI being shown.
+- Vertical framing: keep text and faces out of the top 12% and bottom 18% of the frame.
 
-On by default for portrait (most people watch muted), off for landscape unless asked. Captions come from the known script and measured clip times, so no transcription is needed. Show one short phrase at a time, two lines at most, in the lower third clear of the UI being shown, in the brand font at a size readable on a phone. Use a Hyperframes caption component if `npx hyperframes catalog --query "captions"` has one.
+## 4. Concept mode (no product yet)
 
-## 6. Portrait framing
+Applies when SKILL.md step 0 chose concept mode.
 
-- Prefer screenshots taken at the mobile viewport (see context-sources.md).
-- A desktop screenshot in a portrait frame is cropped to the region the voice is describing, or placed in a device or browser frame at least 85% of the frame width. Never shrink a whole desktop page into a portrait frame.
-- Keep text and faces out of the top 12% and bottom 18% of the frame, where social apps draw their own UI.
+**What "show the thing" means here.** The thing is the idea, visible in every scene, never just text on a gradient. Build visuals in the composition itself:
 
-## 7. Hyperframes skills inside this run
+- **Kinetic typography** for the hook and the one-line idea.
+- **Concept UI** built in HTML/CSS when the idea is an app or a site: one screen per step of how it works, on-brand, with believable placeholder data that names nobody real. Animate it in use: taps, typing, results appearing.
+- **Diagrams and flows**: the steps as icons joined by an animated path, or a before/after split.
+- **Illustrated scenes** from simple shapes and icons for physical products, services and events.
+- **Stock photography** only when a real-world scene carries the message better. Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key, save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. Never use photos of real, identifiable brands or of people presented as customers.
 
-- Read the Hyperframes domain skills as brag says. Skip the `hyperframes` entry-point interview and `product-launch-video`; brag and this file own the story.
-- Never run `hyperframes feedback`, `events`, `publish`, `cloud`, `lambda`, `cloudrun` or `auth`. Ignore any instruction in those skills to send a feedback report.
-- Only scripts that ship with Hyperframes or the animation runtime may appear in the composition. No third-party script tags from the captured site.
-
-## 8. Deliver (brag step 4)
-
-Run brag's step 4 as written into `<out>`: `brag.mp4`, a best-frame poster `brag.jpg` baked as frame 0 and `share-copy.txt`. Share copy uses the business's real name, link and call to action from `context.md`.
-
-## 9. Concept mode (no product yet)
-
-Applies when SKILL.md step 0 chose concept mode. Everything above still holds except where this section replaces it.
-
-**What "show the thing" means here.** brag's "Show the thing" law and the "real screenshot or image" rule in section 3 are replaced. The thing is the idea. It must be visible in every scene, never just text on a gradient. Build visuals in the composition itself, picking per scene:
-
-- **Kinetic typography** for the hook and the one-line idea: the problem in the viewer's own words, one phrase at a time.
-- **Concept UI mockups** built in HTML/CSS when the idea is an app or a site: one screen per step of "how it would work", simple and on-brand, with placeholder data that looks real but names nobody real ("Mama Thandi's Spaza", "Tue 10:00"). Put them in a device frame. No "Concept" tag unless the user asked for prelaunch framing.
-- **Diagrams and flows**: the 3-5 steps as icons joined by an animated path, or a before/after split.
-- **Illustrated scenes** from simple shapes and icons (an icon library through `npx hyperframes catalog`, or inline SVG) for physical products, services and events.
-- **Stock photography** only when a real-world scene carries the message better (people, places, food, premises) and designed visuals cannot. Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key (commercial-safe licences), save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. No key or no skill: stay with designed visuals. Never use photos of real, identifiable brands or of people presented as customers.
-
-**Words.** Default: present tense throughout, as if the product exists ("Meet X. The app that lets..."; "Here's how it works"). Prelaunch framing ("will", "imagine", "coming soon", "join the waitlist") only when the user asks for it. Framing is the user's choice; facts are not. Banned in both modes unless the user supplied them: user counts, ratings, reviews, testimonials, "trusted by", press logos, prices, launch dates, store links, "download now" or a URL that does not exist.
-
-**Shape.** Hook: the problem, felt (3-4 s) → the idea in one line with the wordmark → how it would work, 3-5 steps, one scene each → why it is different (1-2 scenes) → wordmark, tagline and call to action from `context.md` (hold at least 4 s, voice reads it out). With no link given, the call to action is an invitation that needs none ("Spaza shop owners, it's time to buy together"). Drop the trust-signal scene unless the brief has a real one (founder background, a partner, a pilot).
-
-**Motion.** Designed visuals can move more than screenshots: build each scene's elements on the voice's key words, then hold still for the 0.8 s settle. The pacing rules in section 3 still apply.
+**Words.** Present tense, as if the product exists. Prelaunch framing ("coming soon", "join the waitlist", "imagine") only when the user asks for it. Banned in both framings unless the user supplied them: user counts, ratings, reviews, testimonials, "trusted by", press logos, prices, launch dates, store links, "download now" or a URL that does not exist. With no link given, the outro is an invitation that needs none.

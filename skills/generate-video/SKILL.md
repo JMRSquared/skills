@@ -1,6 +1,6 @@
 ---
 name: generate-video
-description: Short alias for /jmr-generate-video. Generates a narrated promo video locally from a URL, images, a PDF, source code or a brief. Slash-command only; agents without slash support should load ../jmr-generate-video/SKILL.md directly and follow it.
+description: Short alias for /jmr-generate-video. Generates a short, catchy launch video locally from source code, a URL, images, a PDF or a brief, directed by audited brag. Slash-command only; agents without slash support should load ../jmr-generate-video/SKILL.md directly and follow it.
 version: 1.0.0
 ---
 
