@@ -1,12 +1,12 @@
 # Overrides on top of brag
 
-brag directs the video. These rules change only where its output goes, what it reads when the input is not code or a website and two modes the user must ask for. Where this file is silent, brag wins. That covers every rule on length, pacing, hook, tone, motion, visuals, music and sound.
+brag directs the video. These rules change only four things: where its output goes, what it reads when the input is not code or a website, the voiceover (with the length and captions it brings) and concept mode. Where this file is silent, brag wins. That covers every rule on hook, tone, motion, visuals, music and sound.
 
-Do not add a voiceover, a longer length or slow pans over screenshots unless the user asks (section 3). Forced on every run, they turn brag's cut into a slow narrated slideshow.
+The voiceover rides on brag's cut. A narrated video that slows down to fit its voice (long holds, slow pans over one screenshot, a scene per sentence) comes out as a slideshow, which is the failure this file exists to prevent.
 
 ## 1. Invocation and output
 
-- Follow brag's invocation dispatch as written, including its model check. Do not add `--full` or `--voice` unless the user asked for them.
+- Follow brag's invocation dispatch as written, including its model check, but never pass `--voice` (this skill adds the voice in section 3) and never add `--full` unless the user asked for it. On Opus 5.5 that runs brag-slim.
 - `<output-dir>` is `<out>` (`video-output-<timestamp>/`), not `brag-output/`. brag-slim's `work/` folder goes inside `<out>`.
 
 ## 2. Input that is not a project or a website
@@ -18,30 +18,44 @@ When step 2 of SKILL.md built `<out>/context.md`:
 - For a business with no app, "the product in use" is the customer's path: discover → see what you get → trust signal → how to buy or book.
 - The outro carries the exact website, phone or handle from `context.md`.
 
-## 3. Voice and explainer (only when the user asks)
+## 3. Voiceover, length and captions (on by default)
 
-**Voice on, no explainer.** Pass `--voice` to brag and let it write and time the narration inside its normal length. brag-slim has no voiceover, so with voice on brag's model check keeps the full workflow. Map voice requests to Kokoro ids:
+Skip this section when the user said "no voice"; brag's own length and timing then stand.
+
+**Length.** Start from brag's shape and its 15-25 s window. Go past 25 s only when the story has more beats worth telling (more features, a flow with more steps) and each added beat puts something new on screen. Up to 45 s by default, or the length the user gave. Never stretch a beat to fit a sentence: shorten the sentence.
+
+**Script.** Write it in `brag-plan.md` under `## Voiceover`, one line per storyboard beat, while planning, so the storyboard and the voice are made together:
+
+- The hook line starts within 0.3 s of the first frame. Short, spoken sentences; active verbs; second person; the project's own words. Kokoro has no emotion setting, so energy comes from the writing.
+- The voice adds what the picture cannot say on its own. It never reads on-screen text word for word.
+- Budget about 2.8 words per second at speed 1.0. A beat's line ends before the cut out of that beat.
+- Say names, URLs and commands the way a person would ("jmr squared standards", "github dot com slash ...").
+- The outro line names the call to action shown on screen.
+
+**Clips.** One clip per line with the chosen voice:
+
+```bash
+mkdir -p <out>/composition/assets/vo
+npx hyperframes tts "<line>" --voice af_heart --speed 1.0 --output <out>/composition/assets/vo/vo-01.wav </dev/null
+```
+
+Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`, then set beat lengths from brag's plan and the clips together: a beat lasts its clip plus about 0.3 s, or brag's planned length if that is longer. Transcribe each clip (`npx hyperframes transcribe <clip> -d <out>/qa -m base.en`) and regenerate any that dropped words. Keep speed between 0.95 and 1.1.
 
 | Ask | Voice id |
 |---|---|
 | female (default) | `af_heart` |
 | female, alternative | `af_nova`, `af_sky` |
 | female, British | `bf_emma`, `bf_isabella` |
-| male (default) | `am_michael` |
+| male | `am_michael` |
 | male, alternative | `am_adam` |
 | male, British | `bm_george` |
 | Spanish / French / Japanese / Chinese | `ef_dora` / `ff_siwis` / `jf_alpha` / `zf_xiaobei` |
 
-Kokoro has no emotion setting: energy comes from the script (short lines, active verbs, a real hook). Keep speed between 0.9 and 1.05.
+**Mix.** Each clip is its own `<audio>` with an `id`, on the voice track at its beat's start. The music ducks to about 0.15 of its level while the voice speaks and comes back up between lines and under the end card; effects stay, a little lower. The voice is the loudest thing in the mix.
 
-**Explainer** (the user asked to explain everything, walk through features, or gave a length over 30 s with a voice). This replaces brag's 15-25 s window only:
+**Captions** (on for vertical and square, off for landscape unless asked): built from the script and the clip timings, one short phrase at a time, at most two lines, in the brand's text face, placed in the lower third clear of the UI being shown. The words light up as they are spoken when the transcript has word timings.
 
-- Length is what the user gave, or 35-60 s. Budget about 2.6 words per second of speech.
-- One idea per scene. Never cut away while the voice is still talking about what is on screen. A scene lasts at least as long as its line plus a short settle.
-- Everything else stays brag's: the hook in the first 2 seconds, motion and cuts that keep the pace, real UI doing its job, music under the voice (ducked to about 0.12-0.15 while it speaks).
-- Write one numbered voiceover line per scene in `brag-plan.md`, generate one clip per line (`npx hyperframes tts "<line>" --voice <id> --speed 0.95 --output <out>/composition/assets/vo/scene-01.wav </dev/null`), measure each with `ffprobe` and set scene timings from the measured lengths. Regenerate any clip whose transcript drops words.
-- Captions are on for vertical, off for landscape unless asked: one short phrase at a time, in the lower third, clear of the UI being shown.
-- Vertical framing: keep text and faces out of the top 12% and bottom 18% of the frame.
+**Vertical framing.** The canvas is 1080x1920. Keep text and faces out of the top 12% and bottom 18%, where apps draw their own UI. Rebuild product UI to fill the width at phone-readable size (text at least 28 px); never shrink a landscape layout into the middle of a tall frame.
 
 ## 4. Concept mode (no product yet)
 

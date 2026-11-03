@@ -80,7 +80,7 @@ Two tiers.
 | `gltf-assets` | `/gltf-assets` — search + download glTF/GLB (Sketchfab + Poly Haven) and HDRIs |
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
 | `jmr-logo-design` | `/jmr-logo-design`: designs a logo from brief to production SVG files. Shows three tested concepts and waits for your pick before it builds the kit (lockups, one-colour and reversed versions, favicon, app and web icons, guidelines). Adapted from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill) (MIT). Its library of 1,432 real logos is for study only and downloads on first use from a pinned commit. Needs Python 3 and git |
-| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a short, catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. About 20 seconds with music by default; ask for a voiceover or a longer explainer when you want one |
+| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a short, catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. Portrait with a friendly local voiceover, music and captions by default, about 20-45 seconds depending on how much there is to show; say "landscape", "male voice" or "no voice" to change it |
 | `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
 
 ---
@@ -251,7 +251,7 @@ In any Claude Code session once installed:
 - `/npm-local-publish` — publish to npm via Dia + TTY when Trusted Publishing is unavailable.
 - `/pngimg-assets` — search and download transparent PNGs from pngimg.com (CC BY-NC gate).
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
-- `/jmr-generate-video` (or `/generate-video`): make a launch video. Run it with nothing else in a project folder, or point it at a URL, images, a business profile PDF or an idea. Add direction in plain words: `/generate-video vertical, chaotic tone` or `/generate-video for https://example.com as a 45-second explainer with a female voiceover`. Needs Node 22+, FFmpeg and git; the Hyperframes CLI downloads on first run, plus the Kokoro voice model if you ask for a voiceover.
+- `/jmr-generate-video` (or `/generate-video`): make a launch video. Run it with nothing else in a project folder, or point it at a URL, images, a business profile PDF or an idea. Add direction in plain words: `/generate-video chaotic tone, male voice` or `/generate-video for https://example.com, landscape, no voice`. Needs Node 22+, FFmpeg, git and Python 3; the Hyperframes CLI and the Kokoro voice model download on first run.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form. You sign in to Google and approve its permissions yourself; the agent never does either for you.
 - `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; without either the script falls back to pngimg, which is CC BY-NC.
 
