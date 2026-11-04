@@ -52,7 +52,7 @@ The user's words are the only source. Describe the product in the present tense 
 2. **No name given:** use a plain descriptive working title and flag it in the defaults note ("working title: ..., tell me the real name").
 3. **No call to action given:** use an invitation that needs no link ("Spaza shop owners, it's time to buy together") plus whatever handle, email or site the user did give. "Coming soon" only in prelaunch mode. Never make up a URL, phone number, store listing, price or launch date.
 4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font, a wordmark of the working name set in the display font. Pick fonts Hyperframes bundles so the render needs no font download: Archivo Black, Montserrat, Oswald, League Gothic, Space Mono, IBM Plex Mono or JetBrains Mono (see `hyperframes-creative` → `references/typography.md`). Reuse any logo, colors or fonts the user did provide.
-5. Write the shot list as **planned visuals**, one per beat, chosen from section 4 of brag-overrides.md. Note which ones need a stock photo.
+5. Write the shot list as **planned visuals**, one per beat, chosen from section 5 of brag-overrides.md. Note which ones need a stock photo.
 
 ## Several sources at once
 
