@@ -44,7 +44,7 @@ Two tiers.
 | `knex-migration` | Knex migration edits |
 | `kysley-db` | Kysely DB/repository/query code |
 | `react-tsx-component` | `.tsx` component edits |
-| `premium-web-design` | Marketing / product / landing pages. One workflow every time: art-directed brand world, scroll story (`kit/story.js`), and the audit in `full.md` (also `/premium-web-design`) |
+| `premium-web-design` | Marketing / product / landing pages. Builds the page around one realistic object you can play with, in a calm frame with very few words (also `/premium-web-design`) |
 | `better-auth` | Better Auth config, routes, adapters, client |
 | `supabase` | Supabase client, RLS, SQL policies, Storage, Realtime |
 | `supabase-auth` | Supabase Auth flows, guards, session + profile loading |
@@ -71,7 +71,7 @@ Two tiers.
 |-------|-----|
 | `agents-execute` | `/agents-execute`: hand off a mission, or just `/agents-execute lets build` to build the repo's own spec. Writes the spec and tickets, opens them as GitHub issues on a new `milestone/<slug>` branch, then runs `/jmr-cycle` on a loop until that branch is merged into main. Inside Herdr you watch every cycle in its own pane. With the [savvy-progress](https://github.com/johnnyvizz/claude-kit/tree/main/plugins/savvy-progress) mod in Claude Code, a progress bar above the prompt counts tickets merged. Needs a GitHub repository |
 | `jmr-cycle` | `/jmr-cycle <slug>`: moves a milestone forward one step: parallel agents build ready tickets on their own branches, a separate reviewer agent checks that each feature works before it merges into `milestone/<slug>`. Style suggestions never block a merge. Status is posted to a GitHub issue. Safe to repeat: its loop runner starts every cycle in a fresh session, so a long build never fills one agent's memory. If a run crashes, the next one picks up its tickets, branches and deploy steps where it stopped |
-| `premium-web-design` | `/premium-web-design` — one workflow on every run: art direction, scroll story (`kit/story.js`) and `full.md` (studies, contract, audit). WebGL and 3D are extra tools inside that workflow when the brief needs them (also Tier 2 auto-fire). References cover the scroll story (`scroll-story.md`), grammars and signature move (`structure-axis.md`), feeling curve (`feeling-curve.md`), hero depth (`hero-depth.md`), photography preambles (`worlds.md`) and browser surfaces (`browser-surfaces.md`) |
+| `premium-web-design` | `/premium-web-design`: finds the physical thing your business would be if you could hold it, such as a wheel you flick or a machine you explore. Then it builds the page around that thing. It looks real and responds like the real thing, with one plain typeface and very few words around it. It never invents facts. When you ask it to remove text it deletes it. Uses real photos, 3D or generated scenes when a generation tool is available (also Tier 2 auto-fire) |
 | `jmr-commit` | `/jmr-commit` — [Gitmoji](https://gitmoji.dev/) + Conventional Commits + branch/stage confirm |
 | `jmr-review` | `/jmr-review` — audit current diff against every skill |
 | `jmr-help` | `/jmr-help` — quick-reference card |
@@ -82,7 +82,7 @@ Two tiers.
 | `jmr-image` | `/jmr-image` — search + download photography from Unsplash, Pexels, and pngimg |
 | `jmr-logo-design` | `/jmr-logo-design`: designs a logo from brief to production SVG files. Shows three tested concepts and waits for your pick before it builds the kit (lockups, one-colour and reversed versions, favicon, app and web icons, guidelines). Adapted from [logo-design-skill](https://github.com/kaankiziltug/logo-design-skill) (MIT). Its library of 1,432 real logos is for study only and downloads on first use from a pinned commit. Needs Python 3 and git |
 | `jmr-unslop` | `/jmr-unslop`: finds what makes a screen look AI-generated, proposes one direction from your product and waits for your answer, then fixes spacing, color, icons, copy, type, layout, details, visuals and motion in that order. Works on dashboards, apps and landing pages. It also works on a live site from its link. |
-| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a short, catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. Portrait with a friendly local voiceover, music and captions by default, about 20-45 seconds depending on how much there is to show; say "landscape", "male voice" or "no voice" to change it |
+| `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. Portrait with a friendly local voiceover, music, sound effects and captions by default, usually 45-90 seconds depending on how much there is to show; say "landscape", "male voice" or "no voice" to change it |
 | `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
 
 ---
@@ -186,7 +186,7 @@ Auto-activates via `GEMINI.md` context file every session.
 | Cline | `npx skills add jmrsquared/skills -a cline` | `.clinerules/jmrsquared.md` |
 | Copilot | `npx skills add jmrsquared/skills -a github-copilot` | `.github/copilot-instructions.md` + `AGENTS.md` |
 
-Each install copies the whole skill folder, including `premium-web-design/kit/`. Re-run after upgrading so default-mode scroll stories keep the runtime. The always-on rule body states that `/premium-web-design` defaults to a `kit/story.js` scroll story on every harness.
+Each install copies the whole skill folder, including `premium-web-design/kit/`. Re-run after upgrading so default-mode scroll stories keep the runtime. The always-on rule body states that `/premium-web-design` wires scroll through `kit/story.js` on every harness.
 
 Uninstall: `npx skills remove jmrsquared-standards`
 
@@ -246,7 +246,7 @@ In any Claude Code session once installed:
 - `/jmr-help` — see the full skill catalogue.
 - `/jmr-review` — review your current branch's diff against every skill.
 - `/jmr-commit` — generate a Gitmoji + Conventional Commits message and echo the branch/stage confirmation.
-- `/premium-web-design` — art-directed landing page as a scroll story (`kit/story.js`). If the brand has no logo, it designs one with `/jmr-logo-design` first.
+- `/premium-web-design`: a landing page built around one realistic object you can play with. If the brand has no logo, it designs one with `/jmr-logo-design` first.
 - `/jmr-logo-design`: design a logo. Example: `/jmr-logo-design for Loafwright, a sourdough bakery, warm and a little nerdy`. It shows three concepts as one image and builds the full kit only for the one you pick.
 - `/jmr-unslop`: fix a screen that looks AI-generated. Example: `/jmr-unslop the billing dashboard`. It shows what it found and the direction it proposes, then waits for your answer before it edits.
 - `/agents-execute`: hand off a mission and walk away. Type an objective, or `/agents-execute lets build` to build the spec already in the repo. The agent writes a spec, splits it into a few feature or bug-fix tickets, opens each ticket as a GitHub issue and creates a `milestone/<slug>` branch. It then runs `/jmr-cycle` on a loop until that branch is merged into main. It only asks you about money, migrations on shared databases, legal questions and work that would contradict the spec. The project must be on GitHub; anywhere else it stops and says so. It follows Matt Pocock's `/to-spec` and `/to-tickets` when you have them: `npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets -g`.
