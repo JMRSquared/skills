@@ -83,10 +83,10 @@ Taste checks:
 | `too-many-fonts` | More than two families rendered | One family, or two with a real contrast |
 | `novelty-face` | A novelty display face, unless declared in `<meta name="brand-fonts">` | A face from `references/type.md` |
 | `ai-default-face` | Space Grotesk, Instrument Serif, Fraunces and the like, unless declared | A face from `references/type.md` |
-| `mono-text` | Mono type outside `code`, `pre` or `kbd` | The page's one typeface |
+| `mono-text` | More than two mono text elements outside `code`, `pre`, `kbd` and `data-object` | The page's one typeface |
 | `caps-labels` | More than two small tracked-caps labels | Delete them |
 | `hard-shadow` | A hard offset shadow on any element or text | No shadow |
-| `tilted-text` | Text rotated at rest, outside `data-track` | Straight |
+| `tilted-text` | Text rotated at rest, outside `data-track` and `data-object` | Straight |
 
 The other checks catch broken pages: contrast, broken or upscaled images, sideways overflow, a hero that never paints, a face that did not load, gradient text and card grids. Each message says how to fix it. Fix each WARN, or say in one line why the design intends it.
 
@@ -107,4 +107,4 @@ Images are local files with `srcset`, nothing hotlinks a third-party host, there
 
 ## Demos
 
-`demos/scroll-story/` is the reference page: a photo-led story with few words and one typeface. The other files in `demos/` show motion mechanics only, such as pinned stages and page transitions. Their look and copy are not a standard.
+`demos/scroll-story/` is the reference page: one playable object, a calm frame and few words. The owner's chosen pages in `assets/owner-references/` are the standard it answers to. The other files in `demos/` show motion mechanics only, such as pinned stages and page transitions. Their look and copy are not a standard.
