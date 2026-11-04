@@ -1,6 +1,6 @@
 # Overrides on top of brag
 
-brag directs the video. These rules change only four things: where its output goes, what it reads when the input is not code or a website, the voiceover (with the length and captions it brings) and concept mode. Where this file is silent, brag wins. That covers every rule on hook, tone, motion, visuals, music and sound.
+brag directs the video. These rules change only five things: where its output goes, what it reads when the input is not code or a website, the voiceover (with the length and captions it brings), sound effects and concept mode. Where this file is silent, brag wins. That covers every rule on hook, tone, motion, visuals, music and sound.
 
 The voiceover rides on brag's cut. A narrated video that slows down to fit its voice (long holds, slow pans over one screenshot, a scene per sentence) comes out as a slideshow, which is the failure this file exists to prevent.
 
@@ -22,7 +22,7 @@ When step 2 of SKILL.md built `<out>/context.md`:
 
 Skip this section when the user said "no voice"; brag's own length and timing then stand.
 
-**Length.** Start from brag's shape and its 15-25 s window. Go past 25 s only when the story has more beats worth telling (more features, a flow with more steps) and each added beat puts something new on screen. Up to 45 s by default, or the length the user gave. Never stretch a beat to fit a sentence: shorten the sentence.
+**Length.** There is no fixed limit. Aim for 45-90 s: tell every feature, flow or proof the project has that a viewer would care about. The user's length wins when they give one. This replaces brag's 15-25 s window, while every other brag law stays. Length comes from more beats, each putting something new on screen. Never stretch a beat to fit a sentence: shorten the sentence. If the project only has material for 30 s, make a tight 30 s rather than padding it.
 
 **Script.** Write it in `brag-plan.md` under `## Voiceover`, one line per storyboard beat, while planning, so the storyboard and the voice are made together:
 
@@ -57,7 +57,11 @@ Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <c
 
 **Vertical framing.** The canvas is 1080x1920. Keep text and faces out of the top 12% and bottom 18%, where apps draw their own UI. Rebuild product UI to fill the width at phone-readable size (text at least 28 px); never shrink a landscape layout into the middle of a tall frame.
 
-## 4. Concept mode (no product yet)
+## 4. Sound effects (on by default)
+
+Read `references/sound-effects.md` and follow it, on brag-slim and full brag alike. It adds to brag's guidance in `audio.md`: use brag's CC0 library for clicks, impacts and keys. Use `scripts/make-sfx.py` for the whooshes, risers and hits brag lacks. Brag's `--no-sfx` applies when the user says "no sound effects". The density in that file replaces brag's "3-5 SFX" count, which was written for a 20-second film.
+
+## 5. Concept mode (no product yet)
 
 Applies when SKILL.md step 0 chose concept mode.
 

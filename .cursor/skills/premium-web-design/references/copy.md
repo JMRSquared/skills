@@ -1,6 +1,6 @@
 # Words
 
-Most of a good page is not text. The real sites we measured run 17-43 words per screen with 80-281 words in total: Hagi's barbershop has 80, Fizzi 174, Tripletta 178, Pizzato 281. The more an agent writes, the more the page reads as generated, so the job is to write less.
+Most of a good page is not text. The owner's chosen pages measured 23 words (Curtain) and 55 words (Globe). The award sites run 80-281 in total: Hagi's barbershop has 80, Fizzi 174, Tripletta 178, Pizzato 281. The more an agent writes, the more the page reads as generated. Put information inside the object, on hover or click, and write less.
 
 ## Budgets
 
@@ -8,10 +8,10 @@ The auditor fails a page over 300 words, not counting nav, footer or anything in
 
 | Where | Limit |
 |---|---|
-| Hero | A headline of 8 words or fewer, at most one sentence under it, one button. Nothing else |
+| First screen | 20-60 words in all, details inside the object included. A headline of 8 words or fewer, at most one sentence, one button, at most one small label |
 | Section heading | 6 words or fewer, plain. Many sections need no heading at all |
 | Section body | 25 words or fewer, often none. A photo with a caption is enough |
-| Sections | 3-5 after the hero |
+| Sections | 2-4 after the first screen |
 
 Put `data-reference` on content people come to look up: a price list, a menu, opening hours, a spec table. It does not count against the budget. Only real data from the brief qualifies. Do not use it to smuggle in prose.
 
@@ -19,10 +19,10 @@ Put `data-reference` on content people come to look up: a price list, a menu, op
 
 Delete on sight. These add words without adding information:
 
-- Eyebrows and labels above headings
+- A label above every heading. One quiet label on the page is the limit
 - A note beside or under a button ("No card needed", "We reply within the hour")
 - A subheading that restates the heading
-- Stickers, badges, tickets and floating data cards
+- Stickers, badges and tickets. A name and price chip on hover, inside the object, is fine
 - Marquees and ticker bands
 - Section numbers (01, 02, 03)
 - "How it works" steps, unless the process is what confuses people

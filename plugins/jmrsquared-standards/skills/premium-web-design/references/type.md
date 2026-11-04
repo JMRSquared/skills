@@ -1,10 +1,10 @@
 # Type
 
-Typography is most of what makes a page look designed. Plain type set well beats a characterful face set badly, every time. The real sites in `assets/studies/` mostly run a plain grotesk at huge sizes with one display face at most: Satoshi, Aeonik, Neue Montreal, Monument Grotesk, Roboto Flex, Poppins and Oswald all carry award pages.
+The type's job is to stay out of the object's way. Plain type set well beats a characterful face, every time. The owner's chosen pages use a plain sans at modest sizes. The award sites in `assets/studies/` mostly run a plain grotesk with one display face at most: Satoshi, Aeonik, Neue Montreal, Monument Grotesk, Roboto Flex, Poppins and Oswald all carry award pages.
 
 ## Faces
 
-**One family is the default.** Use two only for a real contrast, such as a light serif headline over a sans body. Three is never right. No mono unless the page shows actual code.
+**One family is the default.** Use two only for a real contrast, such as a light serif headline over a sans body. Three is never right. Mono only for actual code, or one tiny label.
 
 If the brand already has fonts, use them and stop here. Otherwise pick from this list. These are free on Google Fonts or Fontshare.
 
@@ -27,17 +27,17 @@ Three or four sizes on the whole page. Each step is a clear jump, never a nudge.
 
 | Role | Desktop | Phone | Notes |
 |---|---|---|---|
-| Display | 8-18vw when type leads, 64-120px over an image | 52-96px | Fill the width on purpose. Line height 0.85-1.0, tracking -0.02em to -0.05em. Two or three lines |
-| Heading | 40-72px | 32-44px | Every section heading is the same size |
-| Body | 18-22px | 17-18px | Line height 1.45-1.55, 45-65 characters a line, full ink colour |
-| Small | 15-16px | 15px | Nav, footer, captions. Sentence case |
+| Display | 40-80px beside an object, 64-120px over a full-screen scene, 8-18vw only when type itself leads | 36-64px | Line height 0.95-1.1, tracking -0.02em to -0.04em. One to three lines |
+| Heading | 32-56px | 28-36px | Every section heading is the same size |
+| Body | 17-20px | 17px | Line height 1.45-1.55, 45-65 characters a line |
+| Small | 13-15px | 13-15px | Nav, footer, captions and details inside the object. Sentence case |
 
 Rules that do most of the work:
 
-- **Contrast of scale is the design.** A very large line next to plain body text reads as confident. Five medium sizes read as a template.
+- **Few sizes.** One confident headline and quiet everything else reads as designed. Five medium sizes read as a template.
 - **Weight:** two weights at most. Do not reach for bold to fix hierarchy. Use size and space.
 - **No decoration on type.** No outlines, no shadows, no gradient fill, no highlighter bar, no tilted word, no italic single word for emphasis, no coloured word in the headline.
-- **No small tracked-caps labels** and no pill labels above headings. Uppercase only as the display voice of the whole page.
+- **At most one small label on the page.** No pill labels. Uppercase otherwise only as the display voice of the whole page.
 - **Tight display, normal body.** Negative tracking at display size, zero at body size.
 - **Line breaks by hand.** Break a headline where the sentence breaks. No orphan words. Use `text-wrap: balance` on headings and `text-wrap: pretty` on paragraphs.
 - **Alignment:** one left edge per section. Centre only a short display line over an image.

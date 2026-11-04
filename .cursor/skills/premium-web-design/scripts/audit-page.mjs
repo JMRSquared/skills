@@ -322,7 +322,7 @@ const audit = (opts = {}) => {
   if (families.length > 2)
     add('fail', 'too-many-fonts', `${families.length} font families rendered (${families.map((f) => f[0]).join(', ')}). Use one, or two with a real contrast. See references/type.md.`, families.slice(0, 6));
 
-  if (biggest && biggest.size < window.innerWidth * 0.045)
+  if (biggest && biggest.size < window.innerWidth * 0.045 && !document.querySelector('[data-object]'))
     add('warn', 'hero-type-small',
       `Largest first-screen type is ${Math.round(biggest.size)}px (${(biggest.size / window.innerWidth * 100).toFixed(1)}vw). Award-grade heroes run 6–14vw.`,
       biggest);
@@ -575,9 +575,17 @@ const audit = (opts = {}) => {
 
   /* imagery */
   const imgs = Array.from(document.images).filter(visible);
+  /* naturalWidth is density-corrected when srcset has width descriptors, so a
+     1800px file under sizes="100vw" reports the viewport width. Read the file's
+     real width from srcset. offsetWidth ignores reveal transforms in progress. */
+  const fileWidth = (im) => {
+    const match = (im.getAttribute('srcset') || '').split(',').map((c) => c.trim().split(/\s+/))
+      .find(([u, d]) => u && d && /w$/.test(d) && im.currentSrc.endsWith(u.replace(/^\.?\//, '')));
+    return match ? parseFloat(match[1]) : im.naturalWidth;
+  };
   const upscaled = imgs
-    .filter((im) => im.naturalWidth > 0 && im.getBoundingClientRect().width > im.naturalWidth * 1.15)
-    .map((im) => ({ src: im.currentSrc.slice(-80), natural: im.naturalWidth, displayed: Math.round(im.getBoundingClientRect().width) }));
+    .filter((im) => im.naturalWidth > 0 && im.offsetWidth > fileWidth(im) * 1.15)
+    .map((im) => ({ src: im.currentSrc.slice(-80), natural: fileWidth(im), displayed: im.offsetWidth }));
   if (upscaled.length)
     add('fail', 'image-upscaled', `${upscaled.length} images render larger than their source pixels — visibly soft.`, upscaled.slice(0, 8));
   /* `complete && naturalWidth === 0` is a real failure — the browser tried and
@@ -786,12 +794,12 @@ const audit = (opts = {}) => {
   if (wordCount > 300)
     add('fail', 'too-much-text', `${wordCount} words outside nav, footer and data-reference. The budget is 300, and real sites run 80-281. Delete sentences and then whole sections. Do not shrink the type. See references/copy.md.`, { words: wordCount });
 
-  const monoEls = leafText.filter((el) => !isCode(el) && /mono|courier|consolas|menlo/i.test(getComputedStyle(el).fontFamily.split(',')[0]));
-  if (monoEls.length)
+  const monoEls = leafText.filter((el) => !isCode(el) && !el.closest('[data-object]') && /mono|courier|consolas|menlo/i.test(getComputedStyle(el).fontFamily.split(',')[0]));
+  if (monoEls.length > 2)
     add('fail', 'mono-text', `${monoEls.length} text element${monoEls.length === 1 ? '' : 's'} set in mono outside code, such as "${ownText(monoEls[0]).slice(0, 40)}". Mono labels are a generated tell. Use the page's one typeface, or delete the label.`, monoEls.slice(0, 6).map((el) => ownText(el).slice(0, 40)));
 
   const capsLabels = leafText.filter((el) => {
-    if (inChrome(el)) return false;
+    if (inChrome(el) || el.closest('[data-object]')) return false;
     const c = getComputedStyle(el), size = parseFloat(c.fontSize) || 0, t = ownText(el);
     if (size > 20 || t.length > 48) return false;
     return (c.textTransform === 'uppercase' || (t === t.toUpperCase() && /[A-Z]{2}/.test(t))) && parseFloat(c.letterSpacing) > size * 0.03;
@@ -818,7 +826,7 @@ const audit = (opts = {}) => {
     return Math.abs(Math.atan2(b, a) * 180 / Math.PI);
   };
   const tilted = all.filter((el) => {
-    if (el.closest('[data-track]') || !textOf(el)) return false;
+    if (el.closest('[data-track], [data-object]') || !textOf(el)) return false;
     const r = rotation(el);
     return r > 0.5 && r < 30;
   });
