@@ -26,6 +26,7 @@ For every file in the diff, apply the matching tier-2 skill:
 | A Kysely DB/repository/query file | `kysley-db`, `code-quality`, `naming-imports-exports` |
 | A React `.tsx` component | `react-tsx-component`, `code-quality`, `naming-imports-exports` |
 | A marketing / landing / product-marketing / interactive web experience page | `premium-web-design`, `react-tsx-component` (if React), `code-quality`, `naming-imports-exports` |
+| An app screen (dashboard, settings, admin) | `jmr-unslop`, `react-tsx-component` (if React), `code-quality`, `naming-imports-exports` |
 | A React Native screen / component (`.tsx` importing from `react-native` or `expo-*`) | `react-native`, `nativewind` (if `className` present), `code-quality`, `naming-imports-exports` |
 | Any file importing `@shopify/react-native-skia` | `react-native-skia`, `code-quality` |
 | Supabase client, RLS/SQL, Storage, Realtime, Edge (not app auth flow only) | `supabase`, `code-quality` |
@@ -71,6 +72,7 @@ Block the merge when any of these appear:
 - Per-frame allocation inside a Skia frame callback (`useDerivedValue`, `useFrameCallback`).
 - Untyped DB column in a new migration.
 - Missing FK constraint on a new relation.
+- Lines the diff adds to a UI that bring in gradient text, an emoji used as an icon or label, a colored glow, or a claim, testimonial or figure that neither the ticket nor the repo backs (`jmr-unslop`). Slop the diff did not add does not count. Neither does the product's real brand.
 
 Suggestions are not blockers. The user decides whether to fix or defer.
 
