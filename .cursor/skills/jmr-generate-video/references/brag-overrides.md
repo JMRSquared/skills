@@ -1,6 +1,6 @@
 # Overrides on top of brag
 
-brag directs the video. These rules change only five things: where its output goes, what it reads when the input is not code or a website, the voiceover (with the length and captions it brings), sound effects and concept mode. Where this file is silent, brag wins. That covers every rule on hook, tone, motion, visuals, music and sound.
+brag directs the video. These rules change only six things: where its output goes, what it reads when the input is not code or a website, the voiceover (with the length and captions it brings), sound effects, the AI look and concept mode. Where this file is silent, brag wins. That covers every rule on hook, tone, pacing, music and sound. `references/no-slop-video.md` overrides brag and its tone presets on how frames and motion may look. A loud tone relaxes only what that file says it does.
 
 The voiceover rides on brag's cut. A narrated video that slows down to fit its voice (long holds, slow pans over one screenshot, a scene per sentence) comes out as a slideshow, which is the failure this file exists to prevent.
 

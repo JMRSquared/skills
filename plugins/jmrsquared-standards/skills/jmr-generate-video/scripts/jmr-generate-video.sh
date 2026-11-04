@@ -8,6 +8,7 @@
 #   jmr-generate-video.sh audit [DIR]  re-run the audit on a brag checkout
 #   jmr-generate-video.sh doctor       check node, ffmpeg, git, hyperframes, pdftoppm
 #   jmr-generate-video.sh probe FILE   print size, duration and streams of a rendered video
+#   jmr-generate-video.sh slop DIR     scan a composition for AI tells; exit 1 when any are found
 #
 # Env:
 #   BRAG_REF    commit to pin (default: the audited commit below). A different
@@ -191,11 +192,50 @@ cmd_probe() {
     -of default=noprint_wrappers=1 "$f"
 }
 
+# Signs a search can catch, from references/no-slop-video.md. It cannot judge
+# taste, so a clean result only means there is nothing obvious left to fix.
+SLOP_CHECKS=(
+  'gradient text|background-clip: *text'
+  'coloured glow|(box|text)-shadow:[^;]*0 +0 +[0-9.]+px|box-shadow:[^;]*0 0 [0-9]+px|drop-shadow\(0 0'
+  'colour wash or blob|radial-gradient\([^;]*rgba?\('
+  'purple or violet|#(7c3aed|8b5cf6|6366f1|a855f7|9333ea|4f46e5)|violet|indigo'
+  'heavy heading (700-900)|font-weight: *(700|800|900)'
+  'tracked uppercase label|text-transform: *uppercase'
+  'glass|backdrop-filter'
+  'looping motion|repeat: *-1|animation-iteration-count: *infinite|animate-(pulse|ping)'
+  'bouncy ease|back\.out|elastic\.|bounce\.'
+  'hype word|supercharge|seamless|unlock|game-chang|revolutioni[sz]e|AI-powered|next-gen'
+  'unverifiable claim|[Tt]rusted by|[Ll]oved by|10x'
+  'exclamation mark in copy|>[^<>{}]*![[:space:]]*<'
+)
+
+cmd_slop() {
+  local dir="${1:-}" hits=0 label pattern found
+  [ -d "$dir" ] || die "slop needs the composition folder, for example <out>/composition."
+  for check in "${SLOP_CHECKS[@]}"; do
+    label="${check%%|*}"
+    pattern="${check#*|}"
+    found="$(grep -rnIE "$pattern" "$dir" --include='*.html' --include='*.css' \
+      --exclude-dir=node_modules --exclude-dir=.hyperframes --exclude='*.min.*' \
+      | grep -vE '^[^:]*(CLAUDE|AGENTS)\.md' || true)"
+    [ -n "$found" ] || continue
+    hits=$((hits + 1))
+    echo "SLOP: $label ($(printf '%s\n' "$found" | wc -l | tr -d ' ') lines)"
+    printf '%s\n' "$found" | head -3 | cut -c1-140 | sed 's/^/  /'
+  done
+  if [ "$hits" -gt 0 ]; then
+    echo "$hits kinds of sign found. Fix each one, or say why the brand or tone calls for it." >&2
+    return 1
+  fi
+  echo "slop: nothing a search can catch. Now check the stills by eye (references/no-slop-video.md)."
+}
+
 case "${1:-}" in
+  slop)   shift; cmd_slop "${1:-}" ;;
   setup)  shift; cmd_setup "${1:-}" ;;
   env)    cmd_env ;;
   audit)  shift; cmd_audit "${1:-$CHECKOUT}" "${2:-check}" ;;
   doctor) cmd_doctor ;;
   probe)  shift; cmd_probe "${1:-}" ;;
-  *) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
