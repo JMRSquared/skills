@@ -81,7 +81,7 @@ Copy one whole. Do not mix rows.
 
 ### Every palette needs its inverse, and it is already in the row
 
-`density-and-devices.md` asks for a ground flip every two to three screens. The
+`SKILL.md` asks for a ground flip every two to three screens. The
 auditor counts a flip when the painted ground changes by a summed per-channel
 delta over 36. Measured across these six palettes, `--ground` to `--ground-2` is:
 

@@ -35,7 +35,7 @@ that the page's weakest property.
 | Mechanism | Measured on | `document.scrollHeight` | Cost |
 |---|---|---|---|
 | Native scroll + CSS `position: sticky` | apple.com/iphone-17-pro | 32,082px, real | Lowest. No library. |
-| Native scroll + GSAP ScrollTrigger pin | fizzi.app (2 `.pin-spacer` elements) | 9,450px, real | +70KB and every guard in `ambition-tiers.md` |
+| Native scroll + GSAP ScrollTrigger pin | fizzi.app (2 `.pin-spacer` elements) | 9,450px, real | +70KB and every guard in `SKILL.md` |
 | Wheel proxy (virtual scroll) | igloo.inc, activetheory.net, lusion.co | **equals the viewport height, always** | You now own scrolling |
 
 On igloo.inc and activetheory.net `scrollHeight` equals `innerHeight` (900 =
@@ -109,7 +109,7 @@ option and Apple spends it only on the WebGL viewer.
 
 ## 4. Pinning that survives
 
-`ambition-tiers.md` lists the five ways a ScrollTrigger pin breaks and the
+`SKILL.md` lists the five ways a ScrollTrigger pin breaks and the
 three ways a scrub breaks. Do not re-derive them. Add these. **Sticky fails
 the same way, more quietly:** an ancestor with `overflow: hidden`, `overflow:
 auto`, `contain: paint` or any `transform` becomes the containing block, so
@@ -162,7 +162,7 @@ when the beat is a timeline with offsets and overlaps, which is painful to
 hand-roll. `demos/horizontal-chapter.html` is the worked example.
 
 **A real 3D scene.** One canvas, the pose a pure function of progress. Cost:
-150KB of library, the model, and every guard in `ambition-tiers.md`. Failure
+150KB of library, the model, and every guard in `SKILL.md`. Failure
 mode: grey plastic lighting, uncapped DPR, a context never disposed, no answer
 when WebGL is missing. Choose it only when the object is the story.
 `demos/three-scroll-scene.html` is the worked example.
@@ -279,7 +279,7 @@ post and never needs a depth test.
 
 ## 10. When not to
 
-`ambition-tiers.md` owns this gate; this only reinforces it.
+`SKILL.md` owns this gate; this only reinforces it.
 
 Do not build a scroll narrative when the page has no beats. A service, a
 clinic, a restaurant and a shop have a story with parts, not with movements.
