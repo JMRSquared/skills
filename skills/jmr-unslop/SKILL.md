@@ -32,6 +32,7 @@ Run on its own, this file decides everything. Inside another JMR skill, that ski
 | --- | --- | --- |
 | `/jmr-unslop` or a plain request | The full process below | Nothing |
 | `/premium-web-design` | Use [references/signs.md](references/signs.md) to find problems | Only the problems come from here. Fixes come from that skill, so its single typeface, its ban on mono labels and copy-left heroes and its photo, product or type lead override the partner mono, the asymmetric split and the generated scene in this file |
+| `/jmr-generate-video` | [references/signs.md](references/signs.md) finds problems in the frames | That skill's `references/no-slop-video.md` applies this file to video. Brag keeps story and pacing |
 | A page already built with `/premium-web-design` (it has `PRODUCT.md` or `kit/story.js`) | Polish mode | Keep its typeface, lead and scroll story |
 | `/jmr-cycle` or `/agents-execute` | [Unattended mode](#unattended-mode) | You never stop to ask |
 
