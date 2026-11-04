@@ -16,7 +16,7 @@ export type Act = {
   readonly scrollLength: number;
   /** Short plain name shown in the fixed progress label. Sentence case. */
   readonly label: string;
-  /** A plain, complete statement about the product (references/no-slop.md).
+  /** A plain, complete statement about the product (references/copy.md).
    *  The first act renders it as the page's only h1; the rest as h2s. */
   readonly headline: string;
   readonly body: string;

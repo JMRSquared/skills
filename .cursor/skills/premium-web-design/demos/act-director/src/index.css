@@ -3,10 +3,10 @@
    src/three; swap this file for Tailwind, CSS modules or anything else without
    touching a line of the director.
 
-   Type follows references/typographic-hierarchy.md: six role tokens
+   Type follows references/type.md: six role tokens
    (--t-display ... --t-small), every text element mapped to one of them,
    nothing a reader needs under 15px, no caps-tracked labels, no mono. Copy
-   follows references/no-slop.md: each headline names the cassette player or
+   follows references/copy.md: each headline names the cassette player or
    the part of it on screen.
    --------------------------------------------------------------------------- */
 

@@ -38,7 +38,7 @@
     because it never leaves the layout.
 
   FAILURE MODE AVOIDED
-    Every entry in the "React Three Fiber" list in references/ambition-tiers.md
+    Every entry in the "React Three Fiber" list in SKILL.md
     applies to vanilla three.js unchanged. Each is a numbered GUARD below and
     says what breaks without it. The two that cost the most:
       GUARD 6  DPR uncapped on retina -> 4x the pixels, ~20fps.
@@ -60,7 +60,7 @@
     Under any of: no WebGL2 at all, a viewport under 860px, or
     prefers-reduced-motion, the renderer is never constructed and a three-frame image sequence runs
     instead - the same three beats, the same copy, crossfaded on the same
-    scroll maths. ambition-tiers.md calls for exactly this: "a scrubbed 3D
+    scroll maths. SKILL.md calls for exactly this: "a scrubbed 3D
     sequence becomes a scrubbed image sequence". The stills are renders of
     this scene at the centre of each beat, so the two paths agree.
     A SOFTWARE renderer (SwiftShader, llvmpipe) is NOT one of those cases.
@@ -98,14 +98,14 @@
   PALETTE     "Night studio", references/color-and-light.md, verbatim
               --ground #0B0B0D --ground-2 #141417 --edge #24242A
               --ink #F4F3F1    --ink-muted #A2A2AC --accent #E8FF4A
-  TYPE        Pairing 12, references/typography.md, verbatim:
+  TYPE        Pairing 12, references/type.md, verbatim:
               Familjen Grotesk (display) + Sentient (body).
-              Sizes come from references/typographic-hierarchy.md: six role
+              Sizes come from references/type.md: six role
               tokens (--t-display ... --t-small), every text element mapped
               to one of them, nothing a reader needs under 15px, no caps
               labels. The bleeding "Fieldmark 01" wordmark is an aria-hidden
               graphic, like a ghost numeral, and sits beside a real h2.
-  COPY        references/no-slop.md. Every heading names the camera or the
+  COPY        references/copy.md. Every heading names the camera or the
               part of it on screen, so the headings read alone as a summary
               of the product.
   MOTION      Durations and curves from references/motion.md only.
@@ -134,7 +134,7 @@ document.documentElement.className += ' is-loading';
   --ground:#0B0B0D; --ground-2:#141417; --edge:#24242A;
   --ink:#F4F3F1;    --ink-muted:#A2A2AC; --accent:#E8FF4A;
 
-  /* ---- type: references/typographic-hierarchy.md, six roles, 390 -> 1440.
+  /* ---- type: references/type.md, six roles, 390 -> 1440.
      Display retuned to 120px (8.3vw) so the plain h1 lands in three lines;
      every other role is the standard block, unchanged. ---- */
   --font-display:"Familjen Grotesk", "Helvetica Neue", sans-serif;
@@ -324,7 +324,7 @@ code{ font-family:ui-monospace, Menlo, Consolas, monospace; font-size:1em; }
      It is a GRAPHIC, not copy: aria-hidden, a <p> rather than a heading,
      and the product name only. The h2 under it carries the words, in the
      title role, so the one size outside the six roles is a logo the
-     way Tripletta's 18.8vw wordmark is (typographic-hierarchy.md). */
+     way Tripletta's 18.8vw wordmark is (type.md). */
   font-family:var(--font-display); font-weight:var(--display-weight);
   font-size:clamp(3.5rem, 17vw, 18rem); line-height:0.84; letter-spacing:var(--tr-display);
   margin:0 0 3rem; white-space:nowrap; width:max-content;
@@ -421,7 +421,7 @@ html:not(.is-loading) .loadbar{ display:none; }
    that changes nothing - worse than no animation at all. Here the track
    collapses to one viewport, the sticky stage stops being sticky, and the
    three beats become a plain stacked list that is complete on its own.
-   ambition-tiers.md, "Reduced motion".
+   SKILL.md, "Reduced motion".
    ===================================================================== */
 @media (prefers-reduced-motion: reduce){
   :root{ --track-h:auto; }

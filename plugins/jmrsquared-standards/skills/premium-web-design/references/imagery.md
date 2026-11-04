@@ -166,7 +166,7 @@ order of preference:
 2. Recrop so the contradicting element is out of shot. A tight crop on the joint
    is better art direction than a wide shot of the wrong bike anyway.
 3. Rewrite the copy to describe the object you actually have.
-   `ambition-tiers.md` gives the same instruction about a Tier C model, and says
+   `SKILL.md` gives the same instruction about a Tier C model, and says
    the same thing about it: rewriting is usually faster and always more honest.
 4. Ship the section with type and no image.
 
@@ -348,7 +348,7 @@ cannot defend. A wrong gradient on a haul road is a lie a client will catch.
 
 **Annotation may be small, and it must stay legible.** Text drawn inside an SVG
 figure is part of the image, so it is exempt from the 15px floor in
-`typographic-hierarchy.md` (R6). It is not exempt from being read:
+`type.md` (R6). It is not exempt from being read:
 
 - **At least 11px rendered**, at every width the figure appears. SVG text scales
   with its `viewBox`, so check the phone frame: a 1200-unit drawing shown 350px

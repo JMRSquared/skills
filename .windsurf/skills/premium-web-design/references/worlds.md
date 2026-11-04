@@ -15,7 +15,7 @@ world only when the brand is genuinely illustrated: a children's product, a
 game, a brand whose existing identity is drawn. Then commit to it properly,
 matched to the brand's real illustration style.
 
-`brand-world.md` is the design-world companion to this file (palettes, type,
+`SKILL.md` is the design-world companion to this file (palettes, type,
 sticker, button, character recipes). This file is the photography-and-imagery
 companion (what to tell the camera when generating or sourcing assets).
 
@@ -121,7 +121,7 @@ once, and getting them wrong costs a full iteration:
 The contrast direction flips with all of this: dark type fails on the
 *darkest* patch under it, not the brightest. The auditor picks the
 direction per line, so it grades a high-key page correctly. Re-read
-`density-and-devices.md` **Contrast on the render** before shipping one.
+`SKILL.md` **Contrast on the render** before shipping one.
 
 ## 4. Composition, per shot
 

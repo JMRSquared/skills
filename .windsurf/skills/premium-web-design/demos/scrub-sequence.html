@@ -21,7 +21,7 @@
     progress across a pinned section. Same idea, one tier cheaper.
 
   FAILURE MODE AVOIDED
-    The four in ambition-tiers.md that kill canvas work:
+    The four in SKILL.md that kill canvas work:
       · uncapped devicePixelRatio (4x the pixels on retina, 20fps)
       · a canvas with no explicit sizing (0px tall, or a stretched aspect)
       · a scrub tied to assets that are still loading (starts mid-way)
@@ -47,15 +47,15 @@
   PALETTE     "Cold steel", references/color-and-light.md, verbatim
               --ground #08090A --ground-2 #101214 --edge #1E2126
               --ink #EDEFF2    --ink-muted #8B929C --accent #4AA8FF
-  TYPE        Pairing 6, references/typography.md, verbatim:
+  TYPE        Pairing 6, references/type.md, verbatim:
               Archivo (wdth 112, wght 700) display + Geist + Geist Mono.
-              Sizes from references/typographic-hierarchy.md: the six role
+              Sizes from references/type.md: the six role
               tokens (--t-display .. --t-small). Every text element maps to
               one role. Headings in sentence case, no caps labels, nothing a
               reader needs under 15px. Geist Mono is the one mono role, at
               body size, for the measured values in the spec table only.
               Display retuned to 112px at 1440.
-  COPY        references/no-slop.md: every heading names the knob, the
+  COPY        references/copy.md: every heading names the knob, the
               detents, the spec or the workshop, so the headings read alone
               as a summary of what Blackwall makes.
   MOTION      Durations and curves from references/motion.md only.
@@ -73,7 +73,7 @@
   --ground:#08090A; --ground-2:#101214; --edge:#1E2126;
   --ink:#EDEFF2;    --ink-muted:#8B929C; --accent:#4AA8FF;
 
-  /* ---- type: references/typographic-hierarchy.md, six roles, 390 -> 1440.
+  /* ---- type: references/type.md, six roles, 390 -> 1440.
      Display retuned to 112px (7.8vw): Archivo at wdth 112 runs wide, and
      the plain six-word headline lands in three lines at 1440 and four at
      390.
@@ -117,7 +117,7 @@ figure{ margin:0; }
 .wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
 .wrap > *{ min-width:0; }
 
-/* ---------- type roles: references/typographic-hierarchy.md ---------- */
+/* ---------- type roles: references/type.md ---------- */
 .display, .title, .heading{
   font-family:var(--font-display); font-weight:var(--display-weight);
   font-stretch:112%; text-wrap:balance; margin:0;
@@ -419,7 +419,7 @@ footer{ padding:var(--section-y) 0 4rem; border-top:1px solid var(--edge); }
   var frames = [], live = false, current = -1, ticking = false;
 
   /* --- sizing ---------------------------------------------------------- */
-  /* Two things go wrong here and both are in ambition-tiers.md:
+  /* Two things go wrong here and both are in SKILL.md:
      the canvas gets no explicit backing-store size and paints stretched,
      or devicePixelRatio is left uncapped and a 3x phone draws nine times
      the pixels for no visible gain. Cap at 2, re-measure on resize. */

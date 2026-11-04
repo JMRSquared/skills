@@ -20,7 +20,7 @@ follows from.
 │  section title │  standfirst copy    │  asymmetric 1:2
 ```
 For brands where the product is a feeling. Needs one exceptional image. The
-headline still says what is sold and where (`no-slop.md`): a feeling is what the
+headline still says what is sold and where (`copy.md`): a feeling is what the
 image carries, not the words.
 
 ### B. Editorial split
@@ -155,7 +155,7 @@ content:
 ```
 
 It only reads as confidence when the rest of the page is dense.
-`density-and-devices.md` section 7 is the precondition, not a separate rule: pay
+`SKILL.md` section 7 is the precondition, not a separate rule: pay
 half a screen for nothing on a nine-screen page carrying six images and you have
 a gap, not a beat.
 

@@ -22,7 +22,7 @@
     chapters instead of one word.
 
   FAILURE MODE AVOIDED
-    Every entry in the "ScrollTrigger pinning" list in ambition-tiers.md.
+    Every entry in the "ScrollTrigger pinning" list in SKILL.md.
     Each guard below is numbered and says what breaks without it. The one
     that costs the most is GUARD 5: a reduced-motion user given a pinned
     section with its tween switched off gets four viewport-heights of scroll
@@ -38,13 +38,13 @@
   PALETTE     "Ink & sand", references/color-and-light.md, verbatim
               --ground #12151A --ground-2 #1B1F26 --edge #2C323C
               --ink #F2EFE9    --ink-muted #9AA1AC --accent #C89B4A
-  TYPE        Pairing 9, references/typography.md, verbatim:
+  TYPE        Pairing 9, references/type.md, verbatim:
               Libre Caslon Display (display) + Karla (body).
-              Sizes from references/typographic-hierarchy.md: the six role
+              Sizes from references/type.md: the six role
               tokens (--t-display .. --t-small). Every text element maps to
               one role. No caps labels, no numbered chapter labels, nothing a
               reader needs under 15px. Display retuned to 112px at 1440.
-  COPY        references/no-slop.md: every heading names the barley, the
+  COPY        references/copy.md: every heading names the barley, the
               stills, the casks or the tour, so the headings read alone as a
               summary of the distillery.
   MOTION      Durations and curves from references/motion.md only.
@@ -64,7 +64,7 @@
   --ground:#12151A; --ground-2:#1B1F26; --edge:#2C323C;
   --ink:#F2EFE9;    --ink-muted:#9AA1AC; --accent:#C89B4A;
 
-  /* ---- type: references/typographic-hierarchy.md, six roles, 390 -> 1440.
+  /* ---- type: references/type.md, six roles, 390 -> 1440.
      Display retuned to 112px (7.8vw) so the plain seven-word headline lands
      in three lines inside the hero's text column; every other role is the
      standard block, unchanged. ---- */
@@ -107,7 +107,7 @@ img{ display:block; max-width:100%; height:auto; }
 .wrap{ width:min(100% - var(--gutter)*2, 90rem); margin-inline:auto; }
 .wrap > *{ min-width:0; }
 
-/* ---------- type roles: references/typographic-hierarchy.md ---------- */
+/* ---------- type roles: references/type.md ---------- */
 .display{
   font-family:var(--font-display); font-weight:var(--display-weight);
   font-size:var(--t-display); line-height:var(--lh-display);

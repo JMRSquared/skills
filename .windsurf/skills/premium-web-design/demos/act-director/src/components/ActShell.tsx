@@ -102,10 +102,10 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
  * Headline plus body. Every act opens with this block.
  *
  * No eyebrow above the headline: the headline names the subject on its own
- * (references/no-slop.md), and "ACT ONE" told the reader nothing the dots do
+ * (references/copy.md), and "ACT ONE" told the reader nothing the dots do
  * not. The first act's headline is the page's one h1 in the display role;
  * every later act is an h2 in the title role, one size for all of them
- * (references/typographic-hierarchy.md, R7).
+ * (references/type.md, R7).
  */
 export function ActCopy({ id, children }: ActCopyProps) {
   const entry = act(id);

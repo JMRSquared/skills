@@ -53,7 +53,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
 
 3. **Explore.** Start exploration helpers in parallel, as `$JH spawn --role explore-<area>` panes inside Herdr (the `jmr-herdr` research fan-out) and as subagents elsewhere: the code the mission touches, prior art for tests, external docs (`research`). Each writes markdown into the `notes/` folder. Read the repo's `CLAUDE.md` or `AGENTS.md`, glossary and `docs/adr/` and use their vocabulary (`domain-modeling`). Done when every area the mission touches has a notes file an implementer could start from.
 
-4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. A scenario is something a user or caller sees ("a captured charge can be refunded in full"), never an internal detail ("`refund()` returns a `Refund`"). Aim for one to three scenarios per user story. Leave file paths and code out. Put polish, nice-to-haves and cleanup under out of scope. Done when every outcome maps to a user story and every user story to at least one scenario.
+4. **Spec. Load `to-spec`.** Override: where it checks seams with the user, pick them yourself and record why in `notes/decisions.md`; write the result to `spec.md` instead of publishing it elsewhere. The spec holds the problem, the solution, numbered user stories, implementation decisions, testing decisions and out of scope. Name the seams where tests attach: existing seams over new ones, the highest seam possible, as few as possible. Add **acceptance scenarios**, each a checkable behaviour with an id `<PREFIX>-001`, `<PREFIX>-002` and so on; status counts these ids in test titles. A scenario is something a user or caller sees ("a captured charge can be refunded in full"), never an internal detail ("`refund()` returns a `Refund`"). Aim for one to three scenarios per user story. Leave file paths and code out. Put polish, nice-to-haves and cleanup under out of scope. When the mission ships a screen people see, add a `## UI direction` section with the five direction lines from `jmr-unslop` (product, character, world, moments, signature), so every ticket builds toward one look. A customer-facing page uses the `PRODUCT.md` brief from `premium-web-design` in its place. Done when every outcome maps to a user story and every user story to at least one scenario.
 
 5. **Tickets. Load `to-tickets`.** Override: replace its "Quiz the user" step with your own review of the graph and write `tickets.json` instead of publishing. Split the spec into **feature tickets**. Each ticket is a whole feature or bug fix a user could try once it merges, built through every layer it needs. One implementer must be able to finish it in one session. The helpers, types, refactors, tests and docs a feature needs go inside that feature's ticket, never in a ticket of their own. No prefactor tickets. When the mission is itself a refactor or migration, name each ticket by what works afterwards ("Checkout runs on the new payments client"). Aim for two to six tickets; more than eight means they are too small, so merge them. Each ticket:
 
@@ -68,6 +68,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
    - Every scenario sits on exactly one ticket. Every user story is covered.
    - Two tickets that edit one shared file get a blocking edge, a shared `serial` or exact names pinned in the ticket bodies.
    - Each edge gates real work. Drop any that only reflect writing order.
+   - How a screen looks goes inside the ticket that builds it, never in a polish ticket. The exception is a mission that is itself to fix how screens look: then each ticket is one screen, named by the outcome ("The billing dashboard drops its AI look"), with scenarios a test can check ("every nav row has one line icon and no emoji").
 
    Progress, once the graph is final: `total` (ticket count), `done: 0`, `phase: "delegate"`.
 
@@ -115,6 +116,7 @@ npx skills@latest add mattpocock/skills --skill to-spec --skill to-tickets --ski
 | Interface and module boundaries | `codebase-design` |
 | Facts from docs or third-party APIs | `research` |
 | "How should this behave or look" | `prototype` (throwaway, then decide) |
+| How a screen should look | `jmr-unslop` for apps and dashboards, `premium-web-design` for customer-facing pages |
 | Standards every builder and reviewer applies | the Standards table in `jmr-cycle` |
 
 ## Philosophy

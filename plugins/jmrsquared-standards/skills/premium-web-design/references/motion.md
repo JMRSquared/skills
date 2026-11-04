@@ -162,7 +162,7 @@ on scroll, as Amrit's hero does.
   Spread them: −4%, −11%, −18% of the container height, not −8/−9/−10%.
 - **The slower element is the one carrying the words.** Copy that outruns its
   own background is unreadable.
-- Cap total travel at what the container has ground for. `ambition-tiers.md`
+- Cap total travel at what the container has ground for. `SKILL.md`
   documents the build that translated 260px inside a container padded 16% and
   rendered an empty black third for half the scrub.
 - Under `prefers-reduced-motion` both elements sit at their resting positions,
@@ -424,7 +424,7 @@ what a visitor sees when the sequence does not run.
 ### Type over a transparent nav reads as a contrast failure
 
 A fixed nav with no background over a dark hero photograph composites, to the
-auditor, against `body`. `build-loop.md` explains that the contrast check cannot
+auditor, against `body`. `full.md` explains that the contrast check cannot
 see photograph pixels; here is the fix it does not give.
 
 Reported 1.22:1 on eight nav links that are perfectly legible on screen. Adding

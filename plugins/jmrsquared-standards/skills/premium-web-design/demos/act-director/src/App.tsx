@@ -42,7 +42,7 @@ export function App() {
  *
  * The label names the step in words ("The tape lifts out"). The dots already
  * show position, so a "01 / 04" counter would be a numbered label saying the
- * same thing in a form nobody reads (references/typographic-hierarchy.md, R6).
+ * same thing in a form nobody reads (references/type.md, R6).
  */
 function ChapterHud() {
   const activeAct = useActiveAct();

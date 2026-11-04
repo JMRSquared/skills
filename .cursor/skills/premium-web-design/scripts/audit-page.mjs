@@ -122,15 +122,14 @@ const regionColour = (img, x0, y0, x1, y1) => {
 await fs.mkdir(outDir, { recursive: true });
 
 const audit = (opts = {}) => {
-  /* Every face a browser can already draw without being asked. The old list
-     stopped at the nine names SKILL.md printed, so "Georgia" and "Times New
-     Roman" — the two system faces a model reaches for the moment a sans is
-     banned — were both a clean pass for the brand's loudest word. */
-  const GENERIC_FONTS = /^(inter|roboto|arial|helvetica( neue)?|system-ui|-apple-system|blinkmacsystemfont|segoe|open sans|lato|noto sans|ui-sans-serif|sans-serif|ui-serif|serif|ui-monospace|monospace|cursive|fantasy|times( new roman)?|georgia|garamond|palatino|book antiqua|courier( new)?|verdana|tahoma|trebuchet|impact|calibri|cambria|geneva|menlo|monaco|consolas|arimo|tinos|liberation|dejavu|source sans|pt sans|ibm plex sans)/i;
-  /* The second trap, named in prose by SKILL.md and by typography.md and
-     measured by nothing: ban Inter and the model reaches for the next most
-     likely face instead. These read as "generated" exactly as loudly. */
-  const ESCAPE_FONTS = /^(space grotesk|poppins|montserrat|raleway|nunito|dm sans|plus jakarta|outfit|sora|figtree|urbanist|quicksand)/i;
+  /* Faces a browser falls back to on its own: seeing one on the largest type
+     usually means the real font never loaded. Plain designed grotesks such as
+     Inter or Helvetica are welcome: the award corpus runs on them. */
+  const GENERIC_FONTS = /^(arial|times( new roman)?|georgia|verdana|tahoma|courier( new)?|comic sans|system-ui|-apple-system|blinkmacsystemfont|segoe ui|ui-sans-serif|ui-serif|sans-serif|serif|monospace)/i;
+  /* Novelty faces read as a costume, AI defaults read as generated. Both are
+     fine when the brand owns them: <meta name="brand-fonts" content="Family">. */
+  const NOVELTY_FONTS = /^(shrikhand|bungee|chewy|lobster|pacifico|fredoka|baloo|righteous|abril fatface|big shoulders stencil|stardos stencil|monoton|rubik (mono|glitch|bubbles)|luckiest guy|bangers|press start|vt323|cooper black)/i;
+  const AI_DEFAULT_FONTS = /^(space grotesk|instrument serif|fraunces|playfair|dm serif|syne|bricolage|clash display)/i;
   /* ---------- helpers ---------- */
   const parseRGB = (s) => {
     const m = String(s).match(/rgba?\(([^)]+)\)/);
@@ -284,10 +283,6 @@ const audit = (opts = {}) => {
     add('fail', 'display-font-generic',
       `Display voice is "${biggest.fam}" — a system/default face. The largest type on the first screen is the brand's voice; a default face makes the page read as a template.`,
       biggest);
-  else if (biggest && ESCAPE_FONTS.test(biggest.fam))
-    add('fail', 'display-font-escape-default',
-      `Display voice is "${biggest.fam}" — the face a model reaches for the moment Inter is banned. typography.md names this trap by name: "Ban Inter and a model reaches for the next most likely face — Space Grotesk, Poppins, Montserrat — which now signals generated just as loudly." Pick a row from the verified pairings table instead.`,
-      biggest);
 
   /* A family NAME is not a font. `font-family: "Awwwards Display"` renders as
      the browser default and every check above still reads the string the author
@@ -324,8 +319,8 @@ const audit = (opts = {}) => {
     add('fail', 'display-font-unavailable',
       `The display face is declared as "${biggest.fam}" and no such font exists on this page: nothing in @font-face declares it and naming it changes no glyph metric, so the browser is drawing its own default and calling it that name. The font checks above read the string you typed, not the type on screen.`,
       { family: biggest.fam, size: Math.round(biggest.size), text: biggest.text });
-  if (families.length > 3)
-    add('warn', 'font-sprawl', `${families.length} font families rendered. Use 2 (display + text), 3 at most.`, families.slice(0, 6));
+  if (families.length > 2)
+    add('fail', 'too-many-fonts', `${families.length} font families rendered (${families.map((f) => f[0]).join(', ')}). Use one, or two with a real contrast. See references/type.md.`, families.slice(0, 6));
 
   if (biggest && biggest.size < window.innerWidth * 0.045)
     add('warn', 'hero-type-small',
@@ -369,7 +364,7 @@ const audit = (opts = {}) => {
     if (isAriaHidden(el)) {
       const n = normText(textOf(el));
       const markSize = parseFloat(s.fontSize) || 0;
-      /* density-and-devices.md describes this device as a GIANT tinted brand
+      /* SKILL.md describes this device as a GIANT tinted brand
          word set 1.2:1 to 1.6:1 against its own ground. A 12px aria-hidden
          label a shade off its ground is not that device, it is hidden text, and
          a bare substring test let a one-letter mark inherit the exemption from
@@ -621,7 +616,7 @@ const audit = (opts = {}) => {
     add('fail', 'mobile-viewport-blown', `Layout forced the visual viewport to ${window.innerWidth}px on a ${opts.expectWidth}px device — a fixed-width child is pushing the page wider, so the phone zooms out and every type size shrinks.`, { innerWidth: window.innerWidth, expected: opts.expectWidth });
 
   /* ---------- copy tells ----------
-     content-and-copy.md bans a specific list of words, openers, placeholders and
+     copy.md bans a specific list of words, openers, placeholders and
      furniture, and SKILL.md's Instant Fails table says every row has "a
      threshold the auditor measures". This row had none, so "Welcome to",
      "Jane Doe" and a 555 number were a clean exit 0. */
@@ -646,7 +641,7 @@ const audit = (opts = {}) => {
   }
   if (placeholderHits.length)
     add('fail', 'copy-placeholder',
-      `${placeholderHits.length} placeholder${placeholderHits.length === 1 ? '' : 's'} survived into the shipped copy: ${placeholderHits.map((h) => h.tell).join('; ')}. content-and-copy.md lists these under "Placeholders that survived" — they are the fastest signal a visitor gets that nobody read the page.`,
+      `${placeholderHits.length} placeholder${placeholderHits.length === 1 ? '' : 's'} survived into the shipped copy: ${placeholderHits.map((h) => h.tell).join('; ')}. copy.md lists these under "Placeholders that survived" — they are the fastest signal a visitor gets that nobody read the page.`,
       placeholderHits);
 
   const TELLS = [
@@ -655,13 +650,13 @@ const audit = (opts = {}) => {
     [/\ball[- ]in[- ]one solution\b/i, '"all-in-one solution"'],
     [/\bin today'?s fast[- ]paced world\b/i, '"in today\u2019s fast-paced world"'],
     [/\bdiscover the difference\b/i, '"Discover the difference"'],
-    /* `robust` and `leverage` are on content-and-copy.md's list as MARKETING
+    /* `robust` and `leverage` are on copy.md's list as MARKETING
        adjectives, and both have ordinary uses that have nothing to do with
        generated prose — amritpalace.com describes a robust curry. A tell that
        fires on a real award site is a tell that gets ignored, so they are out
        of the machine list and stay in the written one. */
     [/\b(elevat(e|ing|ion)|seamless(ly)?|unleash(ing)?|empower(ing)?|revolutioni[sz]e|next[- ]gen|game[- ]?changer|cutting[- ]edge|delve)\b/i, 'a banned marketing word'],
-    /* no-slop.md structures that a regex can see without guessing. "Where X
+    /* copy.md structures that a regex can see without guessing. "Where X
        meets Y", "not just X but Y" and "more than just a" are negative or
        false-contrast framings; "whether you're X or Y" is the throat-clearing
        audience range. */
@@ -675,7 +670,7 @@ const audit = (opts = {}) => {
     const m = re.exec(pageText);
     if (m) tellHits.push({ tell: name, match: m[0].slice(0, 48) });
   }
-  /* The wider no-slop.md vocabulary. Every distinct hit is reported, so the
+  /* The wider copy.md vocabulary. Every distinct hit is reported, so the
      finding names all of them instead of the first. Kept to words and phrases
      that have almost no honest use on a local business page: `premier`,
      `leading`, `vibrant`, `innovative`, `curated`, `landscape` and `journey`
@@ -689,7 +684,7 @@ const audit = (opts = {}) => {
     slopSeen.add(w);
     if (slopSeen.size > 12) break;
   }
-  if (slopSeen.size) tellHits.push({ tell: `no-slop.md vocabulary (${[...slopSeen].slice(0, 8).join(', ')}${slopSeen.size > 8 ? ', …' : ''})`, match: [...slopSeen].join(', ').slice(0, 160) });
+  if (slopSeen.size) tellHits.push({ tell: `copy.md vocabulary (${[...slopSeen].slice(0, 8).join(', ')}${slopSeen.size > 8 ? ', …' : ''})`, match: [...slopSeen].join(', ').slice(0, 160) });
   /* Em dashes: the most recognised punctuation tell. Three, not one, so a
      single dash in a quoted review or a legal line does not fire. */
   const emDashes = (pageText.match(/—/g) || []).length;
@@ -709,19 +704,15 @@ const audit = (opts = {}) => {
   if (scrollCues) tellHits.push({ tell: `${scrollCues} "Scroll" cue${scrollCues === 1 ? '' : 's'}`, match: 'furniture' });
   if (tellHits.length)
     add('warn', 'copy-tells',
-      `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from the no-slop.md banned lists: ${tellHits.map((h) => h.tell).join('; ')}. Replace each with the fact it stood in for (no-slop.md has a replacement column). Specificity is what a real business has and a generated page does not: "Open until 8pm on weekdays" beats "convenient hours".`,
+      `${tellHits.length} copy tell${tellHits.length === 1 ? '' : 's'} from the copy.md banned lists: ${tellHits.map((h) => h.tell).join('; ')}. Replace each with the fact it stood in for (copy.md has a replacement column). Specificity is what a real business has and a generated page does not: "Open until 8pm on weekdays" beats "convenient hours".`,
       tellHits);
 
   /* ---------- cryptic headlines ----------
-     no-slop.md, Family B. A build from this skill shipped "Already booked.",
+     copy.md, Family B. A build from this skill shipped "Already booked.",
      "Five formats.", "Before you book." and "Seen across Gauteng." as its h1/h2
      set, and the owner could not read his own site. A heading has to tell a
      stranger what the business does or what the section covers, alone.
      Clarity is not measurable, so this catches two shapes only and stays a WARN:
-       short:    under four words, unless it is a plain conventional label
-                   ("Frequently asked questions", "Contact us") or the brand
-                   name itself (a wordmark h1 is a corpus pattern; no-slop.md
-                   asks for the plain statement beside it)
        fragment: six words or fewer, ending in a full stop, with no finite-verb
                    signal (auxiliary, modal, contraction, subject pronoun, or a
                    common verb). "Built for Gauteng's roads." is the ad-agency
@@ -762,15 +753,77 @@ const audit = (opts = {}) => {
       const words = bare.replace(/[‘’]/g, "'").replace(/[^\p{L}\p{N}'\s-]/gu, ' ').split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w));
       const question = /\?$/.test(raw);
       let reason = null;
-      if (words.length < 4 && !(question && words.length >= 3)) reason = `${words.length} word${words.length === 1 ? '' : 's'}`;
-      else if (/[^.]\.$|!$/.test(raw) && words.length <= 6 && !hasFiniteVerb(words)) reason = 'verbless fragment with a full stop';
+      if (/[^.]\.$|!$/.test(raw) && words.length <= 6 && !hasFiniteVerb(words)) reason = 'verbless fragment with a full stop';
       if (reason) crypticHeads.push({ tag: el.tagName.toLowerCase(), text: raw.slice(0, 80), reason });
     } catch { /* skip this heading */ }
   }
   if (crypticHeads.length)
     add('warn', 'headline-cryptic',
-      `${crypticHeads.length} heading${crypticHeads.length === 1 ? '' : 's'} a stranger may not decode alone: ${crypticHeads.slice(0, 5).map((h) => `"${h.text}" (${h.reason})`).join('; ')}. no-slop.md: every h1/h2 names the service, place, audience or benefit in a plain statement, e.g. "Five formats." becomes "Five ways to put your brand in front of Gauteng commuters". Run the decode test; this check only sees the shape.`,
+      `${crypticHeads.length} heading${crypticHeads.length === 1 ? '' : 's'} a stranger may not decode alone: ${crypticHeads.slice(0, 5).map((h) => `"${h.text}" (${h.reason})`).join('; ')}. copy.md: every h1/h2 names the service, place, audience or benefit in a plain statement, e.g. "Five formats." becomes "Five ways to put your brand in front of Gauteng commuters". Run the decode test; this check only sees the shape.`,
       crypticHeads.slice(0, 12));
+
+  /* ---------- the generated look ----------
+     Each check is a thing models reach for and real sites do not use. Measured
+     on the rendered page, so a clean source cannot talk its way past them. */
+  const brandFonts = (document.querySelector('meta[name="brand-fonts"]')?.content || '').toLowerCase();
+  const brandOwns = (fam) => brandFonts.includes(fam.toLowerCase());
+  for (const [fam] of families) {
+    if (brandOwns(fam)) continue;
+    if (NOVELTY_FONTS.test(fam))
+      add('fail', 'novelty-face', `"${fam}" is a novelty face and reads as a costume. Use a face from references/type.md, or declare it in <meta name="brand-fonts"> if the brand already owns it.`, { family: fam });
+    else if (AI_DEFAULT_FONTS.test(fam))
+      add('fail', 'ai-default-face', `"${fam}" is a face models default to and reads as generated. Use a face from references/type.md, or declare it in <meta name="brand-fonts"> if the brand already owns it.`, { family: fam });
+  }
+
+  const inChrome = (el) => !!el.closest('nav, header, footer, [role="navigation"], [role="contentinfo"]');
+  const isCode = (el) => !!el.closest('code, pre, kbd, samp');
+  const ownText = (el) => Array.from(el.childNodes).filter((n) => n.nodeType === 3).map((n) => n.textContent).join(' ').replace(/\s+/g, ' ').trim();
+  const leafText = textEls.filter((el) => ownText(el).length > 1);
+
+  const countable = document.body.cloneNode(true);
+  countable.querySelectorAll('nav, header, footer, script, style, noscript, template, [aria-hidden="true"], [data-reference], .skip-link, [hidden]').forEach((n) => n.remove());
+  const wordCount = (countable.textContent || '').split(/\s+/).filter((w) => /[\p{L}\p{N}]/u.test(w)).length;
+  if (wordCount > 300)
+    add('fail', 'too-much-text', `${wordCount} words outside nav, footer and data-reference. The budget is 300, and real sites run 80-281. Delete sentences and then whole sections. Do not shrink the type. See references/copy.md.`, { words: wordCount });
+
+  const monoEls = leafText.filter((el) => !isCode(el) && /mono|courier|consolas|menlo/i.test(getComputedStyle(el).fontFamily.split(',')[0]));
+  if (monoEls.length)
+    add('fail', 'mono-text', `${monoEls.length} text element${monoEls.length === 1 ? '' : 's'} set in mono outside code, such as "${ownText(monoEls[0]).slice(0, 40)}". Mono labels are a generated tell. Use the page's one typeface, or delete the label.`, monoEls.slice(0, 6).map((el) => ownText(el).slice(0, 40)));
+
+  const capsLabels = leafText.filter((el) => {
+    if (inChrome(el)) return false;
+    const c = getComputedStyle(el), size = parseFloat(c.fontSize) || 0, t = ownText(el);
+    if (size > 20 || t.length > 48) return false;
+    return (c.textTransform === 'uppercase' || (t === t.toUpperCase() && /[A-Z]{2}/.test(t))) && parseFloat(c.letterSpacing) > size * 0.03;
+  });
+  if (capsLabels.length > 2)
+    add('fail', 'caps-labels', `${capsLabels.length} small tracked-caps labels, such as "${ownText(capsLabels[0]).slice(0, 40)}". Delete them. A label above a heading adds words and no information.`, capsLabels.slice(0, 8).map((el) => ownText(el).slice(0, 40)));
+
+  /* A hard shadow has an offset and no blur: "rgb(0,0,0) 5px 5px 0px 0px". */
+  const hardShadow = (value) => value && value !== 'none' && value.split(/,(?![^(]*\))/).some((one) => {
+    if (/inset/.test(one)) return false;
+    const n = (one.replace(/rgba?\([^)]*\)/, '').match(/-?[\d.]+px/g) || []).map(parseFloat);
+    return n.length >= 3 && (n[0] !== 0 || n[1] !== 0) && n[2] === 0;
+  });
+  const shadowed = all.filter((el) => { const c = getComputedStyle(el); return hardShadow(c.boxShadow) || hardShadow(c.textShadow); });
+  if (shadowed.length)
+    add('fail', 'hard-shadow', `${shadowed.length} element${shadowed.length === 1 ? ' has' : 's have'} a hard offset shadow, such as ${describeShort(shadowed[0])}. This neo-brutalist sticker look is a generated tell. Remove the shadow.`, shadowed.slice(0, 6).map(describeShort));
+
+  const rotation = (el) => {
+    const m = getComputedStyle(el).transform;
+    if (!m || m === 'none') return 0;
+    const v = m.match(/matrix\(([^)]+)\)/);
+    if (!v) return 0;
+    const [a, b] = v[1].split(',').map(parseFloat);
+    return Math.abs(Math.atan2(b, a) * 180 / Math.PI);
+  };
+  const tilted = all.filter((el) => {
+    if (el.closest('[data-track]') || !textOf(el)) return false;
+    const r = rotation(el);
+    return r > 0.5 && r < 30;
+  });
+  if (tilted.length)
+    add('fail', 'tilted-text', `${tilted.length} text element${tilted.length === 1 ? ' is' : 's are'} tilted at rest, such as ${describeShort(tilted[0])}. Tilted stickers and highlight bars are a generated tell. Set them straight on the grid, or delete them.`, tilted.slice(0, 6).map(describeShort));
 
   /* Step 1: "Max 1 eyebrow label per 3 sections". A stated absolute that
      nothing measured, and a build from the skill alone shipped six across ten
@@ -811,7 +864,7 @@ const audit = (opts = {}) => {
       eyebrows.slice(0, 10));
 
   /* ---------- type-levels ----------
-     references/typographic-hierarchy.md: six roles, at most four sizes in any
+     references/type.md: six roles, at most four sizes in any
      one screen, adjacent levels at 20px+ at least 1.2x apart, and one title
      size for every section. A reviewer rejected a page built from this skill
      for seven competing sizes and section titles at a different size in every
@@ -879,7 +932,7 @@ const audit = (opts = {}) => {
     if (h2Sizes.length >= 3) parts.push(`section h2s render at ${h2Sizes.length} sizes (${h2Sizes.join('/')}px). Every section title uses one --t-title; the only other h2 size is the one display event`);
     if (parts.length)
       add('warn', 'type-levels',
-        `Typographic hierarchy is crowded or flat: ${parts.join('; ')}. Map every text element to one of the six roles in references/typographic-hierarchy.md and delete sizes rather than nudging them.`,
+        `Typographic hierarchy is crowded or flat: ${parts.join('; ')}. Map every text element to one of the six roles in references/type.md and delete sizes rather than nudging them.`,
         { crowded: crowded.slice(0, 6), close: close.slice(0, 6), h2Sizes, worstSizesPerScreen: worst });
   } catch { /* type-levels is advisory; a page it cannot read reports nothing */ }
 
@@ -978,7 +1031,7 @@ const audit = (opts = {}) => {
     if (m.kind === 'video' && !scrubbedSeq) continue;
     if (m.r.width * m.r.height >= vw * vh * 0.5) { liveScene = m.kind; break; }
   }
-  /* Eight placements of one photograph is one photograph. density-and-devices.md
+  /* Eight placements of one photograph is one photograph. SKILL.md
      asks for ">= 6 distinct source photos, each cropped >= 2 ways" and nothing
      measured the first half of that sentence. */
   const mediaKeyOf = (m) => {
@@ -997,7 +1050,7 @@ const audit = (opts = {}) => {
       { rendered: media.length, byKind: mediaByKind, distinctSources: distinctMedia, screens: +screensNow.toFixed(1), corpusRenderedMedian: CORPUS.renderedMedian, corpusRawTagMedian: CORPUS.rawTagMedian, liveScene });
   if (screensNow > 5 && !liveScene && media.length >= 6 && distinctMedia < 5)
     add('sparse', 'image-repetition',
-      `${media.length} media placements resolve to ${distinctMedia} distinct source${distinctMedia === 1 ? '' : 's'}. density-and-devices.md counts placements, not files — but it asks for at least six distinct photographs, each cropped two or more ways. Repeating one frame eight times fills the density count and shows the reader one picture.`,
+      `${media.length} media placements resolve to ${distinctMedia} distinct source${distinctMedia === 1 ? '' : 's'}. SKILL.md counts placements, not files — but it asks for at least six distinct photographs, each cropped two or more ways. Repeating one frame eight times fills the density count and shows the reader one picture.`,
       { rendered: media.length, distinctSources: distinctMedia, wanted: 5, byKind: mediaByKind });
 
   /* --- 2. hero-is-the-peak: a second type event at or near hero scale --- */
@@ -1212,7 +1265,7 @@ const audit = (opts = {}) => {
    * satisfied by a well-set static document. Two sites shipped from this skill
    * with zero pins, zero scrubs, zero transitions and zero canvas and passed
    * everything.
-   * references/ambition-tiers.md makes Tier B the default and says it plainly:
+   * SKILL.md makes Tier B the default and says it plainly:
    * "a page over 6 screens is at Tier B unless you can defend Tier A". Nothing
    * measured that claim. This does.
    * CRAFT never changes the exit code. Like SPARSE it is a design note — but it
@@ -1239,12 +1292,12 @@ const audit = (opts = {}) => {
     add('fail', 'hover-image',
       `An element follows the pointer and carries an image (${craftIn.hoverImage.el}${craftIn.hoverImage.what ? `, ${craftIn.hoverImage.what}` : ''}). This skill bans images that appear on hover or follow the cursor: a phone, a keyboard and a skimming reader never see them. Delete the follower and show the photograph in the layout, inline in its row at every width (demos/index-list.html). A plain custom cursor with no picture in it is fine.`,
       craftIn.hoverImage);
-  const LONG_PAGE_SCREENS = 6;   /* ambition-tiers.md, Tier A entry clause */
+  const LONG_PAGE_SCREENS = 6;   /* SKILL.md, Tier A entry clause */
   const longPage = screensNow > LONG_PAGE_SCREENS;
 
   /* --- C1. tier-undeclared: the tier has to be a claim someone can check --- */
   /* `premium-web-design: tier=C mobile=B` — the optional `mobile=` is not a
-     let-off, it is the Tier C requirement written down. ambition-tiers.md asks
+     let-off, it is the Tier C requirement written down. SKILL.md asks
      for "a defined fallback for phones" and says never ship a 4MB model to one,
      so a page that renders on desktop and art-directs a still on the phone is
      obeying the skill. Declaring that is how it gets read as obedience rather
@@ -1258,7 +1311,7 @@ const audit = (opts = {}) => {
     const t = /\btier\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
     if (!t) return kindM ? { tier: null, mobile: null, kind: kindM[1].toLowerCase(), because: null } : null;
     const mob = /\bmobile\s*[:=]\s*([abc])\b/i.exec(anchor[0]);
-    /* ambition-tiers.md's Tier A entry test is one sentence: name the
+    /* SKILL.md's Tier A entry test is one sentence: name the
        award-winning page you are matching and say why yours needs less motion.
        Only the length clause is machine-checkable; the rest is checked by
        making the author write it down where a reviewer will read it. */
@@ -1317,7 +1370,7 @@ const audit = (opts = {}) => {
       { found: null, measuredAgainst: 'B', screens: +screensNow.toFixed(1) });
 
   /* --- C2. tier-unmet / tier-floor: what the page SHIPS vs what it claims --- */
-  /* ambition-tiers.md, Tier B "Ships:" — pinned sections, scrubbed sequences,
+  /* SKILL.md, Tier B "Ships:" — pinned sections, scrubbed sequences,
      split-text reveals, horizontal chapters, page transitions, magnetic cursor
      elements. Checking a shorter list than the document defines would call a
      page unmet for shipping something the document names as the tier. */
@@ -1385,7 +1438,7 @@ const audit = (opts = {}) => {
       fallback = { host: describe(host), mediaInside: inside.length, biggestAreaPct: +((biggest / (vw * vh)) * 100).toFixed(1), needAreaPct: 15, resolvedFrom: ref };
       if (biggest < need)
         add('craft', 'tier-fallback-missing',
-          `Tier ${declaredTier} declares \`mobile=${declaredMobileTier}\`, but the section that carries the 3D on desktop paints nothing in its place on the phone: ${inside.length} media element${inside.length === 1 ? '' : 's'} inside it, largest covering ${fallback.biggestAreaPct}% of the viewport (needs 15%). ambition-tiers.md asks for "a defined fallback", and "the still composition must be complete on its own" — a scene switched off is not a fallback, it is a hole.`,
+          `Tier ${declaredTier} declares \`mobile=${declaredMobileTier}\`, but the section that carries the 3D on desktop paints nothing in its place on the phone: ${inside.length} media element${inside.length === 1 ? '' : 's'} inside it, largest covering ${fallback.biggestAreaPct}% of the viewport (needs 15%). SKILL.md asks for "a defined fallback", and "the still composition must be complete on its own" — a scene switched off is not a fallback, it is a hole.`,
           fallback);
     } else {
       fallback = { host: null, note: 'desktop scene host did not resolve at this width', resolvedFrom: ref };
@@ -1394,7 +1447,7 @@ const audit = (opts = {}) => {
   /* The Tier A entry clause is the loophole: "it is a static site" satisfied it
      on every brief forever. Length is the one clause that cannot be argued. */
   /* The length clause is one of three, and it is the only one a machine can
-     read. ambition-tiers.md: "name the award-winning page you are matching, and
+     read. SKILL.md: "name the award-winning page you are matching, and
      say why yours needs less motion than that one. If the answer is about your
      convenience rather than the brief, you are at the wrong tier." A short page
      used to clear every craft gate simply by declaring A and stopping at 5.9
@@ -1402,12 +1455,12 @@ const audit = (opts = {}) => {
   /* Both Tier A checks are DESKTOP measurements. The 6-screen ceiling is about
      how long the page was authored; a phone reflows a four-screen photo essay
      to nine and that says nothing about ambition. And `mobile=` is the
-     documented step down at ANY tier — ambition-tiers.md prescribes "a pinned
+     documented step down at ANY tier — SKILL.md prescribes "a pinned
      horizontal chapter becomes a vertical one", which is B→A — so a declared
      `mobile=A` must not be punished by a ceiling meant for the desktop build. */
   if (!onPhone && viewportTier === 'A' && !longPage && !(tierDecl && tierDecl.because && tierDecl.because.length >= 8))
     add('craft', 'tier-a-undefended',
-      `Tier A declared with no defence written down. ambition-tiers.md makes the entry test one sentence — name the award-winning page you are matching and say why yours needs less motion than that one — and only the "under ${LONG_PAGE_SCREENS} screens" clause can be measured. Put the other two in the declaration: \`<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->\`.`,
+      `Tier A declared with no defence written down. SKILL.md makes the entry test one sentence — name the award-winning page you are matching and say why yours needs less motion than that one — and only the "under ${LONG_PAGE_SCREENS} screens" clause can be measured. Put the other two in the declaration: \`<!-- premium-web-design: tier=A because="plomberie5etoiles.com — four screens, and the photography carries every one" -->\`.`,
       { declared: 'A', screens: +screensNow.toFixed(1), because: null, detected: techPresent });
   if (!onPhone && viewportTier === 'A' && longPage)
     add('craft', 'tier-floor',
@@ -1745,7 +1798,7 @@ const audit = (opts = {}) => {
   }
   if (unsourcedRatings.length)
     add('craft', 'rating-unsourced',
-      `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link that reaches the reviews (worst: "${unsourcedRatings[0].context}"). content-and-copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. The link has to land on the listing itself: a place page, a profile, a Trustpilot page. \`href="#"\`, a bare host and a Maps *search* URL are all the claim with a link painted on it — a search hands the reader the work you said you had done.`,
+      `${unsourcedRatings.length} numeric rating${unsourcedRatings.length === 1 ? '' : 's'} with no link that reaches the reviews (worst: "${unsourcedRatings[0].context}"). copy.md bans star ratings with no source — an unlinked ${unsourcedRatings[0].rating} is a number the visitor has to take on trust, which is exactly the trust the number was there to buy. The link has to land on the listing itself: a place page, a profile, a Trustpilot page. \`href="#"\`, a bare host and a Maps *search* URL are all the claim with a link painted on it — a search hands the reader the work you said you had done.`,
       unsourcedRatings);
 
 
@@ -4090,6 +4143,14 @@ try {
   await browser.close();
 }
 
+/* SPARSE and CRAFT ask for more media, overlap and motion. Followed by default,
+   they pushed every page toward the busy look this skill exists to avoid. */
+if (!args.includes('--ambition')) {
+  for (const side of [report.desktop, report.mobile]) {
+    if (side?.findings) side.findings = side.findings.filter((f) => f.level !== 'sparse' && f.level !== 'craft');
+  }
+}
+
 await fs.writeFile(path.join(outDir, 'audit.json'), JSON.stringify(report, null, 2));
 
 /* ---------- console report ---------- */
@@ -4141,9 +4202,5 @@ if (report.error) console.log(`\nERROR: ${report.error}`);
 console.log(`\nframes → ${outDir}  (OPEN the desktop and phone JPEGs the auditor wrote before you claim done)`);
 
 const totalFails = (report.desktop?.findings || []).filter((f) => f.level === 'fail').length + (report.mobile?.findings || []).filter((f) => f.level === 'fail').length;
-const totalAmbition = [...(report.desktop?.findings || []), ...(report.mobile?.findings || [])].filter((f) => f.level === 'sparse' || f.level === 'craft').length;
-/* Exit 0 is not the Done bar. The checklist asks for zero SPARSE and zero
-   CRAFT as well. kind=world used to excuse those findings. It does not. */
-if (totalFails === 0 && totalAmbition > 0)
-  console.log(`\nexit 0, but NOT done: ${totalAmbition} SPARSE/CRAFT finding${totalAmbition === 1 ? '' : 's'} stand. The Done checklist asks for zero of both. The exit code only tracks FAILs.`);
+if (totalFails === 0) console.log('\nexit 0. This only means nothing is broken. Open the frames and compare them with assets/studies.');
 process.exit(totalFails > 0 ? 1 : 0);

@@ -51,7 +51,7 @@ reason a build that plainly has a working pin is told it has no pinned section.
 
 **Acts alone will not carry the page.** Five acts at 190 to 300 vh is nine to
 fifteen screens, and an act by design holds one headline, one subject and no
-photographs. Run the numbers against the density floor in `density-and-devices.md`
+photographs. Run the numbers against the density floor in `SKILL.md`
 and the story fails it every time: the acts are the sparse part of the page.
 Cut bands between them that are not acts at all, and let those carry the density
 a page of headlines cannot. Budget roughly **one band per act** and give each a
@@ -470,7 +470,7 @@ subject with almost nothing to spare, which is why it survives until the day
 someone points it at something short and wide.
 
 DPR caps, image sequences instead of live WebGL, `svh` over `vh` and `srcset` on
-stills are in `scroll-storytelling.md` §7 and `density-and-devices.md`.
+stills are in `scroll-storytelling.md` §7 and `SKILL.md`.
 
 ## 10. Reduced motion
 

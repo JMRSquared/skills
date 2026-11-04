@@ -18,9 +18,9 @@
   DERIVES FROM — references/site-studies/amrit-palace.md (display serif at 115px,
   sub-1.0 line-height, tracking −4% of size, set on a warm sand ground) and
   hagis-barbershop.md (Splitting/SplitText per-line entrance).
-  references/typographic-hierarchy.md sets the six type roles and their tokens:
+  references/type.md sets the six type roles and their tokens:
   every text element maps to one role, no caps labels, no numbered labels,
-  nothing under 15px. references/no-slop.md sets the copy: every heading names
+  nothing under 15px. references/copy.md sets the copy: every heading names
   the bread, the mill or the counter, so the headings read alone as a summary
   of the business.
 
@@ -43,7 +43,7 @@
 
   ADAPT
     · Swap the palette block and the two <link> font URLs. Values are verbatim
-      from references/color-and-light.md (Paper warm) and typography.md (row 7).
+      from references/color-and-light.md (Paper warm) and type.md (row 7).
     · `--t-display` controls the whole composition. `max-width: 14ch` and
       `text-wrap: balance` on .h-1 set the measure; the splitter reads whatever
       lines the browser draws, so a plain eight-word headline splits into three
@@ -54,7 +54,7 @@
     · Every duration/easing token below is copied from references/motion.md.
 
   PALETTE  Paper warm      (color-and-light.md, palette 2)
-  TYPE     Newsreader (opsz 72) + Schibsted Grotesk   (typography.md, pairing 7)
+  TYPE     Newsreader (opsz 72) + Schibsted Grotesk   (type.md, pairing 7)
 -->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -73,7 +73,7 @@
   --ease-move:cubic-bezier(0.65, 0, 0.35, 1);
   --d-press:120ms; --d-state:240ms; --d-layout:400ms; --d-enter:700ms;
 
-  /* type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+  /* type: references/type.md, six roles, 390px → 1440px.
      The standard block, display included: the plain h1 lands in three lines
      at 160px. */
   --font-display:"Newsreader",serif;

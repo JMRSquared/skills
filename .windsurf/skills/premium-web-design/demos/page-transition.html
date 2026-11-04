@@ -63,13 +63,13 @@
   PALETTE     "Paper warm", references/color-and-light.md, verbatim
               --ground #F6F2EA --ground-2 #EDE6DA --edge #DCD2C2
               --ink #1A1713    --ink-muted #6B6155 --accent #B4401F
-  TYPE        Pairing 7, references/typography.md, verbatim:
+  TYPE        Pairing 7, references/type.md, verbatim:
               Newsreader (opsz 72) display + Schibsted Grotesk body.
-              Sized by references/typographic-hierarchy.md: six roles, and
+              Sized by references/type.md: six roles, and
               every text element maps to one. The bar, years, places and
               credits are the small role at 15px in sentence case; no caps
               labels, nothing under 15px.
-  COPY        references/no-slop.md: each heading names the room, the place
+  COPY        references/copy.md: each heading names the room, the place
               or the survey, so the headings read alone.
   MOTION      Durations and curves from references/motion.md only.
               Page transition 620ms on --ease-move, inside that file's
@@ -88,7 +88,7 @@
   --ground:#F6F2EA; --ground-2:#EDE6DA; --edge:#DCD2C2;
   --ink:#1A1713;    --ink-muted:#6B6155; --accent:#B4401F;
 
-  /* ---- type: references/typographic-hierarchy.md, six roles, 390px → 1440px.
+  /* ---- type: references/type.md, six roles, 390px → 1440px.
      Display retuned to 128px (8.9vw) so the plain eight-word headline lands in
      three lines; every other role is the standard block, unchanged. ---- */
   --font-display:"Newsreader", Georgia, serif;
@@ -169,7 +169,7 @@ h3.display{
    event on a page whose hero would otherwise be the only peak, and it makes
    the frame read as a window rather than a box. It is a row of the four
    place names, concrete nouns from the survey, and it is aria-hidden: the
-   entries carry the same places as text (no-slop.md, the decode test).
+   entries carry the same places as text (copy.md, the decode test).
    It uses the display role, so the page still has one display size. The clip lives on the band,
    not on <body>, because a clip on an ancestor of a sticky or pinned
    element breaks it - see three-scroll-scene.html, GUARD 1. */

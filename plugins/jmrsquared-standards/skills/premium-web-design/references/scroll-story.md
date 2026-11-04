@@ -8,8 +8,12 @@ guide: the storyboard you write first, the scene and transition vocabulary,
 the pacing numbers, the runtime in `kit/` and the check that proves the
 story reads.
 
-Worked example: `demos/scroll-story/` (Kettle & Coil, one bike repaired over
-one morning). Read its `PRODUCT.md` before writing your own storyboard.
+Worked example: `demos/scroll-story/` (Kettle & Coil, one workshop told in
+photographs). Read its `PRODUCT.md` before writing your own storyboard.
+
+SKILL.md wins any conflict with this file. Keep the story quiet: one subject, a
+few changes and few words. The mechanics below are options, not a shopping list.
+Most pages need one held run and no spine at all.
 
 ## Why stories came out poor
 
@@ -36,9 +40,9 @@ Inkwell (Awwwards, 2025). Do the same.
 
 ```md
 ## Story
-Protagonist  The one subject that stays on screen (product, object, number, character)
+Protagonist  The one subject that stays on screen (a photograph, the product, a line of type)
 Change       Its state at the top of the page and at the bottom, in one line
-Spine        The device that shows progress (ticket, rail, odometer, timeline)
+Spine        Optional, usually none. A quiet progress line only if the page needs one
 Peak         The sentence a visitor says to a friend about the best moment
 Ending       How the opening motif pays off; the one action left behind
 
@@ -116,18 +120,8 @@ Rules:
   that stays put while what is inside it changes. Segel and Heer call this a
   "consistent visual platform". On animejs.com the hero ring becomes a dial
   that frames every feature demo in turn.
-- **Chapter colour.** Each chapter owns one colour, used in its heading, its
-  part of the frame and its row in any legend. The runtime marks the active
-  scene on `<html>`, so one rule per chapter does it:
-  `html[data-active-scene="patch"] { --chapter: var(--tomato); }`.
-
-- **Protagonist on a stage.** One drawing or product frame in a sticky
+- **Protagonist on a stage.** One photograph or product frame in a sticky
   `data-stage`, constant size within a run. Parts of it are tracks.
-- **Spine.** A ticket, rail, odometer or progress line that records each
-  chapter (the demo's ticket stamps one line per chapter). It answers
-  Kosara's "no sense of length" complaint.
-- **Readout.** A number the subject's state drives (wobble mm, litres,
-  altitude). Numbers moving with the drawing prove the change is real.
 - **Chapters nav.** `data-chapters` on the nav gives jump links that mark the
   current scene with `aria-current="step"` (Resn's Tracing Art keeps a
   progress bar and chapter menu for the same reason).
@@ -174,8 +168,7 @@ page keep working.
   top half. Make discrete steps into sticky plates (`position: sticky; top:
   56svh` in the demo) so a step never covers the chat it drives.
 - Keep the scroll story on phone only when the change is meaningful (The
-  Pudding). Otherwise drop the spine and side stickers and keep the
-  protagonist.
+  Pudding). Otherwise keep only the protagonist.
 - Use `svh` for spans and stage heights. It ignores the mobile toolbar, so
   trigger lines do not jump when it hides.
 - Hide nothing that matters behind hover.
