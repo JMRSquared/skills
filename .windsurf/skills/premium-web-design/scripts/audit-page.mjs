@@ -4077,6 +4077,37 @@ const heroPaintPass = async (ctx, target, blockThirdParty, budgetMs) => {
   return out;
 };
 
+/* ---------- plain language ----------
+   Every word on the page goes through jmr-plain-language, so the rules live in
+   that skill's checker and this fails the build on its hits. Runs on the
+   rendered page because most pages are not plain HTML on disk. Reads textContent
+   so text still waiting on a scroll reveal is checked too. */
+const collectCopyBlocks = () => {
+  const blocks = 'h1,h2,h3,h4,h5,h6,p,li,figcaption,summary,dt,dd,td,th,caption';
+  const inline = 'a,button,label';
+  const skipped = 'nav,footer,script,style,pre,code,noscript,template,svg,blockquote,q,[aria-hidden="true"],[data-reference],[data-client-words]';
+  /* textContent runs "Bike repairs<br>in Woodstock" together, so a hand-set line
+     break has to become a space first. */
+  const textOf = (el) => {
+    const copy = el.cloneNode(true);
+    copy.querySelectorAll('br').forEach((br) => br.replaceWith(' '));
+    return (copy.textContent || '').replace(/\s+/g, ' ').trim();
+  };
+  const leaves = Array.from(document.querySelectorAll(blocks)).filter((el) => !el.querySelector(blocks));
+  const loose = Array.from(document.querySelectorAll(inline)).filter((el) => !el.closest(blocks));
+  return [...leaves, ...loose].filter((el) => !el.closest(skipped)).map(textOf).filter(Boolean);
+};
+
+const plainLanguageChecker = await import(new URL('../../jmr-plain-language/scripts/check-copy.mjs', import.meta.url)).catch(() => null);
+
+const plainLanguageFindings = async (page) => {
+  if (!plainLanguageChecker) {
+    return [{ level: 'fail', code: 'plain-language', msg: 'jmr-plain-language is not installed, so nothing checked the words on this page. Install it with: npx skills add jmrsquared/skills --skill jmr-plain-language -g' }];
+  }
+  const hits = plainLanguageChecker.checkBlocks(await page.evaluate(collectCopyBlocks));
+  return hits.map(({ code, text, fix }) => ({ level: 'fail', code: 'plain-language', msg: `${code}: "${text}". ${fix} Mark it data-client-words only if the client wrote it.` }));
+};
+
 const heroPaintProbe = async (ctx, target) => {
   const passes = [];
   passes.push(await heroPaintPass(ctx, target, false, 9000));
@@ -4110,6 +4141,7 @@ try {
   const desktopHero = await heroPaintProbe(ctx, url);
   report.desktopHero = desktopHero;
   report.desktop = await page.evaluate(audit, { expectWidth: 0, ground: desktopGround, craft: desktopCraft, heroPaint: desktopHero, capabilityNotes: report.capability });
+  report.desktop.findings.push(...await plainLanguageFindings(page));
   await ctx.close();
 
   const mctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });

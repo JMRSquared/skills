@@ -1,7 +1,7 @@
 ---
 name: premium-web-design
 description: Build customer-facing websites around one realistic, playable object that is the product's own metaphor (a rail you push, a belt you flick, a lit 3D machine, a photoreal scene), framed by one plain typeface and very few words, with scroll wired through kit/story.js. Use when building or redesigning marketing sites, product sites, landing pages, launch pages, brand or campaign microsites; when the user runs /premium-web-design; or asks for premium, polished, award-winning, or cinematic web design. Do not auto-apply to authenticated app chrome (dashboards, settings, admin, CRUD), design-system primitives, or pure API/infra work unless explicitly invoked.
-version: 3.0.0
+version: 3.1.0
 ---
 
 # /premium-web-design
@@ -83,7 +83,7 @@ Avoid the palettes models default to unless they are the brand's: cream paper wi
 
 ## 6. Words
 
-Read `references/copy.md` and follow it. In short: 20-60 words on the first screen and under 300 on the page. A hero of at most 8 words plus one sentence and one button. At most one small label. No side notes, marquees, invented details or wit. Details belong inside the object, shown on hover or click. Keep real reference data such as prices or hours in `data-reference`.
+Read `references/copy.md` and follow it. Every word on the page goes through `jmr-plain-language`: ordinary sentences a person would say out loud, no slogans and no clipped fragments. In short: 20-60 words on the first screen and under 300 on the page. A hero of at most 8 words plus one sentence and one button. At most one small label. No side notes, marquees, invented details or wit. Details belong inside the object, shown on hover or click. Keep real reference data such as prices or hours in `data-reference`.
 
 ## 7. The generated look
 
@@ -165,7 +165,7 @@ PW_DIR=… node <skill-dir>/scripts/story-frames.mjs "file://$PWD/index.html" ./
 Open the desktop and phone JPEGs. Then do the **cut pass**, always, at least once:
 
 1. Remove one section. Is the page worse? If not, leave it out.
-2. Read every sentence. Delete each one the page survives without.
+2. Read every sentence. Delete each one the page survives without. Do the read-through in `<skill-dir>/../jmr-plain-language/references/surfaces.md` on what is left.
 3. Remove every element that is not the object, an image, a headline, a fact or the action.
 4. Put your first screen next to two frames from `owner-references`. Fix whatever looks cheaper. Play with the object as a stranger would: if it feels stiff, fix the physics before anything else.
 5. Go through `<skill-dir>/../jmr-unslop/references/signs.md` and list any sign still on the page. That file finds problems only. The fixes come from this skill, so sections 3 and 7 override what it suggests about mono labels, split heroes and generated scenes.
@@ -188,6 +188,7 @@ Do exactly what was asked and nothing around it. When the user asks you to remov
 - [ ] Copied `kit/` files in the project and `[story] live` in the console; under reduced motion the page still reads
 - [ ] Cut pass done, and you can name what you removed
 - [ ] No sign from `jmr-unslop`'s `references/signs.md` left on the page
+- [ ] Every line passed the `jmr-plain-language` read-through. The auditor's `plain-language` check passes
 - [ ] `audit-page.mjs` exits 0 at desktop and phone, and you looked at the frames
 - [ ] Favicon and web icons come from the brand mark
 - [ ] Your reply lists any placeholder that needs a real fact
@@ -199,6 +200,7 @@ Do exactly what was asked and nothing around it. When the user asks you to remov
 | `references/the-object.md` | Always, first |
 | `references/type.md` | Always |
 | `references/copy.md` | Always, and whenever text is discussed |
+| `<skill-dir>/../jmr-plain-language/SKILL.md` and the published content section of its `references/surfaces.md` | Always: every word on the page |
 | `references/scroll-story.md` | Always: wiring the story |
 | `<skill-dir>/../jmr-unslop/references/signs.md` | Always: the cut pass, and first thing on a redesign |
 | `references/imagery.md` | Sourcing and cropping photography |

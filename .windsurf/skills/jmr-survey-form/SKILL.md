@@ -23,7 +23,7 @@ Read the README, landing page copy, pricing, docs and any marketing files. Write
 - The problem it solves and what people use today instead.
 - The main features (4 to 6, in the product's own words).
 - The market and currency for the price question.
-- Whether a promo video exists: `find . -type f \( -iname '*.mp4' -o -iname '*.mov' \) -not -path '*/node_modules/*'` and `grep -rIoE 'https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]+' --exclude-dir=node_modules .`. Folders from `/jmr-generate-video` (`video-output-*/brag.mp4`) count.
+- Whether a promo video exists: `find . -type f \( -iname '*.mp4' -o -iname '*.mov' \) -not -path '*/node_modules/*'` and `grep -rIoE 'https?://(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[A-Za-z0-9_-]+' --exclude-dir=node_modules .`. Folders from `/jmr-generate-video` (`video-output-*/video.mp4`, or `brag.mp4` in older folders) count.
 
 If the target customer or the market is unclear, ask the user. Do not guess.
 

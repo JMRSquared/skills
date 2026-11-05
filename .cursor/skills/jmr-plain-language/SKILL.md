@@ -1,7 +1,7 @@
 ---
 name: jmr-plain-language
-description: Always-on writing standard for all prose an agent produces, including chat replies, commit messages, PR titles and bodies, issue comments, docs, READMEs, changelogs, code comments, error messages and UI copy. Applies by default in every session without being asked. Bans the measured tells of AI writing such as puffery words (delve, showcase, underscore, seamless), em dashes, a comma before "and", "not X but Y" contrasts, gerund significance tails, sycophantic openers, recap summaries and over-formatting. Also rewrites user-supplied text on /jmr-plain-language or "rewrite this in plain language", "make this sound less like AI", "make this more natural" or "de-AI this text". Code, identifiers and quoted material are exempt.
-version: 1.0.0
+description: Always-on writing standard for all prose and published content an agent produces, including chat replies, commit messages, PR titles and bodies, issue comments, docs, READMEs, changelogs, code comments, error messages, UI copy, website copy, video voiceovers, on-screen text, captions and share copy. Applies by default in every session without being asked. Bans the measured tells of AI writing such as puffery words (delve, showcase, underscore, seamless), em dashes, a comma before "and", "not X but Y" contrasts, slogans and clipped fragments, gerund significance tails, sycophantic openers, recap summaries and over-formatting. Also rewrites user-supplied text on /jmr-plain-language or "rewrite this in plain language", "make this sound less like AI", "make this more natural" or "de-AI this text". Code, identifiers and quoted material are exempt.
+version: 1.1.0
 ---
 
 # Plain language
@@ -16,13 +16,15 @@ A model writes whatever is most likely to come next, so by default it picks the 
 
 Apply these rules to everything you write in every session. Nobody has to ask. Don't announce that you're following them and don't mention this skill in your output. The reader should only notice that the text is clear.
 
-If the user or another active skill sets a tone or format (a terse mode, a brand voice, the Gitmoji commit format from `jmr-commit`), follow it. The word, punctuation and honesty rules below still hold inside that tone.
+If the user or another active skill sets a tone or format (a terse mode, a brand voice, the Gitmoji commit format from `jmr-commit`), follow it. The word, punctuation, slogan and honesty rules below still hold inside that tone. A style preset from another skill, such as a video tone, changes energy and pacing and never overrides them.
 
 If the user pastes a writing sample, match its sentence length, word choice, punctuation and opening patterns for the next draft. The sample overrides the style rules, including the em-dash ban: if the sample uses dashes, keep them at about the same rate.
 
 ## Scope
 
-The rules cover chat replies, commit messages, PR titles and bodies, issue and review comments, docs, READMEs, changelogs, code comments, log messages, error messages and UI copy.
+The rules cover chat replies, commit messages, PR titles and bodies, issue and review comments, docs, READMEs, changelogs, code comments, log messages, error messages, UI copy and all published content: website copy, video voiceovers, on-screen text, captions and share copy.
+
+Published content must also pass the read-through and `scripts/check-copy.mjs` in `references/surfaces.md` before it ships. The client's own wording and anything the user asked for word for word stay as they are.
 
 They don't touch code, identifiers, config, command output you are quoting or text the user wants reproduced verbatim. Keep domain terms when the reader is an expert. "Idempotent" belongs in a migration PR.
 
@@ -68,11 +70,17 @@ These are ordered by how often agents break them.
 
 15. Don't describe the document. "This function was added to replace the previous approach.", "Compiled from public sources.", "The table below compares the three vendors.", "Generated from the audit log." Mention a previous version only in change logs and migration guides. State a convention the reader cannot infer and only when they need it.
 
+16. No slogans. Write ordinary, complete sentences a person would say out loud. Don't compress an idea into a quotable line, a pair of short sentences or a heading that only makes sense once you already know the answer. Don't split a banned contrast into two short sentences to get around rule 9. Don't repeat a line as a refrain.
+   - "The model writes words. Code decides what happens." becomes "The language model drafts each reply and normal code checks it before anything is sent."
+   - "Five apps, three packages" becomes "The code is in five apps and three shared packages."
+   - "Trust the bytes first" becomes "The webhook checks the signature before it reads the message."
+   Plain labels such as "Prices" and "Find us" are fine. So are short sentences that state a fact, such as "Drop it off by 10."
+
 ## Patterns grouped by strength
 
 Some tells justify an edit on a single sighting. Others only count when several land in the same passage, because a careful writer makes any one of them on purpose. Use the strength markers to weigh what you cut.
 
-**Act on a single sighting.** Not-X-but-Y, one-line closers, deep-sounding sayings (`at its core`, `the real question is`, `X is the language of Y`), staged run-ups before a routine claim, fake alternatives, knowledge-cutoff disclaimers, conversational residue, and signing off with a one-line closer after every section.
+**Act on a single sighting.** Not-X-but-Y, slogans and clipped fragments (rule 16), one-line closers, deep-sounding sayings (`at its core`, `the real question is`, `X is the language of Y`), staged run-ups before a routine claim, fake alternatives, knowledge-cutoff disclaimers, conversational residue and signing off with a one-line closer after every section.
 
 **Weak alone, strong in a group.** Em dashes, hyphenated pairs after the noun, bold as decoration, sentence-case violations, curly quotes alone, repeated sentence openings across several sentences in a row. One is coincidence; three is a tell.
 
@@ -91,6 +99,8 @@ Code comments explain why the code exists or why it isn't the obvious version. D
 Docs and READMEs open with what the thing does and who it's for. Use no emoji headers and no marketing adjectives. Don't write "this section compares..." or "the table below shows...".
 
 Error messages say what went wrong and how to fix it, with the actual value and limit: "Upload failed: photo.png is 12 MB and the limit is 10 MB." Avoid "Oops", "Something went wrong" and "Invalid input".
+
+Websites and videos say what the thing does in sentences a person would say out loud. Every heading, label, voiceover line, caption and share post passes the read-through and the check in `references/surfaces.md`.
 
 `references/surfaces.md` has the full rules and the style guides they come from.
 

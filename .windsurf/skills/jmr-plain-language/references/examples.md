@@ -191,6 +191,24 @@ After:
 
 > The company's founding date is not in the public sources we have.
 
+## Slogans in a video or on a page
+
+Before:
+
+> The model writes words. Code decides what happens.
+>
+> Five apps, three packages
+>
+> Trust the bytes first
+
+After:
+
+> The language model drafts each reply and normal code checks it before anything is sent.
+>
+> The code is in five apps and three shared packages.
+>
+> The webhook checks the signature before it reads the message.
+
 ## Bold-as-decoration labeled list
 
 Before:

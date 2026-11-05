@@ -79,6 +79,7 @@ Taste checks:
 
 | Code | Fails when | Fix |
 |---|---|---|
+| `plain-language` | Page copy breaks a `jmr-plain-language` rule a search can catch, such as a slogan pair, a verbless fragment, a count pair, a comma before "and" or an em dash. Skips nav, footer, `data-reference`, `data-client-words`, quotes and code | Rewrite as an ordinary sentence. `data-client-words` is only for wording the client wrote |
 | `too-much-text` | Over 300 words outside nav, footer and `data-reference` | Delete sentences, then sections. Do not shrink the type |
 | `too-many-fonts` | More than two families rendered | One family, or two with a real contrast |
 | `novelty-face` | A novelty display face, unless declared in `<meta name="brand-fonts">` | A face from `references/type.md` |

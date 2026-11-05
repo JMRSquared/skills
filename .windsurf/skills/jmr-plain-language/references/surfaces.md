@@ -111,3 +111,34 @@ Rules:
 - Keep what the user typed so they can correct it (Nielsen Norman Group, error message guidelines).
 - Use buttons that say what they do ("Delete project", not "OK").
 - Log messages state the event and the identifiers needed to trace it. Leave out adjectives.
+
+## Websites, videos and other published content
+
+What goes wrong:
+
+- Slogans. "The model writes words. Code decides what happens." sounds finished and tells a new viewer little.
+- Headings that are puzzles, such as "Trust the bytes first" or "Already booked."
+- Counts used as headings, such as "Five apps, three packages".
+- A style brief that asks for "punchy" copy, a "punchline" or a "tagline", which an agent reads as permission to write this way.
+
+Rules:
+
+- Every word passes through this section before it ships. A tone or style preset changes energy and pacing. It doesn't change these rules.
+- The client's own wording stays, even when it breaks a rule. So does a line the user asked for word for word.
+
+The pass has two steps. Both are required:
+
+1. **Read every line.** Include headings, labels, buttons, voiceover lines, captions, share copy and any text a script sets at runtime. Rewrite a line when any answer is no:
+   - Would you say this sentence out loud to a colleague?
+   - Would a stranger know what it means without the rest of the page or film?
+   - Does it state a fact or an instruction? A line that only sounds good fails.
+   - Does it still make sense if you remove every word chosen for rhythm?
+2. **Run the check.** Exit 1 means rewrite each hit.
+
+```bash
+node <jmr-plain-language dir>/scripts/check-copy.mjs [--allow allow.txt] <files or folders>
+```
+
+It reads `.html`, `.txt` and `.md` files or a folder of `.html` files. `allow.txt` lists wording the client wrote or the user asked for, one phrase per line. It holds nothing else. Tell the user what you put in it.
+
+The check finds shapes: pairs of very short sentences, verbless fragments, count pairs, refrains, contrasts, em dashes, a comma before "and", stock phrases and puffery. It can't judge meaning. "Trust the bytes first" passes it, which is why the read-through comes first.

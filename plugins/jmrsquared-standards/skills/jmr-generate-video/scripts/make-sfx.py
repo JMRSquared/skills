@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the transition sounds brag's CC0 library lacks: whooshes, risers and hits.
+"""Generate transition sounds with no licence terms: whooshes, risers and hits.
 
   make-sfx.py <out-dir> [--key A]
 

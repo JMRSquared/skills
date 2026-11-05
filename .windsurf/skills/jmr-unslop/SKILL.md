@@ -32,7 +32,7 @@ Run on its own, this file decides everything. Inside another JMR skill, that ski
 | --- | --- | --- |
 | `/jmr-unslop` or a plain request | The full process below | Nothing |
 | `/premium-web-design` | Use [references/signs.md](references/signs.md) to find problems | Only the problems come from here. Fixes come from that skill, so its single typeface, its ban on mono labels and copy-left heroes and its photo, product or type lead override the partner mono, the asymmetric split and the generated scene in this file |
-| `/jmr-generate-video` | [references/signs.md](references/signs.md) finds problems in the frames | That skill's `references/no-slop-video.md` applies this file to video. Brag keeps story and pacing |
+| `/jmr-generate-video` | [references/signs.md](references/signs.md) finds problems in the frames | That skill's `references/no-slop-video.md` applies this file to video. Hyperframes keeps story and pacing |
 | A page already built with `/premium-web-design` (it has `PRODUCT.md` or `kit/story.js`) | Polish mode | Keep its typeface, lead and scroll story |
 | `/jmr-cycle` or `/agents-execute` | [Unattended mode](#unattended-mode) | You never stop to ask |
 
@@ -123,6 +123,7 @@ If the product already has a real brand, like a logo file, a color or a typeface
 ## 4. Copy
 
 - Headlines say what the product does for whom, in plain words, so they could not fit another product. Use the facts already on the page and do not invent new ones.
+- All copy follows `jmr-plain-language`: ordinary sentences a person would say out loud, no slogans and no clipped fragments. Do the read-through in its `references/surfaces.md`.
 - No exclamation marks in interface text and never `!!`.
 - No greeting headlines like `Welcome back, Sam! 👋`. The title names the context, like the page name or the period, for example `October 2026`.
 - Short labels. `Search`, not `Search anything...`.

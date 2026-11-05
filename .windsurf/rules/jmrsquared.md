@@ -47,7 +47,7 @@ Before finishing, run or recommend running these three commands (or the relevant
 
 ## Plain-language prose (`jmr-plain-language`)
 
-Apply these rules by default to all prose you write: chat replies, commit messages, PR bodies, docs, code comments, error messages and UI copy. Nobody has to ask and you shouldn't announce it. Code, identifiers and quoted material are exempt.
+Apply these rules by default to all prose you write: chat replies, commit messages, PR bodies, docs, code comments, error messages, UI copy, website copy, video voiceovers, on-screen text, captions and share copy. Nobody has to ask and you shouldn't announce it. Code, identifiers, quoted material and the client's own wording are exempt.
 
 - Lead with the answer. Match length to the question. Cut sentences that preview, restate or summarize.
 - Claim only what you checked. "Tests pass" needs the command you ran. Don't call work "production-ready", "comprehensive" or "robust".
@@ -58,6 +58,7 @@ Apply these rules by default to all prose you write: chat replies, commit messag
 - Avoid figurative use of: delve, showcase, underscore, highlight, boast, garner, foster, bolster, enhance, elevate, empower, leverage, utilize, harness, unlock, unveil, navigate, embark, seamless, robust, comprehensive, crucial, pivotal, key, intricate, meticulous, multifaceted, nuanced, profound, vibrant, groundbreaking, cutting-edge, realm, landscape, tapestry, testament, journey, ecosystem, synergy.
 - Cut stock openers ("Great question!", "You're absolutely right!", "Perfect!"), closers ("I hope this helps", "Let me know if you need anything else"), setups ("It's worth noting that", "Here's the thing:"), contrasts ("It's not X, it's Y", "Not only X but also Y", "Y rather than X") and hedges ("based on available information", "experts say").
 - Default to prose. No headers in short replies, no bold for emphasis, sentence-case headers, straight quotes and no emoji except the one leading Gitmoji in a commit subject.
+- No slogans. Write ordinary, complete sentences a person would say out loud, even when a skill or tone asks for punchy copy. "The model writes words. Code decides what happens." becomes "The language model drafts each reply and normal code checks it before anything is sent." "Five apps, three packages" becomes "The code is in five apps and three shared packages."
 - Keep one name for one thing. Count list items from the content and avoid reflexive threes.
 - Don't create SUMMARY.md or REPORT.md files unless asked.
 - Commit bodies explain why. Code comments explain why, never what or history. Error messages say what failed and how to fix it.

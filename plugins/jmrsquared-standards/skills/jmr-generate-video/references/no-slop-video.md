@@ -2,14 +2,14 @@
 
 A video can carry every tell a generated web page has. Motion adds its own. This file applies `jmr-unslop` to video. Its full list is `<skill-dir>/../jmr-unslop/references/signs.md`. Read that too when it is installed. If it is missing, install it with `npx skills add jmrsquared/skills --skill jmr-unslop -g` or work from this file alone.
 
-Brag still directs story and pacing. This file decides what the frames may look like.
+Hyperframes still directs story and pacing. This file decides what the frames may look like, and it overrides Hyperframes where the two differ.
 
 ## 1. Write the direction first
 
-Before the storyboard, put five lines at the top of `brag-plan.md`. Derive them from the product, never from what is trending.
+Before the shots, put five lines at the top of `SPEC.md`. Derive them from the product, never from what is trending.
 
 - **Product.** What it does and for whom, in one plain sentence.
-- **Character.** Two or three concrete words, such as `exact, dry, a little warm`. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template.
+- **Character.** Two or three concrete words of your own about how the product looks and behaves. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template. Character sets the picture. It does not change how sentences are written (`hyperframes-overrides.md` section 8).
 - **World.** The place or material the product belongs to. It sets the tint of the ground, the accent and the visuals.
 - **Moments.** One or two shots that get rich colour, material and detail, taken from what the product shows. Everything else stays quiet.
 - **Signature.** One small detail only this product would have, used consistently. One, not five.
@@ -68,9 +68,10 @@ The `jmr-unslop` story video went viral on these. They apply to any product demo
 
 ## 6. Words
 
-This covers on-screen text and the voiceover script.
+This covers on-screen text and the voiceover script. `jmr-plain-language` governs all of it. `hyperframes-overrides.md` section 8 is the gate.
 
-- Say what the product does for whom, using its own nouns.
+- Say what the product does for whom, using its own nouns, in sentences a person would say out loud.
+- No slogans, clipped fragments, catchphrases or refrains. A heading is a plain label or a whole sentence.
 - No hype words: supercharge, seamless, unlock, magic, revolutionize, game-changing, `AI-powered` on everything.
 - No exclamation marks. On-screen headlines and labels have no trailing period.
 - No claims that cannot be checked. Do not invent features, figures or customers. Demo data looks real and names nobody real.
@@ -83,4 +84,4 @@ This covers on-screen text and the voiceover script.
 
 It scans the composition for signs a search can catch. Exit 1 means fix each hit, or say in one line why the brand or tone calls for it. It cannot judge taste, so then open stills from every scene and go through sections 2 and 3 by eye.
 
-Finish with the **swap test:** put another product's name on the storyboard. If the film still fits, push the direction harder in the visuals and the words.
+Finish with the **swap test:** put another product's name on the shot list. If the film still fits, push the direction harder in the visuals and the words.

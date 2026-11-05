@@ -2,6 +2,8 @@
 
 Most of a good page is not text. The owner's chosen pages measured 23 words (Curtain) and 55 words (Globe). The award sites run 80-281 in total: Hagi's barbershop has 80, Fizzi 174, Tripletta 178, Pizzato 281. The more an agent writes, the more the page reads as generated. Put information inside the object, on hover or click, and write less.
 
+Write less in whole sentences. A word budget is never a reason to write a slogan or a fragment. Every word on the page goes through `jmr-plain-language` (`<skill-dir>/../jmr-plain-language/SKILL.md`, rule 16 and the published content section of `references/surfaces.md`). The auditor's `plain-language` check fails the page on what a search can catch. Mark wording the client wrote with `data-client-words` so the check skips it. Use it for nothing else.
+
 ## Budgets
 
 The auditor fails a page over 300 words, not counting nav, footer or anything inside `data-reference`.
@@ -52,6 +54,7 @@ Use the client's own words first, taken from the brief or their current site, ev
 
 - Wit or a wink the brief did not ask for. Humour is the fastest way to sound generated. Play it straight unless the client is funny and says so.
 - Short fragments with full stops ("No fuss. No waiting. Just coffee.").
+- Slogans: a pair of short sentences, a quotable rule or a count used as a heading ("Five apps, three packages").
 - Contrasts ("not X, but Y", "less X, more Y").
 - Three of anything in a row.
 - A closing line that sums up or lands a point.
