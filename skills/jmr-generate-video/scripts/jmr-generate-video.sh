@@ -1,63 +1,76 @@
 #!/usr/bin/env bash
-# jmr-generate-video: fetch the pinned brag skill, audit it, keep the run local.
+# jmr-generate-video: install a pinned Hyperframes, audit its skills, keep the run local.
 #
 #   jmr-generate-video.sh setup [--no-voice]
-#                                      fetch + verify + audit brag, disable telemetry, build the
-#                                      local Kokoro voice env (skipped with --no-voice), print export lines for eval
+#                                      install the pinned CLI, fetch + verify + audit its skills, disable
+#                                      telemetry, build the local Kokoro voice env (skipped with --no-voice),
+#                                      print export lines for eval
 #   jmr-generate-video.sh env          print the export lines again (no fetch); use in each new shell
-#   jmr-generate-video.sh audit [DIR]  re-run the audit on a brag checkout
+#   jmr-generate-video.sh audit [DIR]  re-run the audit on a Hyperframes skills checkout
 #   jmr-generate-video.sh doctor       check node, ffmpeg, git, hyperframes, pdftoppm
+#   jmr-generate-video.sh music        list the user's own music tracks
 #   jmr-generate-video.sh probe FILE   print size, duration and streams of a rendered video
 #   jmr-generate-video.sh slop DIR     scan a composition for AI tells; exit 1 when any are found
 #   jmr-generate-video.sh words OUT    check the film's words against jmr-plain-language; exit 1 on any hit
 #
 # Env:
-#   BRAG_REF    commit to pin (default: the audited commit below). A different
-#               ref skips the baseline match, so the audit prints every hit
-#               for a human or agent to read before the run continues.
-#   JMR_VIDEO_CACHE  cache root (default: ${XDG_CACHE_HOME:-~/.cache}/jmr-generate-video)
+#   HF_VERSION, HF_COMMIT  CLI version and matching commit to pin (default: the audited pair
+#                          below). A different pair skips the baseline match, so the audit prints
+#                          every hit for a human or agent to read before the run continues.
+#   JMR_VIDEO_CACHE        cache root (default: ${XDG_CACHE_HOME:-~/.cache}/jmr-generate-video)
+#   JMR_VIDEO_MUSIC        music folder (default: ${XDG_CONFIG_HOME:-~/.config}/jmr-generate-video/music)
 
 set -euo pipefail
 
-BRAG_REPO="https://github.com/latent-spaces/brag.git"
-# Audited 2026-10-10. Bump only after reading the diff between the old and new
-# commit and re-recording AUDIT_BASELINE with `audit --baseline`.
-BRAG_PINNED="8531ccb9f471ef5099abf930079e47b55c55bb21"
-AUDIT_BASELINE="9a229126eeeb10b623262b474b7f7c22694e1b3a0b8b25949425798f0d8009ba"
+HF_REPO="https://github.com/heygen-com/hyperframes.git"
+# Audited 2026-11-05. Bump only after reading the diff between the old and new
+# tag and re-recording AUDIT_BASELINE with `audit <dir> --baseline`.
+HF_PINNED_VERSION="0.9.16"
+HF_PINNED_COMMIT="45705fa25c4aa7ba2cef3e8a66842ea08c261b9a"
+AUDIT_BASELINE="d884032d1c6ebd41d1d2f1ce08e1c752455e076bd00b6b3e0ee7a405cad4502a"
 
-BRAG_REF="${BRAG_REF:-$BRAG_PINNED}"
+HF_VERSION="${HF_VERSION:-$HF_PINNED_VERSION}"
+HF_COMMIT="${HF_COMMIT:-$HF_PINNED_COMMIT}"
 CACHE_ROOT="${JMR_VIDEO_CACHE:-${XDG_CACHE_HOME:-$HOME/.cache}/jmr-generate-video}"
-CHECKOUT="$CACHE_ROOT/brag-$BRAG_REF"
+CLI_DIR="$CACHE_ROOT/hf-$HF_VERSION"
+HF_BIN="$CLI_DIR/node_modules/.bin/hyperframes"
+CHECKOUT="$CACHE_ROOT/hyperframes-$HF_COMMIT"
 VOICE_VENV="$CACHE_ROOT/kokoro-venv"
+MUSIC_DIR="${JMR_VIDEO_MUSIC:-${XDG_CONFIG_HOME:-$HOME/.config}/jmr-generate-video/music}"
 
-# Telemetry and feedback opt-outs. Exported so every child npx call inherits them.
+# Only the docs the agent reads and the sound effects it copies are checked out.
+# media-use's scripts stay out, so nothing can run its HeyGen or Gemini routes.
+SKILL_DIRS=(skills/hyperframes skills/hyperframes-cli skills/hyperframes-registry skills/media-use)
+SPARSE_DIRS=(skills/hyperframes skills/hyperframes-cli skills/hyperframes-registry skills/media-use/audio/assets/sfx)
+
+# Telemetry and feedback opt-outs. Exported so every child call inherits them.
+# The other HYPERFRAMES ones stop `init` refreshing skills past the pin and the CLI replacing itself.
 export HYPERFRAMES_NO_TELEMETRY=1
+export HYPERFRAMES_SKIP_SKILLS=1
+export HYPERFRAMES_NO_UPDATE_CHECK=1
+export HYPERFRAMES_NO_AUTO_INSTALL=1
 export DO_NOT_TRACK=1
 export NEXT_TELEMETRY_DISABLED=1
 
 die() { echo "jmr-generate-video: $*" >&2; exit 1; }
 
-# Only skills/brag is audited: it is the only part of the checkout the agent
-# reads or runs. The repo's docs/ and examples/ are brag's own launch site.
 # Patterns that mean "this text can reach the network, run code or track usage".
-# Hits are expected (brag documents npx hyperframes and credits its music), so
-# the audit compares the full hit list against a recorded baseline. Any change
-# is a new line to read before trusting the checkout.
-AUDIT_PATTERN='telemetry|analytics|posthog|mixpanel|segment\.(io|com)|sentry|amplitude|beacon|gtag|google-analytics|curl |wget |Invoke-WebRequest|iwr |fetch\(|XMLHttpRequest|requests\.|urllib|socket|subprocess|os\.system|child_process|eval\(|exec\(|base64|rm -rf|sudo |\| *(ba|z)?sh|npx |npm (i|install)|pip install|uvx? |letsbrag|heygen|feedback|events|https?://'
+# Hits are expected (the docs describe cloud commands the run never uses), so the
+# audit compares the full hit list against a recorded baseline. Any change is a
+# new line to read before trusting the checkout.
+AUDIT_PATTERN='telemetry|analytics|posthog|mixpanel|segment\.(io|com)|sentry|amplitude|beacon|gtag|google-analytics|curl |wget |Invoke-WebRequest|iwr |fetch\(|XMLHttpRequest|requests\.|urllib|socket|subprocess|os\.system|child_process|eval\(|exec\(|base64|rm -rf|sudo |\| *(ba|z)?sh|npx |npm (i|install)|pip install|uvx? |heygen|feedback|events|https?://'
 
 audit_hits() {
   local dir="$1"
-  (cd "$dir/skills/brag" && grep -rnIE "$AUDIT_PATTERN" . \
-      --exclude-dir=.git --exclude='uv.lock' --exclude='*.music-cues.json' \
-      --exclude='sfx-analysis.json' 2>/dev/null || true) | LC_ALL=C sort
+  (cd "$dir" && grep -rnIE "$AUDIT_PATTERN" "${SKILL_DIRS[@]}" 2>/dev/null || true) | LC_ALL=C sort
 }
 
-# Files that are neither text, media nor the known lockfile. A binary or
-# script type brag never shipped before is a reason to stop.
+# Files that are neither text, media nor fonts. A binary or script type the
+# pinned skills never shipped before is a reason to stop.
 odd_files() {
   local dir="$1"
-  (cd "$dir/skills/brag" && find . -type f -print \
-    | grep -vE '\.(md|json|py|toml|lock|mp3|ogg|wav|jpg|jpeg|png|mp4|html|css|js|mjs|yml|txt)$' \
+  (cd "$dir" && find "${SKILL_DIRS[@]}" -type f -print \
+    | grep -vE '\.(md|json|mjs|html|css|txt|mp3|ogg|wav|jpg|jpeg|png|svg|woff2|ttf)$' \
     | grep -vE '/(LICENSE|\.gitignore|\.gitattributes)$' || true) | LC_ALL=C sort
 }
 
@@ -68,7 +81,7 @@ hash_stdin() {
 
 cmd_audit() {
   local dir="${1:-$CHECKOUT}" mode="${2:-check}"
-  [ -d "$dir/skills/brag" ] || die "no brag checkout at $dir. Run: $0 setup"
+  [ -d "$dir/skills/hyperframes" ] || die "no Hyperframes checkout at $dir. Run: $0 setup"
 
   local hits odd fingerprint
   hits="$(audit_hits "$dir")"
@@ -80,8 +93,8 @@ cmd_audit() {
     return 0
   fi
 
-  if [ "$BRAG_REF" = "$BRAG_PINNED" ] && [ "$fingerprint" = "$AUDIT_BASELINE" ]; then
-    echo "audit: ok (matches the reviewed baseline for $BRAG_PINNED)" >&2
+  if [ "$HF_COMMIT" = "$HF_PINNED_COMMIT" ] && [ "$fingerprint" = "$AUDIT_BASELINE" ]; then
+    echo "audit: ok (matches the reviewed baseline for hyperframes $HF_PINNED_VERSION)" >&2
     return 0
   fi
 
@@ -95,36 +108,55 @@ cmd_audit() {
   return 2
 }
 
+fetch_skills() {
+  [ -d "$CHECKOUT/.git" ] && return 0
+  local tmp="$CHECKOUT.tmp.$$"
+  rm -rf "$tmp"
+  git init -q "$tmp"
+  git -C "$tmp" remote add origin "$HF_REPO"
+  git -C "$tmp" sparse-checkout set --cone "${SPARSE_DIRS[@]}"
+  git -C "$tmp" fetch -q --depth 1 --filter=blob:none origin "$HF_COMMIT" \
+    || { rm -rf "$tmp"; die "could not fetch $HF_COMMIT from $HF_REPO. Check the network or the commit."; }
+  git -C "$tmp" -c advice.detachedHead=false checkout -q FETCH_HEAD
+  mv "$tmp" "$CHECKOUT"
+}
+
+verify_skills() {
+  local head
+  head="$(git -C "$CHECKOUT" rev-parse HEAD)"
+  case "$head" in
+    "$HF_COMMIT"*) ;;
+    *) die "checkout at $CHECKOUT is $head, expected $HF_COMMIT. Delete it and re-run setup." ;;
+  esac
+  [ -z "$(git -C "$CHECKOUT" status --porcelain)" ] \
+    || die "checkout at $CHECKOUT has local edits. Delete it and re-run setup."
+}
+
+cli_version() { "$HF_BIN" --version 2>/dev/null | tail -1; }
+
+ensure_cli() {
+  if [ ! -x "$HF_BIN" ] || [ "$(cli_version)" != "$HF_VERSION" ]; then
+    command -v npm >/dev/null 2>&1 || die "npm is not installed. Install Node 22+ and re-run."
+    echo "installing hyperframes $HF_VERSION into $CLI_DIR (one time)" >&2
+    mkdir -p "$CLI_DIR"
+    [ -f "$CLI_DIR/package.json" ] || echo '{"private":true}' > "$CLI_DIR/package.json"
+    npm install --prefix "$CLI_DIR" --silent --ignore-scripts --no-audit --no-fund --save-exact \
+      "hyperframes@$HF_VERSION" >&2 || die "could not install hyperframes@$HF_VERSION."
+  fi
+  [ "$(cli_version)" = "$HF_VERSION" ] || die "$HF_BIN does not report $HF_VERSION. Delete $CLI_DIR and re-run setup."
+}
+
 cmd_setup() {
   command -v git >/dev/null 2>&1 || die "git is not installed. Install git and re-run."
   mkdir -p "$CACHE_ROOT"
 
-  if [ ! -d "$CHECKOUT/.git" ]; then
-    local tmp="$CHECKOUT.tmp.$$"
-    rm -rf "$tmp"
-    git init -q "$tmp"
-    git -C "$tmp" remote add origin "$BRAG_REPO"
-    git -C "$tmp" fetch -q --depth 1 origin "$BRAG_REF" \
-      || { rm -rf "$tmp"; die "could not fetch $BRAG_REF from $BRAG_REPO. Check the network or the ref."; }
-    git -C "$tmp" -c advice.detachedHead=false checkout -q FETCH_HEAD
-    mv "$tmp" "$CHECKOUT"
-  fi
-
-  local head
-  head="$(git -C "$CHECKOUT" rev-parse HEAD)"
-  case "$head" in
-    "$BRAG_REF"*) ;;
-    *) die "checkout at $CHECKOUT is $head, expected $BRAG_REF. Delete it and re-run setup." ;;
-  esac
-  [ -z "$(git -C "$CHECKOUT" status --porcelain)" ] \
-    || die "checkout at $CHECKOUT has local edits. Delete it and re-run setup."
-
+  fetch_skills
+  verify_skills
   cmd_audit "$CHECKOUT"
+  ensure_cli
 
-  if command -v npx >/dev/null 2>&1; then
-    npx --yes hyperframes telemetry disable >/dev/null 2>&1 \
-      || echo "warn: could not run 'hyperframes telemetry disable'; HYPERFRAMES_NO_TELEMETRY=1 still applies" >&2
-  fi
+  "$HF_BIN" telemetry disable >/dev/null 2>&1 \
+    || echo "warn: could not run 'hyperframes telemetry disable'; HYPERFRAMES_NO_TELEMETRY=1 still applies" >&2
 
   [ "${1:-}" = "--no-voice" ] || ensure_voice
   cmd_env
@@ -160,9 +192,11 @@ ensure_voice() {
 }
 
 cmd_env() {
-  [ -d "$CHECKOUT/skills/brag" ] || die "brag is not set up yet. Run: $0 setup"
-  echo "export BRAG_DIR='$CHECKOUT/skills/brag'"
-  echo "export HYPERFRAMES_NO_TELEMETRY=1 DO_NOT_TRACK=1 NEXT_TELEMETRY_DISABLED=1"
+  [ -d "$CHECKOUT/skills/hyperframes" ] && [ -x "$HF_BIN" ] || die "Hyperframes is not set up yet. Run: $0 setup"
+  echo "export HF='$HF_BIN'"
+  echo "export HF_SKILLS='$CHECKOUT/skills'"
+  echo "export HF_SFX='$CHECKOUT/skills/media-use/audio/assets/sfx'"
+  echo "export HYPERFRAMES_NO_TELEMETRY=1 HYPERFRAMES_SKIP_SKILLS=1 HYPERFRAMES_NO_UPDATE_CHECK=1 HYPERFRAMES_NO_AUTO_INSTALL=1 DO_NOT_TRACK=1 NEXT_TELEMETRY_DISABLED=1"
   if voice_ready; then echo "export HYPERFRAMES_PYTHON='$(voice_python)'"; fi
 }
 
@@ -177,12 +211,24 @@ cmd_doctor() {
   done
   if command -v pdftoppm >/dev/null 2>&1; then echo "ok    pdftoppm (PDF pages to images)"
   else echo "warn  pdftoppm missing; PDF pages cannot become images (brew install poppler / apt install poppler-utils)"; fi
-  if v="$(npx --yes hyperframes --version 2>/dev/null | tail -1)"; then echo "ok    hyperframes $v"
-  else echo "FAIL  hyperframes CLI not runnable via npx"; ok=0; fi
+  if [ -x "$HF_BIN" ] && [ "$(cli_version)" = "$HF_VERSION" ]; then echo "ok    hyperframes $HF_VERSION (pinned)"
+  else echo "warn  hyperframes $HF_VERSION not installed yet; setup installs it"; fi
   if voice_ready; then echo "ok    kokoro voice env ($VOICE_VENV)"
   elif command -v uv >/dev/null 2>&1 || command -v python3 >/dev/null 2>&1; then echo "warn  kokoro voice env not built yet; setup builds it"
   else echo "warn  no uv or python3; only a voiceover needs one"; fi
   [ "$ok" = 1 ] || exit 1
+}
+
+cmd_music() {
+  local found=""
+  [ -d "$MUSIC_DIR" ] && found="$(find -L "$MUSIC_DIR" -type f \( -iname '*.mp3' -o -iname '*.wav' -o -iname '*.m4a' -o -iname '*.flac' -o -iname '*.ogg' \) | LC_ALL=C sort)"
+  if [ -z "$found" ]; then
+    echo "no music tracks in $MUSIC_DIR. The film ships without music unless the user gave a track. Add tracks you hold the rights to in that folder."
+    return 0
+  fi
+  while IFS= read -r track; do
+    echo "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$track" 2>/dev/null | cut -d. -f1)s  $track"
+  done <<< "$found"
 }
 
 cmd_probe() {
@@ -257,6 +303,7 @@ case "${1:-}" in
   env)    cmd_env ;;
   audit)  shift; cmd_audit "${1:-$CHECKOUT}" "${2:-check}" ;;
   doctor) cmd_doctor ;;
+  music)  cmd_music ;;
   probe)  shift; cmd_probe "${1:-}" ;;
-  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

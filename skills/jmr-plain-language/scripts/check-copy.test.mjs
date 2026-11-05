@@ -83,6 +83,26 @@ describe('plain copy passes', () => {
     assert.deepEqual(codes(htmlToBlocks('<h1>Bike repairs<br>in Woodstock.</h1>')), []);
   });
 
+  it('reads scene text inside a template', () => {
+    const scene = '<template><style>#root { color: red; }</style><div id="root"><h1>Five apps, three packages</h1></div><script>const tl = 1;</script></template>';
+    assert.deepEqual(htmlToBlocks(scene), ['Five apps, three packages']);
+    assert.ok(codes(htmlToBlocks(scene)).includes('count-pair'));
+  });
+
+  it('reads wording held in composition variables', () => {
+    const page = `<html data-composition-variables='[{"id":"headline","type":"string","default":"Five apps, three packages"},{"id":"accent","type":"color","default":"#ff0000"}]'><body><p>We fix bikes in Woodstock on weekdays.</p></body></html>`;
+    assert.deepEqual(htmlToBlocks(page), ['We fix bikes in Woodstock on weekdays.', 'Five apps, three packages']);
+  });
+
+  it('reads wording in a mount but skips colours and paths', () => {
+    const host = `<div data-composition-src="compositions/a.html" data-variable-values='{"line":"Five apps, three packages","accent":"#00ff00","logo":"assets/logo.svg","count":3}'></div>`;
+    assert.deepEqual(htmlToBlocks(host), ['Five apps, three packages']);
+  });
+
+  it('ignores variable JSON it cannot parse', () => {
+    assert.deepEqual(htmlToBlocks(`<div data-variable-values='{oops'><p>We fix bikes in Woodstock.</p></div>`), ['We fix bikes in Woodstock.']);
+  });
+
   it('skips code cards that are not in a pre tag', () => {
     assert.deepEqual(codes(['// workspace, and when code outside imports', 'const a = run();']), []);
   });

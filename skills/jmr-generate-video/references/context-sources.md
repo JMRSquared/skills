@@ -2,7 +2,7 @@
 
 The video is only as specific as this step. A promo built from the homepage alone sounds like every other promo. Read everything the user pointed at, then keep only what earns screen time.
 
-A code folder or a website on its own goes straight to brag (SKILL.md step 2). brag reads and reuses the real thing better than screenshots can. Use this file for images, PDFs, briefs and ideas. Use it for a website only when the site comes with them.
+A code folder or a website on its own skips this file (SKILL.md step 2), because reading and reusing the real thing beats screenshots. Use this file for images, PDFs, briefs and ideas. Use it for a website only when the site comes with them.
 
 Everything lands in `<out>/context/`. Never copy secrets, real customer names, emails or phone numbers of private people into it (a business's own public contact details are fine).
 
@@ -13,7 +13,7 @@ Everything lands in `<out>/context/`. Never copy secrets, real customer names, e
 3. **Capture visuals.** Run once for the homepage:
 
    ```bash
-   npx hyperframes capture <url> --skip-vision -o <out>/context/capture
+   "$HF" capture <url> --skip-vision -o <out>/context/capture
    ```
 
    Then take screenshots of the other important pages (pricing, product, services, about, contact, any page with a strong visual) with whatever headless browser or screenshot tool the agent has. They are reference for layout and facts; the video reuses the site's real markup and CSS where it can. Match the viewport to the format:
@@ -51,8 +51,8 @@ The user's words are the only source. Describe the product in the present tense 
 1. Pull out of the brief: the working name, the problem, who has it, how the idea solves it (as 3-5 steps a person would go through), what makes it different and the stage (idea, building, waitlist, raising, launching on a date).
 2. **No name given:** use a plain descriptive working title and flag it in the defaults note ("working title: ..., tell me the real name").
 3. **No call to action given:** use an invitation that needs no link ("Spaza shop owners, it's time to buy together") plus whatever handle, email or site the user did give. "Coming soon" only in prelaunch mode. Never make up a URL, phone number, store listing, price or launch date.
-4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font, a wordmark of the working name set in the display font. Pick fonts Hyperframes bundles so the render needs no font download: Archivo Black, Montserrat, Oswald, League Gothic, Space Mono, IBM Plex Mono or JetBrains Mono (see `hyperframes-creative` → `references/typography.md`). Reuse any logo, colors or fonts the user did provide.
-5. Write the shot list as **planned visuals**, one per beat, chosen from section 5 of brag-overrides.md. Note which ones need a stock photo.
+4. **No brand given:** design a small one and mark it "invented for this video" in the fact sheet: 2-3 colors that fit the audience and tone, a display font and a body font, a wordmark of the working name set in the display font. Pick fonts Hyperframes bundles so the render needs no font download (the list is under "Fonts" in `$HF_SKILLS/hyperframes/references/format.md`). Reuse any logo, colors or fonts the user did provide.
+5. Write the shot list as **planned visuals**, one per beat, chosen from section 9 of `hyperframes-overrides.md`. Note which ones need a stock photo.
 
 ## Several sources at once
 

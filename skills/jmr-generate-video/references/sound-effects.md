@@ -14,21 +14,23 @@ Every effect needs a visible cause on the same frame. A sound with no cause read
 | A build into the big reveal, once or twice in the film | Riser, ending exactly on the reveal | `riser-1s`, `riser-2s` |
 | The product or logo reveal, the end card | Bass hit, on the same frame the riser ends | `bass-hit` |
 | A card, chip, badge or number landing | Pop, rising through a list | `pop-1`, `pop-2`, `pop-3` |
-| A cursor click or a button press | Click | brag `interface/click_003`, `ui/click2` |
-| Text typing out | Key ticks at low level, or nothing over strong music | brag `keyboard/` |
-| A toggle or a state change | Switch | brag `ui/switch*` |
+| A cursor click or a button press | Click | `$HF_SFX/click.mp3`, `click-soft.mp3` |
+| Text typing out | Key ticks at low level, or nothing over strong music | `$HF_SFX/key-press.mp3`, `typing.mp3` |
+| A toggle or a state change | Soft click or pop | `$HF_SFX/click-soft.mp3`, `pop-1` |
 | A task done, a check, a success | Ding or shimmer | `ding`, `shimmer` |
-| Something failing in a "before" beat | Soft error | brag `interface/error_*` |
-| A punchline, or the old way being rejected | Thud or tape stop, with a beat of near silence after | `thud`, `tape-stop` |
+| Something failing in a "before" beat | Soft error | `$HF_SFX/error.mp3` |
+| A final beat, or the old way being rejected | Thud or tape stop, with a beat of near silence after | `thud`, `tape-stop` |
 | A real-world action in the footage: a till, a camera, a door | The real sound, from Openverse (below) | your download |
 
-Generate the files once per run. Pass the music's key so the hits and pops sit in it:
+Generate the files once per run. Pass the music's key, when the film has music, so the hits and pops sit in it:
 
 ```bash
 python3 <skill-dir>/scripts/make-sfx.py <out>/composition/assets/sfx --key A
 ```
 
-These are synthesised on this machine, so they carry no licence terms. If there is no Python, use brag's CC0 library alone and leave out whooshes rather than faking them. Brag's library (`$BRAG_DIR/assets/sfx/`, CC0, from Kenney) has clicks, impacts, switches and keys but no whooshes or risers. Read its `sfx-analysis.md` before picking from it.
+These are synthesised on this machine, so they carry no licence terms. This replaces the "no synthesised tones" line in Hyperframes' `sound.md`, which warns against writing sounds by hand during a run.
+
+The files under `$HF_SFX` come with Hyperframes (Pixabay Content License, which allows commercial use without attribution). Copy the ones you use into `<out>/composition/assets/sfx/`. If there is no Python, use them alone: they include `whoosh`, `whoosh-short`, `riser` and `impact-bass-1`.
 
 ## How many
 
@@ -58,14 +60,14 @@ Each result gives `url`, `license`, `duration` in milliseconds, `creator` and `f
 
 ## Placement and mix
 
-- Write the cues into `brag-plan.md` under `## Sound` as a table: time, what happens on screen, file, volume. Plan them with the storyboard, not after the render.
-- **Timing:** a click, pop or hit peaks one frame after its picture. A whoosh peaks in the middle of the cut, so start it about half its length early. A riser ends exactly on the hit. Run `npx hyperframes audio <file> --json` to see where a file peaks.
+- Write the cues into `SPEC.md` under `## Sound` as a table: time, what happens on screen, file, volume. Plan them with the shots, not after the render.
+- **Timing:** a click, pop or hit peaks one frame after its picture. A whoosh peaks in the middle of the cut, so start it about half its length early. A riser ends exactly on the hit. Run `"$HF" audio <file> --json` to see where a file peaks.
 - **Under the voice:** the voice always wins. Effects drop to about 0.25-0.4 volume while it speaks. Move big hits to the gaps between lines. Never put a hit on a word the viewer must catch, such as the product name.
-- **Otherwise:** volume 0.5-0.85, 3-6 dB above the music at the moment they play. Whooshes and pops stay softer than the bass hit.
+- **Otherwise:** volume 0.5-0.85, 3-6 dB above any music at the moment they play. Whooshes and pops stay softer than the bass hit.
 - **Tracks:** every effect is its own `<audio>` with an `id` and its own track index, so overlaps survive.
 - **Phone speakers:** a hit that is only sub-bass plays as nothing on a phone. `bass-hit` has a knock and air on top for this reason. Keep them.
 - **Level:** the finished mix sits around -14 LUFS with peaks at -1 dBTP or lower.
 
 ## Check
 
-You cannot hear the result, so measure it. Run `npx hyperframes audio <out>/brag.mp4 --json` and confirm the onsets land on your cue times, then tell the user the sound was measured and not listened to.
+You cannot hear the result, so measure it. Run `"$HF" audio <out>/video.mp4 --json` and confirm the onsets land on your cue times, then tell the user the sound was measured and not listened to.

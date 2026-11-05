@@ -120,14 +120,35 @@ const decodeEntities = (text) => text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (matc
 
 const BLOCK_TAGS = 'address|article|aside|blockquote|button|caption|dd|div|dl|dt|figcaption|figure|footer|h[1-6]|header|hr|label|li|main|nav|ol|p|section|summary|table|td|th|tr|ul';
 
+const isWording = (value) => typeof value === 'string'
+  && /\s|^\p{L}+$/u.test(value.trim())
+  && !/^(?:#|https?:|data:|\.{0,2}\/|assets\/)/.test(value.trim());
+
+// Hyperframes can hold on-screen text in JSON attributes: `default` in
+// data-composition-variables and each value in data-variable-values.
+const variableWording = (html) => [...html.matchAll(/\bdata-(composition-variables|variable-values)\s*=\s*(?:'([^']*)'|"([^"]*)")/gi)]
+  .flatMap(([, kind, single, double]) => {
+    try {
+      const parsed = JSON.parse(decodeEntities(single ?? double));
+      const values = kind.toLowerCase() === 'variable-values'
+        ? Object.values(parsed)
+        : parsed.filter((variable) => variable.type === 'string').map((variable) => variable.default);
+      return values.filter(isWording);
+    } catch {
+      return [];
+    }
+  });
+
 export function htmlToBlocks(html) {
-  const visible = html
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<(head|script|style|svg|pre|code|template|noscript)\b[\s\S]*?<\/\1>/gi, ' ')
+  const uncommented = html.replace(/<!--[\s\S]*?-->/g, ' ');
+  // A <template> stays in: Hyperframes requires every scene's markup to live inside one.
+  const visible = uncommented
+    .replace(/<(head|script|style|svg|pre|code|noscript)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<br\b[^>]*>/gi, ' ')
     .replace(new RegExp(`</?(?:${BLOCK_TAGS})\\b[^>]*>`, 'gi'), '\n')
     .replace(/<[^>]+>/g, '');
-  return decodeEntities(visible).split('\n').map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const blocks = decodeEntities(visible).split('\n').map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  return [...blocks, ...variableWording(uncommented)];
 }
 
 export function textToBlocks(text) {
