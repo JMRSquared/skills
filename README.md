@@ -32,7 +32,7 @@ Two tiers.
 |-------|----------|
 | `jmr-standing-rules` | No silent deploy. Worktree context (branch + stage). Confirm before merge. |
 | `jmr-build-test-lint-gate` | `yarn build && yarn test && yarn lint:fix` before "done". No `@ts-ignore`, no `.skip`, no `--no-verify`. |
-| `jmr-plain-language` | Plain-language prose in every reply, commit, PR, doc and comment, applied without being asked. Bans measured AI tells: words like "delve" and "showcase", em dashes, a comma before "and", "not X but Y" contrasts, "Great question!" openers and unverified "all tests pass" claims. |
+| `jmr-plain-language` | Plain-language prose in every reply, commit, PR, doc and comment, applied without being asked. Bans measured AI tells: words like "delve" and "showcase", em dashes, a comma before "and", "not X but Y" contrasts, slogans, "Great question!" openers and unverified "all tests pass" claims. Website copy and video scripts must also pass its check before they ship. |
 | `jmr-herdr` | Only when the agent runs inside [Herdr](https://herdr.dev). Work the agent would hand to a hidden subagent runs as a real agent in a pane beside it, so you can watch it, talk to it or stop it. Dev servers, watchers and the build/test/lint gate get their own labelled panes. Parallel code changes get separate worktrees. Helpers report back through a file and the agent closes the panes it opened. `/agents-execute` runs every build cycle in a pane, with its builders and reviewers beside it. Works for Claude Code, pi, Cursor, Codex, OpenCode and every other agent Herdr hosts. |
 
 **Tier 2 — task-scoped (activated by context):**
@@ -84,6 +84,7 @@ Two tiers.
 | `jmr-unslop` | `/jmr-unslop`: finds what makes a screen look AI-generated, proposes one direction from your product and waits for your answer, then fixes spacing, color, icons, copy, type, layout, details, visuals and motion in that order. Works on dashboards, apps and landing pages. It also works on a live site from its link. |
 | `jmr-generate-video` | `/jmr-generate-video` (alias `/generate-video`): a catchy launch video made on your machine from your project's code, a website, images, a PDF, a brief or an idea with nothing built yet. [brag](https://github.com/latent-spaces/brag) directs it, pinned to an audited commit with telemetry and tracking off. Portrait with a friendly local voiceover, music, sound effects and captions by default, usually 45-90 seconds depending on how much there is to show; say "landscape", "male voice" or "no voice" to change it |
 | `jmr-survey-form` | `/jmr-survey-form`: a 5-minute Google Form that checks whether companies need your product and signs up pilot users. Drafts 10 neutral questions from your project for your OK, builds the form in your own Google account and puts your promo video on top |
+| `jmr-grill-me` | `/jmr-grill-me`: interviews you about a plan, decision or idea until every decision is settled. Asks numbered rounds of questions with a recommended answer for each, looks up facts itself and changes nothing until you confirm the result. Adapted from [mattpocock/skills](https://github.com/mattpocock/skills) (MIT) |
 
 ---
 
@@ -109,13 +110,13 @@ These commands pull from GitHub (`jmrsquared/skills`). The repository must be **
 
 ### What You Get
 
-Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**35** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
+Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Codex setup below. `npx skills add` installs the full **`skills/`** bundle (**36** skill packages) for other agents, but does **not** install the always-on rule file — tier-1 standing rules + build/test/lint gate will not auto-fire there unless you add the snippet from the always-on section below.
 
 | Feature | Claude Code | Codex | Gemini CLI | OpenCode | Cursor | Windsurf | Cline | Copilot |
 |---------|:-----------:|:-----:|:----------:|:--------:|:------:|:--------:|:-----:|:-------:|
-| **35** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y | Y |
+| **36** skills (`skills/**`) | Y | Y | Y | Y | Y | Y | Y | Y |
 | Tier-1 rules auto-loaded every session | Y | Y¹ | Y | Y² | Y³ | Y³ | Y³ | Y³ |
-| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-logo-design`, `/jmr-unslop`, `/jmr-generate-video`, `/jmr-survey-form` slash commands | Y |: | Y | Y |: |: |: |: |
+| `/agents-execute`, `/jmr-cycle`, `/premium-web-design`, `/jmr-help`, `/jmr-review`, `/jmr-commit`, `/npm-local-publish`, `/pngimg-assets`, `/gltf-assets`, `/jmr-image`, `/jmr-logo-design`, `/jmr-unslop`, `/jmr-generate-video`, `/jmr-survey-form`, `/jmr-grill-me` slash commands | Y |: | Y | Y |: |: |: |: |
 | Statusline badge `[JMR: branch@stage]` | Y | — | — | Y⁴ | — | — | — | — |
 
 ¹ Codex auto-starts via `.codex/hooks.json` only when run inside this repo's clone. Copy `.codex/hooks.json` + `.codex/config.toml` into your target repo for always-on there too.
@@ -126,7 +127,7 @@ Auto-activation is built in for Claude Code, Gemini CLI, and the repo-local Code
 <details>
 <summary><strong>Claude Code — full details</strong></summary>
 
-The plugin install gives you all **35** skills + SessionStart hook + statusline.
+The plugin install gives you all **36** skills + SessionStart hook + statusline.
 
 ```bash
 claude plugin marketplace add jmrsquared/skills
@@ -177,7 +178,7 @@ Auto-activates via `GEMINI.md` context file every session.
 <details>
 <summary><strong>Cursor / Windsurf / Cline / Copilot — full details</strong></summary>
 
-`npx skills add` installs all **35** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
+`npx skills add` installs all **36** skill packages. Rule files (always-on tier-1 body) also ship in this repo — verify your agent picks them up after install, or copy manually.
 
 | Agent | Command | Rule file location |
 |-------|---------|--------------------|
@@ -256,6 +257,7 @@ In any Claude Code session once installed:
 - `/gltf-assets` — search and download glTF/GLB models (Sketchfab + Poly Haven) and HDRIs.
 - `/jmr-generate-video` (or `/generate-video`): make a launch video. Run it with nothing else in a project folder, or point it at a URL, images, a business profile PDF or an idea. Add direction in plain words: `/generate-video chaotic tone, male voice` or `/generate-video for https://example.com, landscape, no voice`. Needs Node 22+, FFmpeg, git and Python 3; the Hyperframes CLI and the Kokoro voice model download on first run.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form. You sign in to Google and approve its permissions yourself; the agent never does either for you.
+- `/jmr-grill-me`: get interviewed about a plan before you act on it. Example: `/jmr-grill-me should we move billing to its own service?`. Answer each round by number; it changes nothing until you confirm the result.
 - `/jmr-image` — search and download photography. Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; without either the script falls back to pngimg, which is CC BY-NC.
 
 The standing rules and the build/test/lint gate are always on — you don't need to invoke them.

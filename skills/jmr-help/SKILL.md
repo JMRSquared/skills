@@ -10,7 +10,7 @@ version: 1.0.0
 
 - `jmr-standing-rules` — no silent deploy; maintain worktree context; confirm before merge.
 - `jmr-build-test-lint-gate` — `yarn build && yarn test && yarn lint:fix` before "done".
-- `jmr-plain-language`: plain-language prose everywhere; no puffery words, em dashes, or sycophantic openers.
+- `jmr-plain-language`: plain-language prose and published content everywhere; no puffery words, em dashes, slogans or sycophantic openers. Website copy and video scripts must pass its check.
 - `jmr-herdr`: inside Herdr only. Helpers run as visible agents in panes beside you; servers and the gate get their own panes. `node <jmr-herdr dir>/scripts/helper.mjs spawn|run|wait|read|list|close`.
 
 **Tier 2 — description-activated (task-scoped):**
@@ -57,6 +57,7 @@ version: 1.0.0
 - `jmr-unslop`: `/jmr-unslop`: audit, one direction for your approval, then nine fix passes.
 - `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local launch video via audited, pinned brag + Hyperframes, portrait with a Kokoro voiceover by default.
 - `jmr-survey-form`: `/jmr-survey-form`: 10-question discovery survey and pilot sign-up form, with the promo video on top.
+- `jmr-grill-me`: `/jmr-grill-me`: numbered rounds of questions about a plan or idea until every decision is settled; changes nothing until you confirm.
 
 **Slash commands (where the agent supports them):**
 
@@ -72,6 +73,7 @@ version: 1.0.0
 - `/gltf-assets` — search and download glTF/GLB models and HDRIs.
 - `/jmr-generate-video` or `/generate-video`: catchy narrated launch video, portrait by default; say landscape, male voice or no voice to change it.
 - `/jmr-survey-form`: build a customer discovery survey as a Google Form.
+- `/jmr-grill-me`: get interviewed about a plan, decision or idea before acting on it.
 - `/jmr-logo-design`: design a logo, favicon and web icons.
 - `/jmr-unslop`: fix a screen that looks AI-generated.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
