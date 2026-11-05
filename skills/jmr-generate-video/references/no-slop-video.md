@@ -9,7 +9,7 @@ Brag still directs story and pacing. This file decides what the frames may look 
 Before the storyboard, put five lines at the top of `brag-plan.md`. Derive them from the product, never from what is trending.
 
 - **Product.** What it does and for whom, in one plain sentence.
-- **Character.** Two or three concrete words, such as `exact, dry, a little warm`. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template.
+- **Character.** Two or three concrete words of your own about how the product looks and behaves. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template. Character sets the picture. It does not change how sentences are written (`brag-overrides.md` section 6).
 - **World.** The place or material the product belongs to. It sets the tint of the ground, the accent and the visuals.
 - **Moments.** One or two shots that get rich colour, material and detail, taken from what the product shows. Everything else stays quiet.
 - **Signature.** One small detail only this product would have, used consistently. One, not five.
@@ -68,9 +68,10 @@ The `jmr-unslop` story video went viral on these. They apply to any product demo
 
 ## 6. Words
 
-This covers on-screen text and the voiceover script.
+This covers on-screen text and the voiceover script. `jmr-plain-language` governs all of it. `brag-overrides.md` section 6 is the gate.
 
-- Say what the product does for whom, using its own nouns.
+- Say what the product does for whom, using its own nouns, in sentences a person would say out loud.
+- No slogans, clipped fragments, catchphrases or refrains. A heading is a plain label or a whole sentence.
 - No hype words: supercharge, seamless, unlock, magic, revolutionize, game-changing, `AI-powered` on everything.
 - No exclamation marks. On-screen headlines and labels have no trailing period.
 - No claims that cannot be checked. Do not invent features, figures or customers. Demo data looks real and names nobody real.

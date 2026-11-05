@@ -123,6 +123,7 @@ If the product already has a real brand, like a logo file, a color or a typeface
 ## 4. Copy
 
 - Headlines say what the product does for whom, in plain words, so they could not fit another product. Use the facts already on the page and do not invent new ones.
+- All copy follows `jmr-plain-language`: ordinary sentences a person would say out loud, no slogans and no clipped fragments. Do the read-through in its `references/surfaces.md`.
 - No exclamation marks in interface text and never `!!`.
 - No greeting headlines like `Welcome back, Sam! 👋`. The title names the context, like the page name or the period, for example `October 2026`.
 - Short labels. `Search`, not `Search anything...`.

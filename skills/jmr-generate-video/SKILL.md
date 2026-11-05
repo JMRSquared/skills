@@ -1,18 +1,19 @@
 ---
 name: jmr-generate-video
 description: Generate a catchy, narrated promo or launch video (portrait by default), fully on this machine, from any context the user gives - the current project's source code, a website URL, images, a business profile PDF, a written brief or just an idea with no product yet. Runs the open-source brag skill (latent-spaces/brag) pinned to an audited commit, lets brag direct the video and adds a local Kokoro voiceover. Telemetry, tracking and cloud services stay off. Use when the user runs /jmr-generate-video or /generate-video, or asks for a promo video, launch video, explainer video or video ad, portrait or landscape. Not for editing existing footage.
-version: 2.3.0
+version: 2.4.0
 ---
 
 # /jmr-generate-video
 
-Make the video brag would make, safely. [brag](https://github.com/latent-spaces/brag) (MIT, on [Hyperframes](https://hyperframes.heygen.com/)) directs the video: its story, pacing, tone, visuals, music and sound. Do not second-guess its creative rules. This skill adds only what brag does not do:
+Make the video brag would make, safely. [brag](https://github.com/latent-spaces/brag) (MIT, on [Hyperframes](https://hyperframes.heygen.com/)) directs the video: its story, pacing, energy, visuals, music and sound. Do not second-guess those creative rules. The words are the exception: `jmr-plain-language` decides how every line is written. This skill adds only what brag does not do:
 
 1. **Clean.** brag is pinned to a commit that was read line by line and audited on every setup. Telemetry, feedback reports, cloud renders, hosted services and trackers scraped from a captured site never run or reach the composition.
 2. **Any input.** brag reads a project folder or a website. This skill also turns images, PDFs, briefs and bare ideas into material brag can use.
 3. **Sound effects.** Whooshes, risers and hits that brag's library lacks, generated on this machine so they carry no licence terms, placed on the picture with [references/sound-effects.md](references/sound-effects.md).
 4. **No AI look.** The frames and motion are held to `jmr-unslop`'s standard, applied to video in [references/no-slop-video.md](references/no-slop-video.md).
 5. **Voice and format.** A local Kokoro voiceover written to brag's storyboard, in portrait by default, running well past brag's 20 seconds whenever the project has more beats worth telling.
+6. **Plain words.** Every voiceover line, on-screen line, caption and share post goes through `jmr-plain-language`. brag asks for punchlines and taglines, so this is a required gate (brag-overrides section 6).
 
 `<skill-dir>` below is the directory holding this `SKILL.md`. The helper is `<skill-dir>/scripts/jmr-generate-video.sh` (bash; on Windows run it from Git Bash or WSL).
 
@@ -74,7 +75,7 @@ Read `$BRAG_DIR/SKILL.md` and follow it from its **Invocation dispatch**, with o
 
 Read [references/no-slop-video.md](references/no-slop-video.md) before the storyboard and write its five direction lines at the top of `brag-plan.md`.
 
-Apply [references/brag-overrides.md](references/brag-overrides.md) on top. It changes only six things: the output folder, non-code inputs, the voiceover (with its length and captions), sound effects, the AI look and concept mode. Every other creative decision stays with brag.
+Apply [references/brag-overrides.md](references/brag-overrides.md) on top. It changes only seven things: the output folder, non-code inputs, the voiceover (with its length and captions), sound effects, the AI look, concept mode and the words. Every other creative decision stays with brag.
 
 ## Step 4: Verify, then deliver
 
@@ -86,6 +87,7 @@ Done only when all of these are true:
 
 - [ ] Width and height match the requested format. There is an audio stream unless the user asked for silence.
 - [ ] `"$SCRIPT" slop <out>/composition` passes, or each hit has a one-line reason. The direction is at the top of `brag-plan.md` and the film passes the swap test.
+- [ ] `"$SCRIPT" words <out>` exits 0 and you did the read-through in brag-overrides section 6. No exceptions for tone. `<out>/plain-language-allow.txt` holds only wording the client wrote or the user asked for. You told the user what is in it.
 - [ ] You looked at stills from every scene and from mid-transition: no clipped text, no muddy cross-fade, nothing off-brand, no sign from `references/no-slop-video.md`. With the full brag workflow, `npx hyperframes check` also passed with zero errors.
 - [ ] `grep -riE "gtag|googletagmanager|fbq|facebook\.net|hotjar|clarity\.ms|segment|posthog|plausible|umami|mixpanel|tiktok.*pixel|linkedin.*insight|intercom|crisp\.chat" <out>` prints nothing (skip `<out>/context/`, which holds raw captures).
 - [ ] Sound effects are planned in `brag-plan.md` and land on their cues: `npx hyperframes audio <out>/brag.mp4 --json` shows onsets at those times. Every effect has a cause on screen and none covers a word the viewer must catch.

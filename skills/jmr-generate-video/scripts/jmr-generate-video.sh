@@ -9,6 +9,7 @@
 #   jmr-generate-video.sh doctor       check node, ffmpeg, git, hyperframes, pdftoppm
 #   jmr-generate-video.sh probe FILE   print size, duration and streams of a rendered video
 #   jmr-generate-video.sh slop DIR     scan a composition for AI tells; exit 1 when any are found
+#   jmr-generate-video.sh words OUT    check the film's words against jmr-plain-language; exit 1 on any hit
 #
 # Env:
 #   BRAG_REF    commit to pin (default: the audited commit below). A different
@@ -230,12 +231,32 @@ cmd_slop() {
   echo "slop: nothing a search can catch. Now check the stills by eye (references/no-slop-video.md)."
 }
 
+# The words have no exceptions for tone: only wording the client wrote or the user asked
+# for may go in the allow file. Voice clips without a script would skip the voiceover check.
+cmd_words() {
+  local out="${1:-}" self checker args=()
+  [ -d "$out" ] || die "words needs the output folder, for example video-output-<timestamp>."
+  self="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  checker="$self/../../jmr-plain-language/scripts/check-copy.mjs"
+  [ -f "$checker" ] || die "jmr-plain-language is missing. Install it with: npx skills add jmrsquared/skills --skill jmr-plain-language -g"
+  if [ -d "$out/composition/assets/vo" ] && [ ! -s "$out/voiceover.txt" ]; then
+    die "the film has voice clips but $out/voiceover.txt is missing or empty. Write the script there, one line per beat."
+  fi
+  [ -f "$out/plain-language-allow.txt" ] && args+=(--allow "$out/plain-language-allow.txt")
+  [ -d "$out/composition" ] && args+=("$out/composition")
+  [ -f "$out/voiceover.txt" ] && args+=("$out/voiceover.txt")
+  [ -f "$out/share-copy.txt" ] && args+=("$out/share-copy.txt")
+  [ "${#args[@]}" -gt 0 ] || die "$out has no composition, voiceover.txt or share-copy.txt to check."
+  node "$checker" "${args[@]}"
+}
+
 case "${1:-}" in
   slop)   shift; cmd_slop "${1:-}" ;;
+  words)  shift; cmd_words "${1:-}" ;;
   setup)  shift; cmd_setup "${1:-}" ;;
   env)    cmd_env ;;
   audit)  shift; cmd_audit "${1:-$CHECKOUT}" "${2:-check}" ;;
   doctor) cmd_doctor ;;
   probe)  shift; cmd_probe "${1:-}" ;;
-  *) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
