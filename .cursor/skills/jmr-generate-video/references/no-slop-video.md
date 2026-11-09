@@ -2,7 +2,7 @@
 
 A video can carry every tell a generated web page has. Motion adds its own. This file applies `jmr-unslop` to video. Its full list is `<skill-dir>/../jmr-unslop/references/signs.md`. Read that too when it is installed. If it is missing, install it with `npx skills add jmrsquared/skills --skill jmr-unslop -g` or work from this file alone.
 
-Hyperframes still directs story and pacing. This file decides what the frames may look like, and it overrides Hyperframes where the two differ.
+`world-class.md` sets the bar and wins over this file. This file's job is to stop lazy defaults. It must never make a film plainer. An earlier version banned glows, gradients, heavy type and most transitions. The films came out flat. The best reference films use all of those, on purpose.
 
 ## 1. Write the direction first
 
@@ -10,26 +10,35 @@ Before the shots, put five lines at the top of `SPEC.md`. Derive them from the p
 
 - **Product.** What it does and for whom, in one plain sentence.
 - **Character.** Two or three concrete words of your own about how the product looks and behaves. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template. Character sets the picture. It does not change how sentences are written (`hyperframes-overrides.md` section 8).
-- **World.** The place or material the product belongs to. It sets the tint of the ground, the accent and the visuals.
-- **Moments.** One or two shots that get rich colour, material and detail, taken from what the product shows. Everything else stays quiet.
-- **Signature.** One small detail only this product would have, used consistently. One, not five.
+- **World.** The place or material the product belongs to. It sets the ground, the accent and the visuals.
+- **Showpieces.** The moments that get the most building, taken from the story (`world-class.md` section 4). The rest of the film is still detailed and moving.
+- **Signature.** One small detail only this product would have, used consistently.
 
 A real brand's logo, colours and fonts stay, unless they are slop themselves. Do not reuse the look of the last video this skill made. A near-black ground with one orange accent is a template, not a direction.
 
-## 2. Frames: what to remove
+## 2. Effects: the test is whether they belong
 
-| Sign | Do this instead |
+An effect belongs when it is part of the world or does a job in the shot. A glow on a hot brake disc is heat. A particle field that is fuel spray is the subject. The same glow on a button, or the same particles drifting behind a title, is decoration. Reach for rich effects often and make each one mean something.
+
+| Fine when it belongs | Slop when it is |
 |---|---|
-| Purple to blue gradients, gradient text | One tinted ground and solid text |
-| Coloured glows on badges, buttons, logos or text | Depth from surface steps and hairlines |
-| Radial colour washes, blurred blobs, floating orbs, grids behind the content | A plain ground or the real product |
-| Glass cards, neon borders | A plain raised surface with a faint hairline |
-| Headings at weight 700-900 | Weight 400-600 and size for hierarchy. Go heavy only when the brand does or the tone is loud |
-| One line of every headline in the accent colour | Solid ink. One accent, once or twice in a shot, where it means something |
-| Small uppercase labels with wide tracking | Sentence case, or nothing |
+| Glow, bloom, light leaks | Stuck on badges, buttons and logos to look expensive |
+| Gradients, shaders, liquid surfaces, grain | Purple to blue because nothing was decided, or a wash behind empty space |
+| Particles, grids, dot fields | Floating behind a title with no connection to the story |
+| Glass and refraction | Every card in the film being the same frosted panel |
+| Heavy type at any weight | Every headline the same weight and size, in the same place |
+| Overshoot and springs | On UI that should be still, or on opacity and colour |
+| 3D, chrome, orbs | Generic tech symbols with no link to the product, such as glowing brains, robots or rockets |
+
+These stay out unless the user or the brand asks for them:
+
+| Default | Do this instead |
+|---|---|
+| Gradient text | Solid text, lit by what is around it |
+| Small uppercase labels with wide tracking | Sentence case, or labels placed on the part they name |
 | Emoji, sparkles, `New` and `Beta` badges | A plain line icon, or nothing |
-| Three equal cards in a row | One large thing with quiet details beside it |
-| Everything stacked and centred on every shot | Vary it: asymmetric splits, text beside a large product view, tight crops |
+| Three equal cards in a row | One large thing with detail around it |
+| Everything stacked and centred on every shot | Vary it: asymmetric splits, tight crops, type that fills the width |
 | Fake stat counters, star ratings, "Trusted by 10,000+" | Real figures from the brief, or leave them out |
 | Mismatched number formats | One format, tabular figures |
 
@@ -39,30 +48,29 @@ Video makes these worse, because the viewer cannot look away.
 
 | Sign | Do this instead |
 |---|---|
-| Everything flying in from different directions | One entrance per shot: a short rise with a small stagger |
-| Bouncy overshoot on text and cards | One ease-out family. A little overshoot only on a physical object landing |
-| Full-frame colour flashes on every cut | Plain cuts. At most one soft flash, on the biggest hit |
-| Glitch, RGB split, screen shake and VHS overlays | Only when the tone is `chaotic` or the world is literally that |
-| Pulsing, breathing and shimmering loops on things that are not live | Still |
-| The same transition on every cut | Two or three kinds, each with a cause on screen |
-| Slow push on a flat screenshot | Rebuild the piece in code and let it act |
-| Kinetic type on every line | Reserve it for the hook and the claim |
+| Every element fading and sliding up | Vary entrances, as in Hyperframes' `motion.md` |
+| Everything moving at once on one curve | One hero move per shot, the rest following 100 to 200 ms later |
+| The same transition on every cut | Three to five kinds, each with a cause on screen |
+| Pulsing, breathing and shimmering loops on things that are not live | Let the world or the camera carry the motion |
+| A landed title that keeps drifting | Land it dead still and move something else |
+| A slow push on a flat screenshot or photo | Rebuild the piece in code and let it act |
+| Glitch, RGB split and screen shake on every cut | Use them where the tone or world earns them, each time differently |
 
 ## 4. Motion: what works
 
-The `jmr-unslop` story video went viral on these. They apply to any product demo:
+The `jmr-unslop` story video went viral on these. They apply to any film:
 
-- **Nothing is swapped, everything morphs.** One screen stays on stage and its values tween in place, so the spacing opens up or the number climbs. A morph reads as the product working. A cut reads as a slideshow.
-- **A wave.** Elements start a few dozen milliseconds apart, from the top left down, so a change runs across the screen.
-- **Text rolls.** Changing words blur out and the new ones rise in letter by letter. Use this at most eight times in a film.
+- **Things morph.** One object stays on stage while its values change, so the number climbs or the part opens. A morph reads as the thing working.
+- **A wave.** Elements start a few dozen milliseconds apart, so a change runs across the screen.
+- **Text rolls.** Changing words blur out and new ones rise in letter by letter.
 - **Close crops.** Crop tight on the part that changes, so it reads on a phone. Never show a small window in the middle of an empty frame.
 - **Before and after.** If the product fixes something, show the problem marked in place first, then let it resolve on the same screen.
 
 ## 5. Visuals
 
-- Show something true: the real product, one moment that proves the claim, or one concrete subject from the world.
-- Write a generated scene as one plain sentence first. If it takes two, it is not clear yet. `jmr-unslop`'s `references/visuals.md` has the styles that work.
-- No glossy blobs, chrome liquid, nebulas, floating cubes, neon circuits, holograms, glowing brains, robots or rockets, unless the product is literally about them.
+- Show something true: the real product, a working model of the idea, or a concrete subject from the world.
+- Write a generated scene as one plain sentence first. If it takes two, it is not clear yet. `jmr-unslop`'s `references/visuals.md` has styles that work.
+- An object must read as what it is without a label: a brake disc has vents and a caliper. A pump has a nozzle and a hose.
 - No text, fake buttons or fake logos baked into an image. Type is set in the composition.
 - The logo is the product's name plus a flat mark if it has one. Never redraw a real logo.
 
@@ -82,6 +90,6 @@ This covers on-screen text and the voiceover script. `jmr-plain-language` govern
 "$SCRIPT" slop <out>/composition
 ```
 
-It scans the composition for signs a search can catch. Exit 1 means fix each hit, or say in one line why the brand or tone calls for it. It cannot judge taste, so then open stills from every scene and go through sections 2 and 3 by eye.
+It scans the composition for signs a search can catch, including a film made mostly of photos. Exit 1 means fix each hit, or say in one line why the brand or tone calls for it. It cannot judge taste, so then open stills from every scene and go through sections 2 and 3 by eye.
 
 Finish with the **swap test:** put another product's name on the shot list. If the film still fits, push the direction harder in the visuals and the words.

@@ -66,8 +66,8 @@ Each result gives `url`, `license`, `duration` in milliseconds, `creator` and `f
 - **Otherwise:** volume 0.5-0.85, 3-6 dB above any music at the moment they play. Whooshes and pops stay softer than the bass hit.
 - **Tracks:** every effect is its own `<audio>` with an `id` and its own track index, so overlaps survive.
 - **Phone speakers:** a hit that is only sub-bass plays as nothing on a phone. `bass-hit` has a knock and air on top for this reason. Keep them.
-- **Level:** the finished mix sits around -14 LUFS with peaks at -1 dBTP or lower.
+- **Level:** the finished mix sits between -16 and -14 LUFS with peaks at -1 dBTP or lower. Loudness can only be read from a render, so change `data-volume` and render again to adjust it.
 
 ## Check
 
-You cannot hear the result, so measure it. Run `"$HF" audio <out>/video.mp4 --json` and confirm the onsets land on your cue times, then tell the user the sound was measured and not listened to.
+You cannot hear the result, so measure it. Run `"$HF" audio <out>/video.mp4 --json` and confirm the onsets land on your cue times. A hit counts as landed within 0.1 s after its cue. A sweep has no sharp onset, so allow up to 0.7 s. The default method can miss a bass hit, so check those with `--only onsets --onset-method energy --band 40,200 --threshold 0.05`. Then tell the user the sound was measured and not listened to.

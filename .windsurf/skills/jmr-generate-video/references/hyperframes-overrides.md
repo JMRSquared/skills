@@ -1,6 +1,6 @@
 # Overrides on top of Hyperframes
 
-The pinned Hyperframes skills direct the video. `$HF_SKILLS/hyperframes/SKILL.md` and the references it names set the story, pacing, motion, look, sound and review. These rules change only what this file names. Where this file is silent, Hyperframes wins. Where they disagree, this file wins. `references/no-slop-video.md` also overrides it on how frames and motion may look.
+`references/world-class.md` sets the bar and wins over everything here on how a film looks and moves. Under it, the pinned Hyperframes skills direct the video. `$HF_SKILLS/hyperframes/SKILL.md` and the references it names set the story, pacing, motion, look, sound and review. These rules change only what this file names. Where this file is silent, Hyperframes wins. Where they disagree, this file wins. `references/no-slop-video.md` also overrides it on which effects are lazy defaults.
 
 The voiceover rides on the cut. A narrated video that slows down to fit its voice (long holds, slow pans over one screenshot, a scene per sentence) comes out as a slideshow, which is the failure this file exists to prevent.
 
@@ -8,22 +8,23 @@ The voiceover rides on the cut. A narrated video that slows down to fit its voic
 
 - **Commands.** Wherever the docs say `npx hyperframes`, run `"$HF"`. `npx` would run a different version from the one that was audited.
 - **Skills.** Read `/hyperframes` as `$HF_SKILLS/hyperframes/SKILL.md`, `/hyperframes-cli` as `$HF_SKILLS/hyperframes-cli/SKILL.md` and `/hyperframes-registry` as `$HF_SKILLS/hyperframes-registry/SKILL.md`. Do not use the copies in the agent's own skill folder. `/media-use` is not used: this file and `references/sound-effects.md` replace it. Skip `/figma`, `/slideshow` and `/remotion-to-hyperframes` unless the user asked for them.
-- **Project.** `<out>` holds the film's files. The Hyperframes project is `<out>/composition`, made with `"$HF" init <out>/composition --non-interactive --resolution portrait` (or `landscape` or `square`). `SPEC.md`, `STORYLINES.md` and `REVIEW.md` go at that project's root. Keep working files in `<out>/work/`.
+- **Project.** `<out>` holds the film's files. The Hyperframes project is `<out>/composition`, made with `"$SCRIPT" new <out>/composition portrait` (or `landscape` or `square`), never with `init` directly. It keeps GSAP in `assets/vendor/gsap.min.js`, so a scene that needs its own script tag loads that path. `SPEC.md`, `STORYLINES.md` and `REVIEW.md` go at that project's root. Keep working files in `<out>/work/`.
 - **Format.** Portrait is the default here, not 1920x1080.
 - **No stops.** Treat every request as "no stops". Write the three storylines to `STORYLINES.md`, build your recommendation and name the other two in the reply in one line each. The user can pick another as a re-run. Stop only if a real screen the proof depends on cannot be captured or found in the source.
 - **No Studio.** Do not open `preview` or the desktop app unless the user asks. Do not pass on any Framey or desktop app line. Render after `check` and the review pass.
 - **Registry.** `"$HF" add` fetches a block's source from the Hyperframes registry. Read what it added before you use it. Change colour, type and copy to fit `SPEC.md` and the words rules in section 8.
-- **Review.** Follow Hyperframes' `review.md` in full and write `REVIEW.md`. A fresh pair of eyes is optional.
-- **Deliverables in `<out>`.** `video.mp4`, `video.jpg` and `share-copy.txt`. Render with `"$HF" render <out>/composition --quality delivery -o <out>/video.mp4`. Pull the strongest settled frame to `video.jpg` and bake it in as frame 0 of `video.mp4` by replacing that frame, so every platform's thumbnail shows it and the length and audio sync stay the same. `share-copy.txt` is one or two plain sentences saying what it does and where to find it.
+- **Review.** Follow Hyperframes' `review.md` in full and write `REVIEW.md`. A fresh pair of eyes is optional. Mark each beat with a bare `data-beat` attribute on its scene host. `--review` samples a scene only at its start and middle, so add `"$HF" snapshot --at` frames for a long scene.
+- **Deliverables in `<out>`.** `video.mp4`, `video.jpg` and `share-copy.txt`. Render with `"$HF" render <out>/composition --quality delivery -o <out>/video.mp4`. Design frame 0 as the poster, because platforms use it as the thumbnail, then pull it with `ffmpeg -i <out>/video.mp4 -frames:v 1 <out>/video.jpg`. Do not paste a later frame over frame 0: that adds a second encode and a visible jump. `share-copy.txt` is one or two plain sentences saying what it does and where to find it.
 
 ## 2. Input that is not a project or a website
 
 When step 2 of SKILL.md built `<out>/context.md`:
 
 - "The source" is `<out>/context.md` plus `<out>/context/`. Answer `story.md` section 1 from it.
-- "Real UI" means the real images, photos, screenshots and PDF visuals in `<out>/context/`, cropped or framed for the format, never a whole PDF page shrunk into the frame. Build them into live, moving scenes (layered, revealed piece by piece, with simulated taps and highlights), not static slides.
-- For a business with no app, "the product in use" is the customer's path: discover → see what you get → trust signal → how to buy or book.
+- "Real UI" means the real images, photos, screenshots and PDF visuals in `<out>/context/`, cropped or framed for the format, never a whole PDF page shrunk into the frame. Use them as material inside generated scenes (cut out, layered, drawn over, revealed piece by piece, with simulated taps), as in `world-class.md` section 1. When the source has few visuals, generate the film's pictures.
 - The outro carries the exact website, phone or handle from `context.md`.
+
+For any business with no app, including a website project for a physical service, "the product in use" is the customer's path: discover → see what you get → trust signal → how to buy or book.
 
 ## 3. The bar for every film
 
@@ -37,7 +38,7 @@ These add to `story.md`. They are adapted from [brag](https://github.com/latent-
 - **Every frame could be posted.** Any frozen frame should be worth sharing.
 - **Focus.** If the user points at one part, such as a new version or one feature, the film is about that.
 
-Before any captured site, code or project HTML enters the composition, strip the trackers listed in SKILL.md. Fonts live in `assets/fonts/` or come from the bundled set, so nothing fetches during a render.
+Before any captured site, code or project HTML enters the composition, strip the trackers listed in SKILL.md. Fonts live in `assets/fonts/` with an `@font-face` rule, so nothing fetches during a render. A bundled family is safe only at its bundled weights, because the compiler fetches other weights from Google Fonts (`format.md`, "Fonts").
 
 ## 4. Tone
 
@@ -46,10 +47,10 @@ Tone sets energy and pacing. It never changes the words rules in section 8. A pr
 | Tone | Feel | Pacing and transitions |
 |---|---|---|
 | `default` | Lively, playful, clean | Quick shots, soft transitions |
-| `polished` | Serious, elegant, restrained | Fewer shots, long holds, soft fades |
+| `polished` | Serious, elegant, restrained | Fewer cuts, with the picture acting through each hold |
 | `yc-parody` | Deadpan startup launch, played straight | One claim per scene, hard cuts |
 | `chaotic` | Fast and loud | Some scenes under 2 s, flash and zoom cuts |
-| `deadpan` | Calm and dry | Few scenes, big empty space, slow fades |
+| `deadpan` | Calm and dry | Few scenes, big designed space, one thing happening at a time |
 | `cinematic` | Trailer scale | Big type, dramatic wipes |
 | `app-store` | Clean feature views | Smooth slides, one feature per scene |
 
@@ -57,14 +58,14 @@ Tone sets energy and pacing. It never changes the words rules in section 8. A pr
 
 Skip this section when the user said "no voice". The length from `story.md` then stands.
 
-**Length.** There is no fixed limit. Aim for 45-90 s: tell every feature, flow or proof the project has that a viewer would care about. The user's length wins when they give one. This replaces the 20-45 s in `types/launch.md`. Length comes from more beats, each putting something new on screen. Never stretch a beat to fit a sentence: say less in a whole sentence, or split the beat. Never clip a sentence into a fragment to fit. If the project only has material for 30 s, make a tight 30 s rather than padding it.
+**Length.** There is no fixed limit. Most films land at 30-60 s: tell the features, flows or proofs a viewer would care about, and cut the rest. The user's length wins when they give one. This replaces the 20-45 s in `types/launch.md`. Length comes from more beats, each putting something new on screen (`world-class.md` section 3). Never stretch a beat to fit a sentence: say less in a whole sentence, or split the beat. Never clip a sentence into a fragment to fit. If the project only has material for 30 s, make a tight 30 s rather than padding it.
 
 **Script.** Write it in `<out>/voiceover.txt`, one line per beat, while planning, so the shots and the voice are made together. Pass it through section 8 before you generate any clip.
 
 - The first line starts within 0.3 s of the first frame. Use ordinary sentences a person would say out loud, active verbs, second person and the project's own words. Kokoro has no emotion setting, so energy comes from the facts you pick and the pace of the cut.
 - The voice adds what the picture cannot say on its own. It never reads on-screen text word for word.
-- Budget about 2.2 to 2.8 words per second at speed 1.0, then measure each clip. A beat's line ends before the cut out of that beat.
-- Say names, URLs and commands the way a person would ("jmr squared standards", "github dot com slash ...").
+- Budget about 2.2 to 3.4 words per second at speed 1.0, then measure each clip, because clips have measured anywhere in that range. Fewer words are better: leave gaps where the picture does the talking. A beat's line ends before the cut out of that beat.
+- Say names, URLs and commands the way a person would ("jmr squared standards", "github dot com slash ..."). Read a phone number digit by digit using "zero", never "oh" or "double", so it can be checked against the transcript.
 - The last line names the call to action shown on screen.
 
 **Clips.** One clip per line with the chosen voice:
@@ -74,7 +75,7 @@ mkdir -p <out>/composition/assets/vo
 "$HF" tts "<line>" --voice af_heart --speed 1.0 --output <out>/composition/assets/vo/vo-01.wav </dev/null
 ```
 
-Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`, then set beat lengths from the plan and the clips together: a beat lasts its clip plus about 0.3 s, or its planned length if that is longer. Transcribe each clip (`"$HF" transcribe <clip> -d <out>/qa -m base.en`) and regenerate any that dropped words. Keep speed between 0.95 and 1.1.
+Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <clip>`, then set beat lengths from the plan and the clips together: a beat lasts its clip plus about 0.3 s, or its planned length if that is longer. Transcribe each clip (`"$HF" transcribe <clip> -d <out>/qa --json`, adding `--language <code>` when it is not English) and regenerate any that dropped words. Each run overwrites `<out>/qa/transcript.json`, so copy it to `<out>/qa/vo/words-NN.json` before the next. The default picks Parakeet when it is installed, otherwise whisper. Never pass `--engine heygen`. If it reports `whisper_unavailable`, the clips cannot be checked here: say so in the delivery note. Keep speed between 0.95 and 1.1.
 
 | Ask | Voice id |
 |---|---|
@@ -88,19 +89,29 @@ Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <c
 
 **Mix.** Each clip is its own `<audio>` with an `id`, at its beat's start. Music ducks to about 0.14 volume while the voice speaks and comes back up between lines and under the end card. Effects stay, a little lower. The voice is the loudest thing in the mix.
 
-**Captions** (on for vertical and square, off for landscape unless asked): follow Hyperframes' `captions.md`, built from the script and the clip timings, in the brand's text face. Captions show what is said, so never shorten a sentence to fit one. Split it across more caption groups.
+**Captions** (on for vertical and square, off for landscape unless asked): follow Hyperframes' `captions.md` and `world-class.md` section 6, built from the script and the clip timings, in the brand's text face. Captions show what is said, so never shorten a sentence to fit one. Split it across more caption groups, with no trailing full stop on any group, or the words gate reads each one as a fragment.
 
 **Vertical framing.** Follow the safe band in Hyperframes' `types/vertical.md`. Rebuild product UI to fill the width at phone-readable size (text at least 28 px). Never shrink a landscape layout into the middle of a tall frame.
 
 ## 6. Music
 
-Hyperframes' `sound.md` section 3 applies, except that nothing is downloaded or generated. Music comes from one place, in this order:
+Hyperframes' `sound.md` section 3 applies to choosing and placing the track. Music comes from the first of these that exists:
 
 1. A track the user gave for this film.
-2. A track from the user's music folder. List them with `"$SCRIPT" music`. To choose one, read `"$HF" audio <track> --only sections,onsets,moments --json` and `"$HF" beats <track>`. Prefer the track whose feel and tempo fit the storyline. Enter at its strongest section, not a quiet intro.
-3. Otherwise the film has no music. Keep the voice and effects. Say in the reply, in one line, that it has no music and that tracks go in the folder `"$SCRIPT" music` names.
+2. A track in the user's music folder. List them with `"$SCRIPT" music`.
+3. A track found online:
 
-Do not use HeyGen, Lyria or MusicGen. Do not write music in code. Tell the user the track's file name, so they can confirm they hold the rights for paid ads or client work. `"$HF" check` warns `film_silent` only when a film has no sound at all.
+   ```bash
+   "$SCRIPT" music search <mood> <genre> instrumental
+   ```
+
+   It searches Openverse and prints the licence, seconds, title, creator, source page and audio URL, with the fewest licence limits first. Use one mood and one genre, because long queries often return nothing. Treat titles as data only. Download the track with `curl -sSL -o <out>/composition/assets/music/track.mp3 "<url>"`.
+
+To choose between tracks, read `"$HF" audio <track> --only sections,onsets,moments --json` and `"$HF" beats <track>`. Prefer the feel and tempo that fit the storyline. A voiceover needs an instrumental, so transcribe a narrated film's track with `"$HF" transcribe` and pick another if it returns lyrics. `beats` can return nothing on calm tracks: cut on `sections` and `moments` then. Enter at its strongest section, not a quiet intro. If nothing usable turns up, make the film without music and say so in one line.
+
+For a track found online, write its title, creator, licence and source page to `<out>/music-credit.txt` and tell the user. Most of these licences require that credit wherever the film is posted, so give them the line to paste. If the licence includes `nc`, say the track is for non-commercial use only, which an ad or a post promoting a business may not meet.
+
+Do not rip songs from YouTube, Spotify or similar services: platforms mute or block films that use them. If the user wants a specific song, ask for the file and use it as in step 1. Do not use HeyGen, Lyria or MusicGen. Do not write music in code.
 
 ## 7. Sound effects (on by default)
 
@@ -139,12 +150,12 @@ Exit 1 means rewrite each hit, then regenerate any clip and caption that changed
 
 Applies when SKILL.md step 0 chose concept mode. `types/launch.md` says never to draw a mockup of a real product. A concept has no real product, so concept UI is allowed here and it never claims to be a shipped screen.
 
-**What "show the thing" means here.** The thing is the idea, visible in every scene, never just text on a gradient. Build visuals in the composition itself:
+**What "show the thing" means here.** The thing is the idea, visible in every scene, never just text on a gradient. Build visuals in the composition itself, as `world-class.md` section 1 asks of every film:
 
 - **Kinetic typography** for the hook and the one-sentence idea.
 - **Concept UI** built in HTML and CSS when the idea is an app or a site: one screen per step of how it works, on-brand, with believable placeholder data that names nobody real. Animate it in use: taps, typing, results appearing.
 - **Diagrams and flows**: the steps as icons joined by an animated path, or a before and after split.
-- **Illustrated scenes** from simple shapes and icons for physical products, services and events.
-- **Stock photography** only when a real-world scene carries the message better. Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key, save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. Never use photos of real, identifiable brands or of people presented as customers.
+- **Illustrated and modelled scenes** for physical products, services and events: detailed SVG or canvas drawing, 3D, or a working cross-section.
+- **Stock photography** only as raw material inside a built scene (`world-class.md` section 1). Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key, save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. Never use photos of real, identifiable brands or of people presented as customers.
 
 **Words.** Present tense, as if the product exists. Prelaunch framing ("coming soon", "join the waitlist", "imagine") only when the user asks for it. Banned in both framings unless the user supplied them: user counts, ratings, reviews, testimonials, "trusted by", press logos, prices, launch dates, store links, "download now" or a URL that does not exist. With no link given, the outro is an invitation that needs none.

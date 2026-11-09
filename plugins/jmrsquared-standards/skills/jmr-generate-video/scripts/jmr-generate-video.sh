@@ -8,10 +8,16 @@
 #   jmr-generate-video.sh env          print the export lines again (no fetch); use in each new shell
 #   jmr-generate-video.sh audit [DIR]  re-run the audit on a Hyperframes skills checkout
 #   jmr-generate-video.sh doctor       check node, ffmpeg, git, hyperframes, pdftoppm
+#   jmr-generate-video.sh new DIR [portrait|landscape|square]
+#                                      scaffold a Hyperframes project and hold it to the pin and local-only rules
 #   jmr-generate-video.sh music        list the user's own music tracks
+#   jmr-generate-video.sh music search WORDS
+#                                      find full-length music on Openverse, fewest licence limits first
 #   jmr-generate-video.sh probe FILE   print size, duration and streams of a rendered video
 #   jmr-generate-video.sh slop DIR     scan a composition for AI tells; exit 1 when any are found
+#   jmr-generate-video.sh look FILE    measure a rendered film for still pictures, too few pictures and an empty lower frame
 #   jmr-generate-video.sh words OUT    check the film's words against jmr-plain-language; exit 1 on any hit
+#   jmr-generate-video.sh refs         fetch the text source of HeyGen's launch films to read, and print its folder
 #
 # Env:
 #   HF_VERSION, HF_COMMIT  CLI version and matching commit to pin (default: the audited pair
@@ -37,6 +43,9 @@ HF_BIN="$CLI_DIR/node_modules/.bin/hyperframes"
 CHECKOUT="$CACHE_ROOT/hyperframes-$HF_COMMIT"
 VOICE_VENV="$CACHE_ROOT/kokoro-venv"
 MUSIC_DIR="${JMR_VIDEO_MUSIC:-${XDG_CONFIG_HOME:-$HOME/.config}/jmr-generate-video/music}"
+REFS_REPO="https://github.com/heygen-com/hyperframes-launches.git"
+REFS_COMMIT="d7ac35069d74a3a437780579b3b7fe2f3eeace5f"
+REFS_DIR="$CACHE_ROOT/hyperframes-launches-$REFS_COMMIT"
 
 # Only the docs the agent reads and the sound effects it copies are checked out.
 # media-use's scripts stay out, so nothing can run its HeyGen or Gemini routes.
@@ -121,6 +130,24 @@ fetch_skills() {
   mv "$tmp" "$CHECKOUT"
 }
 
+# Reading material only: nothing here runs and nothing is copied into a film. Large media
+# stays out because Git LFS is skipped, and its media and fonts are not licensed for reuse.
+cmd_refs() {
+  command -v git >/dev/null 2>&1 || die "git is not installed. Install git and re-run."
+  mkdir -p "$CACHE_ROOT"
+  if [ ! -d "$REFS_DIR/.git" ]; then
+    local tmp="$REFS_DIR.tmp.$$"
+    rm -rf "$tmp"
+    git init -q "$tmp"
+    git -C "$tmp" remote add origin "$REFS_REPO"
+    git -C "$tmp" fetch -q --depth 1 origin "$REFS_COMMIT" \
+      || { rm -rf "$tmp"; die "could not fetch $REFS_COMMIT from $REFS_REPO. Check the network or work from the table in references/world-class.md."; }
+    GIT_LFS_SKIP_SMUDGE=1 git -C "$tmp" -c advice.detachedHead=false -c filter.lfs.process= -c filter.lfs.smudge= -c filter.lfs.required=false checkout -q FETCH_HEAD
+    mv "$tmp" "$REFS_DIR"
+  fi
+  echo "$REFS_DIR"
+}
+
 verify_skills() {
   local head
   head="$(git -C "$CHECKOUT" rev-parse HEAD)"
@@ -200,6 +227,30 @@ cmd_env() {
   if voice_ready; then echo "export HYPERFRAMES_PYTHON='$(voice_python)'"; fi
 }
 
+# init loads GSAP from a CDN, points the registry at the moving main branch and writes
+# agent files that route to skills this run bans, so each is corrected here.
+cmd_new() {
+  local dir="${1:-}" format="${2:-portrait}" gsap
+  [ -n "$dir" ] || die "new needs a folder, for example <out>/composition."
+  [ ! -e "$dir" ] || die "$dir already exists."
+  [ -x "$HF_BIN" ] || die "Hyperframes is not set up yet. Run: $0 setup"
+  "$HF_BIN" init "$dir" --non-interactive --resolution "$format" >/dev/null
+  gsap="$(find "$CLI_DIR/node_modules/hyperframes/dist/vendor/npm" -name gsap.min.js | head -1)"
+  [ -f "$gsap" ] || die "could not find GSAP inside $CLI_DIR."
+  mkdir -p "$dir/assets/vendor"
+  cp "$gsap" "$dir/assets/vendor/gsap.min.js"
+  node - "$dir" "$HF_VERSION" <<'NODE'
+const { readFileSync, writeFileSync } = require('node:fs');
+const [dir, version] = process.argv.slice(2);
+const edit = (file, change) => writeFileSync(`${dir}/${file}`, change(readFileSync(`${dir}/${file}`, 'utf8')));
+edit('index.html', (html) => html.replace(/<script\s+src="https?:[^"]*gsap[^"]*"/g, '<script src="assets/vendor/gsap.min.js"'));
+edit('hyperframes.json', (json) => json.replace('/hyperframes/main/registry', `/hyperframes/v${version}/registry`));
+NODE
+  rm -f "$dir/CLAUDE.md" "$dir/AGENTS.md"
+  if grep -qE '<script[^>]+src="https?:' "$dir/index.html"; then die "$dir/index.html still loads a remote script."; fi
+  echo "new: $dir ($format), GSAP is local and the registry is pinned to v$HF_VERSION"
+}
+
 cmd_doctor() {
   local ok=1 v
   if command -v node >/dev/null 2>&1; then
@@ -223,12 +274,38 @@ cmd_music() {
   local found=""
   [ -d "$MUSIC_DIR" ] && found="$(find -L "$MUSIC_DIR" -type f \( -iname '*.mp3' -o -iname '*.wav' -o -iname '*.m4a' -o -iname '*.flac' -o -iname '*.ogg' \) | LC_ALL=C sort)"
   if [ -z "$found" ]; then
-    echo "no music tracks in $MUSIC_DIR. The film ships without music unless the user gave a track. Add tracks you hold the rights to in that folder."
+    echo "no music tracks in $MUSIC_DIR. Find one with: $0 music search <feel and tempo>"
     return 0
   fi
   while IFS= read -r track; do
     echo "$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$track" 2>/dev/null | cut -d. -f1)s  $track"
   done <<< "$found"
+}
+
+# Tab-separated: licence, seconds, title, creator, source page, audio URL. Titles
+# come from strangers, so tabs and control characters are stripped.
+cmd_music_search() {
+  [ "$#" -gt 0 ] || die "music search needs words, for example: music search upbeat electronic instrumental"
+  command -v node >/dev/null 2>&1 || die "node is not installed."
+  node - "$*" <<'NODE'
+const RANK = ['cc0', 'pdm', 'by', 'by-sa', 'by-nc', 'by-nc-sa', 'by-nd', 'by-nc-nd'];
+const MIN_SECONDS = 60;
+const clean = (text) => String(text ?? '').replace(/[\x00-\x1f\x7f]+/g, ' ').trim();
+const params = new URLSearchParams({ q: process.argv[2], category: 'music', license: RANK.join(','), page_size: '20' });
+const response = await fetch(`https://api.openverse.org/v1/audio/?${params}`, { headers: { 'User-Agent': 'jmr-generate-video' } });
+if (!response.ok) {
+  console.error(`Openverse answered ${response.status}. Try again later or use a track the user supplies.`);
+  process.exit(1);
+}
+const { results } = await response.json();
+const tracks = results
+  .filter((track) => track.duration >= MIN_SECONDS * 1000 && RANK.includes(track.license))
+  .sort((a, b) => RANK.indexOf(a.license) - RANK.indexOf(b.license));
+if (!tracks.length) console.log('No full-length tracks matched. Use fewer words: one mood and one genre.');
+for (const track of tracks) {
+  console.log([track.license, Math.round(track.duration / 1000), clean(track.title), clean(track.creator), track.foreign_landing_url, track.url].join('\t'));
+}
+NODE
 }
 
 cmd_probe() {
@@ -241,20 +318,28 @@ cmd_probe() {
 
 # Signs a search can catch, from references/no-slop-video.md. It cannot judge
 # taste, so a clean result only means there is nothing obvious left to fix.
+# Glows, washes, heavy type and overshoot are absent on purpose: the best reference
+# films use them, so whether one belongs is judged by eye, not by a search.
 SLOP_CHECKS=(
   'gradient text|background-clip: *text'
-  'coloured glow|(box|text)-shadow:[^;]*0 +0 +[0-9.]+px|box-shadow:[^;]*0 0 [0-9]+px|drop-shadow\(0 0'
-  'colour wash or blob|radial-gradient\([^;]*rgba?\('
   'purple or violet|#(7c3aed|8b5cf6|6366f1|a855f7|9333ea|4f46e5)|violet|indigo'
-  'heavy heading (700-900)|font-weight: *(700|800|900)'
   'tracked uppercase label|text-transform: *uppercase'
-  'glass|backdrop-filter'
   'looping motion|repeat: *-1|animation-iteration-count: *infinite|animate-(pulse|ping)'
-  'bouncy ease|back\.out|elastic\.|bounce\.'
   'hype word|supercharge|seamless|unlock|game-chang|revolutioni[sz]e|AI-powered|next-gen'
   'unverifiable claim|[Tt]rusted by|[Ll]oved by|10x'
   'exclamation mark in copy|>[^<>{}]*![[:space:]]*<'
 )
+
+slop_count() {
+  { grep -rhoIE "$1" "$2" --include='*.html' --exclude-dir=node_modules --exclude-dir=.hyperframes --exclude='*.min.*' || true; } | wc -l | tr -d ' '
+}
+
+cmd_look() {
+  [ -f "${1:-}" ] || die "look needs a video file, for example <out>/video.mp4."
+  command -v node >/dev/null 2>&1 || die "node is not installed."
+  command -v ffmpeg >/dev/null 2>&1 || die "ffmpeg is missing. Install ffmpeg."
+  node "$(cd "$(dirname "$(readlink -f "$0")")" && pwd)/look.mjs" "$1"
+}
 
 cmd_slop() {
   local dir="${1:-}" hits=0 label pattern found
@@ -270,6 +355,15 @@ cmd_slop() {
     echo "SLOP: $label ($(printf '%s\n' "$found" | wc -l | tr -d ' ') lines)"
     printf '%s\n' "$found" | head -3 | cut -c1-140 | sed 's/^/  /'
   done
+  # A film made mostly of pictures in <img> tags is the stock-photo template in
+  # references/world-class.md section 2. Drawn pieces are what the bar asks for.
+  local photos drawn
+  photos="$(slop_count '<img[ >]' "$dir")"
+  drawn="$(slop_count '<(svg|canvas)[ >]' "$dir")"
+  if [ "$photos" -gt "$drawn" ]; then
+    hits=$((hits + 1))
+    echo "SLOP: mostly photos ($photos image tags against $drawn drawn pieces). Build the picture (references/world-class.md section 1)"
+  fi
   if [ "$hits" -gt 0 ]; then
     echo "$hits kinds of sign found. Fix each one, or say why the brand or tone calls for it." >&2
     return 1
@@ -298,12 +392,15 @@ cmd_words() {
 
 case "${1:-}" in
   slop)   shift; cmd_slop "${1:-}" ;;
+  look)   shift; cmd_look "${1:-}" ;;
+  refs)   cmd_refs ;;
   words)  shift; cmd_words "${1:-}" ;;
   setup)  shift; cmd_setup "${1:-}" ;;
   env)    cmd_env ;;
   audit)  shift; cmd_audit "${1:-$CHECKOUT}" "${2:-check}" ;;
   doctor) cmd_doctor ;;
-  music)  cmd_music ;;
+  new)    shift; cmd_new "$@" ;;
+  music)  shift; if [ "${1:-}" = search ]; then shift; cmd_music_search "$@"; else cmd_music; fi ;;
   probe)  shift; cmd_probe "${1:-}" ;;
-  *) sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  *) sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac
