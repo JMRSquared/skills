@@ -37,6 +37,7 @@ version: 1.0.0
 - `jmr-image` — Unsplash + Pexels + pngimg photography search/download; `/jmr-image`.
 - `jmr-logo-design`: logo, wordmark, app icon or favicon from brief to SVG kit, with a concept checkpoint; `/premium-web-design` uses it when the brand has no logo; `/jmr-logo-design`.
 - `jmr-unslop`: audit an AI-looking screen and fix it pass by pass (spacing, color, icons, copy, type, layout, details, visuals, motion); used by `/premium-web-design` and inside `/jmr-cycle`; `/jmr-unslop`.
+- `jmr-design-taste`: tasteskill pinned to a read commit: company sites led by photographs, dealt palettes, real brand icons, Commons stand-in photos, copy-lint, perf and a browser finish gate; lends its tools to `/premium-web-design` and `/jmr-generate-video`; `/jmr-design-taste`.
 - `jmr-generate-video`: narrated portrait launch video from code, a URL, images, a PDF or a brief, directed and rendered locally by a pinned, audited Hyperframes; `/jmr-generate-video`.
 - `jmr-survey-form`: customer discovery survey as a Google Form, built in your own Google account; `/jmr-survey-form`.
 - `jmr-file-share`: copy files into mounted shared storage (`JMR_SHARE_ROOT`, default `/mnt/tank/media/herdr`) so other devices can open them; on demand only.
@@ -55,6 +56,7 @@ version: 1.0.0
 - `jmr-image` — `/jmr-image` — Unsplash then Pexels photography search + download.
 - `jmr-logo-design`: `/jmr-logo-design`: three tested logo concepts, then the kit for the one you pick.
 - `jmr-unslop`: `/jmr-unslop`: audit, one direction for your approval, then nine fix passes.
+- `jmr-design-taste`: `/jmr-design-taste`: a company site built and checked with tasteskill.
 - `jmr-generate-video`: `/jmr-generate-video` (alias `/generate-video`): local launch video via a pinned, audited Hyperframes, portrait with a Kokoro voiceover by default.
 - `jmr-survey-form`: `/jmr-survey-form`: 10-question discovery survey and pilot sign-up form, with the promo video on top.
 - `jmr-grill-me`: `/jmr-grill-me`: numbered rounds of questions about a plan or idea until every decision is settled; changes nothing until you confirm.
@@ -76,6 +78,7 @@ version: 1.0.0
 - `/jmr-grill-me`: get interviewed about a plan, decision or idea before acting on it.
 - `/jmr-logo-design`: design a logo, favicon and web icons.
 - `/jmr-unslop`: fix a screen that looks AI-generated.
+- `/jmr-design-taste`: build a company site led by photographs, checked in a real browser.
 - `/jmr-image` — search and download photography (Unsplash needs `UNSPLASH_ACCESS_KEY`; Pexels needs `PEXELS_API_KEY`; pngimg fallback is CC BY-NC).
 
 Slash commands are native to Claude Code and OpenCode. In agents without slash-command support (Cursor, Windsurf, Cline, Copilot, Codex, Gemini CLI), invoke the underlying skill by loading `skills/<name>/SKILL.md` or asking the agent to apply the skill's behaviour.

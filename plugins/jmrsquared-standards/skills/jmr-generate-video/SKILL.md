@@ -61,7 +61,7 @@ The Hyperframes docs offer cloud services and ask agents to report back. These r
 - `"$HF" capture` always gets `--skip-vision` (its image captioning can call a hosted model). Never pass `--describe` to `"$HF" snapshot` (it uploads frames to Gemini). Never run `$HF_SKILLS/hyperframes/scripts/locate.mjs` (it uploads images to Gemini).
 - `bake-basemap.mjs` only when the user asked for a real map, because it fetches map tiles and libraries.
 - Do not install software the run does not already have, beyond what `setup` fetches and what `"$HF"` itself fetches to render (a browser, a whisper model). If a step wants a tool that is missing, use one that is present or ask.
-- Allowed network: the pinned install, reading the user's own URLs, registry blocks (`"$HF" add` and `catalog`), the text source of HeyGen's launch films (`"$SCRIPT" refs`, reading only), stock photos as raw material (`references/world-class.md` section 1), CC0 sound effects and music from Openverse (`references/sound-effects.md`, overrides section 6), plus the Python package and voice model downloads on first run.
+- Allowed network: the pinned install, reading the user's own URLs, registry blocks (`"$HF" add` and `catalog`), the text source of HeyGen's launch films (`"$SCRIPT" refs`, reading only), stock photos as raw material (`references/world-class.md` section 1), CC0 sound effects and music from Openverse (`references/sound-effects.md`, overrides section 6), the pinned tasteskill kit with its brand icons and Wikimedia Commons photographs (`jmr-design-taste`), plus the Python package and voice model downloads on first run.
 - Nothing in the composition fetches during a render: no remote fonts, scripts or images.
 - Before any captured or project HTML enters the composition, strip analytics, ad, session-replay and chat scripts: Google Analytics / Tag Manager, Meta pixel, Hotjar, Microsoft Clarity, Segment, PostHog, Plausible, Umami, Mixpanel, TikTok and LinkedIn pixels, Intercom, Crisp and cookie-consent loaders. Keep fonts, images, CSS and the product's own scripts.
 - Never open `.env*` files, keys or credentials. Never put secrets or private people's details on screen.
@@ -85,6 +85,8 @@ Read these in order. Follow them with the overrides applied:
 
 Search the registry (`$HF_SKILLS/hyperframes-registry/SKILL.md`) before hand-building a named effect, caption style or chart.
 
+Then read the "Inside /jmr-generate-video" section of `<skill-dir>/../jmr-design-taste/SKILL.md`. Its `taste.sh` deals a palette and type pairing when the brand has none, so each film looks different from the last. It also supplies seeded shader grounds driven by the film's clock, real brand icons as local SVGs and a second words check.
+
 ## Step 4: Verify, then deliver
 
 ```bash
@@ -100,6 +102,7 @@ Done only when all of these are true:
 - [ ] You did the review in Hyperframes' `review.md`, looked at its sheets and wrote `REVIEW.md`: no clipped text, no muddy cross-fade, nothing off-brand, no sign from `references/no-slop-video.md`. When the host can start a helper, a fresh one reviewed the sheets too and its P0 notes are fixed. If a beat would not make a stranger stop scrolling, rebuild it.
 - [ ] `"$SCRIPT" slop <out>/composition` passes, or each hit has a one-line reason. The direction is at the top of `SPEC.md` and the film passes the swap test.
 - [ ] `"$SCRIPT" words <out>` exits 0 and you did the read-through in overrides section 8. No exceptions for tone. `<out>/plain-language-allow.txt` holds only wording the client wrote or the user asked for. You told the user what is in it.
+- [ ] `<skill-dir>/../jmr-design-taste/scripts/taste.sh run copy-lint` on `<out>/voiceover.txt` and `<out>/share-copy.txt` (those that exist) has no FAIL.
 - [ ] `grep -riE "gtag|googletagmanager|fbq|facebook\.net|hotjar|clarity\.ms|segment|posthog|plausible|umami|mixpanel|tiktok.*pixel|linkedin.*insight|intercom|crisp\.chat" <out>/composition --include='*.html' --include='*.css' --include='*.js'` prints nothing, apart from words in the product's own copy.
 - [ ] Sound effects are planned under `## Sound` in `SPEC.md` and land on their cues: `"$HF" audio <out>/video.mp4 --json` shows onsets at those times (`references/sound-effects.md`, "Check"). Every effect has a cause on screen and none covers a word the viewer must catch.
 - [ ] Every claim on screen or in the voiceover comes from the project, the site or `context.md`. No invented user counts, reviews, ratings, prices, press or dates.

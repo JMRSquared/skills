@@ -60,7 +60,7 @@ Follow `references/the-object.md`. Write five candidates, test them and commit t
 
 **How it looks real** is decided before you build:
 
-- **Photo cutouts** of the real product: client photos first, then `scripts/find-photos.mjs`, `/jmr-image` or an image generator.
+- **Photo cutouts** of the real product: client photos first, then `scripts/find-photos.mjs`, `/jmr-image`, licensed Wikimedia Commons stand-ins from `jmr-design-taste` (`taste.sh run photos search`) or an image generator.
 - **3D** with real lighting and shadows: a model from `/gltf-assets` or careful procedural geometry. No raw boxes.
 - **A generated photoreal scene or video** when a place or mood carries the brand. Use the image or video tools this session has. If it has none, tell the user and ask for a provider, then continue with the next-best honest option.
 - **A live diagram** when the product is invisible software, using its real nouns.
@@ -80,6 +80,8 @@ A calm ground (white, off-white or near-black), an ink and at most one accent. T
 The accent is for the one action and little else. Do not colour words in headlines. Do not change the ground on every section: one or two changes on a page are enough.
 
 Avoid the palettes models default to unless they are the brand's: cream paper with brown and terracotta, near-black with one orange or lime accent, any purple gradient.
+
+With no brand colours, deal a starting palette made for the trade instead of picking one from memory: `<skill-dir>/../jmr-design-taste/scripts/taste.sh run start deal --page <kind> --trade "<trade>" --history .taste-skill/history.json`. Take the first palette that passes this section. The history keeps the next page from getting the same one.
 
 ## 6. Words
 
@@ -168,7 +170,8 @@ Open the desktop and phone JPEGs. Then do the **cut pass**, always, at least onc
 2. Read every sentence. Delete each one the page survives without. Do the read-through in `<skill-dir>/../jmr-plain-language/references/surfaces.md` on what is left.
 3. Remove every element that is not the object, an image, a headline, a fact or the action.
 4. Put your first screen next to two frames from `owner-references`. Fix whatever looks cheaper. Play with the object as a stranger would: if it feels stiff, fix the physics before anything else.
-5. Go through `<skill-dir>/../jmr-unslop/references/signs.md` and list any sign still on the page. That file finds problems only. The fixes come from this skill, so sections 3 and 7 override what it suggests about mono labels, split heroes and generated scenes.
+5. Run `<skill-dir>/../jmr-design-taste/scripts/taste.sh run copy-lint index.html` and fix every FAIL. Then run `taste.sh run perf index.html --profile .taste-skill/chrome-perf` and fix every FAIL it lists (image weight, layout shift, fonts, WebGL contexts).
+6. Go through `<skill-dir>/../jmr-unslop/references/signs.md` and list any sign still on the page. That file finds problems only. The fixes come from this skill, so sections 3 and 7 override what it suggests about mono labels, split heroes and generated scenes.
 
 Fix FAILs and look again. Two or three passes is normal. Add `?story-debug` to the URL when a track does not move.
 
@@ -190,6 +193,7 @@ Do exactly what was asked and nothing around it. When the user asks you to remov
 - [ ] No sign from `jmr-unslop`'s `references/signs.md` left on the page
 - [ ] Every line passed the `jmr-plain-language` read-through. The auditor's `plain-language` check passes
 - [ ] `audit-page.mjs` exits 0 at desktop and phone, and you looked at the frames
+- [ ] `taste.sh run copy-lint` and `taste.sh run perf` from `jmr-design-taste` show no FAIL, or each one left is named in your reply with its reason
 - [ ] Favicon and web icons come from the brand mark
 - [ ] Your reply lists any placeholder that needs a real fact
 
@@ -211,3 +215,4 @@ Do exactly what was asked and nothing around it. When the user asks you to remov
 | `references/hero-depth.md`, `references/scroll-storytelling.md`, `references/scroll-direction.md`, `references/worlds.md`, `references/drawn-lines-and-formations.md` | Only when the brief needs that technique |
 | `references/site-studies/<slug>.md` | What a real site does, measured |
 | `full.md` | Required: tools, corpus index, audit codes |
+| `<skill-dir>/../jmr-design-taste/SKILL.md`, section "Inside /premium-web-design" | Palettes, real brand icons, stand-in photographs, copy-lint and perf. Take its tools, never its page plan |
