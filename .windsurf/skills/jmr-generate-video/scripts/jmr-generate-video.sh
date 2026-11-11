@@ -13,11 +13,18 @@
 #   jmr-generate-video.sh music        list the user's own music tracks
 #   jmr-generate-video.sh music search WORDS
 #                                      find full-length music on Openverse, fewest licence limits first
-#   jmr-generate-video.sh probe FILE   print size, duration and streams of a rendered video
+#   jmr-generate-video.sh probe FILE   print size, duration, bitrate and streams of a rendered video
 #   jmr-generate-video.sh slop DIR     scan a composition for AI tells; exit 1 when any are found
-#   jmr-generate-video.sh look FILE    measure a rendered film for still pictures, too few pictures and an empty lower frame
-#   jmr-generate-video.sh words OUT    check the film's words against jmr-plain-language; exit 1 on any hit
+#   jmr-generate-video.sh look FILE    measure a rendered film for still pictures, too few pictures and an empty lower frame,
+#                                      and write cut and shot sheets to <film folder>/qa/look/ for review
+#   jmr-generate-video.sh words OUT    check the film's words against jmr-plain-language and its caption breaks; exit 1 on any hit
+#   jmr-generate-video.sh captions OUT check caption groups for broken phrases and split numbers
+#   jmr-generate-video.sh series OUT [--series NAME]
+#                                      compare SPEC.md's devices with the series' last films, then log this one
+#   jmr-generate-video.sh deliver OUT  keep the render as master.mp4 and encode video.mp4 for social upload
 #   jmr-generate-video.sh refs         fetch the text source of HeyGen's launch films to read, and print its folder
+#   jmr-generate-video.sh cutout IN OUT.png
+#                                      cut a real object out of a photo with a local general model
 #
 # Env:
 #   HF_VERSION, HF_COMMIT  CLI version and matching commit to pin (default: the audited pair
@@ -309,11 +316,48 @@ NODE
 }
 
 cmd_probe() {
-  local f="${1:-}"
+  local f="${1:-}" rate
   [ -f "$f" ] || die "probe needs a video file path."
   command -v ffprobe >/dev/null 2>&1 || die "ffprobe missing. Install ffmpeg."
-  ffprobe -v error -show_entries format=duration,size:stream=codec_type,codec_name,width,height,r_frame_rate \
+  ffprobe -v error -show_entries format=duration,size,bit_rate:stream=codec_type,codec_name,width,height,r_frame_rate \
     -of default=noprint_wrappers=1 "$f"
+  rate="$(ffprobe -v error -show_entries format=bit_rate -of csv=p=0 "$f")"
+  if [ -n "$rate" ] && [ "$rate" -gt $((SOCIAL_MAX_MBPS * 1000000)) ]; then
+    echo "PROBE: $((rate / 1000000)) Mbps is more than a social upload needs. Run: $0 deliver <out>" >&2
+    return 1
+  fi
+}
+
+# Renders at delivery quality run at 15-27 Mbps. The master stays for re-edits and
+# video.mp4 becomes the upload, tagged so a second run encodes from the master again.
+cmd_deliver() {
+  local out="${1:-}" video master tag
+  [ -d "$out" ] || die "deliver needs the output folder, for example video-output-<timestamp>."
+  command -v ffmpeg >/dev/null 2>&1 || die "ffmpeg is missing. Install ffmpeg."
+  video="$out/video.mp4"
+  master="$out/master.mp4"
+  [ -f "$video" ] || die "$video is missing. Render the film first."
+  tag="$(ffprobe -v error -show_entries format_tags=comment -of csv=p=0 "$video" 2>/dev/null || true)"
+  [ "$tag" = "jmr-deliver" ] || mv -f "$video" "$master"
+  [ -f "$master" ] || die "$master is missing. Render the film again to $video."
+  ffmpeg -v error -y -i "$master" -map 0:v:0 -map '0:a?' \
+    -c:v libx264 -preset slow -crf 20 -maxrate 10M -bufsize 20M -profile:v high -pix_fmt yuv420p \
+    -c:a aac -b:a 192k -ar 48000 -movflags +faststart -metadata comment=jmr-deliver "$video"
+  cmd_probe "$video"
+}
+
+cmd_captions() {
+  local out="${1:-}" self
+  [ -d "$out/composition" ] || die "captions needs the output folder that holds composition/."
+  self="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  if [ -f "$out/voiceover.txt" ]; then node "$self/captions.mjs" "$out/composition" "$out/voiceover.txt"
+  else node "$self/captions.mjs" "$out/composition"; fi
+}
+
+cmd_series() {
+  local self
+  self="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+  node "$self/series.mjs" "$@"
 }
 
 # Signs a search can catch, from references/no-slop-video.md. It cannot judge
@@ -328,7 +372,70 @@ SLOP_CHECKS=(
   'hype word|supercharge|seamless|unlock|game-chang|revolutioni[sz]e|AI-powered|next-gen'
   'unverifiable claim|[Tt]rusted by|[Ll]oved by|10x'
   'exclamation mark in copy|>[^<>{}]*![[:space:]]*<'
+  'mono type as decoration|font-family:[^;}]*([Mm]ono|[Cc]ourier)'
 )
+# Each waiver hides a collision from `"$HF" check`. Reels shipped with text under logos and
+# titles under titles behind 22 of them.
+LAYOUT_WAIVER='data-layout-allow-(overlap|occlusion)'
+# A social upload is re-encoded by the platform, so more than this only slows the upload.
+SOCIAL_MAX_MBPS=12
+
+OBJECT_WORDS='car|cars|truck|bakkie|suv|bus|bike|vehicle|wheel|wheels|tyre|tire|rim|body|roof|door|bumper|person|man|woman|face|head|hand|dog|cat|bird|house|building|tree|sun|cloud|pencil|phone|laptop|cup|bottle|trophy|rocket|robot|brain|bulb|lightbulb|heart|magnifier'
+DRAWN_OBJECT="<(g|path|polygon|polyline|rect|circle|ellipse)[^>]*(id|class)=\"([^\"]*[-_ ])?($OBJECT_WORDS)([-_ 0-9][^\"]*)?\""
+
+# rembg with a general model, because Hyperframes' remove-background ships u2net_human_seg,
+# which only finds people and returned an empty mask for a car. Pinned and kept in its own env.
+CUTOUT_VENV="$CACHE_ROOT/cutout-venv"
+CUTOUT_PIN="rembg[cpu]==2.0.66"
+CUTOUT_MODEL="isnet-general-use"
+
+cutout_python() {
+  if [ -x "$CUTOUT_VENV/bin/python" ]; then echo "$CUTOUT_VENV/bin/python"
+  else echo "$CUTOUT_VENV/Scripts/python.exe"; fi
+}
+
+ensure_cutout() {
+  "$(cutout_python)" -I -c 'import rembg' >/dev/null 2>&1 && return 0
+  echo "setting up the local cutout env in $CUTOUT_VENV (one time)" >&2
+  rm -rf "$CUTOUT_VENV"
+  if command -v uv >/dev/null 2>&1; then
+    uv venv -q --python 3.12 "$CUTOUT_VENV" >&2 && uv pip install -q --python "$(cutout_python)" "$CUTOUT_PIN" >&2
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 -m venv "$CUTOUT_VENV" >&2 && "$(cutout_python)" -m pip install -q "$CUTOUT_PIN" >&2
+  else
+    die "no uv or python3 found, so cutouts cannot run. Install uv (https://docs.astral.sh/uv/) or Python 3.10-3.12."
+  fi
+  "$(cutout_python)" -I -c 'import rembg' >/dev/null 2>&1 || die "rembg did not install into $CUTOUT_VENV. Delete that folder and try again."
+}
+
+cmd_cutout() {
+  local in="${1:-}" out="${2:-}"
+  [ -f "$in" ] && [ -n "$out" ] || die "cutout needs a photo and an output PNG, for example: cutout context/images/car.jpg composition/assets/car.png"
+  case "$out" in *.png) ;; *) die "cutout writes a transparent PNG, so the output must end in .png." ;; esac
+  ensure_cutout
+  mkdir -p "$CACHE_ROOT/rembg-models"
+  U2NET_HOME="$CACHE_ROOT/rembg-models" "$(cutout_python)" -I - "$in" "$out" "$CUTOUT_MODEL" <<'PY'
+import sys
+from PIL import Image
+from rembg import new_session, remove
+
+source, target, model = sys.argv[1:4]
+cut = remove(Image.open(source), session=new_session(model), post_process_mask=True)
+alpha = cut.getchannel("A")
+histogram = alpha.histogram()
+kept = sum(histogram[200:]) / sum(histogram)
+box = alpha.point(lambda v: 255 if v > 200 else 0).getbbox()
+if not box or kept < 0.03:
+    sys.exit(f"cutout: the model found almost nothing in {source}. Pick a photo where the object is large, whole and alone.")
+cut.crop(box).save(target)
+print(f"cutout: {target}, {cut.crop(box).size[0]}x{cut.crop(box).size[1]}, the object covers {round(kept * 100)}% of the photo")
+w, h = cut.size
+edges = [name for name, touches in (("left", box[0] <= 2), ("top", box[1] <= 2), ("right", box[2] >= w - 2), ("bottom", box[3] >= h - 2)) if touches]
+if edges:
+    print(f"cutout: the object touches the photo's {', '.join(edges)} edge, so it may be cropped. It can only enter from that side of the frame, or pick another photo.")
+print("cutout: open the PNG at full size. When it kept a neighbour, lost a part or left a fringe, pick another photo.")
+PY
+}
 
 slop_count() {
   { grep -rhoIE "$1" "$2" --include='*.html' --exclude-dir=node_modules --exclude-dir=.hyperframes --exclude='*.min.*' || true; } | wc -l | tr -d ' '
@@ -355,14 +462,22 @@ cmd_slop() {
     echo "SLOP: $label ($(printf '%s\n' "$found" | wc -l | tr -d ' ') lines)"
     printf '%s\n' "$found" | head -3 | cut -c1-140 | sed 's/^/  /'
   done
-  # A film made mostly of pictures in <img> tags is the stock-photo template in
-  # references/world-class.md section 2. Drawn pieces are what the bar asks for.
-  local photos drawn
-  photos="$(slop_count '<img[ >]' "$dir")"
-  drawn="$(slop_count '<(svg|canvas)[ >]' "$dir")"
-  if [ "$photos" -gt "$drawn" ]; then
+  # An agent's SVG drawing of a real object reads as a child's (references/world-class.md
+  # section 2). Agents name the shapes after what they draw, so the names give it away.
+  # An earlier check here counted photos against SVG and pushed films into drawing everything.
+  found="$(grep -rnIoE "$DRAWN_OBJECT" "$dir" --include='*.html' \
+    --exclude-dir=node_modules --exclude-dir=.hyperframes --exclude='*.min.*' || true)"
+  if [ -n "$found" ]; then
     hits=$((hits + 1))
-    echo "SLOP: mostly photos ($photos image tags against $drawn drawn pieces). Build the picture (references/world-class.md section 1)"
+    echo "SLOP: real object drawn by hand ($(printf '%s\n' "$found" | wc -l | tr -d ' ') shapes). Use a 3D model or \"$0 cutout\" (references/world-class.md sections 1 and 2)"
+    printf '%s\n' "$found" | head -3 | cut -c1-140 | sed 's/^/  /'
+  fi
+  found="$(grep -rnIE "$LAYOUT_WAIVER" "$dir" --include='*.html' \
+    --exclude-dir=node_modules --exclude-dir=.hyperframes --exclude='*.min.*' || true)"
+  if [ -n "$found" ]; then
+    hits=$((hits + 1))
+    echo "SLOP: layout waivers ($(printf '%s\n' "$found" | wc -l | tr -d ' ') elements). Each hides a collision from check. Remove it, use data-layout-ignore on texture, or name it with its reason in REVIEW.md"
+    printf '%s\n' "$found" | head -3 | cut -c1-140 | sed 's/^/  /'
   fi
   if [ "$hits" -gt 0 ]; then
     echo "$hits kinds of sign found. Fix each one, or say why the brand or tone calls for it." >&2
@@ -387,12 +502,16 @@ cmd_words() {
   [ -f "$out/voiceover.txt" ] && args+=("$out/voiceover.txt")
   [ -f "$out/share-copy.txt" ] && args+=("$out/share-copy.txt")
   [ "${#args[@]}" -gt 0 ] || die "$out has no composition, voiceover.txt or share-copy.txt to check."
-  node "$checker" "${args[@]}"
+  local status=0
+  node "$checker" "${args[@]}" || status=$?
+  if [ -d "$out/composition" ]; then cmd_captions "$out" || status=1; fi
+  return "$status"
 }
 
 case "${1:-}" in
   slop)   shift; cmd_slop "${1:-}" ;;
   look)   shift; cmd_look "${1:-}" ;;
+  cutout) shift; cmd_cutout "${1:-}" "${2:-}" ;;
   refs)   cmd_refs ;;
   words)  shift; cmd_words "${1:-}" ;;
   setup)  shift; cmd_setup "${1:-}" ;;
@@ -402,5 +521,8 @@ case "${1:-}" in
   new)    shift; cmd_new "$@" ;;
   music)  shift; if [ "${1:-}" = search ]; then shift; cmd_music_search "$@"; else cmd_music; fi ;;
   probe)  shift; cmd_probe "${1:-}" ;;
-  *) sed -n '2,28p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+  deliver) shift; cmd_deliver "${1:-}" ;;
+  captions) shift; cmd_captions "${1:-}" ;;
+  series) shift; cmd_series "$@" ;;
+  *) sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
 esac

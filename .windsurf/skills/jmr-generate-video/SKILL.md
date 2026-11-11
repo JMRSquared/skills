@@ -1,7 +1,7 @@
 ---
 name: jmr-generate-video
 description: Generate a world-class, narrated promo or launch video with rich generated graphics and animation (portrait by default), fully on this machine, from any context the user gives - the current project's source code, a website URL, images, a business profile PDF, a written brief or just an idea with no product yet. Directs and renders with Hyperframes (heygen-com/hyperframes) pinned to an audited version and adds a local Kokoro voiceover. Telemetry, tracking and cloud services stay off. Use when the user runs /jmr-generate-video or /generate-video, or asks for a promo video, launch video, explainer video or video ad, portrait or landscape. Not for editing existing footage.
-version: 3.1.0
+version: 3.3.0
 ---
 
 # /jmr-generate-video
@@ -61,7 +61,7 @@ The Hyperframes docs offer cloud services and ask agents to report back. These r
 - `"$HF" capture` always gets `--skip-vision` (its image captioning can call a hosted model). Never pass `--describe` to `"$HF" snapshot` (it uploads frames to Gemini). Never run `$HF_SKILLS/hyperframes/scripts/locate.mjs` (it uploads images to Gemini).
 - `bake-basemap.mjs` only when the user asked for a real map, because it fetches map tiles and libraries.
 - Do not install software the run does not already have, beyond what `setup` fetches and what `"$HF"` itself fetches to render (a browser, a whisper model). If a step wants a tool that is missing, use one that is present or ask.
-- Allowed network: the pinned install, reading the user's own URLs, registry blocks (`"$HF" add` and `catalog`), the text source of HeyGen's launch films (`"$SCRIPT" refs`, reading only), stock photos as raw material (`references/world-class.md` section 1), CC0 sound effects and music from Openverse (`references/sound-effects.md`, overrides section 6), the pinned tasteskill kit with its brand icons and Wikimedia Commons photographs (`jmr-design-taste`), plus the Python package and voice model downloads on first run.
+- Allowed network: the pinned install, reading the user's own URLs, registry blocks (`"$HF" add` and `catalog`), the text source of HeyGen's launch films (`"$SCRIPT" refs`, reading only), stock photos as raw material and 3D models from `gltf-assets` (`references/world-class.md` section 1), the pinned `rembg` package and its general cutout model on the first `"$SCRIPT" cutout`, CC0 sound effects and music from Openverse (`references/sound-effects.md`, overrides section 6), the pinned tasteskill kit with its brand icons and Wikimedia Commons photographs (`jmr-design-taste`), plus the Python package and voice model downloads on first run.
 - Nothing in the composition fetches during a render: no remote fonts, scripts or images.
 - Before any captured or project HTML enters the composition, strip analytics, ad, session-replay and chat scripts: Google Analytics / Tag Manager, Meta pixel, Hotjar, Microsoft Clarity, Segment, PostHog, Plausible, Umami, Mixpanel, TikTok and LinkedIn pixels, Intercom, Crisp and cookie-consent loaders. Keep fonts, images, CSS and the product's own scripts.
 - Never open `.env*` files, keys or credentials. Never put secrets or private people's details on screen.
@@ -81,7 +81,7 @@ Read these in order. Follow them with the overrides applied:
 2. [references/hyperframes-overrides.md](references/hyperframes-overrides.md).
 3. `$HF_SKILLS/hyperframes/SKILL.md`, which holds the render contract and the work loop.
 4. From `$HF_SKILLS/hyperframes/references/`: `types/launch.md` (or the type that fits the request, such as `types/explainer.md`, `types/data.md` or `types/3d.md`), `types/vertical.md` for a vertical film, `story.md`, `spec.md`, `film.md`, `motion.md`, `look.md`, `runtimes.md`, `sound.md`, `captions.md`, `format.md` and `review.md`.
-5. [references/no-slop-video.md](references/no-slop-video.md) before you write `SPEC.md`. Put its five direction lines at the top.
+5. [references/no-slop-video.md](references/no-slop-video.md) before you write `SPEC.md`. Put its five direction lines and its `## Devices` section at the top, then run `"$SCRIPT" series <out>` before you build.
 
 Search the registry (`$HF_SKILLS/hyperframes-registry/SKILL.md`) before hand-building a named effect, caption style or chart.
 
@@ -90,25 +90,30 @@ Then read the "Inside /jmr-generate-video" section of `<skill-dir>/../jmr-design
 ## Step 4: Verify, then deliver
 
 ```bash
-"$SCRIPT" probe <out>/video.mp4
+"$SCRIPT" deliver <out>   # keeps the render as master.mp4, encodes video.mp4 for upload and probes it
 ```
 
-Done only when all of these are true:
+Run it after every render, then the checks below on the new `video.mp4`. Done only when all of these are true:
 
 - [ ] Width and height match the requested format. There is an audio stream unless the user asked for silence.
 - [ ] `"$HF" check <out>/composition --json` has zero errors. Each warning is fixed or kept on purpose with a reason in `REVIEW.md`.
 - [ ] `"$SCRIPT" look <out>/video.mp4` passes. Rebuild on a failure. Only a tone that truly needs stillness, such as `deadpan`, may keep one, with the reason in `REVIEW.md`.
-- [ ] The film meets every item in `references/world-class.md` section 4 and no shot matches section 2. `REVIEW.md` names the reference film, the two showpieces and the three style frames.
+- [ ] You and the fresh reviewer went through every sheet `look` wrote in `<out>/qa/look/` (`world-class.md` section 6, step 5): no broken transition frame, no two neighbouring shots with one layout, no car floating or tilted off its road. `REVIEW.md` never says the film was "only measured" or "not judged by eye": the sheets are how it is judged.
+- [ ] `"$SCRIPT" series <out>` passes: no device in `## Devices` repeats the client's last films.
+- [ ] The film meets every item in `references/world-class.md` section 5, every frame meets section 2 and no shot matches section 3. `REVIEW.md` names the reference film, the two showpieces and the three style frames.
 - [ ] You did the review in Hyperframes' `review.md`, looked at its sheets and wrote `REVIEW.md`: no clipped text, no muddy cross-fade, nothing off-brand, no sign from `references/no-slop-video.md`. When the host can start a helper, a fresh one reviewed the sheets too and its P0 notes are fixed. If a beat would not make a stranger stop scrolling, rebuild it.
-- [ ] `"$SCRIPT" slop <out>/composition` passes, or each hit has a one-line reason. The direction is at the top of `SPEC.md` and the film passes the swap test.
-- [ ] `"$SCRIPT" words <out>` exits 0 and you did the read-through in overrides section 8. No exceptions for tone. `<out>/plain-language-allow.txt` holds only wording the client wrote or the user asked for. You told the user what is in it.
+- [ ] No real object (vehicle, person, animal, building, device, tool, plant, weather) is drawn by hand in SVG or canvas. Each is a lit 3D model or a `"$SCRIPT" cutout` of a real photo, named in `CREDITS.md`. A "real object drawn by hand" hit from `slop` has no exceptions.
+- [ ] `"$SCRIPT" slop <out>/composition` passes, or each hit has a one-line reason. Every layout waiver it lists is named in `REVIEW.md` with its reason. The direction is at the top of `SPEC.md` and the film passes the swap test.
+- [ ] `"$SCRIPT" words <out>` exits 0 with its caption check and you did the read-through in overrides section 8. No exceptions for tone. `<out>/plain-language-allow.txt` holds only wording the client wrote or the user asked for. You told the user what is in it.
 - [ ] `<skill-dir>/../jmr-design-taste/scripts/taste.sh run copy-lint` on `<out>/voiceover.txt` and `<out>/share-copy.txt` (those that exist) has no FAIL.
 - [ ] `grep -riE "gtag|googletagmanager|fbq|facebook\.net|hotjar|clarity\.ms|segment|posthog|plausible|umami|mixpanel|tiktok.*pixel|linkedin.*insight|intercom|crisp\.chat" <out>/composition --include='*.html' --include='*.css' --include='*.js'` prints nothing, apart from words in the product's own copy.
 - [ ] Sound effects are planned under `## Sound` in `SPEC.md` and land on their cues: `"$HF" audio <out>/video.mp4 --json` shows onsets at those times (`references/sound-effects.md`, "Check"). Every effect has a cause on screen and none covers a word the viewer must catch.
 - [ ] Every claim on screen or in the voiceover comes from the project, the site or `context.md`. No invented user counts, reviews, ratings, prices, press or dates.
 - [ ] With voice on: transcribe the final mix locally and confirm every scripted word is heard over any music (`ffmpeg -i <out>/video.mp4 -vn -ac 1 -ar 16000 <out>/qa/mix.wav`, then `"$HF" transcribe <out>/qa/mix.wav -d <out>/qa --json`).
 
-Then tell the user, in a few lines: the video path, its length and format, the poster path, the share copy path, its voice, the one-sentence creative angle, the reference film, the weakest shot, the two storylines not built, what `REVIEW.md` says was only measured and how to change it ("say: try storyline B, re-roll the hook, try the chaotic tone, make it landscape, male voice, no voice, shorter, more sound effects, no sound effects"). Say which music track it used, with its licence and the credit line to paste, or that it has none.
+- [ ] `"$SCRIPT" deliver <out>` ran after the final render and its probe passed: `video.mp4` is the upload encode (about 5-10 Mbps) and `master.mp4` keeps the render. Copy `video.mp4` wherever the film is delivered.
+
+Then tell the user, in a few lines: the video path, its length and format, the poster path, the share copy path, its voice, the one-sentence creative angle, the reference film, the weakest shot, the two storylines not built, what the review sheets showed and how to change it ("say: try storyline B, re-roll the hook, try the chaotic tone, make it landscape, male voice, no voice, shorter, more sound effects, no sound effects"). Say which music track it used, with its licence and the credit line to paste, or that it has none.
 
 ## Re-runs
 

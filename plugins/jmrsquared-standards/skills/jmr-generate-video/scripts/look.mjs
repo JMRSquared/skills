@@ -2,8 +2,11 @@
 // Measures a rendered film for what a viewer sees and `hyperframes check` cannot:
 // pictures that sit still, too few different pictures and an empty lower frame.
 // It reads no taste. A pass means the film is not obviously static, and nothing more.
+// It also writes the sheets a reviewer judges motion from: every cut at 10 fps and one
+// frame per shot. Reviews of steady stills missed broken transitions and repeated layouts.
 import { spawnSync } from 'node:child_process';
-import { realpathSync } from 'node:fs';
+import { mkdirSync, realpathSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const FPS = 5;
@@ -18,6 +21,9 @@ const NEW_PICTURE = 0.7;
 // the two rejected reels this check was written to catch, at 4.5-4.9 s and 13-25% still.
 export const LIMITS = { longestStillSeconds: 4, stillShare: 0.08, secondsPerNewPicture: 3, emptyLowerShare: 0.25 };
 const EMPTY_LOWER = { fromHeight: 0.7, maxLuma: 45, maxSpread: 9 };
+// Neighbouring frames this different are a cut or the middle of a transition.
+const CUT = 0.5;
+export const SHEET = { cutFps: 10, framesEachSide: 4, cutsPerSheet: 6, minGapSeconds: 1, shotColumns: 6, tileWidth: 216 };
 
 const normalise = (frame) => {
   let sum = 0;
@@ -77,6 +83,38 @@ const countPictures = (normalised) => {
   return kept.length;
 };
 
+// Cuts in seconds. A transition spans several changed frames, so changes closer than
+// SHEET.minGapSeconds count as one cut, timed at the first.
+export const findCuts = (normalised) => {
+  const cuts = [];
+  for (let i = 1; i < normalised.length; i += 1) {
+    if (similarity(normalised[i - 1], normalised[i]) >= CUT) continue;
+    const at = i / FPS;
+    if (!cuts.length || at - cuts[cuts.length - 1] >= SHEET.minGapSeconds) cuts.push(at);
+  }
+  return cuts;
+};
+
+// The middle of each shot between cuts, in seconds, so the shot sheet shows every layout in order.
+export const shotMiddles = (cuts, seconds) => {
+  const edges = [0, ...cuts, seconds];
+  const middles = [];
+  for (let i = 1; i < edges.length; i += 1) {
+    if (edges[i] - edges[i - 1] > 0) middles.push((edges[i - 1] + edges[i]) / 2);
+  }
+  return middles;
+};
+
+// Frame numbers at SHEET.cutFps around each cut, one row of the same length per cut.
+export const cutFrames = (cuts, seconds) => {
+  const last = Math.floor(seconds * SHEET.cutFps) - 1;
+  const span = SHEET.framesEachSide * 2 + 1;
+  return cuts.map((at) => {
+    const first = Math.min(Math.max(Math.round(at * SHEET.cutFps) - SHEET.framesEachSide, 0), Math.max(last - span + 1, 0));
+    return Array.from({ length: span }, (_, i) => Math.min(first + i, last));
+  });
+};
+
 export const analyse = (frames, width, height) => {
   const seconds = frames.length / FPS;
   const normalised = frames.map(normalise);
@@ -84,6 +122,7 @@ export const analyse = (frames, width, height) => {
   return {
     seconds,
     pictures,
+    cuts: findCuts(normalised),
     secondsPerNewPicture: seconds / Math.max(pictures, 1),
     emptyLowerShare: height > width ? frames.filter((frame) => isLowerEmpty(frame, width, height)).length / frames.length : 0,
     ...measureStillness(normalised),
@@ -120,6 +159,36 @@ const readFrames = (file) => {
   return { frames, width: ANALYSIS_WIDTH, height };
 };
 
+// ffmpeg's select keeps each frame once, so tiles stay in order only when no number repeats.
+const writeSheet = (file, fps, numbers, columns, out) => {
+  const select = numbers.map((n) => `eq(n\\,${n})`).join('+');
+  const rows = Math.ceil(numbers.length / columns);
+  const run = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', file, '-vf',
+    `fps=${fps},select='${select}',scale=${SHEET.tileWidth}:-2,tile=${columns}x${rows}:padding=4:color=white`,
+    '-frames:v', '1', out]);
+  if (run.status !== 0) throw new Error(`ffmpeg could not write ${out}: ${String(run.stderr).trim()}`);
+};
+
+export const writeSheets = (file, result, dir) => {
+  mkdirSync(dir, { recursive: true });
+  const written = [];
+  const rows = cutFrames(result.cuts, result.seconds);
+  for (let i = 0; i < rows.length; i += SHEET.cutsPerSheet) {
+    const out = join(dir, `cuts-${String(i / SHEET.cutsPerSheet + 1).padStart(2, '0')}.jpg`);
+    const numbers = rows.slice(i, i + SHEET.cutsPerSheet).flat();
+    if (new Set(numbers).size !== numbers.length) continue;
+    writeSheet(file, SHEET.cutFps, numbers, SHEET.framesEachSide * 2 + 1, out);
+    written.push(out);
+  }
+  const shots = shotMiddles(result.cuts, result.seconds).map((at) => Math.min(Math.round(at * FPS), Math.round(result.seconds * FPS) - 1));
+  if (new Set(shots).size === shots.length) {
+    const out = join(dir, 'shots.jpg');
+    writeSheet(file, FPS, shots, SHEET.shotColumns, out);
+    written.push(out);
+  }
+  return written;
+};
+
 const main = () => {
   const file = process.argv[2];
   if (!file) {
@@ -129,6 +198,8 @@ const main = () => {
   const { frames, width, height } = readFrames(file);
   const result = analyse(frames, width, height);
   console.log(`look: ${result.seconds.toFixed(1)} s, ${result.pictures} different pictures (one every ${result.secondsPerNewPicture.toFixed(1)} s), longest still ${result.longestStillSeconds.toFixed(1)} s, still ${Math.round(result.stillShare * 100)}% of the film, lower frame empty ${Math.round(result.emptyLowerShare * 100)}%`);
+  const sheets = writeSheets(file, result, join(dirname(file), 'qa', 'look'));
+  console.log(`look: ${result.cuts.length} cuts. Review every sheet by eye: ${sheets.join(', ')}`);
   const found = problems(result);
   for (const problem of found) console.log(`LOOK: ${problem}`);
   if (found.length) process.exit(1);

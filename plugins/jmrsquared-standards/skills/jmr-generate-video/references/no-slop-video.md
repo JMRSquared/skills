@@ -11,10 +11,12 @@ Before the shots, put five lines at the top of `SPEC.md`. Derive them from the p
 - **Product.** What it does and for whom, in one plain sentence.
 - **Character.** Two or three concrete words of your own about how the product looks and behaves. Clean, modern, sleek, minimal and premium are not allowed, because they describe every template. Character sets the picture. It does not change how sentences are written (`hyperframes-overrides.md` section 8).
 - **World.** The place or material the product belongs to. It sets the ground, the accent and the visuals.
-- **Showpieces.** The moments that get the most building, taken from the story (`world-class.md` section 4). The rest of the film is still detailed and moving.
+- **Showpieces.** The moments that get the most building, taken from the story (`world-class.md` section 5). The rest of the film is still detailed and moving.
 - **Signature.** One small detail only this product would have, used consistently.
 
 A real brand's logo, colours and fonts stay, unless they are slop themselves. Do not reuse the look of the last video this skill made. A near-black ground with one orange accent is a template, not a direction.
+
+**Devices.** Under the direction, add a `## Devices` section to `SPEC.md` with one line each for `opening`, `captions`, `end card`, `call to action` and `transitions`, such as `- end card: the two trucks swap sides on a split ground`. Then run `"$SCRIPT" series <out>`. It compares them with the last five films for the same client (films whose output folders share a parent folder) and fails when one repeats. A series of reels each ending on the same fake comment box is a template, even when every reel passes on its own. Something the client fixed, such as the opener their presenter always says, is written `fixed: ...` and is not compared.
 
 ## 2. Effects: the test is whether they belong
 
@@ -70,7 +72,8 @@ The `jmr-unslop` story video went viral on these. They apply to any film:
 
 - Show something true: the real product, a working model of the idea, or a concrete subject from the world.
 - Write a generated scene as one plain sentence first. If it takes two, it is not clear yet. `jmr-unslop`'s `references/visuals.md` has styles that work.
-- An object must read as what it is without a label: a brake disc has vents and a caliper. A pump has a nozzle and a hose.
+- A real object comes from a real source: a lit 3D model or a photo cut out with `"$SCRIPT" cutout`. Never hand-draw it in SVG or canvas, because an agent's drawing of a car or a sun reads as a child's (`world-class.md` section 2).
+- Clip-art doodles are slop: a sun with rays, a pencil, a magnifier, a lightbulb, a heart, a thumbs up, a trophy or a rocket standing in for an idea. Set the word or show the real thing.
 - No text, fake buttons or fake logos baked into an image. Type is set in the composition.
 - The logo is the product's name plus a flat mark if it has one. Never redraw a real logo.
 
@@ -90,6 +93,6 @@ This covers on-screen text and the voiceover script. `jmr-plain-language` govern
 "$SCRIPT" slop <out>/composition
 ```
 
-It scans the composition for signs a search can catch, including a film made mostly of photos. Exit 1 means fix each hit, or say in one line why the brand or tone calls for it. It cannot judge taste, so then open stills from every scene and go through sections 2 and 3 by eye.
+It scans the composition for signs a search can catch, including monospace labels and every layout waiver that hides a collision from `"$HF" check`. Exit 1 means fix each hit, or say in one line why the brand or tone calls for it. It cannot judge taste, so then open stills from every scene and go through sections 2 and 3 by eye.
 
 Finish with the **swap test:** put another product's name on the shot list. If the film still fits, push the direction harder in the visuals and the words.
