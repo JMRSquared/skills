@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { analyse, FPS, problems } from './look.mjs';
+import { analyse, cutFrames, findCuts, FPS, problems, SHEET, shotMiddles } from './look.mjs';
 
 const WIDTH = 36;
 const HEIGHT = 64;
@@ -77,4 +77,34 @@ test('a dark film of sparse changing shapes still counts as different pictures',
   };
   const result = analyse(film(20, sparse), HEIGHT, WIDTH);
   assert.ok(result.secondsPerNewPicture <= 1.5, `got ${result.secondsPerNewPicture}`);
+});
+
+test('cuts are found where the picture changes, once per transition', () => {
+  const result = analyse(film(9, (i) => noiseFrame(1 + Math.floor(i / (3 * FPS)))), WIDTH, HEIGHT);
+  assert.deepEqual(result.cuts, [3, 6]);
+});
+
+test('changes closer than the minimum gap count as one cut', () => {
+  const frames = film(4, (i) => noiseFrame(i >= FPS * 2 ? 50 + i : 1));
+  const result = analyse(frames, WIDTH, HEIGHT);
+  assert.deepEqual(result.cuts.filter((at) => at < 3), [2]);
+});
+
+test('a still film has no cuts', () => {
+  const picture = noiseFrame(3);
+  assert.deepEqual(findCuts(film(5, () => picture).map(() => Float32Array.from({ length: 4 }, (_, i) => i - 1.5))), []);
+});
+
+test('the shot sheet takes the middle of every shot', () => {
+  assert.deepEqual(shotMiddles([2, 5], 10), [1, 3.5, 7.5]);
+  assert.deepEqual(shotMiddles([], 8), [4]);
+});
+
+test('each cut gets a full row of frames, kept inside the film', () => {
+  const span = SHEET.framesEachSide * 2 + 1;
+  const rows = cutFrames([0.1, 5, 9.95], 10);
+  assert.ok(rows.every((row) => row.length === span));
+  assert.equal(rows[0][0], 0);
+  assert.equal(rows[1][SHEET.framesEachSide], 5 * SHEET.cutFps);
+  assert.equal(rows[2][span - 1], 10 * SHEET.cutFps - 1);
 });

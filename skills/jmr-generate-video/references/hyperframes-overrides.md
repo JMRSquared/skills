@@ -58,7 +58,7 @@ Tone sets energy and pacing. It never changes the words rules in section 8. A pr
 
 Skip this section when the user said "no voice". The length from `story.md` then stands.
 
-**Length.** There is no fixed limit. Most films land at 30-60 s: tell the features, flows or proofs a viewer would care about, and cut the rest. The user's length wins when they give one. This replaces the 20-45 s in `types/launch.md`. Length comes from more beats, each putting something new on screen (`world-class.md` section 3). Never stretch a beat to fit a sentence: say less in a whole sentence, or split the beat. Never clip a sentence into a fragment to fit. If the project only has material for 30 s, make a tight 30 s rather than padding it.
+**Length.** There is no fixed limit. Most films land at 30-60 s: tell the features, flows or proofs a viewer would care about and cut the rest. The user's length wins when they give one. This replaces the 20-45 s in `types/launch.md`. Length comes from more beats, each putting something new on screen (`world-class.md` section 4). Never stretch a beat to fit a sentence: say less in a whole sentence, or split the beat. Never clip a sentence into a fragment to fit. If the project only has material for 30 s, make a tight 30 s rather than padding it.
 
 **Script.** Write it in `<out>/voiceover.txt`, one line per beat, while planning, so the shots and the voice are made together. Pass it through section 8 before you generate any clip.
 
@@ -89,7 +89,11 @@ Measure each with `ffprobe -v error -show_entries format=duration -of csv=p=0 <c
 
 **Mix.** Each clip is its own `<audio>` with an `id`, at its beat's start. Music ducks to about 0.14 volume while the voice speaks and comes back up between lines and under the end card. Effects stay, a little lower. The voice is the loudest thing in the mix.
 
-**Captions** (on for vertical and square, off for landscape unless asked): follow Hyperframes' `captions.md` and `world-class.md` section 6, built from the script and the clip timings, in the brand's text face. Captions show what is said, so never shorten a sentence to fit one. Split it across more caption groups, with no trailing full stop on any group, or the words gate reads each one as a fragment.
+**Captions** (on for vertical and square, off for landscape unless asked): follow Hyperframes' `captions.md` and `world-class.md` section 7, built from the script and the clip timings, in the brand's text face. Captions show what is said, so never shorten a sentence to fit one. Split it across more caption groups, with no trailing full stop on any group, or the words gate reads each one as a fragment.
+
+- **Break at whole phrases.** A group never ends on a word that needs the next one ("carried the" / "whole family", "it was a" / "Citi Golf") and never splits a number ("Nissan fourteen" / "hundred"). Mark each group's element with `data-caption-group`. `"$SCRIPT" words <out>` runs `"$SCRIPT" captions <out>`, which checks the groups against the script's punctuation.
+- **No caption under a title that says the same thing.** While a line is on screen as big type, hide the caption for those words.
+- **Contrast without a pill on every group.** Choose the treatment by what is behind the text, as `captions.md` says. Where a backing is needed, use one soft scrim sized to the text. A boxed pill behind every group for the whole film reads as a template.
 
 **Vertical framing.** Follow the safe band in Hyperframes' `types/vertical.md`. Rebuild product UI to fill the width at phone-readable size (text at least 28 px). Never shrink a landscape layout into the middle of a tall frame.
 
@@ -155,7 +159,7 @@ Applies when SKILL.md step 0 chose concept mode. `types/launch.md` says never to
 - **Kinetic typography** for the hook and the one-sentence idea.
 - **Concept UI** built in HTML and CSS when the idea is an app or a site: one screen per step of how it works, on-brand, with believable placeholder data that names nobody real. Animate it in use: taps, typing, results appearing.
 - **Diagrams and flows**: the steps as icons joined by an animated path, or a before and after split.
-- **Illustrated and modelled scenes** for physical products, services and events: detailed SVG or canvas drawing, 3D, or a working cross-section.
+- **Real objects made real** for physical products, services and events: a lit 3D model or a photo cut out with `"$SCRIPT" cutout`, set on a lit ground and made to act (`world-class.md` sections 1 and 2). Never hand-draw the object in SVG or canvas.
 - **Stock photography** only as raw material inside a built scene (`world-class.md` section 1). Use the `jmr-image` skill when it is installed with an Unsplash or Pexels key, save into `<out>/context/images/` and credit the photographers in `share-copy.txt`. Never use photos of real, identifiable brands or of people presented as customers.
 
 **Words.** Present tense, as if the product exists. Prelaunch framing ("coming soon", "join the waitlist", "imagine") only when the user asks for it. Banned in both framings unless the user supplied them: user counts, ratings, reviews, testimonials, "trusted by", press logos, prices, launch dates, store links, "download now" or a URL that does not exist. With no link given, the outro is an invitation that needs none.
