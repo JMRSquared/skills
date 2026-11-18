@@ -65,6 +65,7 @@ Two tiers.
 | `jmr-generate-video` | Asking for a promo, launch or explainer video |
 | `jmr-survey-form` | Asking for a customer discovery survey, pilot sign-up form or Google Form about your product |
 | `jmr-file-share` | Asking to put a file "on the NAS", "on tank" or "on the share", or to open something from another device. Copies it into your mounted shared storage (default `/mnt/tank/media/herdr`, set with `JMR_SHARE_ROOT`), keeping its place in the project. Leaves out `.git`, `node_modules`, build output, `.env` files and keys. Asks before copying more than 5 GB. Never moves or deletes. Machine-specific rules go in `~/.config/jmr-file-share/notes.md`, outside the repo |
+| `jmr-3d-print` | Asking to print something, design a printable part, download a model from Printables, estimate print time or check, pause or cancel the 3D printer. Builds one part or object per colour, slices it on this machine with OrcaSlicer and the printer's official quality presets, then checks the time, plastic, colour swaps and fit on the bed. It suggests the cheaper print order when colours are on separate objects. It uploads the file and follows the job over your network through the printer's Moonraker API. You start each print on the printer's touchscreen, so a person always checks the bed first. Ships tested settings for the Creality SPARKX i7 with its 4-colour filament box. The printer's address goes in `~/.config/jmr-3d-print/printer.json`, outside the repo. Needs Node 22 and OrcaSlicer |
 
 **Companion:**
 
