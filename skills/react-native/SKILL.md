@@ -49,65 +49,9 @@ export default function Route() {
 }
 ```
 
-## Domain-driven folder layout
+## Domain folders
 
-Group code by product concept, not by file type. Every domain folder is a self-contained slice.
-
-```
-src/
-  app/                                # Expo Router — thin route files only
-    book/[id]/view.tsx                # imports BookView from domain/book
-    payments/purchase-plan.tsx        # imports UpgradePlan from domain/shared/payments
-  components/                         # truly app-wide UI primitives (Button, Input, Loader)
-    Button.tsx
-    index.ts
-  domain/                             # singular — one folder, many domains
-    auth/
-      components/   Login.tsx
-      context/      UserContext.tsx
-      hooks/        useLogin.ts + index.ts barrel
-      providers/    apple.ts, google.ts, index.ts
-      user.schema.ts
-      index.ts
-    book/
-      components/   BookView.tsx, BookRead.tsx, CreateBookForm.tsx
-      hooks/        useBook.ts, useBooks.ts, useCreateBook.ts
-      book.schema.ts
-      category.schema.ts
-      index.ts
-    shared/                           # cross-domain meta-namespace
-      components/   TopNav.tsx, TermsOfUse.tsx + index.ts
-      form/         components/, components/ui/, index.ts
-      pdf/          components/, index.ts
-      cache/        components/, hooks/, index.ts
-      payments/     components/, context/, hooks/, subscription.schema.ts
-      firebase/     firebase.ts, firebase.schema.ts, index.ts
-      permissions/  permissions.ts, utils.ts
-      utils.ts
-      storage.ts
-  assets/                             # icons, images, fonts (barrelled)
-    icons/        AccountIcon.tsx, BookIcon.tsx, ..., index.ts
-    images/       index.ts
-    fonts/
-```
-
-Rules:
-
-- **`domain/` is singular.** One folder, many domains.
-- **A domain owns one product concept** (`auth`, `book`, `league`). Cross-domain or framework-glue code (forms, PDF, payments, firebase, cache, permissions, ads) lives under `domain/shared/<area>/`, structured as its own mini-domain.
-- **Buckets inside a domain**, used as needed: `components/`, `hooks/`, `context/`. A domain doesn't need all three, but anything that fits one of these categories MUST sit in the matching bucket.
-- **No `screens/` bucket.** Screens are the Expo Router files under `src/app/` (see above).
-- **Domain root** also holds `<concept>.schema.ts` (Zod schemas — never folder-nested), `utils.ts`, an `index.ts` barrel, and optional named purpose folders (e.g. `providers/` for third-party SDK glue like Apple / Google sign-in).
-- **`src/components/`** is reserved for truly app-wide primitives — `Button`, `Input`, `Loader`, `Shimmer`. A component belongs here only if it has zero business logic AND is used by ≥2 unrelated domains.
-- **`src/assets/`** holds icons (as `.tsx` components), images, and fonts. Each subfolder has an `index.ts` barrel so consumers import `from '~/assets/icons'` rather than deep paths.
-- **Domain folder names are kebab-case** (`author-application`, `book`), enforced by `naming-imports-exports`.
-
-## Barrels and imports
-
-- Every domain root and every bucket folder has an `index.ts` re-exporting its public surface.
-- Consumers always import via the domain root: `import { BookView, useBook } from '~/domain/book'`. Never deep-link into `'~/domain/book/components/BookView'`.
-- Cross-domain shared utilities import the same way: `import { Form } from '~/domain/shared/form'`.
-- App-wide primitives import from `'~/components'`; icons from `'~/assets/icons'`.
+Folder layout follows `code-quality`. In a React Native domain, a component sits in `components/`, a hook in `hooks/` and context in `context/`. There is no `screens/` folder. Icons, images and fonts live in `src/assets/`, and each of those folders has an `index.ts` so callers import from `~/assets/icons`.
 
 ## Lists
 
@@ -155,10 +99,7 @@ Rules:
 
 ## File size
 
-- If a `.tsx`/`.ts` file in `domain/**` or `src/components/**` grows past ~80 lines, split it.
-- Extract sub-components into the domain's `components/`, hooks into `hooks/`, context / providers into `context/` (or `providers/` for SDK wrappers), Zod schemas into `<concept>.schema.ts` at the domain root.
-- Name the extracted file after the concern it owns: `BookHeader.tsx`, `useBookReader.ts`, `BookContext.tsx`, `book.schema.ts`.
-- Same shape of rule as the per-hook ~50-line guideline above — judgement applies, but past ~80 lines the right move is almost always extraction.
+Split a domain file past about 80 lines, as `code-quality` says. Put the extracted component in `components/`, the hook in `hooks/` and the context in `context/`.
 
 ## What "done" looks like
 

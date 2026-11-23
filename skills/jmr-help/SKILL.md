@@ -30,7 +30,7 @@ version: 1.0.0
 - `react-native-skia` — Canvas hierarchy, Reanimated-driven shared values, memoized paths / shaders.
 - `sst-infra` — stage-based, single region, SST secrets.
 - `naming-imports-exports` — camel/Pascal/kebab/snake, named exports, `~` alias.
-- `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries.
+- `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries, domain folders on any project.
 - `npm-local-publish` — Dia + TTY local npm publish when CI OIDC / Trusted Publishing fails; `/npm-local-publish`.
 - `pngimg-assets` — pngimg.com transparent PNG search/download with CC BY-NC gate; `/pngimg-assets`.
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
