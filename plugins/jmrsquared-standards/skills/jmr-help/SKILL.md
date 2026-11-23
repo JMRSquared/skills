@@ -30,7 +30,7 @@ version: 1.0.0
 - `react-native-skia` — Canvas hierarchy, Reanimated-driven shared values, memoized paths / shaders.
 - `sst-infra` — stage-based, single region, SST secrets.
 - `naming-imports-exports` — camel/Pascal/kebab/snake, named exports, `~` alias.
-- `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries.
+- `code-quality` — DRY, SRP, early returns, no `any`, Zod at boundaries, domain folders on any project.
 - `npm-local-publish` — Dia + TTY local npm publish when CI OIDC / Trusted Publishing fails; `/npm-local-publish`.
 - `pngimg-assets` — pngimg.com transparent PNG search/download with CC BY-NC gate; `/pngimg-assets`.
 - `gltf-assets` — Sketchfab + Poly Haven glTF/GLB + HDRI search/download for R3F; `/gltf-assets`.
@@ -41,6 +41,7 @@ version: 1.0.0
 - `jmr-generate-video`: narrated portrait launch video from code, a URL, images, a PDF or a brief, directed and rendered locally by a pinned, audited Hyperframes; `/jmr-generate-video`.
 - `jmr-survey-form`: customer discovery survey as a Google Form, built in your own Google account; `/jmr-survey-form`.
 - `jmr-file-share`: copy files into mounted shared storage (`JMR_SHARE_ROOT`, default `/mnt/tank/media/herdr`) so other devices can open them; on demand only.
+- `jmr-3d-print`: find, design and slice a model with OrcaSlicer, upload it to a Klipper printer and watch the job (status, slots, history, pause, cancel); the user starts prints on the touchscreen; SPARKX i7 profile included.
 
 **Companion:**
 

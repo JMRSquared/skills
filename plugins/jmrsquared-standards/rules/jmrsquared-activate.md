@@ -90,5 +90,6 @@ The following task-scoped skills activate when the relevant files are edited. Th
 - `react-native`, `nativewind`, `react-native-skia` — mobile (Expo + Skia).
 - `sst-infra` — infrastructure.
 - `naming-imports-exports`, `code-quality` — everything.
+- `jmr-3d-print`: find, design, slice and print on the user's 3D printer over the LAN. Show the slice summary and ask the user to check the bed before any print. The user starts prints on the touchscreen; never install printer firmware or edit its config unasked.
 
 Run `/jmr-help` for the full catalogue.
